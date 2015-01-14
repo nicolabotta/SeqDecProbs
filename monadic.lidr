@@ -11,6 +11,10 @@ Hiding stuff:
 > %hide fmap
 > %hide Dec
 
+Checking if we use composition (if so it needs to be explained).
+
+> %hide (.)
+
 
 Require totality:
  
