@@ -26,7 +26,7 @@ Syntax extensions:
 >   syntax transitive [alpha] [r] = 
 >     {a1 : alpha} -> {a2 : alpha} -> {a3 : alpha} ->
 >     So (r a1 a2) -> So (r a2 a3) -> So (r a1 a3)
->   syntax monotone [alpha] [op2] [r] = 
+>   syntax monotone [alpha] [r] [op2] = 
 >     {a1 : alpha} -> {a2 : alpha} ->
 >     (a3 : alpha) -> So (r a1 a2) -> So (r (op2 a3 a1) (op2 a3 a2))
 
@@ -36,17 +36,17 @@ Postulates:
 
 > namespace FloatLib 
 
->   postulate reflexiveFloatLTE      :  reflexive Float (<=)
->   postulate transitiveFloatLTE     :  transitive Float (<=)
->   postulate monotoneFloatPlusLTE  :  monotone Float (+) (<=)
+>   postulate reflexiveFloatLTE     :  reflexive   Float  (<=)
+>   postulate transitiveFloatLTE    :  transitive  Float  (<=)
+>   postulate monotoneFloatPlusLTE  :  monotone    Float  (<=) (+) 
 
 > -- end namespace FloatLib 
 
 
 > namespace NatLib 
 
->   postulate eqInLTE : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
->   postulate idSuccPreservesLTE : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
+>   postulate eqInLTE             : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
+>   postulate idSuccPreservesLTE  : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
 
 > -- end namespace NatLib 
 
@@ -109,16 +109,18 @@ A SDP is specified in terms of a monad ...
 > -- end namespace ContainerMonadLib 
 
 The standard examples are |M = Id| (deterministic SDP), |M = List|
-(non-deterministic SDP) and |M = Prob| (stochastic SDP). The decision
-problem itself is specified by giving the decision process ...
+(non-deterministic SDP) and |M = Prob| (stochastic SDP). 
 
-> X : (t : Nat) -> Type
+The decision problem itself is specified by giving the decision
+process ...
 
-> Y : (t : Nat) -> (x : X t) -> Type
+> X       : (t : Nat) -> Type
 
-> step : (t : Nat) -> (x : X t) -> (y : Y t x) -> M (X (S t))
+> Y       : (t : Nat) -> (x : X t) -> Type
 
-> reward : (t : Nat) -> (x : X t) -> (y : Y t x) -> (x' : X (S t)) -> Float
+> step    : (t : Nat) -> (x : X t) -> (y : Y t x) -> M (X (S t))
+
+> reward  : (t : Nat) -> (x : X t) -> (y : Y t x) -> (x' : X (S t)) -> Float
 
 ... and a measure:
 
@@ -220,6 +222,7 @@ For every SDP, we can build the following notions:
 
 >   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Float
 >   val {t} {n = Z} x r v ps = 0
+>   -- Paper version (to be updated):
 >   --   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
 >   --     yprf : (y : Y t x ** All (step t x y) (Viable m))
 >   --     yprf = p x r v
@@ -316,12 +319,10 @@ The idea is that, if clients can implement max and argmax
 > max         :  (f : alpha -> Float) -> Float
 > argmax      :  (f : alpha -> Float) -> alpha
 
-
 that fulfill the specification
 
 > maxSpec     :  (f : alpha -> Float) -> (a : alpha) -> So (f a <= max f)
 > argmaxSpec  :  (f : alpha -> Float) -> max f = f (argmax f)
-
 
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
@@ -380,6 +381,7 @@ extensions for arbitrary policy sequences:
 >   s1    =  maxSpec g yav'
 >   s2    :  So (g yav' <= g (argmax g))
 >   s2    =  replace {P = \ z => So (g yav' <= z)} (argmaxSpec g) s1
+>   -- the rest of the steps are for the human reader
 >   s3    :  So (g yav' <= g yav)
 >   s3    =  s2
 >   s4    :  So (mkg x r v ps yav' <=  mkg x r v ps yav)
