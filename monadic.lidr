@@ -222,24 +222,6 @@ For every SDP, we can build the following notions:
 
 >   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Float
 >   val {t} {n = Z} x r v ps = 0
->   -- Paper version (to be updated):
->   --   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
->   --     yprf : (y : Y t x ** All (step t x y) (Viable m))
->   --     yprf = p x r v
->   --     y : Y t x
->   --     y = outl yprf
->   --     mx' : M (X (S t))
->   --     mx' = step t x y
->   --     prf : All mx' (Viable m)
->   --     prf = outr yprf
->   --     f : (x' : X (S t) ** x' `Elem` mx') -> Float
->   --     f (x' ** x'emx') = reward t x y x' + val x' r' v' ps where
->   --       xpx' : x `Pred` x'
->   --       xpx' = Evidence y x'emx'
->   --       r' : Reachable x'
->   --       r' = Evidence x (r , xpx')
->   --       v' : Viable m x'
->   --       v' = prf x' x'emx'
 >   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
 >     y    :  Y t x
 >     y    =  outl (p x r v)
@@ -291,14 +273,14 @@ For every SDP, we can build the following notions:
 >     mx' = step t x y'
 >     av' : All (Viable m) mx'
 >     av' = outr (p' x r v)    
->     f : (x' : X (S t) ** x' `Elem` mx') -> Float
->     f = mkf x r v y' av' ps'
->     g : (x' : X (S t) ** x' `Elem` mx') -> Float
->     g = mkf x r v y' av' ps
+>     f' : (x' : X (S t) ** x' `Elem` mx') -> Float
+>     f' = mkf x r v y' av' ps'
+>     f  : (x' : X (S t) ** x' `Elem` mx') -> Float
+>     f  = mkf x r v y' av' ps
 >     s1 : (x' : X (S t)) -> (r' : Reachable x') -> (v' : Viable m x') ->
 >          So (val x' r' v' ps' <= val x' r' v' ps)
 >     s1 x' r' v' = ops ps' x' r' v'
->     s2 : (z : (x' : X (S t) ** x' `Elem` mx')) -> So (f z <= g z)
+>     s2 : (z : (x' : X (S t) ** x' `Elem` mx')) -> So (f' z <= f z)
 >     s2 (x' ** x'emx') = monotoneFloatPlusLTE (reward t x y' x') (s1 x' r' v') where
 >       xpx' : x `Pred` x'
 >       xpx' = Evidence y' x'emx'
@@ -306,8 +288,8 @@ For every SDP, we can build the following notions:
 >       r' = Evidence x (r , xpx')
 >       v' : Viable m x'
 >       v' = av' x' x'emx'
->     s3 : So (meas (fmap f (tagElem mx')) <= meas (fmap g (tagElem mx')))
->     s3 = measMon f g s2 (tagElem mx')
+>     s3 : So (meas (fmap f' (tagElem mx')) <= meas (fmap f (tagElem mx')))
+>     s3 = measMon f' f s2 (tagElem mx')
 >     s4 : So (val x r v (p' :: ps') <= val x r v (p' :: ps))
 >     s4 = s3
 >     s5 : So (val x r v (p' :: ps) <= val x r v (p :: ps))
@@ -346,14 +328,8 @@ extensions for arbitrary policy sequences:
 >     g : (y : Y t x ** All (Viable n) (step t x y)) -> Float
 >     g = mkg x r v ps
 >     -- g (y ** av) = meas (fmap f (tagElem (step t x y))) where
->     --   f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
->     --   f (x' ** x'emx') = reward t x y x' + val x' r' v' ps where
->     --     xpx' : x `Pred` x'
->     --     xpx' = Evidence y x'emx'
->     --     r' : Reachable x'
->     --     r' = Evidence x (r , xpx')
->     --     v' : Viable n x'
->     --     v' = av x' x'emx'
+>       -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
+>       -- f = mkf x r v y av ps
 
 > optExtLemma : (ps : PolicySeq (S t) n) -> OptExt ps (optExt ps)
 > optExtLemma {t} {n} ps p' x r v = s2 where
