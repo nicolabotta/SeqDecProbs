@@ -7,7 +7,7 @@
 > import Control.Isomorphism
 
 
-> -- %default total 
+> %default total 
 
 
 In the context of
