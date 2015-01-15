@@ -59,8 +59,8 @@
 >                           (xs : List (a : alpha ** P1 a)) -> 
 >                           map getW (map (depCross (id ** f)) xs) = map getW xs
 
-> f : (a' : alpha) -> (a : alpha) -> (a `Elem` as) -> (a `Elem` (a' :: as))
-> f a' a prf = There prf
+> f : (a : alpha) -> (a' : alpha) -> (a' `Elem` as) -> (a' `Elem` (a :: as))
+> f a a' prf = There prf
 
 > tagElemList : (as : List alpha) -> List (a : alpha ** a `Elem` as)
 > tagElemList Nil = Nil
@@ -68,18 +68,28 @@
 
 > tagElemListSpec : (as : List alpha) -> map getW (tagElemList as) = as
 > tagElemListSpec Nil = Refl
-> tagElemListSpec (a :: as) = s5 where
->   s1 : map getW (tagElemList (a :: as))
->        =
->        map getW ((a ** Here) :: (map (depCross (id ** f a)) (tagElemList as)))
+> tagElemListSpec {alpha} (a :: as) = s5 where
+>   P : alpha -> Type
+>   P = \ a' => a' `Elem` (a :: as)
+>   P' : alpha -> Type
+>   P' = \ a' => a' `Elem` as
+>   -- P2' : alpha -> Type
+>   -- P2' x = x `Elem` (a :: as)
+>   lhs : List (a' : alpha ** a' `Elem` (a :: as))
+>   lhs = tagElemList (a :: as)
+>   rhs : List (a' : alpha ** a' `Elem` (a :: as))
+>   rhs = (a ** Here) :: (map (depCross (id ** f a)) (tagElemList as))
+>   s0 : lhs = rhs
+>   s0 = Refl
+>   s1 : map getW lhs = map getW rhs
 >   s1 = Refl 
->   s2 : map getW ((a ** Here) :: (map (depCross (id ** f a)) (tagElemList as)))
->        =
->        getW (a ** Here) :: (map getW (map (depCross (id ** f a)) (tagElemList as)))
+>   rhs' : List (a' : alpha ** a' `Elem` (a :: as))
+>   rhs' = map (depCross (id ** f a)) (tagElemList as)
+>   s2 : map getW rhs = (getW {P}) (a ** Here) :: (map (getW {P}) rhs')
 >   s2 = Refl
->   s3 : getW (a ** Here) :: (map getW (map (depCross (id ** f a)) (tagElemList as)))
+>   s3 : (getW {P}) (a ** Here) :: (map (getW {P}) rhs')
 >        =
->        a :: (map getW (tagElemList as))
+>        a :: (map (getW {P = P'}) (tagElemList as))
 >   s3 = ?kiko
 >   s4 : a :: (map getW (tagElemList as))
 >        =
