@@ -62,19 +62,73 @@ Equality and equational reasoning
 > postulate unitMult   : (y : Float) -> (1*y = y)
 > postulate assocMult  : (x : Float) -> (y : Float) ->  (z : Float) ->  (x*y)*z = x*(y*z)
 
-> expLemma : (x : Float) -> (m : Nat) -> (n : Nat) -> (x^m * x^n = x^(m+n))
-> expLemma x Z      n = unitMult (x^n)
+Let's prove a lemma about exponentiation by induction over the first
+|Nat| argument.
+%
+Then the three definitions we need to implement have the following types:
+
+> expLemma :  (x : Float) -> (m : Nat) -> (n : Nat) -> (x^m * x^n = x^(m+n))
+> baseCase :  (x : Float) -> (n : Nat) -> (x^Z * x^n = x^(Z+n))
+> stepCase :  (x : Float) -> (m : Nat) -> (n : Nat) -> 
+>             (ih :  x^m      * x^n = x^(m+n))      ->
+>             (      x^(S m)  * x^n = x^((S m)+n))
+
+The main lemma just uses the base case for zero and the step case for successor.
+%
+Note that the last argument to the step case is the induction
+hypothesis: a recursive call to |expLemma|.
+
+> expLemma x Z      n = baseCase x n
+> expLemma x (S m)  n = stepCase x m n (expLemma x m n)
+
+> baseCase x n = 
+>     ( x^Z * x^n          )
+>   ={ Refl }=                     -- By definition of |(^)|
+>     (   1 * x^n          )
+>   ={ unitMult (x^n) }=
+>     (   x^n              )
+>   ={ Refl }=                     -- By definition of |(+)|
+>     ( x^(Z+n)            )
+>   QED
+
+> stepCase x m n ih = 
+>     ( x^(S m) * x^n      ) 
+>   ={ Refl }=                     -- By definition of |(^)|
+>     ( (x * x^m) * x^n    ) 
+>   ={ assocMult x (x^m) (x^n) }=  -- Associativity of multiplication
+>     ( x * (x^m * x^n)    )
+>   ={ cong ih }=                  -- Use the induction hypothesis |expLemma x m n|
+>     ( x * x^(m + n)      )
+>   ={ Refl }=                     -- By definition of |(^)| (backwards)
+>     ( x^(S (m + n))      )       
+>   ={ Refl }=                     -- By definition of |(+)|
+>     ( x^(S m + n)        )       
+>   QED
+
+> {-
+> expLemma x Z      n = 
+>     ( x^Z * x^n          )
+>   ={ Refl }=                     -- By definition of |(^)|
+>     (   1 * x^n          )
+>   ={ unitMult (x^n) }=
+>     (   x^n              )
+>   ={ Refl }=                     -- By definition of |(+)|
+>     ( x^(Z+n)            )
+>   QED
 > expLemma x (S m)  n = 
 >     ( x^(S m) * x^n      ) 
->   ={ Refl }= 
+>   ={ Refl }=                     -- By definition of |(^)|
 >     ( (x * x^m) * x^n    ) 
 >   ={ assocMult x (x^m) (x^n) }= 
 >     ( x * (x^m * x^n)    )
->   ={ cong (expLemma x m n) }= 
+>   ={ cong (expLemma x m n) }=    -- Use the induction hypothesis |expLemma x m n|
 >     ( x * x^(m + n)      )
->   ={ Refl }= 
->     ( x^(S m + n)        )
+>   ={ Refl }=                     
+>     ( x^(S (m + n))      )       -- By definition of |(^)| (backwards)
+>   ={ Refl }=                     
+>     ( x^(S m + n)        )       -- By definition of |(+)|
 >   QED
-
+> -}
+ 
 For many examples of using the equality proof notation (in Idris'
-sister language Agda), see \cite{MuKoJansson2009AoPA}.
+sister language Agda), see [Algebra of Programming in Agda](http://wiki.portal.chalmers.se/cse/pmwiki.php/FP/AoPAgda).
