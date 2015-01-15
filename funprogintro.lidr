@@ -82,13 +82,13 @@ hypothesis: a recursive call to |expLemma|.
 > expLemma x (S m)  n = stepCase x m n (expLemma x m n)
 
 > baseCase x n = 
->     ( x^Z * x^n          )
+>     ( x^Z * x^n )
 >   ={ Refl }=                     -- By definition of |(^)|
->     (   1 * x^n          )
->   ={ unitMult (x^n) }=
->     (   x^n              )
+>     (   1 * x^n )
+>   ={ unitMult (x^n) }=           -- Use |1*y=y| for |y=x^n|
+>     (   x^n   )
 >   ={ Refl }=                     -- By definition of |(+)|
->     ( x^(Z+n)            )
+>     ( x^(Z+n) )
 >   QED
 
 > stepCase x m n ih = 
@@ -132,3 +132,30 @@ hypothesis: a recursive call to |expLemma|.
  
 For many examples of using the equality proof notation (in Idris'
 sister language Agda), see [Algebra of Programming in Agda](http://wiki.portal.chalmers.se/cse/pmwiki.php/FP/AoPAgda).
+
+----------------
+
+> namespace Nat
+>   %hide Nat
+>   %hide Z
+>   %hide S
+>   
+>   data Nat : Type where
+>     Z  : Nat
+>     S  : Nat -> Nat
+
+> namespace Vec
+>   %hide Vect
+>   %hide Nil
+>   %hide (::)
+>   data Vect : Nat -> Type -> Type where
+>     Nil   : Vect Z a
+>     (::)  : (x : a) -> (xs : Vect n a) -> Vect (S n) a
+
+This declaration can be seen as an infinite family of simple datatype
+declarations:
+
+> namespace VecExpand
+>   data Vect0 : Type -> Type where   Nil0  : Vect0 a
+>   data Vect1 : Type -> Type where   Cons1 : (x : a) -> (xs : Vect0 a) -> Vect1 a
+>   data Vect2 : Type -> Type where   Cons2 : (x : a) -> (xs : Vect1 a) -> Vect2 a
