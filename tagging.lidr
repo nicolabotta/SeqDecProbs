@@ -50,47 +50,45 @@
 > depCrossLemma : {P1 : alpha -> Type} ->
 >                 {P2 : alpha -> Type} ->
 >                 {f : (a : alpha) -> P1 a -> P2 a} ->
->                 (ac : (a : alpha ** P1 a)) -> getW (depCross (id ** f) ac) = getW ac
+>                 (ac : (a : alpha ** P1 a)) -> 
+>                 (getW {P = P2}) (depCross (id ** f) ac) = (getW {P = P1}) ac
 > depCrossLemma (a ** c) = Refl
  
 > mapGetWMapDepCrossLemma : {P1 : alpha -> Type} ->
 >                           {P2 : alpha -> Type} ->
 >                           {f : (a : alpha) -> P1 a -> P2 a} ->
 >                           (xs : List (a : alpha ** P1 a)) -> 
->                           map getW (map (depCross (id ** f)) xs) = map getW xs
+>                           map (getW {P = P2}) (map (depCross (id ** f)) xs) = map (getW {P = P1}) xs
 > mapGetWMapDepCrossLemma Nil = Refl
-> mapGetWMapDepCrossLemma {alpha} {P1} {P2} {f} (x :: xs) = ?laal where
->   lhs : List (a : alpha ** P2 a)
->   lhs = map (depCross (id ** f)) (x :: xs)
->   rhs : List (a : alpha ** P2 a)
->   rhs = ((depCross (id ** f)) x) :: (map (depCross (id ** f)) xs)
->   rhs' : List (a : alpha ** P2 a)
->   rhs' = map (depCross (id ** f)) xs
->   rhs'' : List (a : alpha ** P1 a)
->   rhs'' = x :: xs
->   s1 : map getW lhs = map getW rhs
->   s1 = Refl
->   s2 : map getW rhs = getW ((depCross (id ** f)) x) :: (map getW rhs')
->   s2 = Refl
->   s3 : map getW rhs' = map getW (map (depCross (id ** f)) xs)
->   s3 = sym Refl
->   s4 : map getW (map (depCross (id ** f)) xs) = map getW xs
->   s4 = ?hllo -- mapGetWMapDepCrossLemma {alpha} {P1 = \ x' => P1 x'} {P2 = \ x' => P2 x'} {f} xs
->   -- s4 = mapGetWMapDepCrossLemma {alpha} {P1 = \ x' => P1 x'} {P2 = \ x' => P2 x'} {f} xs
->   s5 : (getW) ((depCross (id ** f)) x) :: (map getW rhs')
->        =
->        (getW x) :: (map getW xs)
->   s5 = ?hello -- cong2 (::) (depCrossLemma x) s3
-
-> {-
->   s3 = cong2 (::) (crossLemma ac) (mapFstMapCrossLemma acs)              
->   s4 : fst ac :: (map fst acs) 
+> mapGetWMapDepCrossLemma {P1} {P2} {f} (x :: xs) = ?lala where
+>   gigi : (getW {P = P2}) (depCross (id ** f) x) 
+>          = 
+>          getW {P = P1} x
+>   gigi = depCrossLemma x
+>   gaga : map (getW {P = P2}) (map (depCross (id ** f)) xs)
+>          =
+>          map (getW {P = P1}) xs
+>   gaga = mapGetWMapDepCrossLemma xs
+>   s1 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs)) 
 >        = 
->        map fst (ac :: acs)
+>        map (getW {P = P2}) ((depCross (id ** f) x) :: (map (depCross (id ** f)) xs))
+>   s1 = Refl
+>   s2 : map (getW {P = P2}) ((depCross (id ** f) x) :: (map (depCross (id ** f)) xs))
+>        = 
+>        ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
+>   s2 = Refl
+>   s3 : ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
+>        =
+>        ((getW {P = P1}) x) :: (map (getW {P = P1}) xs)
+>   s3 = cong2 (::) gigi gaga
+>   s4 : ((getW {P = P1}) x) :: (map (getW {P = P1}) xs)
+>        =
+>        map (getW {P = P1}) (x :: xs)
 >   s4 = Refl
->   s5 : map fst (map (cross (id, f)) (ac :: acs)) = map fst (ac :: acs)
+>   s5 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs)) 
+>        =
+>        map (getW {P = P1}) (x :: xs)
 >   s5 = trans s1 (trans s2 (trans s3 s4))
-> -}
 
 > f : (a : alpha) -> (a' : alpha) -> (a' `Elem` as) -> (a' `Elem` (a :: as))
 > f a a' prf = There prf
