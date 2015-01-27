@@ -24,15 +24,7 @@
 >                           (xs : List (a : alpha ** P1 a)) -> 
 >                           map (getW P2) (map (depCross P1 P2 (id ** f)) xs) = map (getW P1) xs
 > mapGetWMapDepCrossLemma P1 P2 f Nil = Refl
-> mapGetWMapDepCrossLemma P1 P2 f (x :: xs) = ?lala where
->   gigi : (getW P2) (depCross P1 P2 (id ** f) x) 
->          = 
->          getW P1 x
->   gigi = depCrossLemma P1 P2 f x
->   gaga : map (getW P2) (map (depCross P1 P2 (id ** f)) xs)
->          =
->          map (getW P1) xs
->   gaga = mapGetWMapDepCrossLemma P1 P2 f xs
+> mapGetWMapDepCrossLemma P1 P2 f (x :: xs) = s5 where
 >   s1 : map (getW P2) (map (depCross P1 P2 (id ** f)) (x :: xs)) 
 >        = 
 >        map (getW P2) ((depCross P1 P2 (id ** f) x) :: (map (depCross P1 P2 (id ** f)) xs))
@@ -44,7 +36,7 @@
 >   s3 : (getW P2 (depCross P1 P2 (id ** f) x)) :: (map (getW P2) (map (depCross P1 P2 (id ** f)) xs))
 >        =
 >        (getW P1 x) :: (map (getW P1) xs)
->   s3 = cong2 (::) gigi gaga
+>   s3 = cong2 (::) (depCrossLemma P1 P2 f x) (mapGetWMapDepCrossLemma P1 P2 f xs)
 >   s4 : (getW P1 x) :: (map (getW P1) xs)
 >        =
 >        map (getW P1) (x :: xs)
