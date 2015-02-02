@@ -147,10 +147,9 @@ sister language Agda), see [Algebra of Programming in Agda](http://wiki.portal.c
 > namespace Vec
 >   %hide Vect
 >   %hide Nil
->   %hide (::)
 >   data Vect : Nat -> Type -> Type where
 >     Nil   : Vect Z a
->     (::)  : (x : a) -> (xs : Vect n a) -> Vect (S n) a
+>     Cons  : (x : a) -> (xs : Vect n a) -> Vect (S n) a
 
 This declaration can be seen as an infinite family of simple datatype
 declarations:
@@ -159,3 +158,20 @@ declarations:
 >   data Vect0 : Type -> Type where   Nil0  : Vect0 a
 >   data Vect1 : Type -> Type where   Cons1 : (x : a) -> (xs : Vect0 a) -> Vect1 a
 >   data Vect2 : Type -> Type where   Cons2 : (x : a) -> (xs : Vect1 a) -> Vect2 a
+
+> namespace Vec
+>   head : Vect (S n) A -> A
+>   head (Cons x xs) = x
+
+> namespace CurryHoward
+>   Prop  : Type
+>   Prop  = Type
+>   FALSE : Prop
+>   FALSE = Void
+>   TRUE  : Prop
+>   TRUE  = Unit
+>   sort : Vect n A -> Vect n A
+>   Sorted : Vect n A -> Prop
+>   Sorted_spec : Prop
+>   Sorted_spec = (n : Nat) -> (xs : Vect n A) -> Sorted (sort xs)
+>   sorted_lemma : Sorted_spec
