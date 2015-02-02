@@ -76,10 +76,12 @@
 >   s3 = toFinLemma1 n m prf
 >   s4 : finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
 >   s4 = toFinLemma3 n m prf
->   s5 : (finToNat (FS (toFin (n ** prf))) ** finToNatLemma (FS (toFin (n ** prf)))) 
+>   s5 : MkSigma {a = Nat} {P = \ i => LT i (S m)} 
+>        (finToNat (FS (toFin (n ** prf)))) 
+>        (finToNatLemma (FS (toFin (n ** prf))))
 >        = 
->        (S n ** LTESucc prf)
->   s5 = cong2 MkSigma s3 s4     
+>        MkSigma {a = Nat} {P = \ i => LT i (S m)} (S n) (LTESucc prf)
+>   s5 = depCong2 (MkSigma {a = Nat} {P = \ i => LT i (S m)}) s3 s4
 >   s6 : fromFin (toFin (S n ** LTESucc prf)) = (S n ** LTESucc prf)
 >   s6 = trans s1 (trans s2 s5)
 

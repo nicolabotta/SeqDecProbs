@@ -22,30 +22,24 @@
 >                           {P2 : alpha -> Type} ->
 >                           {f : (a : alpha) -> P1 a -> P2 a} ->
 >                           (xs : List (a : alpha ** P1 a)) -> 
->                           map (getW {P = P2}) (map (depCross (id ** f)) xs) = map (getW {P = P1}) xs
-> mapGetWMapDepCrossLemma Nil = Refl
-> mapGetWMapDepCrossLemma {P1} {P2} {f} (x :: xs) = ?lala where
->   gigi : (getW {P = P2}) (depCross (id ** f) x) 
->          = 
->          getW {P = P1} x
->   gigi = depCrossLemma x
->   gaga : map (getW {P = P2}) (map (depCross (id ** f)) xs)
->          =
->          map (getW {P = P1}) xs
->   gaga = mapGetWMapDepCrossLemma xs
+>                           map (getW {P = P2}) (map (depCross {P1} {P2} (id ** f)) xs) 
+>                           = 
+>                           map (getW {P = P1}) xs
+> mapGetWMapDepCrossLemma {P1} {P2} {f} Nil = Refl
+> mapGetWMapDepCrossLemma {P1} {P2} {f} (x :: xs) = s5 where
 >   s1 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs)) 
 >        = 
 >        map (getW {P = P2}) ((depCross (id ** f) x) :: (map (depCross (id ** f)) xs))
 >   s1 = Refl
 >   s2 : map (getW {P = P2}) ((depCross (id ** f) x) :: (map (depCross (id ** f)) xs))
 >        = 
->        ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
+>        (getW {P = P2} (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
 >   s2 = Refl
->   s3 : ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
+>   s3 : (getW {P = P2} (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
 >        =
->        ((getW {P = P1}) x) :: (map (getW {P = P1}) xs)
->   s3 = cong2 (::) gigi gaga
->   s4 : ((getW {P = P1}) x) :: (map (getW {P = P1}) xs)
+>        (getW {P = P1} x) :: (map (getW {P = P1}) xs)
+>   s3 = cong2 (::) (depCrossLemma {f} x) (mapGetWMapDepCrossLemma {f} xs)
+>   s4 : (getW {P = P1} x) :: (map (getW {P = P1}) xs)
 >        =
 >        map (getW {P = P1}) (x :: xs)
 >   s4 = Refl
