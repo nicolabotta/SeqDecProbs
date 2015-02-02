@@ -48,6 +48,21 @@
 
 > toFinLemma3 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
+> toFinLemma3 n b prf = trans s1 s2 where
+>   s0 : FS (toFin (n ** prf)) = toFin (S n ** LTESucc prf)
+>   s0 = Refl
+>   s1 : finToNatLemma (FS (toFin (n ** prf))) 
+>        = 
+>        finToNatLemma (toFin (S n ** LTESucc prf))
+>   s1 = replace {a = Fin (S b)} 
+>                {x = FS (toFin (n ** prf))} 
+>                {y = toFin (S n ** LTESucc prf)} 
+>                {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x} 
+>                s0 Refl
+>   s2 : finToNatLemma (toFin (S n ** LTESucc prf))
+>        =
+>        LTESucc prf
+>   s2 = toFinLemma2 (S n) (S b) (LTESucc prf)
 
 > fromFin : Fin b -> (Sigma Nat (\ n => LT n b))
 > fromFin k = (finToNat k ** finToNatLemma k)
