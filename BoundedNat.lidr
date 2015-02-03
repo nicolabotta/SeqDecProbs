@@ -45,6 +45,34 @@
 
 > toFinLemma2 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (toFin (n ** prf)) = prf
+> toFinLemma2   n     Z     prf              = absurd prf
+> toFinLemma2   Z    (S b) (LTESucc LTEZero) = Refl
+> toFinLemma2  (S n) (S b) (LTESucc prf) = trans s1 (trans s2 s4) where
+>   s1 : finToNatLemma (toFin (S n ** LTESucc prf))
+>        =
+>        finToNatLemma (FS (toFin (n ** prf)))
+>   s1 = Refl
+>   s2 : finToNatLemma (FS (toFin (n ** prf)))
+>        =
+>        LTESucc (finToNatLemma (toFin (n ** prf)))
+>   s2 = Refl
+>   s3 : finToNatLemma (toFin (n ** prf))
+>        =
+>        prf
+>   s3 = toFinLemma2 n b prf
+>   s4 : LTESucc (finToNatLemma (toFin (n ** prf)))
+>        =
+>        LTESucc prf
+>   s4 = depCong2' {alpha = Nat}
+>                  {P = \ n => LT n b}
+>                  {Q = \ n, prf => LT (S n) (S b)}
+>                  {a1 = finToNat (toFin (n ** prf))}
+>                  {a2 = n}
+>                  {Pa1 = finToNatLemma (toFin (n ** prf))}
+>                  {Pa2 = prf}
+>                  (\ n, prf => LTESucc prf)
+>                  (toFinLemma0 n b prf)
+>                  s3
 
 > toFinLemma3 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
