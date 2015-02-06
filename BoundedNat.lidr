@@ -5,6 +5,7 @@
 
 > import Basics
 > import NatProperties
+> import SigmaProperties
 > import FinProperties
 > import Finite
 
