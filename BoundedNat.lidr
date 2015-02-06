@@ -5,6 +5,7 @@
 
 > import Basics
 > import NatProperties
+> import SigmaProperties
 > import FinProperties
 > import Finite
 
@@ -45,9 +46,52 @@
 
 > toFinLemma2 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (toFin (n ** prf)) = prf
+> toFinLemma2   n     Z     prf              = absurd prf
+> toFinLemma2   Z    (S b) (LTESucc LTEZero) = Refl
+> toFinLemma2  (S n) (S b) (LTESucc prf) = trans s1 (trans s2 s4) where
+>   s1 : finToNatLemma (toFin (S n ** LTESucc prf))
+>        =
+>        finToNatLemma (FS (toFin (n ** prf)))
+>   s1 = Refl
+>   s2 : finToNatLemma (FS (toFin (n ** prf)))
+>        =
+>        LTESucc (finToNatLemma (toFin (n ** prf)))
+>   s2 = Refl
+>   s3 : finToNatLemma (toFin (n ** prf))
+>        =
+>        prf
+>   s3 = toFinLemma2 n b prf
+>   s4 : LTESucc (finToNatLemma (toFin (n ** prf)))
+>        =
+>        LTESucc prf
+>   s4 = depCong2' {alpha = Nat}
+>                  {P = \ n => LT n b}
+>                  {Q = \ n, prf => LT (S n) (S b)}
+>                  {a1 = finToNat (toFin (n ** prf))}
+>                  {a2 = n}
+>                  {Pa1 = finToNatLemma (toFin (n ** prf))}
+>                  {Pa2 = prf}
+>                  (\ n, prf => LTESucc prf)
+>                  (toFinLemma0 n b prf)
+>                  s3
 
 > toFinLemma3 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
+> toFinLemma3 n b prf = trans s1 s2 where
+>   s0 : FS (toFin (n ** prf)) = toFin (S n ** LTESucc prf)
+>   s0 = Refl
+>   s1 : finToNatLemma (FS (toFin (n ** prf))) 
+>        = 
+>        finToNatLemma (toFin (S n ** LTESucc prf))
+>   s1 = replace {a = Fin (S b)} 
+>                {x = FS (toFin (n ** prf))} 
+>                {y = toFin (S n ** LTESucc prf)} 
+>                {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x} 
+>                s0 Refl
+>   s2 : finToNatLemma (toFin (S n ** LTESucc prf))
+>        =
+>        LTESucc prf
+>   s2 = toFinLemma2 (S n) (S b) (LTESucc prf)
 
 > fromFin : Fin b -> (Sigma Nat (\ n => LT n b))
 > fromFin k = (finToNat k ** finToNatLemma k)
@@ -76,10 +120,12 @@
 >   s3 = toFinLemma1 n m prf
 >   s4 : finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
 >   s4 = toFinLemma3 n m prf
->   s5 : (finToNat (FS (toFin (n ** prf))) ** finToNatLemma (FS (toFin (n ** prf)))) 
+>   s5 : MkSigma {a = Nat} {P = \ i => LT i (S m)} 
+>        (finToNat (FS (toFin (n ** prf)))) 
+>        (finToNatLemma (FS (toFin (n ** prf))))
 >        = 
->        (S n ** LTESucc prf)
->   s5 = cong2 MkSigma s3 s4     
+>        MkSigma {a = Nat} {P = \ i => LT i (S m)} (S n) (LTESucc prf)
+>   s5 = depCong2 (MkSigma {a = Nat} {P = \ i => LT i (S m)}) s3 s4
 >   s6 : fromFin (toFin (S n ** LTESucc prf)) = (S n ** LTESucc prf)
 >   s6 = trans s1 (trans s2 s5)
 

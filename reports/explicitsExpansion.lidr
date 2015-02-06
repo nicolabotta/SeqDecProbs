@@ -22,7 +22,9 @@
 >                           (P2 : alpha -> Type) ->
 >                           (f : (a : alpha) -> P1 a -> P2 a) ->
 >                           (xs : List (a : alpha ** P1 a)) -> 
->                           map (getW P2) (map (depCross P1 P2 (id ** f)) xs) = map (getW P1) xs
+>                           map (getW P2) (map (depCross P1 P2 (id ** f)) xs) 
+>                           = 
+>                           map (getW P1) xs
 > mapGetWMapDepCrossLemma P1 P2 f Nil = Refl
 > mapGetWMapDepCrossLemma P1 P2 f (x :: xs) = s5 where
 >   s1 : map (getW P2) (map (depCross P1 P2 (id ** f)) (x :: xs)) 
