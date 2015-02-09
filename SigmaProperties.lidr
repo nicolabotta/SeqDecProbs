@@ -2,7 +2,7 @@
 
 
 > import Decidable
-> import Proposition
+> import Unique
 
 
 > %default total
@@ -13,7 +13,7 @@
 >               (x : Sigma alpha P) -> 
 >               (y : Sigma alpha P) ->
 >               getWitness x = getWitness y -> 
->               Prop (P (getWitness x)) ->
+>               Unique (P (getWitness x)) ->
 >               x = y
 > sigmaLemma1 (a ** p) (a ** q) Refl PP = cong (PP p q)
 
@@ -29,7 +29,7 @@
 > sigmaLemma3 : {alpha : Type} ->
 >               {P : alpha -> Type} ->
 >               DecEq alpha -> 
->               Prop1 {alpha} P ->
+>               Unique1 {t0 = alpha} P ->
 >               (s1 : Sigma alpha P) ->
 >               (s2 : Sigma alpha P) ->
 >               Dec (s1 = s2)
