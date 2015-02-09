@@ -105,8 +105,6 @@
 >        (finToNatLemma (FS (toFin (n ** prf))))
 >        = 
 >        MkSigma {a = Nat} {P = \ i => LT i (S m)} (S n) (LTESucc prf)
->   s5 = ?kika -- depCong2 (MkSigma {a = Nat} {P = \ i => LT i (S m)}) s3 s4
+>   s5 = depCong2 (MkSigma {a = Nat} {P = \ i => LT i (S m)}) s3 s4
 >   s6 : fromFin (toFin (S n ** LTESucc prf)) = (S n ** LTESucc prf)
 >   s6 = trans s1 (trans s2 s5)
-
-

@@ -160,6 +160,7 @@ the sense that it fulfills the specification
 
 With |asSigmaVect| and |asSigmaVectLemma| one can implement
 
+> {-
 > lala : {alpha : Type} -> 
 >        {Q : alpha -> Type} ->
 >        Finite alpha -> 
@@ -189,6 +190,7 @@ With |asSigmaVect| and |asSigmaVectLemma| one can implement
 >         s2 = lookupIndexLemma k ss (asSigmaVectLemma fa dp (index k ss))
 >       fromTo  :  (s : Sigma alpha Q) -> from (to s) = s
 >       fromTo  =  ?mkFromTo
+> -}
 
 > {-
 > lookupIndexLemma : (k : Fin n) ->

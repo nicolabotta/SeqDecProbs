@@ -4,6 +4,7 @@
 > import Data.Fin
 > import Control.Isomorphism
 
+> import Prop
 
 
 Hiding stuff:
@@ -58,9 +59,9 @@ Globals:
 
 > namespace SigmaLib 
 
->   outl : {a : Type} -> {P : a -> Type} -> Sigma a P -> a
+>   outl : {a : Type} -> {P : a -> Prop} -> Sigma a P -> a
 >   outl = getWitness
->   outr : {a : Type} -> {P : a -> Type} -> (x : Sigma a P) -> P (outl x)
+>   outr : {a : Type} -> {P : a -> Prop} -> (x : Sigma a P) -> P (outl x)
 >   outr = getProof
 
 > -- end namespace SigmaLib 
@@ -96,16 +97,16 @@ A SDP is specified in terms of a monad ...
 
 > namespace ContainerMonadLib 
 
->   Elem     :  alpha -> M alpha -> Type
->   All      :  (P : alpha -> Type) -> M alpha -> Type
+>   Elem     :  alpha -> M alpha -> Prop
+>   All      :  (P : alpha -> Prop) -> M alpha -> Prop
 >   All {alpha} P ma = (a : alpha) -> a `Elem` ma -> P a
 
 >   -- unused containerMonadSpec1  :  a `Elem` (ret a)
 >   -- unused containerMonadSpec2  :  (a : alpha) -> (ma : M alpha) -> (mma : M (M alpha)) ->
 >   --                                a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
->   -- containerMonadSpec3  :  {P : alpha -> Type} -> {a : alpha} -> {ma : M alpha} -> All P ma -> a `Elem` ma -> P a
+>   -- containerMonadSpec3  :  {P : alpha -> Prop} -> {a : alpha} -> {ma : M alpha} -> All P ma -> a `Elem` ma -> P a
 >   -- containerMonadSpec3 {alpha} {P} {a} {ma} aPma = aPma a 
->   -- unused containerMonadSpec4  :  {P : alpha -> Type} -> a `Elem` ma -> Not (P a) -> Not (All P ma) -- follows from All
+>   -- unused containerMonadSpec4  :  {P : alpha -> Prop} -> a `Elem` ma -> Not (P a) -> Not (All P ma) -- follows from All
 
 >   tagElem      :  (ma : M alpha) -> M (a : alpha ** a `Elem` ma)
 >   -- unused tagElemSpec  :  (ma : M alpha) -> fmap outl (tagElem ma) = ma
@@ -170,7 +171,7 @@ For every SDP, we can build the following notions:
 -- >   f : X (S t) -> Float
 -- >   f x' = reward t x y x' + val x' ps
 
--- > OptPolicySeq : PolicySeq t n -> Type
+-- > OptPolicySeq : PolicySeq t n -> Prop
 -- > OptPolicySeq {t} {n} ps = (ps' : PolicySeq t n) -> (x : X t) -> So (val x ps' <= val x ps)
 
 -- > nilOptPolicySeq : OptPolicySeq Nil
@@ -182,14 +183,14 @@ For every SDP, we can build the following notions:
 
   Viability and reachability:
 
-> Pred : X t -> X (S t) -> Type
+> Pred : X t -> X (S t) -> Prop
 > Pred {t} x x'  =  Exists (\ y => x' `Elem` step t x y)
 
-> Viable : (n : Nat) -> X t -> Type
+> Viable : (n : Nat) -> X t -> Prop
 > Viable {t}  Z    _  =  ()
 > Viable {t} (S m) x  =  Exists (\ y => All (Viable m) (step t x y))
 
-> Reachable : X t' -> Type
+> Reachable : X t' -> Prop
 > Reachable {t' =   Z} _   =  ()
 > Reachable {t' = S t} x'  =  Exists (\ x => (Reachable x, x `Pred` x'))
 
@@ -239,7 +240,7 @@ For every SDP, we can build the following notions:
 
   Optimality of policy sequences:
 
-> OptPolicySeq : PolicySeq t n -> Type
+> OptPolicySeq : PolicySeq t n -> Prop
 > OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) -> 
 >                             (x : X t) ->
 >                             (r : Reachable x) ->
@@ -252,7 +253,7 @@ For every SDP, we can build the following notions:
 
   Optimal extensions of policy sequences:
 
-> OptExt : PolicySeq (S t) m -> Policy t (S m) -> Type
+> OptExt : PolicySeq (S t) m -> Policy t (S m) -> Prop
 > OptExt {t} {m} ps p  =  (p' : Policy t (S m)) ->
 >                         (x : X t) ->
 >                         (r : Reachable x) -> 
@@ -414,7 +415,7 @@ monadic SDPs. First we have to explain what it means for a possible
 future state to be avoidable. For this, we have to introduce a
 reachability relation:
 
-> ReachableFrom : X t'' -> X t -> Type
+> ReachableFrom : X t'' -> X t -> Prop
 > ReachableFrom {t'' = Z   } {t} x'' x  =  (t = Z , x = x'') 
 > ReachableFrom {t'' = S t'} {t} x'' x  = 
 >   Either (t = S t' , x = x'') (Exists (\ x' => (x' `ReachableFrom` x , x' `Pred` x'')))
@@ -445,14 +446,14 @@ states:
 Now we can explain what it means for a state |x'| to be avoidable in a
 decision process starting from a previous state |x|:
 
-> Alternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Type
+> Alternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Prop
 > -- Alternative x x' m x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
 > Alternative x x' m x'' = (x'' `ReachableFrom` x , (Viable m x'' , Not (x'' = x')))
 
-> -- AvoidableFrom : (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Type
+> -- AvoidableFrom : (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Prop
 > -- AvoidableFrom {t'} {n} x' x r v = Exists (Alternative x x' n)
 
-> AvoidableFrom : (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> (m : Nat) -> Type
+> AvoidableFrom : (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> (m : Nat) -> Prop
 > AvoidableFrom {t'} x' x r m = Exists (Alternative x x' m)
 
 
@@ -462,55 +463,55 @@ about decidability in general:
 
 > namespace DecLibrary
 
->   data Dec : Type -> Type where
->     Yes : {P : Type} -> (prf : P) -> Dec P
->     No  : {P : Type} -> (contra : P -> Void) -> Dec P
+>   data Dec : Prop -> Prop where
+>     Yes : {P : Prop} -> (prf : P) -> Dec P
+>     No  : {P : Prop} -> (contra : P -> Void) -> Dec P
 
->   Dec0 : Type -> Type
->   Dec0 p = Dec p
+>   Dec0 : Prop -> Prop
+>   Dec0 P = Dec P
 
->   Dec1 : (p : alpha -> Type) -> Type
->   Dec1 {alpha} p  =  (a : alpha) -> Dec (p a) 
+>   Dec1 : (P : alpha -> Prop) -> Prop
+>   Dec1 {alpha} P  =  (a : alpha) -> Dec (P a) 
 
->   Dec2 : (p : alpha -> beta -> Type) -> Type
->   Dec2 {alpha} {beta} p  =  (a : alpha) -> (b : beta) -> Dec (p a b) 
+>   Dec2 : (P : alpha -> beta -> Prop) -> Prop
+>   Dec2 {alpha} {beta} P  =  (a : alpha) -> (b : beta) -> Dec (P a b) 
 
->   decNot : {P : Type} -> Dec P -> Dec (Not P)
->   decNot {P} (Yes p) = No contra where
+>   decNot : {P : Prop} -> Dec P -> Dec (Not P)
+>   decNot {P} (Yes prf) = No contra where
 >     contra : Not P -> Void
->     contra np = np p
->   decNot {P} (No np) = Yes np
+>     contra np = np prf
+>   decNot {P} (No contra) = Yes contra
 
 >   decEqNat : (m : Nat) -> (n : Nat) -> Dec (m = n)
 >   decEqNat Z     Z     = Yes Refl
->   decEqNat Z     (S _) = No OnotS
->   decEqNat (S _) Z     = No (negEqSym OnotS)
+>   decEqNat Z     (S _) = No ZnotS
+>   decEqNat (S _) Z     = No (negEqSym ZnotS)
 >   decEqNat (S n) (S m) with (decEqNat n m)
 >     | Yes p = Yes $ cong p
 >     | No  p = No $ \h : (S n = S m) => p $ succInjective n m h
 
->   decPair : Dec p -> Dec q -> Dec (p , q)
+>   decPair : {P, Q : Prop} -> Dec P -> Dec Q -> Dec (P , Q)
 >   decPair (Yes p) (Yes q) = Yes (p , q)
 >   decPair (Yes p) (No nq) = No (\ pq => nq (snd pq))
 >   decPair (No np) (Yes q) = No (\ pq => np (fst pq))
 >   decPair (No np) (No nq) = No (\ pq => np (fst pq))
 
->   decEither : Dec p -> Dec q -> Dec (Either p q)
+>   decEither : {P, Q : Prop} -> Dec P -> Dec Q -> Dec (Either P Q)
 >   decEither (Yes p) (Yes q) = Yes (Left p)
 >   decEither (Yes p) (No nq) = Yes (Left p)
 >   decEither (No np) (Yes q) = Yes (Right q)
->   decEither (No np) (No nq) = No contra where
->     contra : Either p q -> Void
+>   decEither {P} {Q} (No np) (No nq) = No contra where
+>     contra : Either P Q -> Void
 >     contra (Left  p) = np p
 >     contra (Right q) = nq q
 
 A fundamental result is that, for a finite type |alpha| and a decidable
-property |p : alpha -> Type|, |Exists p| is decidable:
+predicate |P : alpha -> Prop|, |Exists P| is decidable:
 
->   Finite : Type -> Type
+>   Finite : Type -> Prop
 >   Finite alpha = Exists (\ n => Iso alpha (Fin n))
 
->   postulate finiteDecLemma : Finite alpha -> Dec1 {alpha} p -> Dec (Exists p)
+>   postulate finiteDecLemma : {P : alpha -> Prop} -> Finite alpha -> Dec1 P -> Dec (Exists P)
 
 One way of proving |finiteDecLemma| is the one I (Nicola) have presented
 at DTP. As you (Cezar, Patrik) have pointed out last time we met at
@@ -528,7 +529,7 @@ To prove decidability of |AvoidableFrom| we obviously need some
 additional assumptions. Sufficient conditions are
 
 > decElem : (a : alpha) -> (as : M alpha) -> Dec (a `Elem` as)
-> decAll : (p : alpha -> Type) -> Dec1 p -> (as : M alpha) -> Dec (All p as)
+> decAll : (P : alpha -> Prop) -> Dec1 P -> (as : M alpha) -> Dec (All P as)
 
 > decEqX : (x : X t) -> (x' : X t') -> Dec (x = x')
 > finX : (t : Nat) -> Finite (X t)
