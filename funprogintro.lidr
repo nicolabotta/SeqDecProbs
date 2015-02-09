@@ -175,3 +175,23 @@ declarations:
 >   Sorted_spec : Prop
 >   Sorted_spec = (n : Nat) -> (xs : Vect n A) -> Sorted (sort xs)
 >   sorted_lemma : Sorted_spec
+> 
+
+Existential types
+
+Plan: Among others, introduce the constructors of existential types
+(|Evidence|, (**), ...)
+
+> namespace Existential
+>   %hide Prelude.Pairs.Exists
+>   using (a : Type, P : a -> Prop)
+>     data Exists : (P : a -> Prop) -> Prop where
+>       Evidence : (wit : a) -> (pro : P wit) -> Exists P
+      
+>     getWitness : Exists {a} P -> a
+>     getWitness (Evidence wit pro) = wit
+      
+>     getProof   : (evi : Exists {a} P) -> P (getWitness evi)
+>     getProof   (Evidence wit pro) = pro
+
+Sigma a P is basically the same as Exists {a} P
