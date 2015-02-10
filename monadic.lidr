@@ -59,9 +59,9 @@ Globals:
 
 > namespace SigmaLib 
 
->   outl : {a : Type} -> {P : a -> Prop} -> Sigma a P -> a
+>   outl : {A : Type} -> {P : A -> Prop} -> Sigma A P -> A
 >   outl = getWitness
->   outr : {a : Type} -> {P : a -> Prop} -> (x : Sigma a P) -> P (outl x)
+>   outr : {A : Type} -> {P : A -> Prop} -> (s : Sigma A P) -> P (outl s)
 >   outr = getProof
 
 > -- end namespace SigmaLib 
@@ -77,18 +77,19 @@ A SDP is specified in terms of a monad ...
 
 >   M : Type -> Type
 
->   fmap : (alpha -> beta) -> M alpha -> M beta
+>   fmap : {A, B : Type} -> (A -> B) -> M A -> M B
 >   -- unused functorSpec1 : fmap . id = id
 >   -- unused functorSpec2 : fmap (f . g) = (fmap f) . (fmap g)
 
->   ret   :  alpha -> M alpha
->   bind  :  M alpha -> (alpha -> M beta) -> M beta
+>   ret   :  {A : Type} -> A -> M A
+>   bind  :  {A, B : Type} -> M A -> (A -> M B) -> M B
 >   -- unused monadSpec1   :  (fmap f) . ret = ret . f
 >   -- unused monadSpec21  :  bind (ret a) f = f a
 >   -- unused monadSpec22  :  bind ma ret = ma
->   -- unused monadSpec23  :  {f : alpha -> M beta} -> {g : beta -> M gamma} -> bind (bind ma f) g = bind ma (\ a => bind (f a) g)
+>   -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} -> 
+>   --                        bind (bind ma f) g = bind ma (\ a => bind (f a) g)
 
->   join  :  M (M alpha) -> M alpha
+>   join  :  {A : Type} -> M (M A) -> M A
 >   join mma = bind mma id
 
 > -- end namespace MonadLib 
@@ -97,19 +98,19 @@ A SDP is specified in terms of a monad ...
 
 > namespace ContainerMonadLib 
 
->   Elem     :  alpha -> M alpha -> Prop
->   All      :  (P : alpha -> Prop) -> M alpha -> Prop
->   All {alpha} P ma = (a : alpha) -> a `Elem` ma -> P a
+>   Elem     :  {A : Type} -> A -> M A -> Prop
+>   All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
+>   All {A} P ma = (a : A) -> a `Elem` ma -> P a
 
 >   -- unused containerMonadSpec1  :  a `Elem` (ret a)
->   -- unused containerMonadSpec2  :  (a : alpha) -> (ma : M alpha) -> (mma : M (M alpha)) ->
+>   -- unused containerMonadSpec2  :  {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
 >   --                                a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
->   -- containerMonadSpec3  :  {P : alpha -> Prop} -> {a : alpha} -> {ma : M alpha} -> All P ma -> a `Elem` ma -> P a
->   -- containerMonadSpec3 {alpha} {P} {a} {ma} aPma = aPma a 
->   -- unused containerMonadSpec4  :  {P : alpha -> Prop} -> a `Elem` ma -> Not (P a) -> Not (All P ma) -- follows from All
+>   -- containerMonadSpec3  :  {A : Type} -> {P : A -> Prop} -> {a : A} -> {ma : M A} -> All P ma -> a `Elem` ma -> P a
+>   -- containerMonadSpec3 {A} {P} {a} {ma} aPma = aPma a 
+>   -- unused containerMonadSpec4  :  {A : Type} -> {P : A -> Prop} -> a `Elem` ma -> Not (P a) -> Not (All P ma) -- follows from All
 
->   tagElem      :  (ma : M alpha) -> M (a : alpha ** a `Elem` ma)
->   -- unused tagElemSpec  :  (ma : M alpha) -> fmap outl (tagElem ma) = ma
+>   tagElem      :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
+>   -- unused tagElemSpec  :  {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
 > -- end namespace ContainerMonadLib 
 
@@ -127,14 +128,18 @@ process ...
 
 > reward  : (t : Nat) -> (x : X t) -> (y : Y t x) -> (x' : X (S t)) -> Float
 
+> rewards : (t : Nat) -> (x : X t) -> (y : Y t x) -> M Float
+> rewards t x y = fmap (reward t x y) (step t x y)
+
 ... and a measure:
 
 > namespace MeasLib 
 
 >   meas : M Float -> Float
->   measMon  :  (f : alpha -> Float) -> (g : alpha -> Float) -> 
->               ((a : alpha) -> So (f a <= g a)) ->
->               (ma : M alpha) -> So (meas (fmap f ma) <= meas (fmap g ma))
+>   measMon  :  {A : Type} -> 
+>               (f : A -> Float) -> (g : A -> Float) -> 
+>               ((a : A) -> So (f a <= g a)) ->
+>               (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
 
 > -- end namespace MeasLib 
 
@@ -303,13 +308,13 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max         :  (f : alpha -> Float) -> Float
-> argmax      :  (f : alpha -> Float) -> alpha
+> max         :  {A : Type} -> (f : A -> Float) -> Float
+> argmax      :  {A : Type} -> (f : A -> Float) -> A
 
 that fulfill the specification
 
-> maxSpec     :  (f : alpha -> Float) -> (a : alpha) -> So (f a <= max f)
-> argmaxSpec  :  (f : alpha -> Float) -> max f = f (argmax f)
+> maxSpec     :  {A : Type} -> (f : A -> Float) -> (a : A) -> So (f a <= max f)
+> argmaxSpec  :  {A : Type} -> (f : A -> Float) -> max f = f (argmax f)
 
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
@@ -470,11 +475,11 @@ about decidability in general:
 >   Dec0 : Prop -> Prop
 >   Dec0 P = Dec P
 
->   Dec1 : (P : alpha -> Prop) -> Prop
->   Dec1 {alpha} P  =  (a : alpha) -> Dec (P a) 
+>   Dec1 : {A : Type} -> (P : A -> Prop) -> Prop
+>   Dec1 {A} P  =  (a : A) -> Dec (P a) 
 
->   Dec2 : (P : alpha -> beta -> Prop) -> Prop
->   Dec2 {alpha} {beta} P  =  (a : alpha) -> (b : beta) -> Dec (P a b) 
+>   Dec2 : {A, B : Type} -> (P : A -> B -> Prop) -> Prop
+>   Dec2 {A} {B} P  =  (a : A) -> (b : B) -> Dec (P a b) 
 
 >   decNot : {P : Prop} -> Dec P -> Dec (Not P)
 >   decNot {P} (Yes prf) = No contra where
@@ -509,9 +514,9 @@ A fundamental result is that, for a finite type |alpha| and a decidable
 predicate |P : alpha -> Prop|, |Exists P| is decidable:
 
 >   Finite : Type -> Prop
->   Finite alpha = Exists (\ n => Iso alpha (Fin n))
+>   Finite A = Exists (\ n => Iso A (Fin n))
 
->   postulate finiteDecLemma : {P : alpha -> Prop} -> Finite alpha -> Dec1 P -> Dec (Exists P)
+>   postulate finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
 
 One way of proving |finiteDecLemma| is the one I (Nicola) have presented
 at DTP. As you (Cezar, Patrik) have pointed out last time we met at
@@ -528,8 +533,8 @@ is already somewhere in the library, maybe in a slightly different form.
 To prove decidability of |AvoidableFrom| we obviously need some
 additional assumptions. Sufficient conditions are
 
-> decElem : (a : alpha) -> (as : M alpha) -> Dec (a `Elem` as)
-> decAll : (P : alpha -> Prop) -> Dec1 P -> (as : M alpha) -> Dec (All P as)
+> decElem : {A : Type} -> (a : A) -> (as : M A) -> Dec (a `Elem` as)
+> decAll : {A : Type} -> (P : A -> Prop) -> Dec1 P -> (as : M A) -> Dec (All P as)
 
 > decEqX : (x : X t) -> (x' : X t') -> Dec (x = x')
 > finX : (t : Nat) -> Finite (X t)
