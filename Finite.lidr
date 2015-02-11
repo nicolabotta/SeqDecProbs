@@ -1,13 +1,13 @@
 > module Finite
 
-> import Data.So
 > import Data.Fin
 > import Data.Vect
 > import Data.Vect.Quantifiers
 > import Control.Isomorphism
 
+> import Prop
 > import Decidable
-> import Proposition
+> import Unique
 > import SigmaProperties
 > import VectProperties
 
@@ -16,117 +16,116 @@
 
 
 > Finite : Type -> Type
-> Finite alpha = Exists (\ n => Iso alpha (Fin n))
+> Finite A = Exists (\ n => Iso A (Fin n))
+
 
 Helpers
 
-> toFin : (fa : Finite alpha) -> (alpha -> Fin (getWitness fa))
+> toFin : {A : Type} -> (fA : Finite A) -> (A -> Fin (getWitness fA))
 > toFin (Evidence n (MkIso to from toFrom fromTo)) = to
 
-> fromFin : (fa : Finite alpha) -> (Fin (getWitness fa) -> alpha)
+> fromFin : {A : Type} -> (fA : Finite A) -> (Fin (getWitness fA) -> A)
 > fromFin (Evidence n (MkIso to from toFrom fromTo)) = from
 
-> toFinFromFin : (fa : Finite alpha) -> (k : Fin (getWitness fa)) -> toFin fa (fromFin fa k) = k
+> toFinFromFin : {A : Type} -> (fA : Finite A) -> (k : Fin (getWitness fA)) -> toFin fA (fromFin fA k) = k
 > toFinFromFin (Evidence n (MkIso to from toFrom fromTo)) = toFrom
 
-> FromFinToFin : (fa : Finite alpha) -> (a : alpha) -> fromFin fa (toFin fa a) = a
+> FromFinToFin : {A : Type} -> (fA : Finite A) -> (a : A) -> fromFin fA (toFin fA a) = a
 > FromFinToFin (Evidence n (MkIso to from toFrom fromTo)) = fromTo
 
 
 Finiteness implies decidability: We want to show that
 
-< finiteDecLemma : Finite alpha -> Dec1 {alpha} p -> Dec (Exists p)
+< finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
 
 The idea is to start by noticing the one can implement a function 
 
-> asVect : (fa : Finite alpha) -> Vect (getWitness fa) alpha
+> asVect : {A : Type} -> (fA : Finite A) -> Vect (getWitness fA) A
  
 that provides a |Vect|-representation of a finite type in the sense that
 it fulfills the specification
 
-> asVectLemma : (fa : Finite alpha) -> (a : alpha) -> Elem a (asVect fa)
+> asVectLemma : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (asVect fA)
 
 A further step is to prove that, for a finite type |alpha| and a
 predicate |p| on |alpha|, the existence of an element |a : alpha| in the
 vector-representation of |alpha| that satisfies |p| implies |Exists p|:
 
-> AnyExistsLemma : Any p as -> Exists p
+> AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
 
 The third ingredient which we need to prove |finiteDecLemma| is
 
-> ElemAnyLemma : p a -> Elem a as -> Any p as
+> ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
 
 With |asVectLemma|, |AnyExistsLemma|, |ElemAnyLemma| and taking into
 account that decidability of |p : alpha -> Type| implies decidability of
 |Any p|
 
-> decAny : Dec1 p -> Dec1 (Any p)
+> decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
 
 it is easy to prove |finiteDecLemma|:
 
 > %assert_total
-> finiteDecLemma : Finite alpha -> Dec1 {alpha} p -> Dec (Exists p)
-> finiteDecLemma {p} fa dp with (decAny dp (asVect fa))
+> finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
+> finiteDecLemma {A} {P} fA dP with (decAny dP (asVect fA))
 >   | (Yes prf)   = Yes (AnyExistsLemma prf)
->   | (No contra) = No contra' where
->       %assert_total contra' :  Exists p -> Void
->       contra' (Evidence a pa) = contra (ElemAnyLemma pa (asVectLemma fa a))
-
+>   | (No contra) = No (\ e => contra (ElemAnyLemma (getProof e) (asVectLemma fA (getWitness e))))
 
 Thus, the question is whether we can implement
 
-< asVect : (fa : Finite alpha) -> Vect (getWitness fa) alpha
-< asVectLemma : (fa : Finite alpha) -> (a : alpha) -> Elem a (asVect fa)
-< AnyExistsLemma : (fa : Finite alpha) -> (p : alpha -> Type) -> Any p (asVect fa) -> Exists p
-< ElemAnyLemma : p a -> Elem a as -> Any p as
-< decAny : Dec1 p -> Dec1 (Any p)
+< asVect : {A : Type} -> (fA : Finite A) -> Vect (getWitness fA) A
+< asVectLemma : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (asVect fA)
+< AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
+< ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
+< decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
 
+and this is quite straightforward:
 
 # asVect, asVectLemma
 
-> tail : (Fin (S n) -> alpha) -> (Fin n -> alpha)
+> tail : {A : Type} -> (Fin (S n) -> A) -> (Fin n -> A)
 > tail f k = f (FS k)
 
-> toVect : (Fin n -> alpha) -> Vect n alpha
+> toVect : {A : Type} -> (Fin n -> A) -> Vect n A
 > toVect {n =   Z} _ = Nil
 > toVect {n = S m} f = (f FZ) :: (toVect (tail f)) 
 
-> toVectLemma : (f : Fin n -> alpha) -> (k : Fin n) -> Elem (f k) (toVect f)
+> toVectLemma : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> Elem (f k) (toVect f)
 > toVectLemma {n = Z} _  k     = void (uninhabited k)
 > toVectLemma         f  FZ    = Here
 > toVectLemma         f (FS j) = There (toVectLemma (tail f) j)
 
-> -- asVect : (fa : Finite alpha) -> Vect (getWitness fa) alpha
-> asVect fa = toVect (fromFin fa)
+> -- asVect : {A : Type} -> (fA : Finite A) -> Vect (getWitness fA) A
+> asVect fA = toVect (fromFin fA)
 
-> -- asVectLemma : (fa : Finite alpha) -> (a : alpha) -> Elem a (asVect fa)
-> asVectLemma fa a = s3 where
->   s1  :  Elem (fromFin fa (toFin fa a)) (asVect fa)
->   s1  =  toVectLemma (fromFin fa) (toFin fa a) 
->   s2  :  fromFin fa (toFin fa a) = a
->   s2  =  FromFinToFin fa a
->   s3  :  Elem a (asVect fa)
->   s3  =  replace {P = \ z => Elem z (asVect fa)} s2 s1
-
+> --  asVectLemma : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (asVect fA)
+> asVectLemma fA a = s3 where
+>   s1  :  Elem (fromFin fA (toFin fA a)) (asVect fA)
+>   s1  =  toVectLemma (fromFin fA) (toFin fA a) 
+>   s2  :  fromFin fA (toFin fA a) = a
+>   s2  =  FromFinToFin fA a
+>   s3  :  Elem a (asVect fA)
+>   s3  =  replace {P = \ z => Elem z (asVect fA)} s2 s1
 
 # AnyExistsLemma
 
-> -- AnyExistsLemma : Any p as -> Exists p
+> -- AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
 > AnyExistsLemma (Here {x} px) = Evidence x px 
 > AnyExistsLemma (There prf) = AnyExistsLemma prf
 
-
 # ElemAnyLemma
 
-> -- ElemAnyLemma : p a -> Elem a as -> Any p as
-> ElemAnyLemma pa Here = Here pa
-> ElemAnyLemma pa (There eaas) = There (ElemAnyLemma pa eaas)
-
+> -- ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
+> ElemAnyLemma p Here = Here p
+> ElemAnyLemma p (There e) = There (ElemAnyLemma p e)
 
 # decAny
 
-> -- decAny : Dec1 p -> Dec1 (Any p)
-> decAny dp as = any dp as
+> -- decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
+> decAny d1P = any d1P
+
+
+> {-
 
 
 Properties preserve finiteness: We want to show that
@@ -135,7 +134,7 @@ Properties preserve finiteness: We want to show that
 <        {P : alpha -> Type} ->
 <        Finite alpha -> 
 <        Dec1 {alpha} P -> 
-<        Prop1 {alpha} P -> 
+<        Unique1 {alpha} P -> 
 <        Finite (Sigma alpha P)
 
 The idea is to start by noticing the one can implement a function 
@@ -152,11 +151,12 @@ the sense that it fulfills the specification
 
 > asSigmaVectLemma : {alpha : Type} ->
 >                    {P : alpha -> Type} ->
->                    (fa : Finite alpha) -> 
+>                    (fA : Finite alpha) -> 
 >                    (dp : Dec1 {alpha} P) -> 
 >                    (s  : Sigma alpha P) -> 
->                    Elem s (getProof (asSigmaVect fa dp))
+>                    Elem s (getProof (asSigmaVect fA dp))
 
+> -}
 
 With |asSigmaVect| and |asSigmaVectLemma| one can implement
 
@@ -167,27 +167,27 @@ With |asSigmaVect| and |asSigmaVectLemma| one can implement
 >        Dec1 {alpha} Q -> 
 >        Prop1 {alpha} Q -> 
 >        Finite (Sigma alpha Q)
-> lala {alpha} {Q} fa dp pp = Evidence n iso where
+> lala {alpha} {Q} fA dp pp = Evidence n iso where
 >   n  : Nat
->   n  = getWitness (asSigmaVect fa dp)
+>   n  = getWitness (asSigmaVect fA dp)
 >   ss : Vect n (Sigma alpha Q)
->   ss = getProof (asSigmaVect fa dp)
+>   ss = getProof (asSigmaVect fA dp)
 >   iso : Iso (Sigma alpha Q) (Fin n)
 >   iso = MkIso to from toFrom fromTo where
 >       to      :  Sigma alpha Q -> Fin n
->       to s    =  lookup s ss (asSigmaVectLemma fa dp  s)
+>       to s    =  lookup s ss (asSigmaVectLemma fA dp  s)
 >       from    :  Fin n -> Sigma alpha Q
 >       from k  =  index k ss 
 >       toFrom  :  (k : Fin n) -> to (from k) = k
 >       toFrom k = ?kika where
 >         s1 : to (from k)
 >              =
->              lookup (index k ss) ss (asSigmaVectLemma fa dp (index k ss))
+>              lookup (index k ss) ss (asSigmaVectLemma fA dp (index k ss))
 >         s1 = Refl
->         s2 : lookup (index k ss) ss (asSigmaVectLemma fa dp (index k ss))
+>         s2 : lookup (index k ss) ss (asSigmaVectLemma fA dp (index k ss))
 >              =
 >              k
->         s2 = lookupIndexLemma k ss (asSigmaVectLemma fa dp (index k ss))
+>         s2 = lookupIndexLemma k ss (asSigmaVectLemma fA dp (index k ss))
 >       fromTo  :  (s : Sigma alpha Q) -> from (to s) = s
 >       fromTo  =  ?mkFromTo
 > -}
