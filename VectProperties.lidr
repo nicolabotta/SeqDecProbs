@@ -2,7 +2,12 @@
 
 
 > import Data.Vect
+> import Data.Vect.Quantifiers
 > import Data.Fin
+
+> import Prop
+> import VectOperations
+> import Decidable
 
 
 > %default total
@@ -12,13 +17,8 @@
 >   uninhabited Here impossible                                                                                          
 >   uninhabited (There p) impossible      
 
-> lookup : (a : alpha) -> 
->          (as : Vect n alpha) ->
->          Elem a as -> 
->          Fin n
-> lookup {n = Z}   a  Nil prf               = absurd prf
-> lookup {n = S m} a (a :: as)   Here       = FZ
-> lookup {n = S m} a (a' :: as) (There prf) = FS (lookup a as prf)
+
+Indexing and lookup
 
 > indexLemma : (k : Fin n) -> (xs : Vect n t) -> Elem (index k xs) xs 
 > indexLemma {n = Z}       k   Nil      = absurd k
@@ -78,3 +78,29 @@
 >   s4 = ?kika --cong FS s3
 > -}
 > -}
+
+
+Membership, quantifiers:
+
+> AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
+> AnyExistsLemma (Here {x} px) = Evidence x px 
+> AnyExistsLemma (There prf) = AnyExistsLemma prf
+
+> ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
+> ElemAnyLemma p Here = Here p
+> ElemAnyLemma p (There e) = There (ElemAnyLemma p e)
+
+> decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
+> decAny d1P = any d1P
+
+
+Filtering
+
+> filterTagLemma : {A : Type} ->
+>                  {P : A -> Type} ->
+>                  (d1P : Dec1 P) ->
+>                  (a : A) ->
+>                  (as : Vect n A) ->
+>                  Elem a as ->
+>                  (p : P a) ->
+>                  Elem (a ** p) (getProof (filterTag d1P as))

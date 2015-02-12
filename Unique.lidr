@@ -5,10 +5,17 @@
 
 
 > Unique : Type -> Type
-> Unique P = (p : P) -> (q : P) -> p = q
+> Unique t = (p : t) -> (q : t) -> p = q
 
 > Unique0 : Type -> Type
 > Unique0 = Unique
 
-> Unique1 : {t0 : Type} -> (t0 -> Type) -> Type
-> Unique1 {t0} P = (a : t0) -> Unique0 (P a) 
+> Unique1 : (t0 -> Type) -> Type
+> Unique1 {t0} t1 = (v : t0) -> Unique0 (t1 v) 
+
+> {- Maybe implement via a type class ?
+
+> class Unique t where
+>   unique : (p : t) -> (q : t) -> p = q 
+ 
+> -}

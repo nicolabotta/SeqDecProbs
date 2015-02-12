@@ -2,6 +2,7 @@
 
 > import Data.Fin
 > import Control.Isomorphism
+> import Syntax.PreorderReasoning
 
 > import Basics
 > import NatProperties
@@ -13,6 +14,8 @@
 > %default total
 
 
+Bounded |Nat|s
+
 > LTB : Nat -> Type
 > LTB b = Sigma Nat (\ n  => LT n b)
 
@@ -20,10 +23,22 @@
 >   uninhabited (n ** prf) = absurd prf
 
 
+Towards showing that bounded |Nat|s are finite: mappings to and from
+|Fin|s:
+
 > toFin : (Sigma Nat (\ n => LT n b)) -> Fin b
 > toFin {b = Z}   (_   ** nLT0)        = void (succNotLTEzero nLT0)
 > toFin {b = S m} (Z   ** _)           = FZ
 > toFin {b = S m} (S n ** LTESucc prf) = FS (toFin (n ** prf))
+
+> fromFin : Fin b -> (Sigma Nat (\ n => LT n b))
+> fromFin k = (finToNat k ** finToNatLemma k)
+
+
+Useful properties of |toFin|:
+
+> toFinLemma6 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
+>               toFin (S n ** LTESucc prf) = FS (toFin (n ** prf))
 
 > toFinLemma0 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNat (toFin (n ** prf)) = n
@@ -34,21 +49,40 @@
 
 > toFinLemma1 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNat (FS (toFin (n ** prf))) = S n
-> toFinLemma1 n b prf = trans s1 s2 where
->   s1 : finToNat (FS (toFin (n ** prf)))
->        =
->        S (finToNat (toFin (n ** prf)))
->   s1 = Refl
->   s2 : S (finToNat (toFin (n ** prf)))
->        =
->        S n
->   s2 = cong (toFinLemma0 n b prf)
+> toFinLemma1 n b prf = 
+>     ( finToNat (FS (toFin (n ** prf))) )
+>   ={ Refl }=                             -- definition of |finToNat|
+>     ( S (finToNat (toFin (n ** prf)))  )
+>   ={ cong (toFinLemma0 n b prf) }=       -- |toFinLemma0|, functionality of |S|
+>     ( S n                              )
+>   QED
 
 > toFinLemma2 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (toFin (n ** prf)) = prf
 > toFinLemma2   n     Z     prf              = absurd prf
 > toFinLemma2   Z    (S b) (LTESucc LTEZero) = Refl
-> toFinLemma2  (S n) (S b) (LTESucc prf) = trans s1 (trans s2 s4) where
+> {-
+> toFinLemma2  (S n) (S b) (LTESucc prf) = 
+>     ( finToNatLemma (toFin (S n ** LTESucc prf)) )
+>   ={ Refl }=                                       -- definition of |toFin|
+>     ( finToNatLemma (FS (toFin (n ** prf)))      )
+>   ={ Refl }=                                       -- definition of |finToNatLemma| 
+>     ( LTESucc (finToNatLemma (toFin (n ** prf))) )
+>   ={ depCong2' {alpha = Nat}
+>                {P = \ n => LT n b}
+>                {Q = \ n, prf => LT (S n) (S b)}
+>                {a1 = finToNat (toFin (n ** prf))}
+>                {a2 = n}
+>                {Pa1 = finToNatLemma (toFin (n ** prf))}
+>                {Pa2 = prf}
+>                (\ n, prf => LTESucc prf)
+>                (toFinLemma0 n b prf)
+>                (toFinLemma2 n b prf) }=
+>     ( LTESucc prf                                )
+>   QED
+> -}
+> --{-
+> toFinLemma2  (S n) (S b) (LTESucc prf) = trans s1 (trans s2 s3) where
 >   s1 : finToNatLemma (toFin (S n ** LTESucc prf))
 >        =
 >        finToNatLemma (FS (toFin (n ** prf)))
@@ -57,14 +91,10 @@
 >        =
 >        LTESucc (finToNatLemma (toFin (n ** prf)))
 >   s2 = Refl
->   s3 : finToNatLemma (toFin (n ** prf))
->        =
->        prf
->   s3 = toFinLemma2 n b prf
->   s4 : LTESucc (finToNatLemma (toFin (n ** prf)))
+>   s3 : LTESucc (finToNatLemma (toFin (n ** prf)))
 >        =
 >        LTESucc prf
->   s4 = depCong2' {alpha = Nat}
+>   s3 = depCong2' {alpha = Nat}
 >                  {P = \ n => LT n b}
 >                  {Q = \ n, prf => LT (S n) (S b)}
 >                  {a1 = finToNat (toFin (n ** prf))}
@@ -73,10 +103,23 @@
 >                  {Pa2 = prf}
 >                  (\ n, prf => LTESucc prf)
 >                  (toFinLemma0 n b prf)
->                  s3
+>                  (toFinLemma2 n b prf)
+> ---}
 
 > toFinLemma3 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
 >               finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
+> {-
+> toFinLemma3 n b prf = 
+>     ( finToNatLemma (FS (toFin (n ** prf)))      )
+>   ={ replace {a = Fin (S b)} 
+>              {x = FS (toFin (n ** prf))} 
+>              {y = toFin (S n ** LTESucc prf)} 
+>              {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x} 
+>              Refl Refl }=                                       
+>     ( finToNatLemma (toFin (S n ** LTESucc prf)) )
+>   ={ toFinLemma2 (S n) (S b) (LTESucc prf) }=                                       
+>     ( LTESucc prf                                )
+> -}   
 > toFinLemma3 n b prf = trans s1 s2 where
 >   s0 : FS (toFin (n ** prf)) = toFin (S n ** LTESucc prf)
 >   s0 = Refl
@@ -93,8 +136,8 @@
 >        LTESucc prf
 >   s2 = toFinLemma2 (S n) (S b) (LTESucc prf)
 
-> fromFin : Fin b -> (Sigma Nat (\ n => LT n b))
-> fromFin k = (finToNat k ** finToNatLemma k)
+
+|toFin| is the left-inverse of |fromFin|:
 
 > toFinFromFinLemma : (k : Fin b) -> toFin (fromFin k) = k
 > toFinFromFinLemma {b = Z} k = absurd k
@@ -103,6 +146,9 @@
 >   let ih = toFinFromFinLemma k in
 >   rewrite ih in
 >   Refl
+
+
+|fromFin| is the left-inverse of |toFin|:
 
 > fromFinToFinLemma : (n : LTB b) -> fromFin (toFin n) = n
 > fromFinToFinLemma {b = Z}   m = absurd m
@@ -130,46 +176,11 @@
 >   s6 = trans s1 (trans s2 s5)
 
 
+Bounded |Nat|s are finite:
+
 > finiteLTB : (b : Nat) -> Finite (LTB b)
 > finiteLTB b = Evidence b iso where
 >   iso : Iso (LTB b) (Fin b)
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma
 
 
-> {-
-
-> BltLemma0 : Blt Z -> alpha
-> BltLemma0 (Z ** p)    =  soFalseElim p 
-> BltLemma0 (S n ** p)  =  soFalseElim p 
-
-> toNat : Blt b -> Nat
-> toNat = outl
-
-> toFloat : Blt b -> Float
-> toFloat = cast . (cast . (cast . Blt.toNat))
-
--- > (==) : Blt b -> Blt b -> Bool
--- > (==) i j = (toNat i == toNat j)
-
-> using (p : Nat -> Type)
->   instance Show (n : Nat ** p n) where
->     show (n ** _) = show n
-
-> using (p : Nat -> Type)
->   instance Eq (n : Nat ** p n) where
->     (==) (n ** _) (n' ** _) = n == n'
-
-> decBlt : (i : Blt b) -> (p : Blt.toNat i = S m) -> Blt b
-> decBlt (S k ** q) Refl = (k ** Sid_preserves_LT q)
-> decBlt (  Z ** q) Refl impossible
-
-> incBlt : (n : Blt b) -> So (S (Blt.toNat n) < b) -> Blt b
-> incBlt (k ** _) q = (S k ** q)  
-
-> toVect : {b : Nat} -> (Blt b -> a) -> Vect b a
-> toVect {b = Z} _ = Nil
-> toVect {b = S b'} {a = a} f = ((f (Z ** Oh)) :: toVect f') where
->   f' : Blt b' -> a
->   f' (k ** q) = f (S k ** monotoneS q)  
-  
-> -}
