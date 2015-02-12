@@ -7,6 +7,7 @@
 
 > import Prop
 > import VectOperations
+> import Decidable
 
 
 > %default total
@@ -88,3 +89,18 @@ Membership, quantifiers:
 > ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
 > ElemAnyLemma p Here = Here p
 > ElemAnyLemma p (There e) = There (ElemAnyLemma p e)
+
+> decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
+> decAny d1P = any d1P
+
+
+Filtering
+
+> filterTagLemma : {A : Type} ->
+>                  {P : A -> Type} ->
+>                  (d1P : Dec1 P) ->
+>                  (a : A) ->
+>                  (as : Vect n A) ->
+>                  Elem a as ->
+>                  (p : P a) ->
+>                  Elem (a ** p) (getProof (filterTag d1P as))

@@ -7,6 +7,7 @@
 
 > import Finite
 > import FinOperations
+> import IsomorphismOperations
 
 
 > %default total 
@@ -28,6 +29,8 @@ type) and an isomorphism to |Fin n|. Here we extract the isomorphism.
 > iso = getProof
 
 
+> {-
+
 Finite types are dependent pairs: an |n : Nat| (the cardinality of the
 type) and an isomorphism to |Fin n|. Here we extract the components of
 the isomorphism.
@@ -48,6 +51,7 @@ the isomorphism.
 > FromFinToFin : {A : Type} -> (fA : Finite A) -> (a : A) -> fromFin fA (toFin fA a) = a
 > FromFinToFin (Evidence n (MkIso to from toFrom fromTo)) = fromTo
 
+> -}
 
 We can represent a finite type |A| of cardinality |n| with a vector of
 elements of type |A| of length |n|. This can be done by calling
@@ -55,6 +59,7 @@ elements of type |A| of length |n|. This can be done by calling
 
 > ||| Maps a finite type |A| of cardinality |n| to a vector of |A|-values of length |n| 
 > toVect : {A : Type} -> (fA : Finite A) -> Vect (card fA) A
-> toVect fA = toVect (fromFin fA) 
-
+> toVect (Evidence n iso) = toVect (from iso)
+> -- toVect fA = toVect (from (iso fA))  
+> -- toVect fA = toVect (fromFin fA) 
 

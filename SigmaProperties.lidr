@@ -1,7 +1,15 @@
 > module SigmaProperties
 
 
+> import Data.Fin
+> import Data.Vect
+> import Control.Isomorphism
+
+> import SigmaOperations
+> import VectOperations
 > import Decidable
+> import Finite
+> import FiniteOperations
 > import Unique
 
 
@@ -56,6 +64,7 @@ Decidability of Sigma equality:
 >     sigmaDecEqLemma1 da d1p (a1 ** pa1) (a1 ** pa2) | (Yes Refl) | (No contra) = No (\ eq => contra (getProofPreservesEq eq))     
 >   sigmaDecEqLemma1 da d1p (a1 ** pa1) (a2 ** pa2)   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
 
+
 > ||| Decidability of equality 2
 > sigmaDecEqLemma2 : {A : Type} ->
 >                    {P : A -> Type} ->
@@ -67,4 +76,26 @@ Decidability of Sigma equality:
 > sigmaDecEqLemma2 da p1P s1 s2 with (decEq (getWitness s1) (getWitness s2)) 
 >   | (Yes prf)   = Yes (sigmaEqLemma1 s1 s2 prf (p1P (getWitness s1)))
 >   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
+
+
+We want to show that |toVect| is complete
+
+> ||| |toVect| is complete
+> toVectComplete : {A   : Type} ->
+>                  {P   : A -> Type} ->
+>                  (fA  : Finite A) -> 
+>                  (d1P : Dec1 P) -> 
+>                  Unique1 {t0 = A} P ->
+>                  (s   : Sigma A P) -> 
+>                  Elem s (getProof (toVect fA d1P))
+> toVectComplete fA d1P u1P (a ** p) = s11 where
+>   s01 : Elem a (map getWitnedd (getProof (toVect fA d1P)))
+>   s01 = ?lika
+>   s11 : Elem (a ** p) (getProof (toVect fA d1P))
+>   s11 = ?kika
+
+
+We start with something simpler
+
+
 

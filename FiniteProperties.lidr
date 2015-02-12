@@ -12,48 +12,60 @@
 > import FinOperations
 > import FinProperties
 > import VectProperties
-> -- import Unique
-> -- import SigmaProperties
+> import IsomorphismOperations
 
 
 > %default total 
 
+> -- toVectComplete : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> Elem (f k) (toVect f)
+
 
 > ||| |toVect| representations of finite types are complete
 > toVectComplete : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (toVect fA)
+> toVectComplete (Evidence n iso) a = s3 where
+>   s1  :  Elem (from iso (to iso a)) (toVect (from iso))
+>   s1  =  toVectComplete (from iso) (to iso a) 
+>   s2  :  from iso (to iso a) = a
+>   s2  =  fromTo iso a
+>   s3  :  Elem a (toVect (from iso))
+>   s3  =  replace {P = \ z => Elem z (toVect (from iso))} s2 s1
+> {-
 > toVectComplete fA a = s3 where
 >   s1  :  Elem (fromFin fA (toFin fA a)) (toVect fA)
->   s1  =  toVectComplete (fromFin fA) (toFin fA a) 
+>   s1  =  FinProperties.toVectComplete (fromFin fA) (toFin fA a) 
 >   s2  :  fromFin fA (toFin fA a) = a
 >   s2  =  FromFinToFin fA a
 >   s3  :  Elem a (toVect fA)
 >   s3  =  replace {P = \ z => Elem z (toVect fA)} s2 s1
+> -}
 
 
-Finiteness implies decidability: We want to show that
+We want to show that, for a finite type |A| and a decidable predicate |P
+: A -> Prop|, |Exists P| is decidable
 
 < finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
 
-It is useful to recall that if a predicate |P : A -> Prop| is decidable,
-we have a decision procedure to assess whether in a vector of of type
-|A| there exists an element that fulfills |P|:
+It is useful to recall (see "VectProperties.lidr") that
 
-> decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
-> decAny d1P = any d1P
-
-Further, it is useful to remember (see "VectProperties.lidr") that
-
+< decAny         : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
 < AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
-< ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
+< ElemAnyLemma   : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
 
-With these premises, proving |finiteDecLemma| is straightforward:
+With these premises, proving |finiteDecLemma| is almost straightforward:
 
 > finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
 > finiteDecLemma fA dP with (decAny dP (toVect fA))
 >   | (Yes prf)   = Yes (AnyExistsLemma prf)
 >   | (No contra) = No (\ e => contra (ElemAnyLemma (getProof e) (toVectComplete fA (getWitness e))))
 
-
+We pattern match on |decAny dP (toVect fA)|: the result is either a |prf
+: Any P (toVect fA)| or a function |contra : Any P (toVect fA) ->
+Void|. In the first case we just apply |AnyExistsLemma| to |prf|. This
+gives us a value of type |Exists P| which is what we need. In the second
+case we have to implement a function of type |Exists P -> Void|. We do
+this by applying |contra|. To this end, we need a value of type |Any P
+(toVect fA)|. We compute a value of type |Any P (toVect fA)| by applying
+|ElemAnyLemma|.
 
 
 
@@ -71,15 +83,6 @@ Properties preserve finiteness: We want to show that
 
 The idea is to start by noticing the one can implement a function 
 
-> asSigmaVect : {alpha : Type} ->
->               {P : alpha -> Type} ->
->               Finite alpha -> 
->               Dec1 {alpha} P -> 
->               (n ** Vect n (Sigma alpha P))
- 
-
-that provides a |Vect|-representation of a subtype of a finite type in
-the sense that it fulfills the specification
 
 > asSigmaVectLemma : {alpha : Type} ->
 >                    {P : alpha -> Type} ->
