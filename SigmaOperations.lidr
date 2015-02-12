@@ -1,6 +1,5 @@
 > module SigmaOperations
 
-
 > import Data.Fin
 > import Data.Vect
 > import Control.Isomorphism

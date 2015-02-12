@@ -1,6 +1,5 @@
 > module NatProperties
 
-
 > import Prop
 
 

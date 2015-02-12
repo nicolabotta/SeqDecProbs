@@ -1,3 +1,58 @@
+2015-02-12: Patrik: Overview of the files and their imports 
+  TODO: refactor the imports a bit more
+
+  (While I was off-line a few other commits had solved most of the
+  same issues as I did. But some new files were also added and this is
+  now the new inventory.)
+
+  No imports:
+    Basics.lidr                    -- OK
+    Prop.lidr                      -- OK
+    Unique.lidr                    -- OK
+    Decidable.lidr                 -- OK
+
+  No local imports:
+    Finite.lidr                    -- OK
+    FinOperations.lidr             -- OK
+    IsomorphismOperations.lidr     -- OK
+
+  Almost no local imports:
+    FinProperties.lidr             -- OK
+    NatProperties.lidr             -- OK
+    VectOperations.lidr            -- OK
+    VectProperties.lidr            -- OK, but 1 unsolved meta
+
+  Module name same as Finite.lidr: TODO
+    finite.lidr                    -- OK, but finiteDecLemma complains about possible partiality
+
+  Intermediate modules (more local dependencies):
+    BoundedNat.lidr                -- OK, but 3 unsolved metas (2 SigmaProperties, 1 BoundedNat)
+      import Basics, NatProperties, SigmaProperties, FinProperties, Finite
+
+    FiniteOperations.lidr          -- OK
+      import Finite, FinOperations, IsomorphismOperations
+    FiniteProperties.lidr          -- OK, but 1 unsolved meta (from VectProperties)
+      import Finite, FinOperations, IsomorphismOperations,    
+                     FinProperties,
+             FiniteOperations, 
+             Prop, Decidable, 
+             VectProperties
+
+    SigmaOperations.lidr           -- OK
+      import Finite, Decidable, Unique, FiniteOperations, VectOperations
+
+    SigmaProperties.lidr           -- OK, but 2 unsolved metas
+      import SigmaOperations, 
+             Finite, Decidable, Unique, FiniteOperations, VectOperations
+
+  Goals:
+    tagging.lidr                   -- can't unify something with getW
+    stochastic.lidr                -- OK, but 4 unsolved metas
+    monadic.lidr                   -- OK, with _many_ unsolved metas
+
+  Code from the Idris tutorial section of the paper:
+    funprogintro.lidr              -- OK, but 3 unsolved metas
+
 2015-02-12: Patrik: trying out the files
 
 VectProperties.lidr  -- OK!
