@@ -7,7 +7,7 @@
 > import Control.Isomorphism
 
 > import Decidable
-> import Proposition
+> import Prop
 > import SigmaProperties
 > import VectProperties
 

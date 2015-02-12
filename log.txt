@@ -1,0 +1,28 @@
+2015-02-12: Patrik: trying out the files
+
+VectProperties.lidr  -- OK!
+Basics.lidr          -- OK!
+Decidable.lidr       -- OK!
+FinProperties.lidr   -- OK!
+finite.lidr          -- OK!
+funprogintro.lidr    -- OK, with 3 unsolved metas
+
+monadic.lidr         -- can't find Prop
+NatProperties.lidr   -- can't find Prop
+BoundedNat.lidr      -- can't find Prop
+Finite.lidr          -- can't find Proposition
+SigmaProperties.lidr -- can't find Unique
+tagging.lidr         -- can't unify womething with getW
+
+Checking recent commits: it looks like what was in Proposition should
+now be (renamed and in) Unique. => SigmaProperties fixed.
+And it looks like Prop is just Prop = Type.
+This solves five out of six problems:
+monadic.lidr         -- OK, with _many_ unsolved metas
+NatProperties.lidr   -- OK
+BoundedNat.lidr      -- OK (with 2 unsolved metas from Finite)
+Finite.lidr          -- OK, with 2 unsolved metas
+SigmaProperties.lidr -- OK
+
+Left is:
+tagging.lidr         -- can't unify womething with getW
