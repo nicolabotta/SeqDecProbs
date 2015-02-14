@@ -1,3 +1,8 @@
+2015-02-13: Patrik: 
+
+  Added EmbProj which could be more handy for some finite sets (see
+  comment in Finite.lidr).
+
 2015-02-12: Patrik: Overview of the files and their imports 
   TODO: refactor the imports a bit more
 
