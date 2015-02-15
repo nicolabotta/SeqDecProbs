@@ -17,3 +17,8 @@ alternative definition which may be more convenient is the following:
 
 > FiniteSub : Type -> Type
 > FiniteSub A = Exists (\ n => EmbProj A (Fin n))
+
+----------------
+
+> FiniteN : Nat -> Type -> Type
+> FiniteN n A = Iso A (Fin n)

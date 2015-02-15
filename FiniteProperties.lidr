@@ -132,3 +132,53 @@ With |asSigmaVect| and |asSigmaVectLemma| one can implement
 >                    (xs : Vect n t) ->
 >                    lookup (index k xs) xs (indexLemma k xs) = k
 > -}
+
+
+----
+
+An attempt to port the proof from the Vect world to the Finite world.
+
+> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
+> finiteDecLemma2 fA dP = ?lala
+
+Pseudo-code: case on the size |n| of the finite set
+0: empty set => No 
+(n+1): case P (A 0) of
+         Yes -> Yes
+         No  -> recursive call with slightly smaller Finite
+
+Some helpers needed to map between Dec's etc.
+
+> decIso : {X : Type} -> {Y : Type} -> Iso X Y -> Dec X -> Dec Y
+> decIso (MkIso to from _ _) (Yes x) = Yes (to x)
+> decIso (MkIso to from _ _) (No nx) = No (nx . from)
+
+In fact, Iso is not needed - we can map already with just any pair of functions:
+
+> decIso' : {X : Type} -> {Y : Type} -> (to : X -> Y) -> (from : Y -> X) -> Dec X -> Dec Y
+> decIso' to from (Yes x) = Yes (to x)
+> decIso' to from (No nx) = No (nx . from)
+
+This may also be weakened:
+
+> existsIso : {A : Type} -> {P : A -> Type} -> {Q : A -> Type} -> 
+>             (allIso : (a : A) -> Iso (P a) (Q a)) -> Iso (Exists P) (Exists Q)
+> existsIso allIso = ?hej
+
+> lemmaZ : {A : Type} -> FiniteN Z A -> {P : A -> Prop} -> Dec1 P -> Dec (Exists P)
+> lemmaZ (MkIso to from _ _) _ = No (\(Evidence wit pro)=> FinZElim (to wit))
+
+This is roughly where we want to end up:
+
+> lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> {P : A -> Prop} -> Dec1 P -> Dec (Exists P)
+> lemma Z     = lemmaZ
+> lemma (S n) = ?lalaS
+
+But this simpler version should be possible to extend using decIso:
+TODO: continue.
+
+> simpler : (n : Nat) -> (P : Fin n -> Prop) -> Dec1 P -> Dec (Exists P)
+> simpler Z P dP = No (\(Evidence wit pro)=> FinZElim wit)
+> simpler (S n) P dP with (dP FZ)
+>   simpler (S n) P dP | (Yes x) = Yes (Evidence FZ x)
+>   simpler (S n) P dP | (No nx) = decIso' ?q ?r (simpler n (\i => P (FS i)) ?uru)
