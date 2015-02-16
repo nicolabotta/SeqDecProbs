@@ -67,73 +67,6 @@ this by applying |contra|. To this end, we need a value of type |Any P
 (toVect fA)|. We compute a value of type |Any P (toVect fA)| by applying
 |ElemAnyLemma|.
 
-
-
-> {-
-
-
-Properties preserve finiteness: We want to show that
-
-< lala : {alpha : Type} -> 
-<        {P : alpha -> Type} ->
-<        Finite alpha -> 
-<        Dec1 {alpha} P -> 
-<        Unique1 {alpha} P -> 
-<        Finite (Sigma alpha P)
-
-The idea is to start by noticing the one can implement a function 
-
-
-> asSigmaVectLemma : {alpha : Type} ->
->                    {P : alpha -> Type} ->
->                    (fA : Finite alpha) -> 
->                    (dp : Dec1 {alpha} P) -> 
->                    (s  : Sigma alpha P) -> 
->                    Elem s (getProof (asSigmaVect fA dp))
-
-> -}
-
-With |asSigmaVect| and |asSigmaVectLemma| one can implement
-
-> {-
-> lala : {alpha : Type} -> 
->        {Q : alpha -> Type} ->
->        Finite alpha -> 
->        Dec1 {alpha} Q -> 
->        Prop1 {alpha} Q -> 
->        Finite (Sigma alpha Q)
-> lala {alpha} {Q} fA dp pp = Evidence n iso where
->   n  : Nat
->   n  = getWitness (asSigmaVect fA dp)
->   ss : Vect n (Sigma alpha Q)
->   ss = getProof (asSigmaVect fA dp)
->   iso : Iso (Sigma alpha Q) (Fin n)
->   iso = MkIso to from toFrom fromTo where
->       to      :  Sigma alpha Q -> Fin n
->       to s    =  lookup s ss (asSigmaVectLemma fA dp  s)
->       from    :  Fin n -> Sigma alpha Q
->       from k  =  index k ss 
->       toFrom  :  (k : Fin n) -> to (from k) = k
->       toFrom k = ?kika where
->         s1 : to (from k)
->              =
->              lookup (index k ss) ss (asSigmaVectLemma fA dp (index k ss))
->         s1 = Refl
->         s2 : lookup (index k ss) ss (asSigmaVectLemma fA dp (index k ss))
->              =
->              k
->         s2 = lookupIndexLemma k ss (asSigmaVectLemma fA dp (index k ss))
->       fromTo  :  (s : Sigma alpha Q) -> from (to s) = s
->       fromTo  =  ?mkFromTo
-> -}
-
-> {-
-> lookupIndexLemma : (k : Fin n) ->
->                    (xs : Vect n t) ->
->                    lookup (index k xs) xs (indexLemma k xs) = k
-> -}
-
-
 ----
 
 An attempt to port the proof from the Vect world to the Finite world.
@@ -148,37 +81,81 @@ Pseudo-code: case on the size |n| of the finite set
          No  -> recursive call with slightly smaller Finite
 
 Some helpers needed to map between Dec's etc.
-
-> decIso : {X : Type} -> {Y : Type} -> Iso X Y -> Dec X -> Dec Y
-> decIso (MkIso to from _ _) (Yes x) = Yes (to x)
-> decIso (MkIso to from _ _) (No nx) = No (nx . from)
-
 In fact, Iso is not needed - we can map already with just any pair of functions:
 
 > decIso' : {X : Type} -> {Y : Type} -> (to : X -> Y) -> (from : Y -> X) -> Dec X -> Dec Y
 > decIso' to from (Yes x) = Yes (to x)
 > decIso' to from (No nx) = No (nx . from)
 
-This may also be weakened:
+> decIso : {X : Type} -> {Y : Type} -> Iso X Y -> Dec X -> Dec Y
+> decIso (MkIso to from _ _) = decIso' to from
 
-> existsIso : {A : Type} -> {P : A -> Type} -> {Q : A -> Type} -> 
->             (allIso : (a : A) -> Iso (P a) (Q a)) -> Iso (Exists P) (Exists Q)
-> existsIso allIso = ?hej
+This |lemma| is roughly where we want to end up:
 
-> lemmaZ : {A : Type} -> FiniteN Z A -> {P : A -> Prop} -> Dec1 P -> Dec (Exists P)
-> lemmaZ (MkIso to from _ _) _ = No (\(Evidence wit pro)=> FinZElim (to wit))
+< lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> {P : A -> Prop} -> Dec1 P -> Dec (Exists P)
 
-This is roughly where we want to end up:
+But let's start with a simpler version, ignoring A for now:
 
-> lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> {P : A -> Prop} -> Dec1 P -> Dec (Exists P)
-> lemma Z     = lemmaZ
-> lemma (S n) = ?lalaS
+< decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> (dP : Dec1 P) -> Dec (Exists P)
 
-But this simpler version should be possible to extend using decIso:
-TODO: continue.
+Dec (Exists P) is either Yes (an index (i : Fin n) and a proof (p : P
+i)) or No (a function showing that any such "index+proof-pair" is
+absurd). To show that we compute the lowest index for which we get a
+Yes, or No if no such index exists.
 
-> simpler : (n : Nat) -> (P : Fin n -> Prop) -> Dec1 P -> Dec (Exists P)
-> simpler Z P dP = No (\(Evidence wit pro)=> FinZElim wit)
-> simpler (S n) P dP with (dP FZ)
->   simpler (S n) P dP | (Yes x) = Yes (Evidence FZ x)
->   simpler (S n) P dP | (No nx) = decIso' ?q ?r (simpler n (\i => P (FS i)) ?uru)
+A predicate over |Fin n| can be seen as a vector, so we start with the
+helper function |tailPred|:
+
+> tailPred : {T : Type} -> (Fin (S n) -> T) -> (Fin n -> T)
+> tailPred P = P . FS
+
+Similarly |Dec1| over |Fin n| can be seen as a vector of decidability
+tests. Thus we also need a |Dec1|-version of tail:
+
+> tailDec1 : {n : Nat} -> {P : Fin (S n) -> Type} -> Dec1 P -> Dec1 (tailPred P)
+> tailDec1 dP = \x => dP (FS x)
+
+Next we define the base- and step-case for decidability of predicates
+over |Fin n|:
+
+> decNil : {P : Fin 0 -> Type} -> Dec (Exists P)
+> decNil = No (\(Evidence wit pro)=> FinZElim wit)
+
+We defined |decCons| to combine decidability tests for the "head" and
+the "tail" of a predicate |P| into decidability for the full
+predicate. (Pick the lowest index with a |Yes|.)
+
+> using (n : Nat, P : Fin (S n) -> Prop)
+>   exiCons  :                    Exists (tailPred P)  ->      Exists P
+>   exiCons (Evidence i p) = Evidence (FS i) p
+    
+>   nExiCons : Not (P FZ) -> Not (Exists (tailPred P)) -> Not (Exists P) 
+>   nExiCons n0 nt (Evidence FZ      p) = n0 p
+>   nExiCons n0 nt (Evidence (FS i)  p) = nt (Evidence i p)
+    
+>   decCons  : Dec (P FZ) -> Dec (Exists (tailPred P)) -> Dec (Exists P)
+>   decCons (Yes p) _        = Yes (Evidence FZ p)
+>   decCons (No np) (Yes pt) = Yes (exiCons pt)
+>   decCons (No np) (No npt) = No  (nExiCons np npt)
+
+Find the lowest index for which |dP| says |Yes|.
+
+> decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> (dP : Dec1 P) -> Dec (Exists P)
+> decExistsFin Z     P dP = decNil
+> decExistsFin (S n) P dP = decCons (dP FZ) (decExistsFin n (tailPred P) (tailDec1 dP))
+
+With the simpler case out of the way we can return to the more general case:
+
+> existsIsoTo : {X : Type} -> {Y : Type} -> 
+>             (iso : Iso X Y) -> (P : X -> Type) -> 
+>             Exists (P . (from iso)) -> Exists P
+> existsIsoTo {X} {Y} iso P (Evidence y pf) = Evidence (from iso y) pf
+
+> existsIsoFrom : {X : Type} -> {Y : Type} -> 
+>             (iso : Iso X Y) -> (P : X -> Type) -> 
+>             Exists P -> Exists (P . (from iso))
+> existsIsoFrom {X} {Y} iso P (Evidence x pf) = Evidence (to iso x) ?todo
+
+> lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
+> lemma n iso P dP = decIso' (existsIsoTo iso P) (existsIsoFrom iso P) (decExistsFin n (P . (from iso)) (\x => dP (from iso x)))
+
