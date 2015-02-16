@@ -45,6 +45,8 @@ We want to show that, for a finite type |A| and a decidable predicate |P
 
 < finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
 
+(See also |finiteDecLemma2| which is a proof without using vectors.)
+
 It is useful to recall (see "VectProperties.lidr") that
 
 < decAny         : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
@@ -69,10 +71,7 @@ this by applying |contra|. To this end, we need a value of type |Any P
 
 ----
 
-An attempt to port the proof from the Vect world to the Finite world.
-
-> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
-> finiteDecLemma2 fA dP = ?lala
+Porting the proof from the Vect world to the Finite world.
 
 Pseudo-code: case on the size |n| of the finite set
 0: empty set => No 
@@ -146,6 +145,11 @@ Find the lowest index for which |dP| says |Yes|.
 
 With the simpler case out of the way we can return to the more general case:
 
+> coerce : {A : Type} -> 
+>          {x : A} -> {y : A} -> (x = y) -> 
+>          {P : A -> Type} -> P x -> P y
+> coerce Refl px = px
+
 > existsIsoTo : {X : Type} -> {Y : Type} -> 
 >             (iso : Iso X Y) -> (P : X -> Type) -> 
 >             Exists (P . (from iso)) -> Exists P
@@ -154,8 +158,20 @@ With the simpler case out of the way we can return to the more general case:
 > existsIsoFrom : {X : Type} -> {Y : Type} -> 
 >             (iso : Iso X Y) -> (P : X -> Type) -> 
 >             Exists P -> Exists (P . (from iso))
-> existsIsoFrom {X} {Y} iso P (Evidence x pf) = Evidence (to iso x) ?todo
+> existsIsoFrom {X} {Y} iso P (Evidence x pf) = Evidence (to iso x) pf'
+>   where
+>     pf' : P (from iso (to iso x))
+>     pf' = coerce (sym (fromTo iso x)) pf
 
-> lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
-> lemma n iso P dP = decIso' (existsIsoTo iso P) (existsIsoFrom iso P) (decExistsFin n (P . (from iso)) (\x => dP (from iso x)))
+This is the core result:
 
+> finiteDecHelper : (n : Nat) -> {A : Type} -> FiniteN n A -> (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
+> finiteDecHelper n iso P dP = decIso' (existsIsoTo   iso P) 
+>                                      (existsIsoFrom iso P) 
+>                                      (decExistsFin n  (P . (from iso)) 
+>                                                       (\x => dP (from iso x)))
+
+which can be packaged up as what we aimed for at the beginning:
+
+> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
+> finiteDecLemma2 {P} (Evidence n iso) dP = finiteDecHelper n iso P dP
