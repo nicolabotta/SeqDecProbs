@@ -91,6 +91,14 @@ Useful properties of |toFin|:
 >        =
 >        LTESucc (finToNatLemma (toFin (n ** prf)))
 >   s2 = Refl
+>   sx : finToNatLemma (toFin (n ** prf))
+>        =
+>        prf
+>   sx = toFinLemma2 n b prf
+>   sy : LTESucc (finToNatLemma (toFin (n ** prf)))
+>        =
+>        LTESucc prf
+>   -- sy = cong {a = finToNatLemma (toFin (n ** prf))} {b = prf} {f = LTESucc} sx
 >   s3 : LTESucc (finToNatLemma (toFin (n ** prf)))
 >        =
 >        LTESucc prf

@@ -18,6 +18,19 @@
 > lookup {n = S m} a (a' :: as) (There prf) = FS (lookup a as prf)
 
 
+> ||| Filters a vector on a decidable property
+> filter : {A : Type} ->
+>          {P : A -> Type} ->
+>          Dec1 P ->
+>          Vect n A -> 
+>          (m : Nat ** Vect m A)
+> filter d1P Nil = (Z ** Nil)
+> filter d1P (a :: as) with (filter d1P as)
+>   | (n ** as') with (d1P a)
+>     | (Yes _) = (S n ** a :: as')
+>     | (No  _) = (n ** as')
+
+
 > ||| Filters a vector on a decidable property and pairs elements with proofs
 > filterTag : {A : Type} ->
 >             {P : A -> Type} ->
