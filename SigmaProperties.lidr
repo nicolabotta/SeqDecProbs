@@ -5,12 +5,12 @@
 > import Data.Vect
 > import Control.Isomorphism
 
-> import SigmaOperations
-> import VectOperations
 > import Decidable
 > import Finite
-> import FiniteOperations
 > import Unique
+> import SigmaOperations
+> import VectOperations
+> import FiniteOperations
 
 
 > %default total
@@ -80,7 +80,31 @@ Decidability of Sigma equality:
 
 We want to show that |toVect| is complete
 
-> ||| |toVect| is complete
+< toVectComplete : {A   : Type} ->
+<                  {P   : A -> Type} ->
+<                  (fA  : Finite A) -> 
+<                  (d1P : Dec1 P) -> 
+<                  Unique1 {t0 = A} P ->
+<                  (s   : Sigma A P) -> 
+<                  Elem s (getProof (toVect fA d1P))
+
+We start with something a bit simpler
+
+
+
+
+> lala : {A   : Type} ->
+>        {P   : A -> Type} ->
+>        Unique1 {t0 = A} P ->
+>        (a : A) ->
+>        (p : P a) ->
+>        (ss : Vect n (Sigma A P)) ->
+>        Elem a (map getWitness ss) -> 
+>        Elem (a ** p) ss
+> lala u1P a p Nil Here impossible       
+> lala u1P a p Nil (There _) impossible       
+> -- lala u1P a p (s :: ss) Here = Here {x = (a ** p)} {xs = ss}  
+
 > toVectComplete : {A   : Type} ->
 >                  {P   : A -> Type} ->
 >                  (fA  : Finite A) -> 
@@ -89,13 +113,8 @@ We want to show that |toVect| is complete
 >                  (s   : Sigma A P) -> 
 >                  Elem s (getProof (toVect fA d1P))
 > toVectComplete fA d1P u1P (a ** p) = s11 where
->   s01 : Elem a (map getWitnedd (getProof (toVect fA d1P)))
+>   s01 : Elem a (map Sigma.getWitness (getProof (toVect fA d1P)))
 >   s01 = ?lika
 >   s11 : Elem (a ** p) (getProof (toVect fA d1P))
->   s11 = ?kika
-
-
-We start with something simpler
-
-
+>   s11 = lala u1P a p (getProof (toVect fA d1P)) s01
 
