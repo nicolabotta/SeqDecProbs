@@ -150,3 +150,28 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 >   s1 : Elem (a ** p) (getProof (toVect fA d1P))
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0
 
+
+Now we can try to show that, if |A| is finite and |P : A -> Prop|
+decidable and unique, then |Sigma A P| is finite.
+
+> kika : {A   : Type} ->
+>        {P   : A -> Type} ->
+>        (fA  : Finite A) -> 
+>        (d1P : Dec1 P) ->
+>        (u1P : Unique1 {t0 = A} P) -> 
+>        Finite (Sigma A P)
+> kika {A} {P} fA d1P u1P = Evidence n iso where
+>   n        : Nat
+>   n        = getWitness (toVect fA d1P)
+>   rho      : Vect n (Sigma A P)
+>   rho      = getProof (toVect fA d1P) 
+>   to       : Sigma A P -> Fin n
+>   to s     = lookup s rho (toVectComplete fA d1P u1P s)
+>   from     : Fin n -> Sigma A P
+>   from k   = index k rho
+>   toFrom   : (k : Fin n) -> to (from k) = k
+>   toFrom k = lookupIndexLemma k rho (toVectComplete fA d1P u1P (from k))
+>   fromTo   : (s : Sigma A P) -> from (to s) = s
+>   fromTo s = indexLookupLemma s rho (toVectComplete fA d1P u1P s) 
+>   iso      : Iso (Sigma A P) (Fin n)
+>   iso      = MkIso to from toFrom fromTo

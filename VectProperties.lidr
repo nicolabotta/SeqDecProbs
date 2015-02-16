@@ -49,16 +49,16 @@ Indexing and lookup
 >   s3 = indexLookupLemma x xs prf
 > -}
 
-> {-
 > lookupIndexLemma : (k : Fin n) ->
 >                    (xs : Vect n t) ->
 >                    (prf : Elem (index k xs) xs) ->
 >                    lookup (index k xs) xs prf = k
+> {-
 > lookupIndexLemma  k      Nil       prf        = absurd k
 > lookupIndexLemma  FZ    (x :: xs)  prf        = Refl
 > lookupIndexLemma (FS k) (x :: xs) (There prf) = 
 >   let ih = lookupIndexLemma k xs prf in rewrite ih in Refl
-> {-
+
 > lookupIndexLemma {n = S m} (FS k) (x :: xs) = trans s1 (trans s2 s4) where
 >   s1 : lookup (index (FS k) (x :: xs)) (x :: xs) (indexLemma (FS k) (x :: xs)) 
 >        =
@@ -77,7 +77,7 @@ Indexing and lookup
 >        FS k
 >   s4 = ?kika --cong FS s3
 > -}
-> -}
+
 
 
 Membership, quantifiers:
