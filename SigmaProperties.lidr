@@ -10,7 +10,9 @@
 > import Unique
 > import SigmaOperations
 > import VectOperations
+> import VectProperties
 > import FiniteOperations
+> import FiniteProperties
 
 
 > %default total
@@ -88,22 +90,52 @@ We want to show that |toVect| is complete
 <                  (s   : Sigma A P) -> 
 <                  Elem s (getProof (toVect fA d1P))
 
-We start with something a bit simpler
+We start by deriving two auxiliary results. The first one is
 
+> toVectLemma : {A : Type} ->
+>               {P : A -> Type} ->
+>               (fA : Finite A) -> 
+>               (d1P : Dec1 P) ->
+>               (a : A) ->
+>               (p : P a) ->
+>               Elem a (map Sigma.getWitness (getProof (toVect fA d1P))) 
+> toVectLemma {A} {P} fA d1P a p = filterTagLemma d1P a (toVect fA) (toVectComplete fA a) p
 
+The proof is computed by applying |VectProperties.filterTagLemma|:
 
+< filterTagLemma : {A : Type} -> {P : A -> Type} ->
+<                  (d1P : Dec1 P) ->
+<                  (a : A) ->
+<                  (as : Vect n A) ->
+<                  Elem a as ->
+<                  (p : P a) ->
+<                  Elem a (map Sigma.getWitness (getProof (filterTag d1P as)))
 
-> lala : {A   : Type} ->
->        {P   : A -> Type} ->
->        Unique1 {t0 = A} P ->
->        (a : A) ->
->        (p : P a) ->
->        (ss : Vect n (Sigma A P)) ->
->        Elem a (map getWitness ss) -> 
->        Elem (a ** p) ss
-> lala u1P a p Nil Here impossible       
-> lala u1P a p Nil (There _) impossible       
-> -- lala u1P a p (s :: ss) Here = Here {x = (a ** p)} {xs = ss}  
+to |d1P|, |a|, to the vector-based representation of |A| associated to
+|fA| provided by |FiniteOperations.toVect fA| and to a proof that |a| is
+an element of |FiniteOperations.toVect fA|. The latter follows from
+completeness of |toVect|, see |FiniteProperties.toVectComplete|. In this
+form, |toVectLemma| does not type check.
+
+The second result is
+
+> sigmaUniqueLemma1 : {A   : Type} ->
+>                     {P   : A -> Type} ->
+>                     Unique1 {t0 = A} P ->
+>                     (a : A) ->
+>                     (p : P a) ->
+>                     (ss : Vect n (Sigma A P)) ->
+>                     Elem a (map getWitness ss) -> 
+>                     Elem (a ** p) ss
+> sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
+> sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) Here with (u1P a p q) 
+>   sigmaUniqueLemma1 u1P a p ((a ** p) :: ss) Here | Refl = 
+>     Here {x = (a ** p)} {xs = ss}
+> sigmaUniqueLemma1 u1P a1 p1 ((a2 ** p2) :: ss) (There prf) = 
+>   There (sigmaUniqueLemma1 u1P a1 p1 ss prf)
+
+With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
+|toVect| is complete:
 
 > toVectComplete : {A   : Type} ->
 >                  {P   : A -> Type} ->
@@ -112,9 +144,9 @@ We start with something a bit simpler
 >                  Unique1 {t0 = A} P ->
 >                  (s   : Sigma A P) -> 
 >                  Elem s (getProof (toVect fA d1P))
-> toVectComplete fA d1P u1P (a ** p) = s11 where
->   s01 : Elem a (map Sigma.getWitness (getProof (toVect fA d1P)))
->   s01 = ?lika
->   s11 : Elem (a ** p) (getProof (toVect fA d1P))
->   s11 = lala u1P a p (getProof (toVect fA d1P)) s01
+> toVectComplete fA d1P u1P (a ** p) = s1 where
+>   s0 : Elem a (map Sigma.getWitness (getProof (toVect fA d1P)))
+>   s0 = toVectLemma fA d1P a p
+>   s1 : Elem (a ** p) (getProof (toVect fA d1P))
+>   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0
 

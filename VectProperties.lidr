@@ -111,7 +111,7 @@ Filtering
 >   | (n ** as') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = as'}
 >     | (No  contra) = void (contra p)
-> filterLemma {A} {P} d1P a1 (a2 :: as) (There prf) p with (filter d1P as)
+> filterLemma d1P a1 (a2 :: as) (There prf) p with (filter d1P as)
 >   | (n ** as') with (d1P a2)
 >     | (Yes _) = ?issue1920.0 -- There {x = a1} {xs = as'} {y = a2} (filterLemma d1P a1 as prf p)
 >     | (No  _) = ?issue1920.1 -- filterLemma {A} {P} d1P a1 as prf p
