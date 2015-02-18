@@ -99,7 +99,7 @@ But let's start with a simpler version, ignoring A for now:
 
 Dec (Exists P) is either Yes (an index (i : Fin n) and a proof (p : P
 i)) or No (a function showing that any such "index+proof-pair" is
-absurd). To show that we compute the lowest index for which we get a
+absurd). To show that, we compute the lowest index for which we get a
 Yes, or No if no such index exists.
 
 A predicate over |Fin n| can be seen as a vector, so we start with the
@@ -108,11 +108,18 @@ helper function |tailPred|:
 > tailPred : {T : Type} -> (Fin (S n) -> T) -> (Fin n -> T)
 > tailPred P = P . FS
 
+REMARK{Nicola}{|tailPred| is just |FinOperations.tail|}
+
 Similarly |Dec1| over |Fin n| can be seen as a vector of decidability
 tests. Thus we also need a |Dec1|-version of tail:
 
 > tailDec1 : {n : Nat} -> {P : Fin (S n) -> Type} -> Dec1 P -> Dec1 (tailPred P)
 > tailDec1 dP = \x => dP (FS x)
+
+REMARK{Nicola}{"tail restrictions of decidable predicates are
+decidable". This should hold for no matter what restriction, in
+fact. But we do not have a notion of subtype already and therefore we do
+not have a notion of restriction.}
 
 Next we define the base- and step-case for decidability of predicates
 over |Fin n|:

@@ -4,6 +4,7 @@
 > import Data.Vect
 > import Data.Vect.Quantifiers
 > import Data.Fin
+> import Syntax.PreorderReasoning
 
 > import Prop
 > import VectOperations
@@ -53,31 +54,10 @@ Indexing and lookup
 >                    (xs : Vect n t) ->
 >                    (prf : Elem (index k xs) xs) ->
 >                    lookup (index k xs) xs prf = k
-> {-
-> lookupIndexLemma  k      Nil       prf        = absurd k
-> lookupIndexLemma  FZ    (x :: xs)  prf        = Refl
+> lookupIndexLemma  k      Nil       prf        = absurd prf
+> lookupIndexLemma  FZ    (x :: xs)  Here       = Refl
 > lookupIndexLemma (FS k) (x :: xs) (There prf) = 
 >   let ih = lookupIndexLemma k xs prf in rewrite ih in Refl
-
-> lookupIndexLemma {n = S m} (FS k) (x :: xs) = trans s1 (trans s2 s4) where
->   s1 : lookup (index (FS k) (x :: xs)) (x :: xs) (indexLemma (FS k) (x :: xs)) 
->        =
->        lookup (index k xs) (x :: xs) (There (indexLemma k xs)) 
->   s1 = Refl
->   s2 : lookup (index k xs) (x :: xs) (There (indexLemma k xs)) 
->        =
->        FS (lookup (index k xs) xs (indexLemma k xs))
->   s2 = Refl
->   s3 : lookup (index k xs) xs (indexLemma k xs)
->        =
->        k
->   s3 = lookupIndexLemma k xs
->   s4 : FS (lookup (index k xs) xs (indexLemma k xs))
->        =
->        FS k
->   s4 = ?kika --cong FS s3
-> -}
-
 
 
 Membership, quantifiers:
@@ -105,8 +85,7 @@ Filtering
 >              Elem a as ->
 >              (p : P a) ->
 >              Elem a (getProof (filter d1P as))
-> filterLemma d1P a Nil  Here       p impossible
-> filterLemma d1P a Nil (There prf) p impossible
+> filterLemma d1P a   Nil       prf  p = absurd prf
 > filterLemma d1P a1 (a1 :: as) Here p with (filter d1P as)
 >   | (n ** as') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = as'}
@@ -126,4 +105,12 @@ Filtering
 >                  Elem a as ->
 >                  (p : P a) ->
 >                  Elem a (map Sigma.getWitness (getProof (filterTag d1P as)))
-
+> filterTagLemma d1P a   Nil       prf  p = absurd prf
+> filterTagLemma d1P a1 (a1 :: as) Here p with (filterTag d1P as)
+>   | (n ** aps') with (d1P a1)
+>     | (Yes _) = Here {x = a1} {xs = map Sigma.getWitness aps'}
+>     | (No  contra) = void (contra p)
+> filterTagLemma d1P a1 (a2 :: as) (There prf) p with (filterTag d1P as)
+>   | (n ** aps') with (d1P a2)
+>     | (Yes _) = ?issue1920.2 -- There {x = a1} {xs = map Sigma.getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p) 
+>     | (No  _) = ?issue1920.3 -- filterTagLemma d1P a1 as prf p
