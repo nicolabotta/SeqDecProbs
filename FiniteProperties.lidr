@@ -108,7 +108,10 @@ helper function |tailPred|:
 > tailPred : {T : Type} -> (Fin (S n) -> T) -> (Fin n -> T)
 > tailPred P = P . FS
 
-REMARK{Nicola}{|tailPred| is just |FinOperations.tail|}
+REMARK{Nicola}{|tailPred| is |FinOperations.tail|. Maybe we should
+rename it (|tail| is a bit too vague, I'm not sure I like |tailPred|
+because it does not convey the fact that we are manipulating finite
+functions) and use it here.}
 
 Similarly |Dec1| over |Fin n| can be seen as a vector of decidability
 tests. Thus we also need a |Dec1|-version of tail:
@@ -156,6 +159,8 @@ With the simpler case out of the way we can return to the more general case:
 >          {x : A} -> {y : A} -> (x = y) -> 
 >          {P : A -> Type} -> P x -> P y
 > coerce Refl px = px
+
+REMARK{Nicola}{|coerce| is |replace|, we can use it here.}
 
 > existsIsoTo : {X : Type} -> {Y : Type} -> 
 >             (iso : Iso X Y) -> (P : X -> Type) -> 
