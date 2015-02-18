@@ -102,21 +102,16 @@ i)) or No (a function showing that any such "index+proof-pair" is
 absurd). To show that, we compute the lowest index for which we get a
 Yes, or No if no such index exists.
 
-A predicate over |Fin n| can be seen as a vector, so we start with the
-helper function |tailPred|:
+A predicate over |Fin n| can be seen as a vector, so we use the 
+helper function |tail| from FinOperations.lidr:
 
-> tailPred : {T : Type} -> (Fin (S n) -> T) -> (Fin n -> T)
-> tailPred P = P . FS
-
-REMARK{Nicola}{|tailPred| is |FinOperations.tail|. Maybe we should
-rename it (|tail| is a bit too vague, I'm not sure I like |tailPred|
-because it does not convey the fact that we are manipulating finite
-functions) and use it here.}
+< tail : {A : Type} -> (Fin (S n) -> A) -> (Fin n -> A)
+< tail P = P . FS
 
 Similarly |Dec1| over |Fin n| can be seen as a vector of decidability
 tests. Thus we also need a |Dec1|-version of tail:
 
-> tailDec1 : {n : Nat} -> {P : Fin (S n) -> Type} -> Dec1 P -> Dec1 (tailPred P)
+> tailDec1 : {n : Nat} -> {P : Fin (S n) -> Type} -> Dec1 P -> Dec1 (tail P)
 > tailDec1 dP = \x => dP (FS x)
 
 REMARK{Nicola}{"tail restrictions of decidable predicates are
@@ -135,32 +130,26 @@ the "tail" of a predicate |P| into decidability for the full
 predicate. (Pick the lowest index with a |Yes|.)
 
 > using (n : Nat, P : Fin (S n) -> Prop)
->   exiCons  :                    Exists (tailPred P)  ->      Exists P
+>   exiCons  :                    Exists (tail P)  ->      Exists P
 >   exiCons (Evidence i p) = Evidence (FS i) p
     
->   nExiCons : Not (P FZ) -> Not (Exists (tailPred P)) -> Not (Exists P) 
+>   nExiCons : Not (P FZ) -> Not (Exists (tail P)) -> Not (Exists P) 
 >   nExiCons n0 nt (Evidence FZ      p) = n0 p
 >   nExiCons n0 nt (Evidence (FS i)  p) = nt (Evidence i p)
     
->   decCons  : Dec (P FZ) -> Dec (Exists (tailPred P)) -> Dec (Exists P)
+>   decCons  : Dec (P FZ) -> Dec (Exists (tail P)) -> Dec (Exists P)
 >   decCons (Yes p) _        = Yes (Evidence FZ p)
 >   decCons (No np) (Yes pt) = Yes (exiCons pt)
 >   decCons (No np) (No npt) = No  (nExiCons np npt)
 
 Find the lowest index for which |dP| says |Yes|.
 
-> decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> (dP : Dec1 P) -> Dec (Exists P)
+> decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> Dec1 P -> Dec (Exists P)
 > decExistsFin Z     P dP = decNil
-> decExistsFin (S n) P dP = decCons (dP FZ) (decExistsFin n (tailPred P) (tailDec1 dP))
+> decExistsFin (S n) P dP = decCons (dP FZ) (decExistsFin n (tail P) 
+>                                                           (tailDec1 dP))
 
 With the simpler case out of the way we can return to the more general case:
-
-> coerce : {A : Type} -> 
->          {x : A} -> {y : A} -> (x = y) -> 
->          {P : A -> Type} -> P x -> P y
-> coerce Refl px = px
-
-REMARK{Nicola}{|coerce| is |replace|, we can use it here.}
 
 > existsIsoTo : {X : Type} -> {Y : Type} -> 
 >             (iso : Iso X Y) -> (P : X -> Type) -> 
@@ -173,11 +162,12 @@ REMARK{Nicola}{|coerce| is |replace|, we can use it here.}
 > existsIsoFrom {X} {Y} iso P (Evidence x pf) = Evidence (to iso x) pf'
 >   where
 >     pf' : P (from iso (to iso x))
->     pf' = coerce (sym (fromTo iso x)) pf
+>     pf' = replace (sym (fromTo iso x)) pf
 
 This is the core result:
 
-> finiteDecHelper : (n : Nat) -> {A : Type} -> FiniteN n A -> (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
+> finiteDecHelper : (n : Nat) -> {A : Type} -> FiniteN n A -> 
+>                   (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
 > finiteDecHelper n iso P dP = decIso' (existsIsoTo   iso P) 
 >                                      (existsIsoFrom iso P) 
 >                                      (decExistsFin n  (P . (from iso)) 
@@ -185,5 +175,6 @@ This is the core result:
 
 which can be packaged up as what we aimed for at the beginning:
 
-> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
+> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} -> 
+>                   Finite A -> Dec1 P -> Dec (Exists P)
 > finiteDecLemma2 {P} (Evidence n iso) dP = finiteDecHelper n iso P dP
