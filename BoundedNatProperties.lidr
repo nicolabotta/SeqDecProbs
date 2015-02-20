@@ -13,8 +13,8 @@
 > import Finite
 > import Decidable
 > import Unique
-> import Subtype
-> import FiniteSubtypeProperties
+> import SubType
+> import FiniteSubTypeProperties
 
 > %default total
 
@@ -193,8 +193,8 @@ Finitness properties
 
 
 > ||| Subtypes of bounded |Nat|s are finite:
-> finiteSubLTB : (b : Nat) -> (P : LTB b -> Type) -> Dec1 P -> Unique1 P -> Finite (Subtype (LTB b) P)
-> finiteSubLTB b P dP uP = finiteSubtypeLemma0 {A = LTB b} {P} (finiteLTB b) dP uP
+> finiteSubLTB : (b : Nat) -> (P : LTB b -> Type) -> Dec1 P -> (uP : Unique1 P) -> Finite (SubType (LTB b) P uP)
+> finiteSubLTB b P dP uP = finiteSubTypeLemma0 {A = LTB b} {P} (finiteLTB b) dP uP
 
 
 
