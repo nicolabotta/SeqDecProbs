@@ -50,6 +50,7 @@ Indexing and lookup
 >   s3 = indexLookupLemma x xs prf
 > -}
 
+> %assert_total
 > lookupIndexLemma : (k : Fin n) ->
 >                    (xs : Vect n t) ->
 >                    (prf : Elem (index k xs) xs) ->
