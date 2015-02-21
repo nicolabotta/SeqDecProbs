@@ -14,6 +14,16 @@
 > %default total
 
 
+> ||| 
+> outl : {A : Type} -> {P : A -> Type} -> Sigma A P -> A
+> outl = getWitness
+
+
+> |||
+> outr : {A : Type} -> {P : A -> Type} -> (s : Sigma A P) -> P (outl s)
+> outr = getProof
+
+
 > ||| Maps a finite type |A| and a decidable predicate |P| to a vector |Sigma A P| values
 > toVect : {A : Type} ->
 >          {P : A -> Type} ->
