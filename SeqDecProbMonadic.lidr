@@ -10,14 +10,6 @@
 > import RelSyntax
 > import RelFloatPostulates
 
-
-Hiding stuff:
-
-> %hide fmap
-> %hide Dec
-
-
-Require totality:
  
 > %default total 
 
@@ -27,46 +19,29 @@ The theory of monadic sequential decision problems (SDP):
 
 A SDP is specified in terms of a monad ...
 
-> namespace MonadLib 
+> M : Type -> Type
 
->   M : Type -> Type
+> fmap : {A, B : Type} -> (A -> B) -> M A -> M B
+> -- unused functorSpec1 : fmap . id = id
+> -- unused functorSpec2 : fmap (f . g) = (fmap f) . (fmap g)
 
->   fmap : {A, B : Type} -> (A -> B) -> M A -> M B
->   -- unused functorSpec1 : fmap . id = id
->   -- unused functorSpec2 : fmap (f . g) = (fmap f) . (fmap g)
+> ret   :  {A : Type} -> A -> M A
+> bind  :  {A, B : Type} -> M A -> (A -> M B) -> M B
+> -- unused monadSpec1   :  (fmap f) . ret = ret . f
+> -- unused monadSpec21  :  bind (ret a) f = f a
+> -- unused monadSpec22  :  bind ma ret = ma
+> -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} -> 
+> --                        bind (bind ma f) g = bind ma (\ a => bind (f a) g)
 
->   ret   :  {A : Type} -> A -> M A
->   bind  :  {A, B : Type} -> M A -> (A -> M B) -> M B
->   -- unused monadSpec1   :  (fmap f) . ret = ret . f
->   -- unused monadSpec21  :  bind (ret a) f = f a
->   -- unused monadSpec22  :  bind ma ret = ma
->   -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} -> 
->   --                        bind (bind ma f) g = bind ma (\ a => bind (f a) g)
-
->   join  :  {A : Type} -> M (M A) -> M A
->   join mma = bind mma id
-
-> -- end namespace MonadLib 
+> join  :  {A : Type} -> M (M A) -> M A
+> join mma = bind mma id
 
 ... which is required to be a "container" monad:
 
-> namespace ContainerMonadLib 
-
->   Elem     :  {A : Type} -> A -> M A -> Prop
->   All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
->   All {A} P ma = (a : A) -> a `Elem` ma -> P a
-
->   -- unused containerMonadSpec1  :  a `Elem` (ret a)
->   -- unused containerMonadSpec2  :  {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
->   --                                a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
->   -- containerMonadSpec3  :  {A : Type} -> {P : A -> Prop} -> {a : A} -> {ma : M A} -> All P ma -> a `Elem` ma -> P a
->   -- containerMonadSpec3 {A} {P} {a} {ma} aPma = aPma a 
->   -- unused containerMonadSpec4  :  {A : Type} -> {P : A -> Prop} -> a `Elem` ma -> Not (P a) -> Not (All P ma) -- follows from All
-
->   tagElem      :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
->   -- unused tagElemSpec  :  {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
-
-> -- end namespace ContainerMonadLib 
+> Elem     :  {A : Type} -> A -> M A -> Prop
+> All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
+> All {A} P ma = (a : A) -> a `Elem` ma -> P a
+> tagElem  :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
 
 The standard examples are |M = Id| (deterministic SDP), |M = List|
 (non-deterministic SDP) and |M = Prob| (stochastic SDP). 
@@ -87,15 +62,11 @@ process ...
 
 ... and a measure:
 
-> namespace MeasLib 
-
->   meas : M Float -> Float
->   measMon  :  {A : Type} -> 
->               (f : A -> Float) -> (g : A -> Float) -> 
->               ((a : A) -> So (f a <= g a)) ->
->               (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
-
-> -- end namespace MeasLib 
+> meas : M Float -> Float
+> measMon  :  {A : Type} -> 
+>             (f : A -> Float) -> (g : A -> Float) -> 
+>             ((a : A) -> So (f a <= g a)) ->
+>             (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
 
 For every SDP, we can build the following notions:
 
@@ -231,13 +202,22 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max         :  {A : Type} -> (f : A -> Float) -> Float
-> argmax      :  {A : Type} -> (f : A -> Float) -> A
+> max    : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>          Float
+> argmax : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
 that fulfill the specification
 
-> maxSpec     :  {A : Type} -> (f : A -> Float) -> (a : A) -> So (f a <= max f)
-> argmaxSpec  :  {A : Type} -> (f : A -> Float) -> max f = f (argmax f)
+> typeHelper : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>              Type
+> typeHelper f = SeqDecProbMonadic.max f = f (SeqDecProbMonadic.argmax f)
+
+> maxSpec     :  (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>                (s : (y : Y t x ** All (Viable n) (step t x y))) -> 
+>                So (f s <= SeqDecProbMonadic.max f)
+> argmaxSpec  :  (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>                typeHelper f -- SeqDecProbMonadic.max f = f (SeqDecProbMonadic.argmax f)
 
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
@@ -280,7 +260,7 @@ extensions for arbitrary policy sequences:
 >   f     =  mkf x r v y av ps        
 >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Float
 >   f'    =  mkf x r v y' av' ps        
->   s1    :  So (g yav' <= max g)
+>   s1    :  So (g yav' <= SeqDecProbMonadic.max g)
 >   s1    =  maxSpec g yav'
 >   s2    :  So (g yav' <= g (argmax g))
 >   s2    =  replace {P = \ z => So (g yav' <= z)} (argmaxSpec g) s1
