@@ -5,6 +5,7 @@
 > import Data.Vect.Quantifiers
 > import Data.Fin
 > import Syntax.PreorderReasoning
+> import Decidable.Order
 
 > import Prop
 > import VectOperations
@@ -115,3 +116,29 @@ Filtering
 >   | (n ** aps') with (d1P a2)
 >     | (Yes _) = ?issue1920.2 -- There {x = a1} {xs = map Sigma.getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p) 
 >     | (No  _) = ?issue1920.3 -- filterTagLemma d1P a1 as prf p
+
+
+Max and argmax
+
+> |||
+> maxLemma : {A, F : Type} -> {TO : F -> F -> Type} -> Ordered F TO => 
+>            (af : (A,F)) -> (afs : Vect (S n) (A,F)) -> af `Elem` afs -> 
+>            TO (snd af) (max afs)
+> maxLemma {A} {F} {TO} {n = Z}   af (af :: Nil)   Here       = reflexive (snd af)
+> maxLemma {A} {F} {TO} {n = Z}   af (af' :: Nil) (There prf) = absurd prf
+> maxLemma {A} {F} {TO} {n = S m} af (af :: (af'' :: afs)) Here with (order (snd af) (snd (argmaxMax (af'' :: afs))))
+>   | (Left  p) = p
+>   | (Right _) = reflexive (snd af)
+> maxLemma {A} {F} {TO} {n = S m} af (af' :: (af'' :: afs)) (There prf) with (order (snd af') (snd (argmaxMax (af'' :: afs))))
+>   | (Left  _) = maxLemma {A} {F} {TO} {n = m} af (af'' :: afs) prf
+>   | (Right p) = s3 where
+>     s1 : TO (snd af) (max (af'' :: afs))
+>     s1 = maxLemma {A} {F} {TO} {n = m} af (af'' :: afs) prf
+>     s2 : TO (max (af'' :: afs)) (snd af')
+>     s2 = p
+>     s3 : TO (snd af) (snd af')
+>     s3 = transitive (snd af) (VectOperations.max (af'' :: afs)) (snd af') s1 s2
+
+
+
+

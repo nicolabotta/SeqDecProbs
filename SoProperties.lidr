@@ -10,6 +10,19 @@
 > %default total 
 
 
+Introduction and elimination rules
+
+> |||
+> soOrIntro1 : (b1 : Bool) -> (b2 : Bool) -> So b1 -> So (b1 || b2)
+> soOrIntro1 True _  Oh = Oh 
+
+
+> |||
+> soOrIntro2 : (b1 : Bool) -> (b2 : Bool) -> So b2 -> So (b1 || b2)
+> soOrIntro2 True  True Oh = Oh 
+> soOrIntro2 False True Oh = Oh 
+
+
 Decidability
 
 > ||| Lifted Booleans are decidable

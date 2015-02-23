@@ -3,6 +3,8 @@
 
 > import Data.Vect
 > import Data.Fin
+> import Data.So
+> import Decidable.Order
 
 > import Decidable
 
@@ -42,5 +44,26 @@
 >   | (_ ** tail) with (d1P a)
 >     | (Yes p)     = (_ ** (a ** p) :: tail)
 >     | (No contra) = (_ ** tail)
+
+
+> |||
+> argmaxMax : {A, F : Type} -> {TO : F -> F -> Type} -> Ordered F TO => 
+>             Vect (S n) (A,F) -> (A,F)
+> argmaxMax {n = Z}   (af :: Nil) = af
+> argmaxMax {n = S m} (af :: (af' :: afs)) with (order (snd af) (snd (argmaxMax (af' :: afs))))
+>   | (Left  _) = argmaxMax (af' :: afs)
+>   | (Right _) = af
+
+
+> |||
+> argmax : {A, F : Type} -> {TO : F -> F -> Type} -> Ordered F TO => 
+>          Vect (S n) (A,F) -> A
+> argmax = fst . argmaxMax
+
+
+> |||
+> max : {A, F : Type} -> {TO : F -> F -> Type} -> Ordered F TO => 
+>       Vect (S n) (A,F) -> F
+> max = snd . argmaxMax
 
 
