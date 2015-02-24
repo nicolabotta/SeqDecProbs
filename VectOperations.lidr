@@ -4,9 +4,9 @@
 > import Data.Vect
 > import Data.Fin
 > import Data.So
-> import Decidable.Order
 
 > import Decidable
+> import Order
 
 
 > %default total
@@ -47,6 +47,31 @@
 
 
 > |||
+> argmaxMax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>             Vect (S n) A -> (Fin (S n), A)
+> argmaxMax     {n = Z}   (a :: Nil) = (FZ, a)
+> argmaxMax {A} {n = S m} (a :: (a' :: as)) with (preorder a (snd (argmaxMax (a' :: as))))
+>   | (Left  _) = (FS (fst ka), snd ka) where
+>     ka : (Fin (S m), A)
+>     ka = argmaxMax (a' :: as)
+>   | (Right _) = (FZ, a)
+
+
+> |||
+> argmax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>          Vect (S n) A -> Fin (S n)
+> argmax = fst . argmaxMax
+
+
+> |||
+> max : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>       Vect (S n) A -> A
+> max = snd . argmaxMax
+
+
+> {-
+
+> |||
 > argmaxMax : {A, F : Type} -> {TO : F -> F -> Type} -> Ordered F TO => 
 >             Vect (S n) (A,F) -> (A,F)
 > argmaxMax {n = Z}   (af :: Nil) = af
@@ -65,5 +90,7 @@
 > max : {A, F : Type} -> {TO : F -> F -> Type} -> Ordered F TO => 
 >       Vect (S n) (A,F) -> F
 > max = snd . argmaxMax
+
+> ---}
 
 
