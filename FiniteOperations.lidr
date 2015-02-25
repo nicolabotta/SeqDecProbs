@@ -63,3 +63,9 @@ elements of type |A| of length |n|. This can be done by calling
 > -- toVect fA = toVect (from (iso fA))  
 > -- toVect fA = toVect (fromFin fA) 
 
+
+> ||| 
+> NonEmpty : {A : Type} -> Finite A -> Type
+> NonEmpty fA = LT Z (card fA)
+
+

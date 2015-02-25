@@ -11,6 +11,7 @@
 > import VectOperations
 > import Decidable
 > import Order
+> import NatProperties
 
 
 > %default total
@@ -123,6 +124,30 @@ Max and argmax
 
 > |||
 > maxLemma : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>            (a : A) -> (as : Vect n A) -> (p : LT Z n) -> a `Elem` as -> 
+>            TO a (max as p)
+> maxLemma {TO} {n = Z}       a  Nil                p  _          = absurd p
+> maxLemma {TO} {n = S Z}     a (a :: Nil)          _  Here       = reflexive a
+> maxLemma {TO} {n = S Z}     a (a' :: Nil)         _ (There prf) = absurd prf
+> maxLemma {TO} {n = S (S m)} a (a :: (a'' :: as))  _  Here       with (argmaxMax (a'' :: as) (ltZS m))
+>   | (k, max) with (preorder a max)
+>     | (Left  p) = p
+>     | (Right _) = reflexive a
+> maxLemma {TO} {n = S (S m)} a (a' :: (a'' :: as)) _ (There prf) with (preorder a' (max (a'' :: as) (ltZS m)))
+>     | (Left  _) = maxLemma {TO} {n = S m} a (a'' :: as) (ltZS m) prf
+>     | (Right p) = s3 where
+>       s1 : TO a (max (a'' :: as) (ltZS m))
+>       s1 = maxLemma {TO} {n = S m} a (a'' :: as) (ltZS m) prf
+>       s2 : TO (max (a'' :: as) (ltZS m)) a'
+>       s2 = p
+>       s3 : TO a a'
+>       s3 = transitive a max a' s1 s2
+
+
+> {-
+
+> |||
+> maxLemma : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >            (a : A) -> (as : Vect (S n) A) -> a `Elem` as -> 
 >            TO a (max as)
 > maxLemma {TO} {n = Z}   a (a :: Nil)          Here       = reflexive a
@@ -150,6 +175,7 @@ Max and argmax
 >   | (Left   _) = argmaxLemma (a' :: as)
 >   | (Right  _) = Refl
 
+> -}
 
 
 > {-

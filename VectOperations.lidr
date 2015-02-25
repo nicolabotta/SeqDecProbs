@@ -7,6 +7,7 @@
 
 > import Decidable
 > import Order
+> import NatProperties
 
 
 > %default total
@@ -48,6 +49,31 @@
 
 > |||
 > argmaxMax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>             Vect n A -> LT Z n -> (Fin n, A)
+> argmaxMax     {n = Z}        Nil              p = absurd p
+> argmaxMax     {n = S Z}     (a :: Nil)        _ = (FZ, a)
+> argmaxMax {A} {n = S (S m)} (a :: (a' :: as)) _ with (argmaxMax (a' :: as) (ltZS m))
+>   | (k, max) with (preorder a max)
+>     | (Left  _) = (FS k, max)
+>     | (Right _) = (FZ, a)
+
+
+> |||
+> argmax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>          Vect n A -> LT Z n -> Fin n
+> argmax as p = fst (argmaxMax as p)
+
+
+> |||
+> max : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>          Vect n A -> LT Z n -> A
+> max as p = snd (argmaxMax as p)
+
+
+> {-
+
+> |||
+> argmaxMax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >             Vect (S n) A -> (Fin (S n), A)
 > argmaxMax     {n = Z}   (a :: Nil) = (FZ, a)
 > argmaxMax {A} {n = S m} (a :: (a' :: as)) with (preorder a (snd (argmaxMax (a' :: as))))
@@ -67,6 +93,8 @@
 > max : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >       Vect (S n) A -> A
 > max = snd . argmaxMax
+
+> ---}
 
 
 > {-
