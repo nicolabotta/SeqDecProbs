@@ -50,12 +50,12 @@
 > |||
 > argmaxMax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >             Vect n A -> LT Z n -> (Fin n, A)
-> argmaxMax     {n = Z}        Nil              p = absurd p
-> argmaxMax     {n = S Z}     (a :: Nil)        _ = (FZ, a)
-> argmaxMax {A} {n = S (S m)} (a :: (a' :: as)) _ with (argmaxMax (a' :: as) (ltZS m))
->   | (k, max) with (preorder a max)
+> argmaxMax     {n = Z}        Nil                p = absurd p
+> argmaxMax     {n = S Z}     (a :: Nil)          _ = (FZ, a)
+> argmaxMax {A} {n = S (S m)} (a' :: (a'' :: as)) _ with (argmaxMax (a'' :: as) (ltZS m))
+>   | (k, max) with (preorder a' max)
 >     | (Left  _) = (FS k, max)
->     | (Right _) = (FZ, a)
+>     | (Right _) = (FZ, a')
 
 
 > |||
@@ -66,7 +66,7 @@
 
 > |||
 > max : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
->          Vect n A -> LT Z n -> A
+>       Vect n A -> LT Z n -> A
 > max as p = snd (argmaxMax as p)
 
 

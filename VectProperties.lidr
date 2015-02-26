@@ -133,15 +133,28 @@ Max and argmax
 >   | (k, max) with (preorder a max)
 >     | (Left  p) = p
 >     | (Right _) = reflexive a
-> maxLemma {TO} {n = S (S m)} a (a' :: (a'' :: as)) _ (There prf) with (preorder a' (max (a'' :: as) (ltZS m)))
->     | (Left  _) = maxLemma {TO} {n = S m} a (a'' :: as) (ltZS m) prf
+> maxLemma {TO} {n = S (S m)} a (a' :: (a'' :: as)) _ (There prf) with (argmaxMax (a'' :: as) (ltZS m))
+>   | (k, max) with (preorder a' max)
+>     | (Left  _) = ?issue1920.4 -- maxLemma {TO} {n = S m} a (a'' :: as) (ltZS m) prf
 >     | (Right p) = s3 where
->       s1 : TO a (max (a'' :: as) (ltZS m))
+>       s1 : TO a (snd (VectOperations.argmaxMax (a'' :: as) (ltZS m)))
 >       s1 = maxLemma {TO} {n = S m} a (a'' :: as) (ltZS m) prf
->       s2 : TO (max (a'' :: as) (ltZS m)) a'
->       s2 = p
+>       s2 : TO (snd (VectOperations.argmaxMax (a'' :: as) (ltZS m))) a'
+>       s2 = ?issue1920.5 -- p
 >       s3 : TO a a'
->       s3 = transitive a max a' s1 s2
+>       s3 = transitive a (snd (VectOperations.argmaxMax (a'' :: as) (ltZS m))) a' s1 s2
+
+
+> |||
+> argmaxLemma : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>               (as : Vect n A) -> (p : LT Z n) -> 
+>               index (argmax as p) as = max as p
+> argmaxLemma {TO} {n = Z}        Nil              p = absurd p
+> argmaxLemma {TO} {n = S Z}     (a :: Nil)        p = Refl
+> argmaxLemma {TO} {n = S (S m)} (a' :: (a'' :: as)) p with (argmaxMax (a'' :: as) (ltZS m))
+>   | (k, max) with (preorder a' max)
+>     | (Left   _) = ?issue1920.6 -- argmaxLemma (a'' :: as) (ltZS m)
+>     | (Right  _) = Refl
 
 
 > {-
