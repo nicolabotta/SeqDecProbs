@@ -78,6 +78,15 @@ Membership, quantifiers:
 > decAny d1P = any d1P
 
 
+Container monad properties
+
+> mapLemma : {A, B : Type} -> (as : Vect n A) -> (f : A -> B) ->
+>            (a : A) -> Elem a as -> Elem (f a) (map f as)
+> mapLemma  Nil      f a aeas = absurd aeas
+> mapLemma (a :: as) f a   Here       = Here
+> mapLemma (a :: as) f a' (There prf) = There (mapLemma as f a' prf)
+
+
 Filtering
 
 > ||| |filter| preserves membership
