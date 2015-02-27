@@ -12,6 +12,7 @@
 > import Decidable
 > import Order
 > import NatProperties
+> import Util
 
 
 > %default total
@@ -85,6 +86,14 @@ Container monad properties
 > mapLemma  Nil      f a aeas = absurd aeas
 > mapLemma (a :: as) f a   Here       = Here
 > mapLemma (a :: as) f a' (There prf) = There (mapLemma as f a' prf)
+
+
+> mapIdfLemma : {A, B : Type} -> (as : Vect n A) -> (f : A -> B) -> 
+>               (ab : (A,B)) -> Elem ab (map (pair (id,f)) as) -> 
+>               f (fst ab) = snd ab
+> mapIdfLemma  Nil      f  ab     p        = absurd p
+> mapIdfLemma (a :: as) f (a, _)  Here     = Refl
+> mapIdfLemma (a :: as) f  ab    (There p) = mapIdfLemma as f ab p
 
 
 Filtering
@@ -164,6 +173,18 @@ Max and argmax
 >   | (k, max) with (preorder a' max)
 >     | (Left   _) = ?issue1920.6 -- argmaxLemma (a'' :: as) (ltZS m)
 >     | (Right  _) = Refl
+
+
+> |||
+> maxElemLemma : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
+>                (as : Vect n A) -> (p : LT Z n) -> 
+>                Elem (max as p) as
+> maxElemLemma {TO} {n = Z}        Nil                p = absurd p
+> maxElemLemma {TO} {n = S Z}     (a :: Nil)          p = Here
+> maxElemLemma {TO} {n = S (S m)} (a' :: (a'' :: as)) p with (argmaxMax (a'' :: as) (ltZS m))
+>   | (k, max) with (preorder a' max)
+>     | (Left   _) = ?issue1920.7 -- There (maxElemLemma (a'' :: as) (ltZS m))
+>     | (Right  _) = Here
 
 
 > {-
