@@ -13,6 +13,7 @@
 > import FinProperties
 > import VectProperties
 > import IsomorphismOperations
+> import NatProperties
 
 
 > %default total 
@@ -38,6 +39,13 @@
 >   s3  :  Elem a (toVect fA)
 >   s3  =  replace {P = \ z => Elem z (toVect fA)} s2 s1
 > -}
+
+
+Non empty finite types
+
+> |||
+> nonEmptyLemma : {A : Type} -> (fA : Finite A) -> A -> NonEmpty fA
+> nonEmptyLemma fA a = elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a)
 
 
 We want to show that, for a finite type |A| and a decidable predicate |P

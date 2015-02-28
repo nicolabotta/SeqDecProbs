@@ -67,6 +67,14 @@ Indexing and lookup
 
 Membership, quantifiers:
 
+> ||| Membership => non emptyness
+> elemLemma : {A : Type} -> {n : Nat} -> 
+>             (a : A) -> (as : Vect n A) ->
+>             Elem a as -> LT Z n
+> elemLemma {n = Z}   a Nil p = absurd p
+> elemLemma {n = S m} a as  p = ltZS m
+
+
 > AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
 > AnyExistsLemma (Here {x} px) = Evidence x px 
 > AnyExistsLemma (There prf) = AnyExistsLemma prf

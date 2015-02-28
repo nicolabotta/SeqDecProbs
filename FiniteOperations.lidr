@@ -18,7 +18,7 @@ type) and an isomorphism to |Fin n|. Here we extract the cardinality.
 
 > ||| Cardinality of finite types
 > card : {A : Type} -> (fA : Finite A) -> Nat
-> card = getWitness
+> card = getWitness 
 
 
 Finite types are dependent pairs: an |n : Nat| (the cardinality of the
