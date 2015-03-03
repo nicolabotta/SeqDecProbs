@@ -204,3 +204,4 @@ Decidability properties
 > decEqLTB {b} (m ** p) (n ** q) with (decEq m n)
 >   | (Yes prf)   = Yes (sigmaEqLemma1 (m ** p) (n ** q) prf (uniqueLT))
 >   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
+
