@@ -28,18 +28,18 @@ No natural number is smaller than zero
 Basic properties
 
 > |||
-> toFinLemma0 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
+> toFinLemma0 : (n : Nat) -> (b : Nat) -> (prf : LT n b) ->
 >               finToNat (toFin (n ** prf)) = n
-> toFinLemma0   n     Z             prf = absurd prf
+> toFinLemma0   n     Z             prf  = absurd prf
 > toFinLemma0   Z    (S a) (LTESucc prf) = Refl
-> toFinLemma0  (S m) (S a) (LTESucc prf) = 
->   let ih = toFinLemma0 m a prf in rewrite ih in Refl
+> toFinLemma0  (S m) (S a) (LTESucc prf) = let ih = toFinLemma0 m a prf
+>                                          in rewrite ih in Refl
 
 
 > |||
-> toFinLemma1 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
+> toFinLemma1 : (n : Nat) -> (b : Nat) -> (prf : LT n b) ->
 >               finToNat (FS (toFin (n ** prf))) = S n
-> toFinLemma1 n b prf = 
+> toFinLemma1 n b prf =
 >     ( finToNat (FS (toFin (n ** prf))) )
 >   ={ Refl }=                             -- definition of |finToNat|
 >     ( S (finToNat (toFin (n ** prf)))  )
@@ -49,16 +49,16 @@ Basic properties
 
 
 > |||
-> toFinLemma2 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
+> toFinLemma2 : (n : Nat) -> (b : Nat) -> (prf : LT n b) ->
 >               finToNatLemma (toFin (n ** prf)) = prf
 > toFinLemma2   n     Z     prf              = absurd prf
 > toFinLemma2   Z    (S b) (LTESucc LTEZero) = Refl
 > {-
-> toFinLemma2  (S n) (S b) (LTESucc prf) = 
+> toFinLemma2  (S n) (S b) (LTESucc prf) =
 >     ( finToNatLemma (toFin (S n ** LTESucc prf)) )
 >   ={ Refl }=                                       -- definition of |toFin|
 >     ( finToNatLemma (FS (toFin (n ** prf)))      )
->   ={ Refl }=                                       -- definition of |finToNatLemma| 
+>   ={ Refl }=                                       -- definition of |finToNatLemma|
 >     ( LTESucc (finToNatLemma (toFin (n ** prf))) )
 >   ={ depCong2' {alpha = Nat}
 >                {P = \ n => LT n b}
@@ -108,30 +108,30 @@ Basic properties
 
 
 > |||
-> toFinLemma3 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
+> toFinLemma3 : (n : Nat) -> (b : Nat) -> (prf : LT n b) ->
 >               finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
 > {-
-> toFinLemma3 n b prf = 
+> toFinLemma3 n b prf =
 >     ( finToNatLemma (FS (toFin (n ** prf)))      )
->   ={ replace {a = Fin (S b)} 
->              {x = FS (toFin (n ** prf))} 
->              {y = toFin (S n ** LTESucc prf)} 
->              {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x} 
->              Refl Refl }=                                       
+>   ={ replace {a = Fin (S b)}
+>              {x = FS (toFin (n ** prf))}
+>              {y = toFin (S n ** LTESucc prf)}
+>              {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x}
+>              Refl Refl }=
 >     ( finToNatLemma (toFin (S n ** LTESucc prf)) )
->   ={ toFinLemma2 (S n) (S b) (LTESucc prf) }=                                       
+>   ={ toFinLemma2 (S n) (S b) (LTESucc prf) }=
 >     ( LTESucc prf                                )
-> -}   
+> -}
 > toFinLemma3 n b prf = trans s1 s2 where
 >   s0 : FS (toFin (n ** prf)) = toFin (S n ** LTESucc prf)
 >   s0 = Refl
->   s1 : finToNatLemma (FS (toFin (n ** prf))) 
->        = 
+>   s1 : finToNatLemma (FS (toFin (n ** prf)))
+>        =
 >        finToNatLemma (toFin (S n ** LTESucc prf))
->   s1 = replace {a = Fin (S b)} 
->                {x = FS (toFin (n ** prf))} 
->                {y = toFin (S n ** LTESucc prf)} 
->                {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x} 
+>   s1 = replace {a = Fin (S b)}
+>                {x = FS (toFin (n ** prf))}
+>                {y = toFin (S n ** LTESucc prf)}
+>                {P = \ x => finToNatLemma (FS (toFin (n ** prf))) = finToNatLemma x}
 >                s0 Refl
 >   s2 : finToNatLemma (toFin (S n ** LTESucc prf))
 >        =
@@ -141,7 +141,7 @@ Basic properties
 
 > {-
 > |||
-> toFinLemma6 : (n : Nat) -> (b : Nat) -> (prf : LT n b) -> 
+> toFinLemma6 : (n : Nat) -> (b : Nat) -> (prf : LT n b) ->
 >               toFin (S n ** LTESucc prf) = FS (toFin (n ** prf))
 > -}
 
@@ -158,9 +158,9 @@ Basic properties
 
 > ||| |fromFin| is the left-inverse of |toFin|
 > fromFinToFinLemma : (n : LTB b) -> fromFin (toFin n) = n
-> fromFinToFinLemma {b = Z}   m = absurd m
-> fromFinToFinLemma {b = S m} (Z ** LTESucc LTEZero) = Refl
-> fromFinToFinLemma {b = S m} (S n ** LTESucc prf) = s6 where
+> fromFinToFinLemma {b = Z}   m                         = absurd m
+> fromFinToFinLemma {b = S m} (Z   ** LTESucc LTEZero)  = Refl
+> fromFinToFinLemma {b = S m} (S n ** LTESucc prf)      = s6 where
 >   s1 : fromFin (toFin (S n ** LTESucc prf))
 >        =
 >        fromFin (FS (toFin (n ** prf)))
@@ -173,10 +173,10 @@ Basic properties
 >   s3 = toFinLemma1 n m prf
 >   s4 : finToNatLemma (FS (toFin (n ** prf))) = LTESucc prf
 >   s4 = toFinLemma3 n m prf
->   s5 : MkSigma {a = Nat} {P = \ i => LT i (S m)} 
->        (finToNat (FS (toFin (n ** prf)))) 
+>   s5 : MkSigma {a = Nat} {P = \ i => LT i (S m)}
+>        (finToNat (FS (toFin (n ** prf))))
 >        (finToNatLemma (FS (toFin (n ** prf))))
->        = 
+>        =
 >        MkSigma {a = Nat} {P = \ i => LT i (S m)} (S n) (LTESucc prf)
 >   s5 = depCong2 (MkSigma {a = Nat} {P = \ i => LT i (S m)}) s3 s4
 >   s6 : fromFin (toFin (S n ** LTESucc prf)) = (S n ** LTESucc prf)
@@ -204,7 +204,3 @@ Decidability properties
 > decEqLTB {b} (m ** p) (n ** q) with (decEq m n)
 >   | (Yes prf)   = Yes (sigmaEqLemma1 (m ** p) (n ** q) prf (uniqueLT))
 >   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
-
-
-
- 
