@@ -194,8 +194,23 @@ and, from there, decidability of |Elem| and |All|
 > decElem {t} = IdentityProperties.decElem (decEqX {t1 = t} {t2 = t})
 
 > decAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
-> -- decAll P dP (Id x) with 
+> decAll {t} P dP (Id x) with (dP x)
+>   | (Yes prf) = Yes prf' where
+>     prf' : (x' : X t) -> x' `IdentityOperations.Elem` (Id x) -> P x'
+>     prf' x' x'eqx = replace (sym x'eqx) prf
+>   | (No contra) = No contra' where
+>     contra' : (f : (x' : X t) -> x' `IdentityOperations.Elem` (Id x) -> P x') -> Void
+>     contra' f = contra (f x Refl)
 
+(it would be nice to implement |decAll| by applying a more general
+|IdentityProperties.decAll| as done for |decElem|. At this point,
+however, it is not clear how a |IdentityProperties.decAll| lemma could
+be implemented. The problem is that |All| is defined in
+|SeqDecProbMonadic| for every |M : Type -> Type|. Ideally, one would
+like to collect the declatations of |Elem|, |tagElem| and the
+declaration + definition of |All| in a |MonadicContainer| type class and
+then show that |Identity| is an instance of |MonadicContainer|. A first
+attempt to realize this design has led to issue #1975 (2015.03.03).
 
 > {-
 
