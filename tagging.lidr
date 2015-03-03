@@ -6,18 +6,23 @@
 > %default total 
 
 
-> getW : {P : a -> Type} -> Sigma a P -> a 
+> getW : {A : Type} -> {P : A -> Type} -> Sigma A P -> A 
 > getW = Prelude.Pairs.Sigma.getWitness
 
-> cong2 : (f : a -> b -> c) -> (a1 = a2) -> (b1 = b2) -> f a1 b1 = f a2 b2
+
+> cong2 : {A, B, C : Type} -> {a1, a2 : A} -> {b1, b2 : B} ->
+>         (f : A -> B -> C) -> (a1 = a2) -> (b1 = b2) -> f a1 b1 = f a2 b2
 > cong2 f Refl Refl = Refl
 
 
-> cross : (alpha -> beta, gamma -> delta) -> (alpha, gamma) -> (beta, delta)
-> cross (f, g) (a, c) = (f a, g c)
+> cross : {A, B, C, D : Type} -> (A -> C, B -> D) -> (A, B) -> (C, D)
+> cross (f, g) (a, b) = (f a, g b)
 
-> crossLemma : (ac : (a, c)) -> fst (cross (id, f) ac) = fst ac
-> crossLemma (a,c) = Refl
+
+> crossLemma : {A, B, D : Type} -> {f : B -> D} ->
+>              (ab : (A, B)) -> fst (cross (id, f) ab) = fst ab
+> crossLemma (a, b) = Refl
+
 
 > mapFstMapCrossLemma : (acs : List (a, c)) -> map fst (map (cross (id, f)) acs) = map fst acs
 > mapFstMapCrossLemma Nil = Refl
@@ -42,28 +47,26 @@
 >   s5 = trans s1 (trans s2 (trans s3 s4))
 
 
-> depCross : {P1 : alpha -> Type} ->
->            {P2 : beta -> Type} ->
->            (f : alpha -> beta ** (a : alpha) -> P1 a -> P2 (f a)) -> (a : alpha ** P1 a) -> (b : beta ** P2 b)
+> depCross : {A, B : Type} -> {P1 : A -> Type} -> {P2 : B -> Type} ->
+>            (f : A -> B ** (a : A) -> P1 a -> P2 (f a)) -> (a : A ** P1 a) -> (b : B ** P2 b)
 > depCross (f ** g) (a ** P1a) = (f a ** g a P1a)
 
-> depCrossLemma : {P1 : alpha -> Type} ->
->                 {P2 : alpha -> Type} ->
->                 {f : (a : alpha) -> P1 a -> P2 a} ->
->                 (ac : (a : alpha ** P1 a)) -> 
->                 (getW {P = P2}) (depCross (id ** f) ac) = (getW {P = P1}) ac
-> depCrossLemma (a ** c) = Refl
- 
-> mapGetWMapDepCrossLemma : {P1 : alpha -> Type} ->
->                           {P2 : alpha -> Type} ->
->                           {f : (a : alpha) -> P1 a -> P2 a} ->
->                           (xs : List (a : alpha ** P1 a)) -> 
+
+> depCrossLemma : {A : Type} -> {P1 : A -> Type} -> {P2 : A -> Type} ->
+>                 {f : (a : A) -> P1 a -> P2 a} ->
+>                 (p : (a : A ** P1 a)) -> getW (depCross (id ** f) p) = getW p
+> depCrossLemma (a ** p1a) = Refl
+
+
+> mapGetWMapDepCrossLemma : {A : Type} -> {P1 : A -> Type} -> {P2 : A -> Type} ->
+>                           {f : (a : A) -> P1 a -> P2 a} ->
+>                           (xs : List (a : A ** P1 a)) -> 
 >                           map (getW {P = P2}) (map (depCross (id ** f)) xs) = map (getW {P = P1}) xs
 > mapGetWMapDepCrossLemma Nil = Refl
-> mapGetWMapDepCrossLemma {P1} {P2} {f} (x :: xs) = ?lala where
->   gigi : (getW {P = P2}) (depCross (id ** f) x) 
+> mapGetWMapDepCrossLemma {A} {P1} {P2} {f} (x :: xs) = s5 where
+>   gigi : getW (depCross (id ** f) x) 
 >          = 
->          getW {P = P1} x
+>          getW x
 >   gigi = depCrossLemma x
 >   gaga : map (getW {P = P2}) (map (depCross (id ** f)) xs)
 >          =
@@ -80,7 +83,7 @@
 >   s3 : ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
 >        =
 >        ((getW {P = P1}) x) :: (map (getW {P = P1}) xs)
->   s3 = cong2 (::) gigi gaga
+>   s3 = ?kika -- cong2 (::) gigi gaga
 >   s4 : ((getW {P = P1}) x) :: (map (getW {P = P1}) xs)
 >        =
 >        map (getW {P = P1}) (x :: xs)
@@ -90,9 +93,13 @@
 >        map (getW {P = P1}) (x :: xs)
 >   s5 = trans s1 (trans s2 (trans s3 s4))
 
+
 > f : (a : alpha) -> (a' : alpha) -> (a' `Elem` as) -> (a' `Elem` (a :: as))
 > f a a' prf = There prf
 
+
+> {-
+ 
 > tagElemList : (as : List alpha) -> List (a : alpha ** a `Elem` as)
 > tagElemList Nil = Nil
 > tagElemList (a :: as) = (a ** Here) :: (map (depCross (id ** f a)) (tagElemList as)) 
@@ -165,3 +172,6 @@
 >   s6 : map getW (tagElemList (a :: as)) = a :: as
 >   s6 = ?lala -- cong2 (::) s1 s2
 > -}
+
+> --}
+ 

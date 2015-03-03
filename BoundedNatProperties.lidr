@@ -197,8 +197,13 @@ Finitness properties
 > finiteSubLTB b P dP uP = finiteSubTypeLemma0 {A = LTB b} {P} (finiteLTB b) dP uP
 
 
+Decidability properties
 
-
+> ||| Equality of bounded |Nat|s is decidable
+> decEqLTB : {b : Nat} -> (i : LTB b) -> (j : LTB b) -> Dec (i = j)
+> decEqLTB {b} (m ** p) (n ** q) with (decEq m n)
+>   | (Yes prf)   = Yes (sigmaEqLemma1 (m ** p) (n ** q) prf (uniqueLT))
+>   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
 
 
 

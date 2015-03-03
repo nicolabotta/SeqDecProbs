@@ -8,8 +8,11 @@
 > import Control.Isomorphism
 
 > import SeqDecProbMonadic
+> import IdentityOperations
+> import IdentityProperties
 > import BoundedNat
 > import BoundedNatOperations
+> import BoundedNatProperties
 > import SigmaOperations
 > import NatProperties
 > import Finite
@@ -20,6 +23,7 @@
 > import SubType
 > import Decidable
 > import FiniteSubTypeProperties
+> import Prop
 
 
 > %default total 
@@ -36,9 +40,9 @@ is the identity monad:
 
 > SeqDecProbMonadic.bind = (>>=)
 
-> SeqDecProbMonadic.Elem a1 (Id a2) = a1 = a2
+> SeqDecProbMonadic.Elem = IdentityOperations.Elem
 
-> SeqDecProbMonadic.tagElem (Id a) = Id (a ** Refl)
+> SeqDecProbMonadic.tagElem = IdentityOperations.tagElem
 
 
 The decision process:
@@ -179,11 +183,24 @@ The measure
 
 Max and argmax
 
+First, we derive decidability of equality on states
 
+> decEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Dec (x1 = x2)
+> decEqX x1 x2 = decEqLTB x1 x2 
 
+and, from there, decidability of |Elem| and |All|
+
+> decElem : {t : Nat} -> (x : X t) -> (mx : Identity (X t)) -> Dec (SeqDecProbMonadic.Elem x mx)
+> decElem {t} = IdentityProperties.decElem (decEqX {t1 = t} {t2 = t})
+
+> decAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
+> -- decAll P dP (Id x) with 
 
 
 > {-
+
+> max    : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>          Float
 
 > ---}
 
