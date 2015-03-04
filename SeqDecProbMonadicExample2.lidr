@@ -221,7 +221,7 @@ is decidable and unique. We start with decidability. First, we derive
 decidability of equality on states
 
 > dEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Dec (x1 = x2)
-> dEqX x1 x2 = decEqLTB x1 x2 
+> dEqX = decEqLTB
 
 From decidability of equality, decidability of |Elem| and |All| follow:
 
@@ -268,16 +268,81 @@ t x y))| is decidable
 > d1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec1 (\ y => All (Viable {t = S t} n) (step t x y))
 > d1AllViable t n x y = dAll (S t) (Viable {t = S t} n) (d1Viable (S t) n) (step t x y)
 
-> {-
 
-
+Let's turn to uniqueness. We want to show 
 
 > u1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Unique1 (\ y => All (Viable {t = S t} n) (step t x y))
-> u1AllViable t n x = ?kika
+
+We proceed as in the case for decidability. We start from uniqueness of
+equality on states
+
+> uEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Unique (x1 = x2)
+> uEqX = uniqueEqLTB
+
+From uniqueness of equality, uniqueness of |Elem| follows:
+
+> uElem : (t : Nat) -> (x : X t) -> (mx : Identity (X t)) -> Unique (SeqDecProbMonadic.Elem x mx)
+> uElem t = IdentityProperties.uniqueElem (uEqX {t1 = t} {t2 = t})
+
+Now things get a bit ugly ... I do not think we have a chance of proving
+
+< uAll : (t : Nat) -> (P : X t -> Prop) -> Unique1 P -> (mx : Identity (X t)) -> Unique (All P mx) 
+
+let apart uniqueness of viability proofs. This is because |All P mx| as
+defined in |SeqDecProbMonadic|
+
+< All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
+< All {A} P ma = (a : A) -> a `Elem` ma -> P a
+
+is a function of two arguments and we should prove that any two such
+functions are equal. But maybe this is not what we really want to prove
+or maybe it is not a good idea to rely on our default implementation of
+|All| to fulfill |containerMonadSpec3| per construction. We go on by
+postulating |uAll|
+
+> postulate uAll : (t : Nat) -> (P : X t -> Prop) -> Unique1 P -> (mx : Identity (X t)) -> Unique (All P mx) 
+
+and see whether this is useful for getting to |u1AllViable|. But we keep
+in mind that, if we had had to implement |All| for |M = Identity|, we
+would probably have done something like
+
+> AllIdentity : {A : Type} -> (P : A -> Prop) -> Identity A -> Prop
+> AllIdentity {A} P (Id a) = P a
+
+which would triviall fulfill the specification
+
+> containerMonadSpec3Identity : {A : Type} -> {P : A -> Prop} -> 
+>                               (a : A) -> 
+>                               (ma : M A) -> 
+>                               AllIdentity P ma -> 
+>                               a `SeqDecProbMonadic.Elem` ma -> 
+>                               P a
+> containerMonadSpec3Identity {A} {P} a1 (Id a2) pa2 a1eqa2  = replace (sym a1eqa2) pa2
+
+Implementing |uAll| for |All = AllIdentity| should be trivial. This
+suggests that we might want to relax the |SeqDecProbMonadic| framework
+by reintroducing a specification for |All| instead of a hard-coded
+implementation and rely on monad-specific implementations to fulfill
+|uAll|. We will see ... for the moment, let's proceed to |uViable|:
+
+> uViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Unique (Viable {t} n x)
+> {-
+> dViable t  Z    x = Yes ()
+> dViable t (S m) x = s3 where
+>   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
+>   s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
+>   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>   s2    =  finiteDecLemma (fY t x) s1
+>   s3    :  Dec (Viable {t = t} (S m) x)
+>   s3    =  s2
+
+
+> ---}
+
 
 > fYA : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 > fYA t n x = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x)
 
-> ---}
+
 
 
