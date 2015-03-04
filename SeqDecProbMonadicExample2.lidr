@@ -203,16 +203,16 @@ if we can show that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))|
 is finite and non-empty for every |t : Nat|, |x : X t| such that |Viable
 (S n) x|. If we have finiteness
 
-> fYAV : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+> fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
 >        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 
 non-emptiness is straightforward:
 
-> neYAV : (t : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
->         NonEmpty (fYAV t x v)
-> neYAV {n} t x (Evidence y v) = 
+> neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
+>         NonEmpty (fYAV t n x v)
+> neYAV t n x (Evidence y v) = 
 >   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->                 (fYAV t x (Evidence y v)) 
+>                 (fYAV t n x (Evidence y v)) 
 >                 (y ** v)
 
 Thus, the problem is implementing |fYAV|. To this end, it is enough to
@@ -271,7 +271,8 @@ t x y))| is decidable
 
 Let's turn to uniqueness. We want to show 
 
-> u1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Unique1 (\ y => All (Viable {t = S t} n) (step t x y))
+> u1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
+>               Unique1 (\ y => All (Viable {t = S t} n) (step t x y))
 
 We proceed as in the case for decidability. We start from uniqueness of
 equality on states
@@ -326,22 +327,31 @@ implementation and rely on monad-specific implementations to fulfill
 |uAll|. We will see ... for the moment, let's proceed to |uViable|:
 
 > uViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Unique (Viable {t} n x)
-> {-
-> dViable t  Z    x = Yes ()
-> dViable t (S m) x = s3 where
->   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
->   s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
->   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->   s2    =  finiteDecLemma (fY t x) s1
->   s3    :  Dec (Viable {t = t} (S m) x)
->   s3    =  s2
+> uViable t  Z    x () () = Refl
 
+> uViable t (S m) x p q = s3 where
+>   s1    :  Unique1 (\ y => All (Viable {t = S t} m) (step t x y))
+>   s1 y  =  uAll (S t) (Viable {t = S t} m) (uViable (S t) m) (step t x y)
+>   s2    :  Unique (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>   s2    =  ?kika -- !!!
+>   s3    :  p = q
+>   s3    =  s2 p q
 
-> ---}
+It is clear that we are not going, in general, to compute |kika|. What
+we have to do is to replace the uniqueness requirement with a finiteness
+requirement and then apply something like
 
+< finiteSubTypeLemma1 : {A : Type} -> {P : A -> Type} ->
+<                       Finite A -> Dec1 P -> (fP : Finite1 P) -> 
+<                       Finite (SubType A P fP)
 
-> fYA : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
-> fYA t n x = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x)
+We should probably start with finiteness of products of finite types and
+then move to finiteness of dependent pairs.
+
+> -- fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
+> --        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+> fYAV t n x v = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x v)
+
 
 
 
