@@ -3,8 +3,6 @@
 
 > import Decidable.Order
 
-> import Prop
-
 
 > %default total
 

@@ -212,6 +212,17 @@ declaration + definition of |All| in a |MonadicContainer| type class and
 then show that |Identity| is an instance of |MonadicContainer|. A first
 attempt to realize this design has led to issue #1975 (2015.03.03).
 
+> decViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
+> decViable t  Z    x = Yes ()
+> decViable t (S m) x = s3 where
+>   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
+>   s1 y  =  decAll {t = S t} (Viable {t = S t} m) (decViable (S t) m) (step t x y)
+>   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>   s2    =  finiteDecLemma (fY t x) s1
+>   s3    :  Dec (Viable {t = t} (S m) x)
+>   s3    =  s2
+
+
 > {-
 
 > max    : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 

@@ -137,8 +137,8 @@ The second result is
 >                     Elem a (map getWitness ss) -> 
 >                     Elem (a ** p) ss
 > sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
-> sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) Here with (u1P a p q) 
->   sigmaUniqueLemma1 u1P a p ((a ** p) :: ss) Here | Refl = 
+> sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) (Here {x = a}) with (u1P a p q) 
+>   sigmaUniqueLemma1 u1P a p ((a ** p) :: ss) (Here {x = a}) | Refl = 
 >     Here {x = (a ** p)} {xs = ss}
 > sigmaUniqueLemma1 u1P a1 p1 ((a2 ** p2) :: ss) (There prf) = 
 >   There (sigmaUniqueLemma1 u1P a1 p1 ss prf)
