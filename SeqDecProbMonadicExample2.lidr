@@ -183,18 +183,53 @@ The measure
 
 Max and argmax
 
-First, we derive decidability of equality on states
+We want to implement
 
-> decEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Dec (x1 = x2)
-> decEqX x1 x2 = decEqLTB x1 x2 
+< max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+<          Float
+< argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+<          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
-and, from there, decidability of |Elem| and |All|
+This can be easily done using |Opt.max| and |Opt.argmax|
 
-> decElem : {t : Nat} -> (x : X t) -> (mx : Identity (X t)) -> Dec (SeqDecProbMonadic.Elem x mx)
-> decElem {t} = IdentityProperties.decElem (decEqX {t1 = t} {t2 = t})
+< max : {A, B : Type} -> {TO : B -> B -> Type} -> 
+<       Preordered B TO => 
+<       (fA : Finite A) -> (ne : NonEmpty fA) -> 
+<       (f : A -> B) -> B
+ 
+if we can show that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))|
+is finite and non-empty for every |t : Nat|, |x : X t| such that |Viable
+(S n) x|. If we have finiteness
 
-> decAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
-> decAll {t} P dP (Id x) with (dP x)
+> fYAV : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+
+non-emptiness is straightforward:
+
+> neYAV : (t : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
+>         NonEmpty (fYAV t x v)
+> neYAV {n} t x (Evidence y v) = 
+>   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>                 (fYAV t x (Evidence y v)) 
+>                 (y ** v)
+
+Thus, the problem is implementing |fYAV|. To this end, it is enough to
+show that the predicate |(\ y => All (Viable {t = S t} n) (step t x y))|
+is decidable and unique. We start with decidability. First, we derive
+decidability of equality on states
+
+> dEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Dec (x1 = x2)
+> dEqX x1 x2 = decEqLTB x1 x2 
+
+From decidability of equality, decidability of |Elem| and |All| follow:
+
+> dElem : (t : Nat) -> (x : X t) -> (mx : Identity (X t)) -> Dec (SeqDecProbMonadic.Elem x mx)
+> dElem t = IdentityProperties.decElem (dEqX {t1 = t} {t2 = t})
+
+> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
+> dAll t P dP (Id x) with (dP x)
 >   | (Yes prf) = Yes prf' where
 >     prf' : (x' : X t) -> x' `IdentityOperations.Elem` (Id x) -> P x'
 >     prf' x' x'eqx = replace (sym x'eqx) prf
@@ -202,8 +237,8 @@ and, from there, decidability of |Elem| and |All|
 >     contra' : (f : (x' : X t) -> x' `IdentityOperations.Elem` (Id x) -> P x') -> Void
 >     contra' f = contra (f x Refl)
 
-(it would be nice to implement |decAll| by applying a more general
-|IdentityProperties.decAll| as done for |decElem|. At this point,
+Remark: it would be nice to implement |dAll| by applying a more
+general |IdentityProperties.decAll| as done for |dElem|. At this point,
 however, it is not clear how a |IdentityProperties.decAll| lemma could
 be implemented. The problem is that |All| is defined in
 |SeqDecProbMonadic| for every |M : Type -> Type|. Ideally, one would
@@ -212,21 +247,36 @@ declaration + definition of |All| in a |MonadicContainer| type class and
 then show that |Identity| is an instance of |MonadicContainer|. A first
 attempt to realize this design has led to issue #1975 (2015.03.03).
 
-> decViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
-> decViable t  Z    x = Yes ()
-> decViable t (S m) x = s3 where
+Next, we show that |Viable| is decidable:
+
+> dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
+> dViable t  Z    x = Yes ()
+> dViable t (S m) x = s3 where
 >   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
->   s1 y  =  decAll {t = S t} (Viable {t = S t} m) (decViable (S t) m) (step t x y)
+>   s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
 >   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
 >   s2    =  finiteDecLemma (fY t x) s1
 >   s3    :  Dec (Viable {t = t} (S m) x)
 >   s3    =  s2
 
+> d1Viable : (t : Nat) -> (n : Nat) -> Dec1 (\ x => Viable {t} n x)
+> d1Viable t n x = dViable t n x 
+
+and finally, that the predicate |(\ y => All (Viable {t = S t} n) (step
+t x y))| is decidable
+
+> d1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec1 (\ y => All (Viable {t = S t} n) (step t x y))
+> d1AllViable t n x y = dAll (S t) (Viable {t = S t} n) (d1Viable (S t) n) (step t x y)
 
 > {-
 
-> max    : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
->          Float
+
+
+> u1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Unique1 (\ y => All (Viable {t = S t} n) (step t x y))
+> u1AllViable t n x = ?kika
+
+> fYA : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+> fYA t n x = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x)
 
 > ---}
 

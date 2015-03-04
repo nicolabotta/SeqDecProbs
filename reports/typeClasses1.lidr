@@ -1,6 +1,9 @@
-> import Control.Monad.Identity
+> Lala : Nat -> Type
+> Lala n = Nat
 
-> namespace ContainerMonad
->   Elem : {m : Type -> Type} -> a -> m a -> Type
+> Elem : (M : Nat -> Type) -> (n : Nat)-> M n -> Type
+> Elem Lala m n = m = n
 
-> ContainerMonad.Elem {m} a1 (Id a2) = a1 = a2
+
+
+

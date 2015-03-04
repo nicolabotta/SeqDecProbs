@@ -202,22 +202,27 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max    : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+> max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
 >          Float
-> argmax : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+> argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
 >          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
 that fulfill the specification
 
-> typeHelper : (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+> typeHelper : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>              (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
 >              Type
-> typeHelper f = SeqDecProbMonadic.max f = f (SeqDecProbMonadic.argmax f)
+> typeHelper t x v f = SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
 
-> maxSpec     :  (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+> maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
 >                (s : (y : Y t x ** All (Viable n) (step t x y))) -> 
->                So (f s <= SeqDecProbMonadic.max f)
-> argmaxSpec  :  (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
->                typeHelper f -- SeqDecProbMonadic.max f = f (SeqDecProbMonadic.argmax f)
+>                So (f s <= SeqDecProbMonadic.max t x v f)
+> argmaxSpec  :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>                typeHelper t x v f -- SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
 
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
@@ -234,7 +239,7 @@ extensions for arbitrary policy sequences:
 > optExt : PolicySeq (S t) n -> Policy t (S n)
 > optExt {t} {n} ps = p where
 >   p : Policy t (S n)
->   p x r v = argmax g where
+>   p x r v = argmax t x v g where
 >     g : (y : Y t x ** All (Viable n) (step t x y)) -> Float
 >     g = mkg x r v ps
 
@@ -260,10 +265,10 @@ extensions for arbitrary policy sequences:
 >   f     =  mkf x r v y av ps        
 >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Float
 >   f'    =  mkf x r v y' av' ps        
->   s1    :  So (g yav' <= SeqDecProbMonadic.max g)
->   s1    =  maxSpec g yav'
->   s2    :  So (g yav' <= g (argmax g))
->   s2    =  replace {P = \ z => So (g yav' <= z)} (argmaxSpec g) s1
+>   s1    :  So (g yav' <= SeqDecProbMonadic.max t x v g)
+>   s1    =  maxSpec t x v g yav'
+>   s2    :  So (g yav' <= g (argmax t x v g))
+>   s2    =  replace {P = \ z => So (g yav' <= z)} (argmaxSpec t x v g) s1
 >   -- the rest of the steps are for the human reader
 >   s3    :  So (g yav' <= g yav)
 >   s3    =  s2
