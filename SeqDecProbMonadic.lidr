@@ -10,8 +10,8 @@
 > import RelSyntax
 > import RelFloatPostulates
 
- 
-> %default total 
+
+> %default total
 
 
 The theory of monadic sequential decision problems (SDP):
@@ -30,7 +30,7 @@ A SDP is specified in terms of a monad ...
 > -- unused monadSpec1   :  (fmap f) . ret = ret . f
 > -- unused monadSpec21  :  bind (ret a) f = f a
 > -- unused monadSpec22  :  bind ma ret = ma
-> -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} -> 
+> -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} ->
 > --                        bind (bind ma f) g = bind ma (\ a => bind (f a) g)
 
 > join  :  {A : Type} -> M (M A) -> M A
@@ -44,7 +44,7 @@ A SDP is specified in terms of a monad ...
 > tagElem  :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
 
 The standard examples are |M = Id| (deterministic SDP), |M = List|
-(non-deterministic SDP) and |M = Prob| (stochastic SDP). 
+(non-deterministic SDP) and |M = Prob| (stochastic SDP).
 
 The decision problem itself is specified by giving the decision
 process ...
@@ -63,8 +63,8 @@ process ...
 ... and a measure:
 
 > meas : M Float -> Float
-> measMon  :  {A : Type} -> 
->             (f : A -> Float) -> (g : A -> Float) -> 
+> measMon  :  {A : Type} ->
+>             (f : A -> Float) -> (g : A -> Float) ->
 >             ((a : A) -> So (f a <= g a)) ->
 >             (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
 
@@ -109,11 +109,8 @@ For every SDP, we can build the following notions:
 
 > mutual
 
->   mkf : (x  : X t) ->
->         (r  : Reachable x) ->
->         (v  : Viable (S m) x) -> 
->         (y  : Y t x) ->
->         (av : All (Viable m) (step t x y)) ->
+>   mkf : (x  : X t) -> (r  : Reachable x) -> (v  : Viable (S m) x) ->
+>         (y  : Y t x) -> (av : All (Viable m) (step t x y)) ->
 >         (ps : PolicySeq (S t) m) ->
 >         (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
 >   mkf {t} {m} x r v y av ps (x' ** x'estep) = reward t x y x' + val x' r' v' ps where
@@ -140,10 +137,8 @@ For every SDP, we can build the following notions:
   Optimality of policy sequences:
 
 > OptPolicySeq : PolicySeq t n -> Prop
-> OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) -> 
->                             (x : X t) ->
->                             (r : Reachable x) ->
->                             (v : Viable n x) ->
+> OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
+>                             (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                             So (val x r v ps' <= val x r v ps)
 
 > nilOptPolicySeq : OptPolicySeq Nil
@@ -154,18 +149,14 @@ For every SDP, we can build the following notions:
 
 > OptExt : PolicySeq (S t) m -> Policy t (S m) -> Prop
 > OptExt {t} {m} ps p  =  (p' : Policy t (S m)) ->
->                         (x : X t) ->
->                         (r : Reachable x) -> 
->                         (v : Viable (S m) x) -> 
+>                         (x : X t) -> (r : Reachable x) -> (v : Viable (S m) x) ->
 >                         So (val x r v (p' :: ps) <= val x r v (p :: ps))
 
-  
+
   Bellman's principle of optimality:
 
-> Bellman  :  (ps : PolicySeq (S t) m) ->
->             OptPolicySeq ps ->
->             (p : Policy t (S m)) ->
->             OptExt ps p ->
+> Bellman  :  (ps  : PolicySeq (S t) m)  ->   OptPolicySeq ps ->
+>             (p   : Policy t (S m))     ->   OptExt ps p ->
 >             OptPolicySeq (p :: ps)
 
 > Bellman {t} {m} ps ops p oep = opps where
@@ -176,7 +167,7 @@ For every SDP, we can build the following notions:
 >     mx' : M (X (S t))
 >     mx' = step t x y'
 >     av' : All (Viable m) mx'
->     av' = outr (p' x r v)    
+>     av' = outr (p' x r v)
 >     f' : (x' : X (S t) ** x' `Elem` mx') -> Float
 >     f' = mkf x r v y' av' ps'
 >     f  : (x' : X (S t) ** x' `Elem` mx') -> Float
@@ -203,33 +194,33 @@ For every SDP, we can build the following notions:
 The idea is that, if clients can implement max and argmax
 
 > max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
->          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >          Float
 > argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
->          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
 that fulfill the specification
 
 > typeHelper : (t : Nat) -> (x : X t) -> Viable (S n) x ->
->              (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>              (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >              Type
 > typeHelper t x v f = SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
 
 > maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
->                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
->                (s : (y : Y t x ** All (Viable n) (step t x y))) -> 
+>                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
+>                (s : (y : Y t x ** All (Viable n) (step t x y))) ->
 >                So (f s <= SeqDecProbMonadic.max t x v f)
 > argmaxSpec  :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
->                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+>                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >                typeHelper t x v f -- SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
 
-then we can implement a function that computes machine chackable optimal
+then we can implement a function that computes machine checkable optimal
 extensions for arbitrary policy sequences:
 
 > mkg : (x  : X t) ->
 >       (r  : Reachable x) ->
->       (v  : Viable (S n) x) -> 
+>       (v  : Viable (S n) x) ->
 >       (ps : PolicySeq (S t) n) ->
 >       (y : Y t x ** All (Viable n) (step t x y)) -> Float
 > mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
@@ -251,7 +242,7 @@ extensions for arbitrary policy sequences:
 >   yav   =  p x r v
 >   y     :  Y t x
 >   y     =  outl yav
->   av    :  All (Viable n) (step t x y) 
+>   av    :  All (Viable n) (step t x y)
 >   av    =  outr yav
 >   yav'  :  (y : Y t x ** All (Viable n) (step t x y))
 >   yav'  =  p' x r v
@@ -262,9 +253,9 @@ extensions for arbitrary policy sequences:
 >   g     :  (y : Y t x ** All (Viable n) (step t x y)) -> Float
 >   g     =  mkg x r v ps
 >   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
->   f     =  mkf x r v y av ps        
+>   f     =  mkf x r v y av ps
 >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Float
->   f'    =  mkf x r v y' av' ps        
+>   f'    =  mkf x r v y' av' ps
 >   s1    :  So (g yav' <= SeqDecProbMonadic.max t x v g)
 >   s1    =  maxSpec t x v g yav'
 >   s2    :  So (g yav' <= g (argmax t x v g))
@@ -275,7 +266,7 @@ extensions for arbitrary policy sequences:
 >   s4    :  So (mkg x r v ps yav' <=  mkg x r v ps yav)
 >   s4    =  s3
 >   s5    :  So (meas (fmap f' (tagElem (step t x y'))) <= meas (fmap f (tagElem (step t x y))))
->   s5    =  s4          
+>   s5    =  s4
 >   s6    :  So (val x r v (p' :: ps) <= val x r v (p :: ps))
 >   s6    =  s5
 
@@ -311,9 +302,7 @@ possible future evolutions from a (viable) initial state:
 
 >   data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
 >     Nil   :  (x : X t) -> StateCtrlSeq t Z
->     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n) 
+>     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 
->   postulate stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) -> 
+>   postulate stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                              (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
-
-
