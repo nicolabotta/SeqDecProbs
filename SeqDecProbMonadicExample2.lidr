@@ -350,7 +350,9 @@ then move to finiteness of dependent pairs.
 Assuming
 
 > finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
->                     Finite A -> (fP : Finite1 P) -> 
+>                     Finite A ->
+>                     Dec1 P ->
+>                     Finite1 P -> 
 >                     Finite (Exists {a = A} P)
 
 > fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx) 
@@ -363,7 +365,7 @@ we should be able to derive
 >   fViable t  Z    x  = finiteSingleton
 >   fViable t (S m) x  = s3 where
 >     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->     s3 = finiteExistsLemma (fY t x) (f1AllViable t m x)
+>     s3 = finiteExistsLemma (fY t x) (d1AllViable t m x) (f1AllViable t m x)
 
 >   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
