@@ -354,6 +354,12 @@ Assuming
 >                     Dec1 P ->
 >                     Finite1 P -> 
 >                     Finite (Exists {a = A} P)
+> finiteExistsLemma (Evidence  Z    iso) d1P f1P = ?luka
+> finiteExistsLemma (Evidence (S m) iso) d1P f1P = ?lika
+> {-
+
+> -}
+
 
 > fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx) 
 
