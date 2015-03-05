@@ -24,6 +24,8 @@
 > import Decidable
 > import FiniteSubTypeProperties
 > import Prop
+> import EqualityProperties
+> import SingletonProperties
 
 
 > %default total 
@@ -274,16 +276,11 @@ Let's turn to uniqueness. We want to show
 > u1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
 >               Unique1 (\ y => All (Viable {t = S t} n) (step t x y))
 
-We proceed as in the case for decidability. We start from uniqueness of
-equality on states
-
-> uEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Unique (x1 = x2)
-> uEqX = uniqueEqLTB
-
-From uniqueness of equality, uniqueness of |Elem| follows:
+We proceed as in the case for decidability. From uniqueness of equality,
+uniqueness of |Elem| follows:
 
 > uElem : (t : Nat) -> (x : X t) -> (mx : Identity (X t)) -> Unique (SeqDecProbMonadic.Elem x mx)
-> uElem t = IdentityProperties.uniqueElem (uEqX {t1 = t} {t2 = t})
+> uElem t = IdentityProperties.uniqueElem uniqueEq
 
 Now things get a bit ugly ... I do not think we have a chance of proving
 
@@ -337,9 +334,9 @@ implementation and rely on monad-specific implementations to fulfill
 >   s3    :  p = q
 >   s3    =  s2 p q
 
-It is clear that we are not going, in general, to compute |kika|. What
-we have to do is to replace the uniqueness requirement with a finiteness
-requirement and then apply something like
+It is clear that we are not going, in general, to be able to compute
+|kika|. What we have to do is to replace the uniqueness requirement with
+a finiteness requirement and then apply something like
 
 < finiteSubTypeLemma1 : {A : Type} -> {P : A -> Type} ->
 <                       Finite A -> Dec1 P -> (fP : Finite1 P) -> 
@@ -348,11 +345,45 @@ requirement and then apply something like
 We should probably start with finiteness of products of finite types and
 then move to finiteness of dependent pairs.
 
+###
+
+Assuming
+
+> finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
+>                     Finite A -> (fP : Finite1 P) -> 
+>                     Finite (Exists {a = A} P)
+
+> fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx) 
+
+we should be able to derive
+
+> mutual
+
+>   fViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Viable {t} n x)
+>   fViable t  Z    x  = finiteSingleton
+>   fViable t (S m) x  = s3 where
+>     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>     s3 = finiteExistsLemma (fY t x) (f1AllViable t m x)
+
+>   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
+>                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
+>   f1AllViable t  Z    x y =          fAll    t  (Viable {t = S t} Z) (fViable (S t) Z) (step t x y)
+>   f1AllViable t (S m) x y = ?kika -- fAll (S t) (Viable {t = S t} m) (fViable (S t) m) (step t x y)
+
+and finally, assuming
+
+> finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
+>                     Finite A -> Dec1 P -> (fP : Finite1 P) -> 
+>                     Finite (Sigma A P)
+
+###
+
 > -- fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
 > --        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
-> fYAV t n x v = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x v)
 
+> -- fYAV t n x v = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x v)
 
+> fYAV t n x v = finiteSigmaLemma0 (fY t x) (d1AllViable t n x) (f1AllViable t n x)
 
 
 

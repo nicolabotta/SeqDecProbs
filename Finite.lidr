@@ -11,6 +11,12 @@
 > Finite : Type -> Type
 > Finite A = Exists (\ n => Iso A (Fin n))
 
+> Finite0 : Type -> Type
+> Finite0 = Finite
+
+> Finite1 : {A : Type} -> (P : A -> Type) -> Type
+> Finite1 {A} P = (a : A) -> Finite0 (P a) 
+
 
 This definition requires an exact cardinality |n| which may be
 difficult to compute. But it is enough to know a finite bound, so an

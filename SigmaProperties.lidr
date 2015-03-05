@@ -160,4 +160,24 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0
 
 
-
+> ||| For decidable and finite predicates, Sigma types of finite types are finite
+> finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
+>                     Finite A -> Dec1 P -> (fP : Finite1 P) -> 
+>                     Finite (Sigma A P)
+> {-                      
+> finiteSubTypeLemma0 {A} {P} fA dP uP = Evidence n iso where
+>   n        : Nat
+>   n        = getWitness (toVect fA dP)
+>   rho      : Vect n (SubType A P uP)
+>   rho      = getProof (toVect fA dP) 
+>   to       : SubType A P uP -> Fin n
+>   to s     = lookup s rho (toVectComplete fA dP uP s)
+>   from     : Fin n -> SubType A P uP
+>   from k   = index k rho
+>   toFrom   : (k : Fin n) -> to (from k) = k
+>   toFrom k = lookupIndexLemma k rho (toVectComplete fA dP uP (from k))
+>   fromTo   : (s : SubType A P uP) -> from (to s) = s
+>   fromTo s = indexLookupLemma s rho (toVectComplete fA dP uP s) 
+>   iso      : Iso (SubType A P uP) (Fin n)
+>   iso      = MkIso to from toFrom fromTo
+> -}

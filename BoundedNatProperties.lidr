@@ -206,8 +206,3 @@ Decidability properties
 >   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
 
 
-Uniqueness properties
-
-> ||| Equality of bounded |Nat|s is unique
-> uniqueEqLTB : {b : Nat} -> (i : LTB b) -> (j : LTB b) -> Unique (i = j)
-> uniqueEqLTB {b} (m ** p) (m ** p) Refl Refl = Refl
