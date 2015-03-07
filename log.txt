@@ -1,3 +1,35 @@
+2015-03-05: Patrik: Left to do
+
+  Problems in SeqDecProbMonadicExample2.lidr:
+
+  The current formalisation of max and argmax are parametrised on an
+  arbitrary function (f : A -> B) into a preorder B.
+
+  The actual use of this is to choose a "control" of type (Y t x) for
+  which a certain function is maximal. The actual type of the function
+  to be maximised is from a subset of (Y t x) implemented as a Sigma
+  type (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))).
+  The details are not important, but what is important is that the
+  type is of the form (Sigma A P) where P is a predicate intended to
+  "carve out" the subset of controls which lead to viable next states.
+
+  The function being optimized takes a value (y ** av) where y is used
+  to compute a value and av is used to compute "certificates" needed
+  to be allowed to call some functions needed to compute the value.
+
+  My hypothesis is that what we need to proceed is a proof that the
+  second component does not change the value of this function. This
+  should be possible to formulate as (TODO: better name;-)
+
+  Nice : {A : Type} -> {P : A -> Prop} -> (f : Sigma A P -> float) -> Prop
+  Nice f = (y : A) -> (av : P y) -> (av' : P y) -> (f (y ** av) = f (y ** av'))
+
+  The proof may be awkward but I think something of this king is
+  needed instead of the (too strong) requirement Unique1 P.
+
+  The function used for the optimization (in SeqDecProbMonadic.lidr)
+  is built using the helpers mkg, mkf and val.
+
 2015-02-25: Patrik: checking status
 
   New files added:
