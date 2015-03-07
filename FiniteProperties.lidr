@@ -45,7 +45,7 @@ Non empty finite types
 
 > |||
 > nonEmptyLemma : {A : Type} -> (fA : Finite A) -> A -> NonEmpty fA
-> nonEmptyLemma fA a = elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a)
+> nonEmptyLemma fA a = gtZisnotZ (elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a))
 
 
 We want to show that, for a finite type |A| and a decidable predicate |P
@@ -76,6 +76,14 @@ case we have to implement a function of type |Exists P -> Void|. We do
 this by applying |contra|. To this end, we need a value of type |Any P
 (toVect fA)|. We compute a value of type |Any P (toVect fA)| by applying
 |ElemAnyLemma|.
+
+
+Finiteness of products
+
+> finiteProduct : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
+> finiteProduct {A} {B} (Evidence m isoA) (Evidence n isoB) = 
+>   Evidence (m * n) (isoTrans (pairCong isoA isoB) finPairTimes)
+
 
 ----
 

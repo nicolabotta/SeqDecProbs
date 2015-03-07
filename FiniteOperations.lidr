@@ -8,6 +8,7 @@
 > import Finite
 > import FinOperations
 > import IsomorphismOperations
+> import NatProperties
 
 
 > %default total 
@@ -65,7 +66,19 @@ elements of type |A| of length |n|. This can be done by calling
 
 
 > ||| 
+> Empty : {A : Type} -> Finite A -> Type
+> Empty fA = card fA = Z
+
+
+> ||| 
 > NonEmpty : {A : Type} -> Finite A -> Type
-> NonEmpty fA = LT Z (card fA)
+> NonEmpty = Not . Empty
+> -- NonEmpty fA = LT Z (card fA)
+
+
+
+
+
+
 
 

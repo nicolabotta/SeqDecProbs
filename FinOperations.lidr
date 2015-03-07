@@ -17,3 +17,12 @@
 > toVect {n =   Z} _ = Nil
 > toVect {n = S m} f = (f FZ) :: (toVect (tail f)) 
 
+
+> ||| Sum of the values of a finite function
+> sum : (Fin n -> Nat) -> Nat
+> sum {n = Z}   f = Z
+> sum {n = S m} f = f FZ + sum (tail f)
+
+
+
+

@@ -61,6 +61,18 @@
 > ltIdS (S m) = LTESucc (ltIdS m)
 
 
+> ||| Any number which is not zero is greater than zero
+> notZisgtZ : Not (n = Z) -> LT Z n
+> notZisgtZ {n = Z}   contra = void (contra Refl) 
+> notZisgtZ {n = S m} _      = ltZS m
+
+
+> ||| Any number which is greater than zero is not zero
+> gtZisnotZ : LT Z n -> Not (n = Z)
+> gtZisnotZ {n = Z}   p = absurd p
+> gtZisnotZ {n = S m} p = \ neqZ => absurd neqZ
+
+
 Decidability
 
 > ||| LTE is decidable

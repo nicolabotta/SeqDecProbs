@@ -13,6 +13,7 @@
 > import VectProperties
 > import FiniteOperations
 > import FiniteProperties
+> import FinOperations
 
 
 > %default total
@@ -160,24 +161,78 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0
 
 
-> ||| For decidable and finite predicates, Sigma types of finite types are finite
+
+Sigma Fin properties:
+
+> using (P : Fin Z -> Type)
+>   instance Uninhabited (Sigma (Fin Z) P) where
+>     uninhabited (MkSigma k _) = absurd k
+
+
+> ||| |Sigma (Fin Z) P| are void
+> voidSigmaFinZ : {P : Fin Z -> Type} -> Iso (Sigma (Fin Z) P) Void
+> voidSigmaFinZ = MkIso (\x => void (uninhabited x)) 
+>                       (\x => void x)
+>                       (\x => void x)
+>                       (\x => void (uninhabited x)) 
+
+
+> ||| Decomposition lemma
+> sigmaFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
+>                       Iso 
+>                       (Sigma (Fin (S n)) (\ k => Fin (f k))) 
+>                       (Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k))))
+> sigmaFinEitherLemma {n} {f} = MkIso to from toFrom fromTo where
+>   to : (Sigma (Fin (S n)) (\ k => Fin (f k))) ->
+>        (Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k))))
+>   to (FZ   ** j) = Left j
+>   to (FS k ** j) = Right (k ** j)
+>   from : (Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))) ->
+>          (Sigma (Fin (S n)) (\ k => Fin (f k)))
+>   from (Left j) = (FZ ** j)
+>   from (Right (k ** j)) = (FS k ** j)
+>   toFrom : (e : Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))) ->
+>            to (from e) = e
+>   toFrom (Left j) = Refl
+>   toFrom (Right (k ** j)) = Refl
+>   fromTo : (s : Sigma (Fin (S n)) (\ k => Fin (f k))) -> from (to s) = s
+>   fromTo (FZ ** j) = Refl
+>   fromTo (FS k ** j) = Refl
+
+
+> ||| |finDepPairTimes| for dependent pairs
+> finDepPairTimes : {n : Nat} -> {f : Fin n -> Nat} ->
+>                   Iso (Sigma (Fin n) (\ k => Fin (f k))) (Fin (sum f))
+> finDepPairTimes {n = Z} {f} =
+>     ( Sigma (Fin Z) (\ k => Fin (f k)) )
+>   ={ voidSigmaFinZ }=  
+>     ( Void                             )   
+>   ={ isoSym finZeroBot }=                                                                           
+>     ( Fin Z                            )
+>   QED     
+> finDepPairTimes {n = S m} {f} =
+>     ( Sigma (Fin (S m)) (\ k => Fin (f k))                          )
+>   ={ sigmaFinEitherLemma }=
+>     ( Either (Fin (f FZ)) (Sigma (Fin m) (\ k => Fin ((tail f) k))) )
+>   ={ eitherCongRight (finDepPairTimes {n = m} {f = tail f}) }=
+>     ( Either (Fin (f FZ)) (Fin (sum (tail f)))                      )
+>   ={ eitherFinPlus }=
+>     ( Fin (f FZ + sum (tail f))                                     )
+>   ={ isoRefl }=
+>     ( Fin (sum f)                                                   )
+>   QED
+
+
+
+Finitess properties
+
+> ||| For finite predicates, Sigma types of finite types are finite
 > finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
->                     Finite A -> Dec1 P -> (fP : Finite1 P) -> 
->                     Finite (Sigma A P)
-> {-                      
-> finiteSubTypeLemma0 {A} {P} fA dP uP = Evidence n iso where
->   n        : Nat
->   n        = getWitness (toVect fA dP)
->   rho      : Vect n (SubType A P uP)
->   rho      = getProof (toVect fA dP) 
->   to       : SubType A P uP -> Fin n
->   to s     = lookup s rho (toVectComplete fA dP uP s)
->   from     : Fin n -> SubType A P uP
->   from k   = index k rho
->   toFrom   : (k : Fin n) -> to (from k) = k
->   toFrom k = lookupIndexLemma k rho (toVectComplete fA dP uP (from k))
->   fromTo   : (s : SubType A P uP) -> from (to s) = s
->   fromTo s = indexLookupLemma s rho (toVectComplete fA dP uP s) 
->   iso      : Iso (SubType A P uP) (Fin n)
->   iso      = MkIso to from toFrom fromTo
-> -}
+>                     Finite A -> Finite1 P -> Finite (Sigma A P)
+
+This should now be implementable in terms of |finDepPairTimes|. We
+probably need an intermediate step which constructs an
+
+  Iso (Sigma A P) (Sigma (Fin (card fA)) (\ k => Fin (card (f1P k))))
+
+and then apply |isoTrans|.

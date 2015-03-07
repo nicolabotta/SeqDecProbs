@@ -16,6 +16,7 @@
 > import VectOperations
 > import VectProperties
 > import Util
+> import NatProperties
 
 
 > %default total 
@@ -26,9 +27,13 @@
 >             (fA : Finite A) -> (ne : NonEmpty fA) -> 
 >             (f : A -> B) -> (A,B)
 > argmaxMax {A} {B} {TO} fA nefA f = 
->   VectOperations.max {A = (A,B)} {TO = sndType TO} abs nefA where
->     abs : Vect (card fA) (A,B)
->     abs = map (pair (id, f)) (toVect fA)
+>   VectOperations.max {A = (A,B)} {TO = sndType TO} abs ltZn where
+>     n    : Nat
+>     n    = card fA
+>     ltZn : LT Z n
+>     ltZn = notZisgtZ nefA
+>     abs  : Vect n (A,B)
+>     abs  = map (pair (id, f)) (toVect fA)
 
 
 > max : {A, B : Type} -> {TO : B -> B -> Type} -> 
@@ -51,16 +56,20 @@
 >           (f : A -> B) ->
 >           (a : A) -> TO (f a) (max fA nefA f)
 > maxSpec {A} {B} {TO} fA nefA f a = s4 where
->   abs : Vect (card fA) (A,B)
->   abs = map (pair (id, f)) (toVect fA)
->   s1 : Elem (a, f a) abs
->   s1 = mapLemma (toVect fA) (pair (id, f)) a (toVectComplete fA a)
->   s2 : (sndType TO) (a, f a) (max abs nefA) 
->   s2 = maxLemma (a, f a) abs nefA s1
->   s3 : TO (f a) (snd (max abs nefA))
->   s3 = s2
->   s4 : TO (f a) (max fA nefA f)
->   s4 = s3
+>   n    : Nat
+>   n    = card fA
+>   ltZn : LT Z n
+>   ltZn = notZisgtZ nefA
+>   abs  : Vect n (A,B)
+>   abs  = map (pair (id, f)) (toVect fA)
+>   s1   : Elem (a, f a) abs
+>   s1   = mapLemma (toVect fA) (pair (id, f)) a (toVectComplete fA a)
+>   s2   : (sndType TO) (a, f a) (max abs ltZn) 
+>   s2   = maxLemma (a, f a) abs ltZn s1
+>   s3   : TO (f a) (snd (max abs ltZn))
+>   s3   = s2
+>   s4   : TO (f a) (max fA nefA f)
+>   s4   = s3
 
 
 > argmaxSpec : {A, B : Type} -> {TO : B -> B -> Type} -> 
@@ -72,7 +81,7 @@
 >   ab : (A,B)
 >   ab = argmaxMax fA nefA f
 >   s1 : Elem ab (map (pair (id, f)) (toVect fA))
->   s1 = maxElemLemma (map (pair (id, f)) (toVect fA)) nefA
+>   s1 = maxElemLemma (map (pair (id, f)) (toVect fA)) (notZisgtZ nefA)
 >   s2 : f (fst ab) = snd ab
 >   s2 = mapIdfLemma (toVect fA) f ab s1
 >   s3 : max fA nefA f = f (argmax fA nefA f)
