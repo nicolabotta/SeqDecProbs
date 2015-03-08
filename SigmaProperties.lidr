@@ -15,6 +15,7 @@
 > import FiniteProperties
 > import FinOperations
 > import IsomorphismOperations
+> import FinSigma
 
 > %default total
 
@@ -225,31 +226,6 @@ Sigma Fin properties:
 >   QED
 
 
-
-Finitess properties
-
-> finSigma :  {A : Type} -> {A' : Type} ->  {B : A -> Type} -> {B' : A' -> Type} -> 
->             (isoA : Iso A A') -> 
->             ((a : A) -> Iso (B a) (B' (to isoA a))) ->
->             ((a': A')-> Iso (B (from isoA a')) (B' a')) ->
->             Iso (Sigma A B) (Sigma A' B')
-> {-
-> finSigma {A}{A'}{B}{B'} (MkIso to from toFrom fromTo) isoBa isoBa' = 
->                          MkIso toS fromS toFromS fromToS where
->         toS      : Sigma A  B  -> Sigma A' B'
->         toS (a ** b) = (a' ** b')
->           where a' : A'
->                 a' = to a
->                 b' : B' a'
->                 b' = ?lalala -- IsomorphismOperations.to (isoBa a) b 
->         fromS    : Sigma A' B' -> Sigma A  B
->         fromS (a' ** b') = ?qq2
->         toFromS  : (ab' : Sigma A' B') -> toS (fromS ab') = ab'
->         toFromS (a' ** b') = ?qq3
->         fromToS  : (ab  : Sigma A  B ) -> fromS (toS ab) = ab
->         fromToS (a ** b) = ?qq4
-> -}
-
 > ||| For finite predicates, Sigma types of finite types are finite
 > finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Sigma A P)
@@ -261,7 +237,7 @@ Finitess properties
 >          sumf : Nat 
 >          sumf = sum f
 >          step1 : Iso (Sigma A P) (Sigma (Fin n) (Fin . f))
->          step1 = finSigma isoA ?step11 ?step12
+>          step1 = finSigma A (Fin n) P (Fin . f) isoA ?step1alt1 ?step1alt2 
 >          step2 : Iso (Sigma (Fin n) (Fin . f)) (Fin sumf)
 >          step2 = finDepPairTimes {n} {f}
 
@@ -271,6 +247,4 @@ Finite (Sigma A P)  ~= (sum na ** Iso (Sigma A P) (Fin (sum na)))
 
 
 
-finSigma' : (isoA : Iso A A') -> ((a : A) -> (a' : A') -> (a = a') -> Iso (B a) (B' a')) ->
-            Iso (Sigma A B) (Sigma A' B')
  
