@@ -15,7 +15,9 @@
 > import FiniteProperties
 > import FinOperations
 > import IsomorphismOperations
+> import IsomorphismProperties
 > import FinSigma
+> import LambdaPostulates
 
 
 > %default total
@@ -217,7 +219,7 @@ Sigma Fin properties:
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )     
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . (tail f)) k)) )     
->   ={ ?kika }=
+>   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f)))            )
 >   QED
 
@@ -317,21 +319,28 @@ Finitess properties
 >   bf    : (s1 : Sigma A P) -> back (forth s1) = s1
 >   bf    = ?kuka
 
-> {-
+
 > ||| For finite predicates, Sigma types of finite types are finite
 > finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Sigma A P)
-> finiteSigmaLemma0 {A} {P} (Evidence n isoA) f1P = Evidence (sum f) s3 where
+> finiteSigmaLemma0 {A} {P} fA f1P = Evidence (sum f) s4 where
+>   n : Nat
+>   n = card fA
+>   isoA : Iso A (Fin n)
+>   isoA = iso fA
 >   f : Fin n -> Nat
->   f k = getWitness (f1P (from isoA k))
->   s1 : Iso (Sigma A P) (Sigma (Fin n) (\ k => Fin (f k)))
+>   f k = card (f1P (from isoA k))
+>   s1 : Iso (Sigma A P) (Sigma (Fin n) (\ k => (Fin . f) k))
 >   s1 = intermediate {A} {P} (Evidence n isoA) f1P
->   s2 : Iso (Sigma (Fin n) (\ k => Fin (f k))) (Fin (sum f))
->   s2 = finDepPairTimes {n} {f}
->   s3 : Iso (Sigma A P) (Fin (sum f))
->   s3 = isoTrans s1 s2
-> -}
+>   s2 : Iso (Sigma A P) (Sigma (Fin n) (Fin . f))
+>   s2 = replace {P = \ Q => Iso (Sigma A P) (Sigma (Fin n) Q)} (lambdaLemma1 (Fin . f)) s1
+>   s3 : Iso (Sigma (Fin n) (Fin . f)) (Fin (sum f))
+>   s3 = finDepPairTimes {n} {f}
+>   s4 : Iso (Sigma A P) (Fin (sum f))
+>   s4 = isoTrans s2 s3
 
+
+> {-
 > ||| For finite predicates, Sigma types of finite types are finite
 > finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Sigma A P)
@@ -346,6 +355,8 @@ Finitess properties
 >          step1 = finSigma A (Fin n) P (Fin . f) isoA ?step1alt1 ?step1alt2 
 >          step2 : Iso (Sigma (Fin n) (Fin . f)) (Fin sumf)
 >          step2 = finDepPairTimes {n} {f}
+> -}
+
 
 Finite  A           ~= (n ** Iso A (Fin n))
 Finite1 P           ~= (a : A) -> (na ** Iso (P a) (Fin na))
