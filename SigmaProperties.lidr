@@ -210,8 +210,14 @@ Sigma Fin properties:
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (tail (Fin . f)) k)) )     
 >   ={ isoRefl }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )
->   ={ ?jiji }=
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . f) (FS k)))   )     
+>   ={ isoRefl }=
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin (f (FS k))))     )     
+>   ={ isoRefl }=
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )     
+>   ={ isoRefl }=
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . (tail f)) k)) )     
+>   ={ ?kika }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f)))            )
 >   QED
 
