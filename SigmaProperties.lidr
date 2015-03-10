@@ -223,7 +223,6 @@ Sigma Fin properties:
 >                            (Either  (Fin (f FZ))
 >                                     (Sigma (Fin n) (Fin . (tail f))))
 > sigmaFinEitherLemma {n} {f} = MkIso to from toFrom fromTo where
-
 >   to :                        (Sigma (Fin (S n))  (Fin . f)) ->
 >        (Either (Fin (f FZ))   (Sigma (Fin n)      (Fin . (tail f))))
 >   to (FZ    ** j) = Left j
