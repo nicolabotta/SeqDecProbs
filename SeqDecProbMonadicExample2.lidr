@@ -45,6 +45,8 @@ is the identity monad:
 
 > SeqDecProbMonadic.Elem = IdentityOperations.Elem
 
+> SeqDecProbMonadic.All P (Id a) = P a
+
 > SeqDecProbMonadic.tagElem = IdentityOperations.tagElem
 
 
@@ -232,23 +234,7 @@ From decidability of equality, decidability of |Elem| and |All| follow:
 > dElem t = IdentityProperties.decElem (dEqX {t1 = t} {t2 = t})
 
 > dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
-> dAll t P dP (Id x) with (dP x)
->   | (Yes prf) = Yes prf' where
->     prf' : (x' : X t) -> x' `IdentityOperations.Elem` (Id x) -> P x'
->     prf' x' x'eqx = replace (sym x'eqx) prf
->   | (No contra) = No contra' where
->     contra' : (f : (x' : X t) -> x' `IdentityOperations.Elem` (Id x) -> P x') -> Void
->     contra' f = contra (f x Refl)
-
-Remark: it would be nice to implement |dAll| by applying a more
-general |IdentityProperties.decAll| as done for |dElem|. At this point,
-however, it is not clear how a |IdentityProperties.decAll| lemma could
-be implemented. The problem is that |All| is defined in
-|SeqDecProbMonadic| for every |M : Type -> Type|. Ideally, one would
-like to collect the declatations of |Elem|, |tagElem| and the
-declaration + definition of |All| in a |MonadicContainer| type class and
-then show that |Identity| is an instance of |MonadicContainer|. A first
-attempt to realize this design has led to issue #1975 (2015.03.03).
+> dAll t P dP (Id x) = dP x
 
 Next, we show that |Viable| is decidable:
 
@@ -281,7 +267,8 @@ Assuming
 > finiteExistsLemma (Evidence  Z    iso) d1P f1P = ?luka
 > finiteExistsLemma (Evidence (S m) iso) d1P f1P = ?lika
 
-> fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx) 
+> fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
+> fAll t P f1P (Id x) = f1P x 
 
 we can derive finiteness of |Viable| and |AllViable|:
 

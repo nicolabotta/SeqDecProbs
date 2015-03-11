@@ -40,8 +40,15 @@ A SDP is specified in terms of a monad ...
 
 > Elem     :  {A : Type} -> A -> M A -> Prop
 > All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
-> All {A} P ma = (a : A) -> a `Elem` ma -> P a
+> -- All {A} P ma = (a : A) -> a `Elem` ma -> P a
 > tagElem  :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
+
+> -- unused containerMonadSpec1 : a `Elem` (ret a)
+> -- unused containerMonadSpec2 : {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
+> --                               a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
+> containerMonadSpec3 : {A : Type} -> {P : A -> Prop} -> {a : A} -> {ma : M A} -> 
+>                       All P ma -> a `Elem` ma -> P a
+> -- unused tagElemSpec : {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
 The standard examples are |M = Id| (deterministic SDP), |M = List|
 (non-deterministic SDP) and |M = Prob| (stochastic SDP).
@@ -119,7 +126,7 @@ For every SDP, we can build the following notions:
 >     r' : Reachable x'
 >     r' = Evidence x (r , xpx')
 >     v' : Viable m x'
->     v' = av x' x'estep
+>     v' = containerMonadSpec3 av x'estep
 
 >   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Float
 >   val {t} {n = Z} x r v ps = 0
@@ -182,7 +189,7 @@ For every SDP, we can build the following notions:
 >       r' : Reachable x'
 >       r' = Evidence x (r , xpx')
 >       v' : Viable m x'
->       v' = av' x' x'emx'
+>       v' = containerMonadSpec3 av' x'emx'
 >     s3 : So (meas (fmap f' (tagElem mx')) <= meas (fmap f (tagElem mx')))
 >     s3 = measMon f' f s2 (tagElem mx')
 >     s4 : So (val x r v (p' :: ps') <= val x r v (p' :: ps))
