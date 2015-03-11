@@ -45,6 +45,17 @@ Equality of projections:
 
 Equality of Sigma types:
 
+> ||| Introduction
+> sigmaEqLemma2 : {A : Type} -> 
+>                 {P : A -> Type} -> 
+>                 {s1: Sigma A P} -> 
+>                 {s2: Sigma A P} ->
+>                 getWitness s1 = getWitness s2 ->
+>                 getProof s1 = getProof s2 ->
+>                 s1 = s2
+> sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
+
+
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} -> 
 >                 {P : A -> Type} -> 
@@ -192,8 +203,7 @@ Sigma Fin properties:
 >   from : Either (P FZ) (Sigma (Fin n) (tail P)) -> Sigma (Fin (S n)) P
 >   from (Left j) = (FZ ** j)
 >   from (Right (k ** j)) = (FS k ** j)
->   toFrom : (e : Either (P FZ) (Sigma (Fin n) (tail P))) ->
->            to (from e) = e
+>   toFrom : (e : Either (P FZ) (Sigma (Fin n) (tail P))) -> to (from e) = e
 >   toFrom (Left j) = Refl
 >   toFrom (Right (k ** j)) = Refl
 >   fromTo : (s : Sigma (Fin (S n)) P) -> from (to s) = s
@@ -224,64 +234,12 @@ Sigma Fin properties:
 >   QED
 
 
-> {-
-> ||| Decomposition lemma
-> sigmaFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
->                       Iso  (Sigma (Fin (S n)) (Fin . f))
->                            (Either  (Fin (f FZ))
->                                     (Sigma (Fin n) (Fin . (tail f))))
-> sigmaFinEitherLemma {n} {f} = MkIso to from toFrom fromTo where
->   to :                        (Sigma (Fin (S n))  (Fin . f)) ->
->        (Either (Fin (f FZ))   (Sigma (Fin n)      (Fin . (tail f))))
->   to (FZ    ** j) = Left j
->   to (FS k  ** j) = Right (k ** j)
->   from : (Either (Fin (f FZ))   (Sigma (Fin n)      (Fin . (tail f)))) ->
->                                 (Sigma (Fin (S n))  (Fin . f))
->   from (Left j)          = (FZ    ** j)
->   from (Right (k ** j))  = (FS k  ** j)
->   toFrom :  (e : Either (Fin (f FZ))  (Sigma (Fin n) (Fin . (tail f)))) ->
->             to (from e) = e
->   toFrom (Left j)          = Refl
->   toFrom (Right (k ** j))  = Refl
->   fromTo :  (s : Sigma (Fin (S n)) (Fin . f)) -> 
->             from (to s) = s
->   fromTo (FZ    ** j) = Refl
->   fromTo (FS k  ** j) = Refl
-
-> {-
->   to : (Sigma (Fin (S n)) (\ k => Fin (f k))) ->
->        (Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k))))
->   to (FZ   ** j) = Left j
->   to (FS k ** j) = Right (k ** j)
->   from : (Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))) ->
->          (Sigma (Fin (S n)) (\ k => Fin (f k)))
->   from (Left j) = (FZ ** j)
->   from (Right (k ** j)) = (FS k ** j)
->   toFrom : (e : Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))) ->
->            to (from e) = e
->   toFrom (Left j) = Refl
->   toFrom (Right (k ** j)) = Refl
->   fromTo : (s : Sigma (Fin (S n)) (\ k => Fin (f k))) -> from (to s) = s
->   fromTo (FZ ** j) = Refl
->   fromTo (FS k ** j) = Refl
-> -}
-> -}
-
-
-> {-
-> ||| |finDepPairTimes| for dependent pairs
-> finDepPairTimes : {n : Nat} -> 
->                   {f : Fin n -> Nat} -> 
->                   Iso (Sigma (Fin n) (\ k => Fin (f k))) (Fin (sum f))
-> -}
-
-
 > ||| |finDepPairTimes| for dependent pairs
 > finDepPairTimes : {n : Nat} -> {f : Fin n -> Nat} ->
 >                   Iso (Sigma (Fin n) (Fin . f)) 
 >                       (Fin (sum f))
 > finDepPairTimes {n = Z} {f} =
->     ( Sigma (Fin Z) (Fin . f) )
+>     ( Sigma (Fin Z) (Fin . f)          )
 >   ={ voidSigmaFinZ }=  
 >     ( Void                             )   
 >   ={ isoSym finZeroBot }=                                                                           
@@ -302,45 +260,6 @@ Sigma Fin properties:
 
 Finitess properties
 
-> intermediate : {A : Type} -> {P : A -> Type} ->
->                (fA : Finite A) -> 
->                (f1P : Finite1 P) -> 
->                Iso (Sigma A P)
->                    (Sigma (Fin (card fA)) (\ k => Fin (card (f1P (from (iso fA) k)))))
-> intermediate {A} {P} (Evidence n isoA) f1P  = MkIso forth back fb bf where
->   forth : Sigma A P -> Sigma (Fin n) (\ k => Fin (card (f1P ((from isoA) k))))
->   forth (a ** pa) with (f1P a) 
->     | (Evidence m isoP) = ?lika -- (to isoA a ** to isoP pa)
->   back  : (Sigma (Fin n) (\ k => Fin (card (f1P ((from isoA) k))))) -> Sigma A P
->   back  = ?laka
->   fb    : (s2 : Sigma (Fin n) (\ k => Fin (card (f1P ((from isoA) k))))) ->
->           forth (back s2) = s2
->   fb    = ?luka
->   bf    : (s1 : Sigma A P) -> back (forth s1) = s1
->   bf    = ?kuka
-
-
-> ||| For finite predicates, Sigma types of finite types are finite
-> finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
->                     Finite A -> Finite1 P -> Finite (Sigma A P)
-> finiteSigmaLemma0 {A} {P} fA f1P = Evidence (sum f) s4 where
->   n : Nat
->   n = card fA
->   isoA : Iso A (Fin n)
->   isoA = iso fA
->   f : Fin n -> Nat
->   f k = card (f1P (from isoA k))
->   s1 : Iso (Sigma A P) (Sigma (Fin n) (\ k => (Fin . f) k))
->   s1 = intermediate {A} {P} (Evidence n isoA) f1P
->   s2 : Iso (Sigma A P) (Sigma (Fin n) (Fin . f))
->   s2 = replace {P = \ Q => Iso (Sigma A P) (Sigma (Fin n) Q)} (lambdaLemma1 (Fin . f)) s1
->   s3 : Iso (Sigma (Fin n) (Fin . f)) (Fin (sum f))
->   s3 = finDepPairTimes {n} {f}
->   s4 : Iso (Sigma A P) (Fin (sum f))
->   s4 = isoTrans s2 s3
-
-
-> {-
 > ||| For finite predicates, Sigma types of finite types are finite
 > finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Sigma A P)
@@ -352,10 +271,23 @@ Finitess properties
 >          sumf : Nat 
 >          sumf = sum f
 >          step1 : Iso (Sigma A P) (Sigma (Fin n) (Fin . f))
->          step1 = finSigma A (Fin n) P (Fin . f) isoA ?step1alt1 ?step1alt2 
+>          step1 = finSigma A (Fin n) P (Fin . f) isoA s5 s6 where
+>            s1 : (a : A) -> Iso (P a) (Fin (f' a))
+>            s1 a =  iso (f1P a)
+>            s2 : (a : A) -> Iso (P a) (Fin (f' (from isoA (to isoA a))))
+>            s2 a = replace {P = \ x => Iso (P a) (Fin (f' x))} prf (s1 a) where
+>              prf : a = from isoA (to isoA a)
+>              prf = sym (fromTo isoA a)
+>            s3 : (a : A) -> Iso (P a) (Fin ((f' . (from isoA)) (to isoA a)))
+>            s3 = s2
+>            s4 : (a : A) -> Iso (P a) (Fin (f (to isoA a)))
+>            s4 = s3
+>            s5 : (a : A) -> Iso (P a) ((Fin . f) (to isoA a))
+>            s5 = s4
+>            s6 : (k : Fin n) -> Iso (P (from isoA k)) ((Fin . f) k)
+>            s6 k = iso (f1P (from isoA k))
 >          step2 : Iso (Sigma (Fin n) (Fin . f)) (Fin sumf)
 >          step2 = finDepPairTimes {n} {f}
-> -}
 
 
 Finite  A           ~= (n ** Iso A (Fin n))
