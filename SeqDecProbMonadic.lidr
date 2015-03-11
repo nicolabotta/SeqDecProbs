@@ -311,5 +311,26 @@ possible future evolutions from a (viable) initial state:
 >     Nil   :  (x : X t) -> StateCtrlSeq t Z
 >     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 
->   postulate stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
->                              (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
+>   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
+>                    (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
+
+>   stateCtrlTrj {t} {n = Z}   x r v Nil = ret (Nil x)
+
+>   stateCtrlTrj {t} {n = S m} x r v (p :: ps') = 
+>     fmap g (bind (tagElem mx') f) where  
+>       y : Y t x
+>       y = outl (p x r v)
+>       mx' : M (X (S t))
+>       mx' = step t x y
+>       av  : All (Viable m) mx'
+>       av  = outr (p x r v)
+>       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n) 
+>       g = ((x ** y) ::)
+>       f : (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
+>       f (x' ** x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
+>         xpx' : x `Pred` x'
+>         xpx' = Evidence y x'estep
+>         r' : Reachable x'
+>         r' = Evidence x (r , xpx')
+>         v' : Viable m x'
+>         v' = containerMonadSpec3 av x'estep

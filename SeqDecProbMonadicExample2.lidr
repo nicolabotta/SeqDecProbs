@@ -253,3 +253,40 @@ and |max|, |argmax|:
 > -- SeqDecProbMonadic.maxSpec {n} t x v  =  Opt.maxSpec (fYAV t n  x v) (neYAV t n x v)
 
 > -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
+
+
+# The computation:
+
+> nSteps : Nat
+> nSteps = 8
+
+> ps : PolicySeq Z nSteps
+> ps = bi Z nSteps
+
+> x0 : X Z
+> x0 = (2 ** LTESucc (LTESucc (LTESucc LTEZero)))
+
+> r0 : Reachable {t' = Z} x0
+> r0 = ()
+
+> v0 : Viable {t = Z} nSteps x0
+> v0 = ?kila
+
+> mxys : Identity (StateCtrlSeq Z nSteps)
+> mxys = stateCtrlTrj x0 r0 v0 ps
+
+> actions : (t : Nat) -> 
+>           (n : Nat) -> 
+>           Identity (StateCtrlSeq t n) ->
+>           Vect n Action
+> actions _ Z _ = Nil
+> actions t (S n) (Id ((x ** y) :: xys)) 
+>   = 
+>   (outl y) :: (actions (S t) n (Id xys))
+
+> as : Vect nSteps Action
+> as = actions Z nSteps mxys
+
+> main : IO ()
+> main = putStrLn (show as)
+
