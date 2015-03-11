@@ -1,4 +1,4 @@
-> module SeqDecProbMonadicExample2
+> module Main
 
 
 > import Data.Fin
@@ -51,6 +51,8 @@ is the identity monad:
 > SeqDecProbMonadic.All P (Id a) = P a
 
 > SeqDecProbMonadic.tagElem = IdentityOperations.tagElem
+
+> SeqDecProbMonadic.containerMonadSpec3 pa _ = ?lula -- pa
 
 
 The decision process:
@@ -269,8 +271,7 @@ and |max|, |argmax|:
 > r0 : Reachable {t' = Z} x0
 > r0 = ()
 
-> v0 : Viable {t = Z} nSteps x0
-> v0 = ?kila
+> postulate v0 : Viable {t = Z} nSteps x0
 
 > mxys : Identity (StateCtrlSeq Z nSteps)
 > mxys = stateCtrlTrj x0 r0 v0 ps
