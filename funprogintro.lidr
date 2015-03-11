@@ -149,8 +149,8 @@ sister language Agda), see [Algebra of Programming in Agda](http://wiki.portal.c
 >   %hide Vect
 >   %hide Nil
 >   data Vect : Nat -> Type -> Type where
->     Nil   : Vect Z a
->     Cons  : (x : a) -> (xs : Vect n a) -> Vect (S n) a
+>     Nil   :  Vect Z a
+>     Cons  :  (x : a) -> (xs : Vect n a) -> Vect (S n) a
 
 This declaration can be seen as an infinite family of simple datatype
 declarations:
@@ -161,7 +161,7 @@ declarations:
 >   data Vect2 : Type -> Type where   Cons2 : (x : a) -> (xs : Vect1 a) -> Vect2 a
 
 > namespace Vec
->   head : Vect (S n) A -> A
+>   head : {n : Nat} -> {A : Type} -> Vect (S n) A -> A
 >   head (Cons x xs) = x
 
 > namespace CurryHoward
@@ -184,32 +184,37 @@ Plan: Among others, introduce the constructors of existential types
 
 > namespace Existential
 >   %hide Prelude.Pairs.Exists
->   using (a : Type, P : a -> Prop)
->     data Exists : (P : a -> Prop) -> Prop where
->       Evidence : (wit : a) -> (pro : P wit) -> Exists P
 
->     getWitness : Exists {a} P -> a
+>   using (A : Type, P : A -> Prop)
+>     data Exists : {A : Type} -> (A -> Prop) -> Prop where
+>       Evidence : (wit : A) -> (pro : P wit) -> Exists P
+
+>     getWitness : Exists {A} P -> A
 >     getWitness (Evidence wit pro) = wit
 
->     getProof   : (evi : Exists {a} P) -> P (getWitness evi)
+>     getProof   : (evi : Exists {A} P) -> P (getWitness evi)
 >     getProof   (Evidence wit pro) = pro
 
-Sigma a P is basically the same as Exists {a} P, just with a different
+Sigma A P is basically the same as Exists {A} P, just with a different
 constructor name (MkSigma) and built-in syntactic sugar |**| both for
 constructing pairs and for expressing the type:
 
->   using (a : Type, P : a -> Prop)
->     pair : (x : a) -> (y : P x) -> (x : a  **  P x)
+>   using (A : Type, P : A -> Prop)
+>     pair : (x : A) -> (y : P x) -> (x : A  **  P x)
 >     pair x y = (x ** y)
+
+>   data Sigma' : (A : Type) -> (A -> Type) -> Type where
+>     MkSigma : {A : Type} -> {B : A -> Type} -> (a : A) -> B a -> Sigma' A B
+
 
 > namespace Partial
 >   %hide List
 
->   data List : (a : Type) -> Type where
->     Nil : List a
->     Cons : (a : A) -> (as : List A) -> List A
+>   data List : Type -> Type where
+>     Nil   :  {A : Type} -> List A
+>     Cons  :  {A : Type} -> (a : A) -> (as : List A) -> List A
 
->   headL : List a -> a
+>   headL : {A : Type} -> List A -> A
 >   headL (Cons a as) = a
 
 >   someProofs : List FALSE
