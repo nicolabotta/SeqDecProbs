@@ -221,51 +221,7 @@ non-emptiness is straightforward:
 >                 (y ** v)
 
 Thus, the problem is implementing |fYAV|. To this end, it is enough to
-show that the predicate |(\ y => All (Viable {t = S t} n) (step t x y))|
-is decidable and unique. We start with decidability. First, we derive
-decidability of equality on states
-
-> dEqX : {t1, t2 : Nat} -> (x1 : X t1) -> (x2 : X t2) -> Dec (x1 = x2)
-> dEqX = decEqLTB
-
-From decidability of equality, decidability of |Elem| and |All| follow:
-
-> dElem : (t : Nat) -> (x : X t) -> (mx : Identity (X t)) -> Dec (SeqDecProbMonadic.Elem x mx)
-> dElem t = IdentityProperties.decElem (dEqX {t1 = t} {t2 = t})
-
-> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
-> dAll t P dP (Id x) = dP x
-
-Next, we show that |Viable| is decidable:
-
-> dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
-> dViable t  Z    x = Yes ()
-> dViable t (S m) x = s3 where
->   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
->   s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
->   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->   s2    =  finiteDecLemma (fY t x) s1
->   s3    :  Dec (Viable {t = t} (S m) x)
->   s3    =  s2
-
-> d1Viable : (t : Nat) -> (n : Nat) -> Dec1 (\ x => Viable {t} n x)
-> d1Viable t n x = dViable t n x 
-
-and finally, that the predicate |(\ y => All (Viable {t = S t} n) (step
-t x y))| is decidable
-
-> d1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec1 (\ y => All (Viable {t = S t} n) (step t x y))
-> d1AllViable t n x y = dAll (S t) (Viable {t = S t} n) (d1Viable (S t) n) (step t x y)
-
-Assuming
-
-> finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
->                     Finite A ->
->                     Dec1 P ->
->                     Finite1 P -> 
->                     Finite (Exists {a = A} P)
-> finiteExistsLemma (Evidence  Z    iso) d1P f1P = ?luka
-> finiteExistsLemma (Evidence (S m) iso) d1P f1P = ?lika
+show that
 
 > fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
 > fAll t P f1P (Id x) = f1P x 
@@ -278,12 +234,11 @@ we can derive finiteness of |Viable| and |AllViable|:
 >   fViable t  Z    x  = finiteSingleton
 >   fViable t (S m) x  = s3 where
 >     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->     s3 = finiteExistsLemma (fY t x) (d1AllViable t m x) (f1AllViable t m x)
+>     s3 = finiteExistsLemma (fY t x) (f1AllViable t m x)
 
 >   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
->   f1AllViable t  Z    x y =          fAll    t  (Viable {t = S t} Z) (fViable (S t) Z) (step t x y)
->   f1AllViable t (S m) x y = ?kika -- fAll (S t) (Viable {t = S t} m) (fViable (S t) m) (step t x y)
+>   f1AllViable t n x y = fAll t (Viable {t = S t} n) (fViable (S t) n) (step t x y)
 
 and finally
 

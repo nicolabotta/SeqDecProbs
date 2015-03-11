@@ -258,6 +258,21 @@ Sigma Fin properties:
 >   QED
 
 
+Sigma Exists properties
+
+> sigmaExistsLemma : {A : Type} -> {P : A -> Type} ->
+>                    Iso (Sigma A P) (Exists {a = A} P)
+> sigmaExistsLemma {A} {P} = MkIso to from toFrom fromTo where
+>   to : Sigma A P -> Exists {a = A} P
+>   to (MkSigma a p) = Evidence a p
+>   from : Exists {a = A} P -> Sigma A P
+>   from (Evidence a p) = MkSigma a p
+>   toFrom : (e : Exists {a = A} P) -> to (from e) = e
+>   toFrom (Evidence a p) = Refl
+>   fromTo : (s : Sigma A P) -> from (to s) = s
+>   fromTo (MkSigma a p) = Refl
+
+
 Finitess properties
 
 > ||| For finite predicates, Sigma types of finite types are finite
@@ -288,6 +303,19 @@ Finitess properties
 >            s6 k = iso (f1P (from isoA k))
 >          step2 : Iso (Sigma (Fin n) (Fin . f)) (Fin sumf)
 >          step2 = finDepPairTimes {n} {f}
+
+
+> finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
+>                     Finite A -> Finite1 P -> Finite (Exists {a = A} P)
+> finiteExistsLemma {A} {P} fA f1P = Evidence n iE where
+>   fS : Finite (Sigma A P)
+>   fS = finiteSigmaLemma0 fA f1P
+>   n  : Nat
+>   n  = card fS
+>   iS : Iso (Sigma A P) (Fin n)
+>   iS = iso fS
+>   iE : Iso (Exists {a = A} P) (Fin n)
+>   iE = isoTrans (isoSym (sigmaExistsLemma {A} {P})) iS
 
 
 Finite  A           ~= (n ** Iso A (Fin n))
