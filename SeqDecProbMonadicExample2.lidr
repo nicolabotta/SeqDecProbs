@@ -27,6 +27,9 @@
 > import Prop
 > import EqualityProperties
 > import SingletonProperties
+> import Opt
+> import RelFloatProperties
+> import Order
 
 
 > %default total 
@@ -197,16 +200,10 @@ We want to implement
 <          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
 <          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
-This can be easily done using |Opt.max| and |Opt.argmax|
-
-< max : {A, B : Type} -> {TO : B -> B -> Type} -> 
-<       Preordered B TO => 
-<       (fA : Finite A) -> (ne : NonEmpty fA) -> 
-<       (f : A -> B) -> B
- 
-if we can show that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))|
-is finite and non-empty for every |t : Nat|, |x : X t| such that |Viable
-(S n) x|. If we have finiteness
+This can be easily done using |Opt.max| and |Opt.argmax| if we can show
+that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))| is finite and
+non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
+we have finiteness
 
 > fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
 >        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
@@ -220,13 +217,16 @@ non-emptiness is straightforward:
 >                 (fYAV t n x (Evidence y v)) 
 >                 (y ** v)
 
-Thus, the problem is implementing |fYAV|. To this end, it is enough to
-show that
+Thus, the problem is that of implementing |fYAV|. We already know that
+|Y t x| is finite. If we manage to show that for every |y|, |All (Viable
+n) (step t x y)| is also finite, we can apply |finiteSigmaLemma| from
+|SigmaProperties| and we are done. We show the result in two steps
 
-> fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
-> fAll t P f1P (Id x) = f1P x 
+> fAll : {t : Nat} -> {P : X t -> Type} -> 
+>        Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
+> fAll f1P (Id x) = f1P x 
 
-we can derive finiteness of |Viable| and |AllViable|:
+and 
 
 > mutual
 
@@ -238,19 +238,18 @@ we can derive finiteness of |Viable| and |AllViable|:
 
 >   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
->   f1AllViable t n x y = fAll t (Viable {t = S t} n) (fViable (S t) n) (step t x y)
+>   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (fViable (S t) n) (step t x y)
 
-and finally
+With |f1AllViable| we can finally implement |fYAV|
 
 > fYAV t n x v = finiteSigmaLemma0 (fY t x) (f1AllViable t n x)
 
 and |max|, |argmax|:
 
-< max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
-<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
-<          Float
-< argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
-<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
-<          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
+> SeqDecProbMonadic.max     {n} t x v  =  Opt.max     (fYAV t n  x v) (neYAV t n x v)
 
+> SeqDecProbMonadic.argmax  {n} t x v  =  Opt.argmax  (fYAV t n  x v) (neYAV t n x v)
 
+> -- SeqDecProbMonadic.maxSpec {n} t x v  =  Opt.maxSpec (fYAV t n  x v) (neYAV t n x v)
+
+> -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
