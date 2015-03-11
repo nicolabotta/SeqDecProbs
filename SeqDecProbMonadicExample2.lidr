@@ -14,6 +14,7 @@
 > import BoundedNatOperations
 > import BoundedNatProperties
 > import SigmaOperations
+> import SigmaProperties
 > import NatProperties
 > import Finite
 > import FiniteOperations
@@ -270,83 +271,6 @@ t x y))| is decidable
 > d1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec1 (\ y => All (Viable {t = S t} n) (step t x y))
 > d1AllViable t n x y = dAll (S t) (Viable {t = S t} n) (d1Viable (S t) n) (step t x y)
 
-
-Let's turn to uniqueness. We want to show 
-
-> u1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
->               Unique1 (\ y => All (Viable {t = S t} n) (step t x y))
-
-We proceed as in the case for decidability. From uniqueness of equality,
-uniqueness of |Elem| follows:
-
-> uElem : (t : Nat) -> (x : X t) -> (mx : Identity (X t)) -> Unique (SeqDecProbMonadic.Elem x mx)
-> uElem t = IdentityProperties.uniqueElem uniqueEq
-
-Now things get a bit ugly ... I do not think we have a chance of proving
-
-< uAll : (t : Nat) -> (P : X t -> Prop) -> Unique1 P -> (mx : Identity (X t)) -> Unique (All P mx) 
-
-let apart uniqueness of viability proofs. This is because |All P mx| as
-defined in |SeqDecProbMonadic|
-
-< All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
-< All {A} P ma = (a : A) -> a `Elem` ma -> P a
-
-is a function of two arguments and we should prove that any two such
-functions are equal. But maybe this is not what we really want to prove
-or maybe it is not a good idea to rely on our default implementation of
-|All| to fulfill |containerMonadSpec3| per construction. We go on by
-postulating |uAll|
-
-> postulate uAll : (t : Nat) -> (P : X t -> Prop) -> Unique1 P -> (mx : Identity (X t)) -> Unique (All P mx) 
-
-and see whether this is useful for getting to |u1AllViable|. But we keep
-in mind that, if we had had to implement |All| for |M = Identity|, we
-would probably have done something like
-
-> AllIdentity : {A : Type} -> (P : A -> Prop) -> Identity A -> Prop
-> AllIdentity {A} P (Id a) = P a
-
-which would triviall fulfill the specification
-
-> containerMonadSpec3Identity : {A : Type} -> {P : A -> Prop} -> 
->                               (a : A) -> 
->                               (ma : M A) -> 
->                               AllIdentity P ma -> 
->                               a `SeqDecProbMonadic.Elem` ma -> 
->                               P a
-> containerMonadSpec3Identity {A} {P} a1 (Id a2) pa2 a1eqa2  = replace (sym a1eqa2) pa2
-
-Implementing |uAll| for |All = AllIdentity| should be trivial. This
-suggests that we might want to relax the |SeqDecProbMonadic| framework
-by reintroducing a specification for |All| instead of a hard-coded
-implementation and rely on monad-specific implementations to fulfill
-|uAll|. We will see ... for the moment, let's proceed to |uViable|:
-
-> uViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Unique (Viable {t} n x)
-> uViable t  Z    x () () = Refl
-
-> uViable t (S m) x p q = s3 where
->   s1    :  Unique1 (\ y => All (Viable {t = S t} m) (step t x y))
->   s1 y  =  uAll (S t) (Viable {t = S t} m) (uViable (S t) m) (step t x y)
->   s2    :  Unique (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->   s2    =  ?kika -- !!!
->   s3    :  p = q
->   s3    =  s2 p q
-
-It is clear that we are not going, in general, to be able to compute
-|kika|. What we have to do is to replace the uniqueness requirement with
-a finiteness requirement and then apply something like
-
-< finiteSubTypeLemma1 : {A : Type} -> {P : A -> Type} ->
-<                       Finite A -> Dec1 P -> (fP : Finite1 P) -> 
-<                       Finite (SubType A P fP)
-
-We should probably start with finiteness of products of finite types and
-then move to finiteness of dependent pairs.
-
-###
-
 Assuming
 
 > finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
@@ -356,14 +280,10 @@ Assuming
 >                     Finite (Exists {a = A} P)
 > finiteExistsLemma (Evidence  Z    iso) d1P f1P = ?luka
 > finiteExistsLemma (Evidence (S m) iso) d1P f1P = ?lika
-> {-
-
-> -}
-
 
 > fAll : (t : Nat) -> (P : X t -> Type) -> Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx) 
 
-we should be able to derive
+we can derive finiteness of |Viable| and |AllViable|:
 
 > mutual
 
@@ -378,20 +298,17 @@ we should be able to derive
 >   f1AllViable t  Z    x y =          fAll    t  (Viable {t = S t} Z) (fViable (S t) Z) (step t x y)
 >   f1AllViable t (S m) x y = ?kika -- fAll (S t) (Viable {t = S t} m) (fViable (S t) m) (step t x y)
 
-and finally, assuming
+and finally
 
-> finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
->                     Finite A -> Dec1 P -> (fP : Finite1 P) -> 
->                     Finite (Sigma A P)
+> fYAV t n x v = finiteSigmaLemma0 (fY t x) (f1AllViable t n x)
 
-###
+and |max|, |argmax|:
 
-> -- fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
-> --        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
-
-> -- fYAV t n x v = finiteSubTypeLemma0 (fY t x) (d1AllViable t n x) (u1AllViable t n x v)
-
-> fYAV t n x v = finiteSigmaLemma0 (fY t x) (d1AllViable t n x) (f1AllViable t n x)
-
+< max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+<          Float
+< argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+<          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
 

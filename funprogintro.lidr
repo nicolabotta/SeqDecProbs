@@ -59,7 +59,7 @@ behind the scenes the definition is actually treated like this:
 
 Equality and equational reasoning
 
-> postulate unitMult   : (y : Float) -> (1*y = y)
+> postulate unitMult   : (y : Float) -> 1*y = y
 > postulate assocMult  : (x : Float) -> (y : Float) ->  (z : Float) ->  (x*y)*z = x*(y*z)
 
 Let's prove a lemma about exponentiation by induction over the first
@@ -173,9 +173,9 @@ declarations:
 >   TRUE  = Unit
 >   sort : Vect n A -> Vect n A
 >   Sorted : Vect n A -> Prop
->   SortedSpec : Prop
->   SortedSpec = (n : Nat) -> (xs : Vect n A) -> Sorted (sort xs)
->   sortedLemma : SortedSpec
+>   SortSpec : Prop
+>   SortSpec = (n : Nat) -> (xs : Vect n A) -> Sorted (sort xs)
+>   sortLemma : SortSpec
 
 Existential types
 
