@@ -6,6 +6,9 @@
 > import Data.So
 > import Control.Monad.Identity
 > import Control.Isomorphism
+> import Effects
+> import Effect.Exception
+> import Effect.StdIO
 
 > import SeqDecProbMonadic
 > import IdentityOperations
@@ -30,6 +33,8 @@
 > import Opt
 > import RelFloatProperties
 > import Order
+> import EffectException
+> import EffectStdIO
 
 
 > %default total 
@@ -38,6 +43,13 @@
 We reimplement the example from "S1306_Example2" in the new theory. |M|
 is the identity monad:
 
+
+
+* The monad M (Identity):
+
+
+** M is a monad:
+
 > SeqDecProbMonadic.M = Identity
 
 > SeqDecProbMonadic.fmap = map
@@ -45,6 +57,9 @@ is the identity monad:
 > SeqDecProbMonadic.ret = return
 
 > SeqDecProbMonadic.bind = (>>=)
+
+
+** M is a container monad:
 
 > SeqDecProbMonadic.Elem = IdentityOperations.Elem
 
@@ -55,7 +70,16 @@ is the identity monad:
 > SeqDecProbMonadic.containerMonadSpec3 pa _ = ?lula -- pa
 
 
-The decision process:
+** M is measurable:
+
+> SeqDecProbMonadic.meas (Id x) = x
+
+> SeqDecProbMonadic.measMon f g prf (Id x) = prf x
+
+
+
+
+* The decision process:
 
 > maxColumnO2 : Nat
 > maxColumnO2 = 2
@@ -67,18 +91,15 @@ The decision process:
 > nColumns = S maxColumn
 
 
-States
+** States:
 
 > SeqDecProbMonadic.X t = LTB nColumns
 
 > column : X t -> Nat
 > column = outl
 
-> states : (t : Nat) -> Vect nColumns (X t)
-> states t = toVect (\ i => i)
 
-
-Actions
+** Actions:
 
 > data Action = Left | Ahead | Right
 
@@ -95,7 +116,7 @@ Actions
 >   show Ahead = "A"
 >   show Right = "R"
 
-Action is finite
+*** Action is finite:
 
 > to : Action -> Fin 3
 > to Left  =        FZ
@@ -122,6 +143,11 @@ Action is finite
 > fAction : Finite Action
 > fAction = Evidence 3 (MkIso to from toFrom fromTo)
 
+
+** Controls (admissible actions):
+
+*** Admissibility:
+
 > admissible : (t : Nat) -> X t -> Action -> Bool
 > admissible t x Ahead = column {t} x == 0 || column {t} x == maxColumn
 > admissible t x Left  = column {t} x <= maxColumnO2
@@ -130,28 +156,24 @@ Action is finite
 > Admissible : (t : Nat) -> X t -> Action -> Type
 > Admissible t x a = So (admissible t x a)
 
+*** Admissible is decidable and unique:
+
 > d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
 > d1Admissible t x = dec1So {A = Action} (admissible t x) 
 
 > u1Admissible : (t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
 > u1Admissible t x = unique1So {A = Action} (admissible t x) 
 
-
-Controls
+*** Controls proper:
 
 > SeqDecProbMonadic.Y t x = SubType Action (Admissible t x) (u1Admissible t x)
 
-> action : Y t x -> Action
-> action (a ** _) = a
-
-
-Controls are finite
+*** Controls are finite:
 
 > fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
 > fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
 
-
-Controls are not empty
+*** Controls are not empty:
 
 > %assert_total
 > nefY : (t : Nat) -> (x : X t) -> NonEmpty (fY t x)
@@ -161,7 +183,8 @@ Controls are not empty
 > nefY t (S (S (S Z))     ** prf) = nonEmptyLemma (fY t (S (S (S Z))     ** prf)) (Right ** Oh)
 > nefY t (S (S (S (S Z))) ** prf) = nonEmptyLemma (fY t (S (S (S (S Z))) ** prf)) (Ahead ** Oh)
 
-Transition function
+
+** Transition function:
 
 > SeqDecProbMonadic.step t (Z   ** prf) (Left  ** aL) = 
 >   Id (maxColumn ** ltIdS maxColumn)
@@ -174,7 +197,7 @@ Transition function
 >   | (No contra) = Id (Z   ** LTESucc LTEZero) 
 
 
-Reward function
+** Reward function:
 
 > SeqDecProbMonadic.reward t x y x' = 
 >   if column {t = S t} x' == Z
@@ -184,14 +207,8 @@ Reward function
 >        else 0.0
 
 
-The measure
 
-> SeqDecProbMonadic.meas (Id x) = x
-
-> SeqDecProbMonadic.measMon f g prf (Id x) = prf x
-
-
-Max and argmax
+* Max and argmax
 
 We want to implement
 
@@ -257,10 +274,59 @@ and |max|, |argmax|:
 > -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
 
 
-# The computation:
 
-> nSteps : Nat
-> nSteps = 8
+* The computation:
+
+** Viable is decidable:
+
+> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
+> dAll t P dP (Id x) = dP x
+
+> dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
+> dViable t  Z    x = Yes ()
+> dViable t (S m) x = s3 where
+>   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
+>   s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
+>   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>   s2    =  finiteDecLemma (fY t x) s1
+>   s3    :  Dec (Viable {t = t} (S m) x)
+>   s3    =  s2
+
+
+** Actions of state/control sequences
+
+> actions : (t : Nat) -> 
+>           (n : Nat) -> 
+>           Identity (StateCtrlSeq t n) ->
+>           Vect n Action
+> actions _ Z _ = Nil
+> actions t (S n) (Id ((x ** y) :: xys)) 
+>   = 
+>   (outl y) :: (actions (S t) n (Id xys))
+
+
+** Parameters
+
+> maxNumberOfSteps : Nat
+> maxNumberOfSteps = 8
+
+
+> computation : { [STDIO] } Eff ()
+> computation = 
+>   do putStr ("enter number of steps:\n")
+>      nSteps <- getBoundedNat maxNumberOfSteps
+>      putStr ("enter initial column:\n")
+>      c0 <- getBoundedNat nColumns
+>      ps <- pure (bi Z nSteps)
+>      pure ()
+
+
+> main : IO ()
+> main = run computation
+
+
+
+> {-
 
 > ps : PolicySeq Z nSteps
 > ps = bi Z nSteps
@@ -271,7 +337,7 @@ and |max|, |argmax|:
 > r0 : Reachable {t' = Z} x0
 > r0 = ()
 
-> postulate v0 : Viable {t = Z} nSteps x0
+> v0 : Viable {t = Z} nSteps x0
 
 > mxys : Identity (StateCtrlSeq Z nSteps)
 > mxys = stateCtrlTrj x0 r0 v0 ps
@@ -291,3 +357,8 @@ and |max|, |argmax|:
 > main : IO ()
 > main = putStrLn (show as)
 
+> -}
+
+-- Local Variables:
+-- idris-packages: ("effects")
+-- End:

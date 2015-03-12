@@ -21,7 +21,7 @@
 
 
 > |||
-> postulate totalFloatLTE : 
+> totalFloatLTE : 
 >   (x : Float) -> (y : Float) -> 
 >   Either (So (x <= y)) (So (y <= x))
 
