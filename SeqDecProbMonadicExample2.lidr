@@ -67,7 +67,7 @@ is the identity monad:
 
 > SeqDecProbMonadic.tagElem = IdentityOperations.tagElem
 
-> SeqDecProbMonadic.containerMonadSpec3 pa _ = ?lula -- pa
+> SeqDecProbMonadic.containerMonadSpec3 {ma = Id a} pa Refl = pa
 
 
 ** M is measurable:
@@ -156,6 +156,15 @@ is the identity monad:
 > Admissible : (t : Nat) -> X t -> Action -> Type
 > Admissible t x a = So (admissible t x a)
 
+If starting in the middle (with x = maxColumnO2) there is a genuine
+choice between Left and Right. For 0 < x < maxColumnO2 only Left is
+allowed and for maxColumnO2 < x < maxColumn only Right. Finally in the
+two "extreme" cases it is admitted to move Ahead or wrap around to the
+other end. The system will then after a possible first transient
+(moving just Left or just Right) end up in one extreme case and can
+then move freely between those two states (and only those two states)
+for each step.
+
 *** Admissible is decidable and unique:
 
 > d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
@@ -195,6 +204,8 @@ is the identity monad:
 > SeqDecProbMonadic.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn) 
 >   | (Yes p)     = Id (S n ** LTESucc p)
 >   | (No contra) = Id (Z   ** LTESucc LTEZero) 
+
+
 
 
 ** Reward function:
@@ -269,9 +280,9 @@ and |max|, |argmax|:
 
 > SeqDecProbMonadic.argmax  {n} t x v  =  Opt.argmax  (fYAV t n  x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadic.maxSpec {n} t x v  =  Opt.maxSpec (fYAV t n  x v) (neYAV t n x v)
+SeqDecProbMonadic.maxSpec    {n} t x v  =  Opt.maxSpec    (fYAV t n  x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
+SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
 
 
 
