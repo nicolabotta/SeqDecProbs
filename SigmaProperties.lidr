@@ -211,14 +211,26 @@ Sigma Fin properties:
 >                    from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b))
 >                    =
 >                    b
-> isoReplaceLemma2 isoA isoBa a b = trans s1 s2 where
->   s1 : from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b))
+> isoReplaceLemma2 {A} {A'} {B} {B'} isoA isoBa a b = trans s2 s3 where
+>   s1 : replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)
+>        =
+>        to (isoBa a) b
+>   s1 = replaceLemma (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)
+>   s2 : from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b))
 >        =
 >        from (isoBa a) (to (isoBa a) b)
->   s1 = ?lala
->   s2 : from (isoBa a) (to (isoBa a) b) = b
->   s2 = fromTo (isoBa a) b
-
+>   s2 = depCong2' {alpha = A}
+>                  {P = \ a => B' (to isoA a)}
+>                  {Q = \ a => \ pa => B a}
+>                  {a1 = from isoA (to isoA a)}
+>                  {a2 = a}
+>                  {Pa1 = replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)}
+>                  {Pa2 = to (isoBa a) b}
+>                  (\ x => \ y => from (isoBa x) y)
+>                  (fromTo isoA a)
+>                  s1
+>   s3 : from (isoBa a) (to (isoBa a) b) = b
+>   s3 = fromTo (isoBa a) b
 
 
 > sigmaIsoLemma :  (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) -> 
@@ -287,68 +299,6 @@ Sigma Fin properties:
 >                              {s2 = (a ** b)} 
 >                              (fromTo isoA a) 
 >                              (isoReplaceLemma2 isoA isoBa a b)
-
-
-> {-
-
-> lemma1 : (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) -> 
->          (isoA : Iso A A') -> 
->          (isoBa  : (a  : A)  -> Iso (B a)               (B' (to isoA a)) ) ->
->          (isoBa' : (a' : A') -> Iso (B (from isoA a'))  (B' a')          ) ->
->          (a' : A') -> (b' : B' a') -> 
->          to (isoBa (from isoA a')) (from (isoBa' a') b') = b'
-> lemma1 A A' B B' isoA isoBa isoBa' a' b' = ?ziku where
->   s1 : to (isoBa (from isoA a')) (from (isoBa' a') b')
->        =
->        to (isoBa (from isoA a')) (from (isoBa' a') b')
->   s1 = Refl
-
-> finSigma :  (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) -> 
->             (isoA : Iso A A') -> 
->             (isoBa  : (a : A) -> Iso (B a)               (B' (to isoA a)) ) ->
->             (isoBa' : (a': A')-> Iso (B (from isoA a'))  (B' a')          ) ->
->             Iso (Sigma A B) (Sigma A' B')
-> finSigma A A' B B' isoA isoBa isoBa' = MkIso toQ fromQ toFromQ fromToQ 
->   where toQ      : Sigma A  B  -> Sigma A' B'
->         toQ   (a ** b)   = (to isoA a ** to (isoBa a) b)
->         fromQ    : Sigma A' B' -> Sigma A  B
->         fromQ (a' ** b') = (from isoA a' ** from (isoBa' a') b')
->         toFromQ  : (ab' : Sigma A' B') -> toQ (fromQ ab') = ab'
->         toFromQ  (a' ** b') = trans s1 (trans s2 s3) where
->           s1 : toQ (fromQ (a' ** b'))
->                =
->                toQ (from isoA a' ** from (isoBa' a') b')
->           s1 = Refl
->           s2 : toQ (from isoA a' ** from (isoBa' a') b')
->                =
->                (to isoA (from isoA a') ** to (isoBa (from isoA a')) (from (isoBa' a') b'))
->           s2 = Refl
->           s3 : (to isoA (from isoA a') ** to (isoBa (from isoA a')) (from (isoBa' a') b'))
->                =
->                (a' ** b')
->           s3 = sigmaEqLemma2 {s1 = (to isoA (from isoA a') ** to (isoBa (from isoA a')) (from (isoBa' a') b'))} 
->                              {s2 = (a' ** b')} 
->                              (toFrom isoA a') 
->                              (lemma1 A A' B B' isoA isoBa isoBa' a' b')
->         fromToQ  : (ab  : Sigma A  B ) -> fromQ (toQ ab) = ab
->         fromToQ  (a ** b) = ?qq4 where
->           s1 : fromQ (toQ (a ** b))
->                =
->                fromQ (to isoA a ** to (isoBa a) b)
->           s1 = Refl
->           s2 : fromQ (to isoA a ** to (isoBa a) b)
->                =
->                (from isoA (to isoA a) ** from (isoBa' (to isoA a)) (to (isoBa a) b))
->           s3 : (from isoA (to isoA a) ** from (isoBa' (to isoA a)) (to (isoBa a) b))
->                =
->                (a ** b)
->           s3 = sigmaEqLemma2 {s1 = (from isoA (to isoA a) ** from (isoBa' (to isoA a)) (to (isoBa a) b))}
->                              {s2 = (a ** b)}
->                              (fromTo isoA a)
->                              ?liko
-
-> -}
-
 
 
 > ||| |Sigma (Fin Z) P| are void

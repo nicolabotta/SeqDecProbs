@@ -12,6 +12,16 @@ Replace properties:
 > replaceLemma Refl px = Refl
 
 
+> |||
+> replaceLemma2 : {A : Type} -> {P : A -> Type} -> {Q : (a : A) -> P a -> Type} -> 
+>                 {a1 : A} -> {a2 : A} ->
+>                 (f : (a : A) -> (pa : P a) -> Q a pa) ->
+>                 (prf : a1 = a2) -> 
+>                 (pa2 : P a2) -> 
+>                 f a1 (replace (sym prf) pa2) = f a2 pa2
+> replaceLemma2 f Refl pa2 = Refl
+
+
 Cong extensions:
 
 > cong1 : {alpha : Type} ->
