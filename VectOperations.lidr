@@ -104,7 +104,7 @@ Searching
 >       Vect (S n) A -> A
 > max = snd . argmaxMax
 
-> ---}
+> -}
 
 
 > {-
@@ -132,3 +132,4 @@ Searching
 > ---}
 
 
+ 
