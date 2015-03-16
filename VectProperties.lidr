@@ -108,19 +108,19 @@ Filtering
 
 > ||| |filter| preserves membership
 > filterLemma : {A : Type} ->
->              {P : A -> Type} ->
->              (d1P : Dec1 P) ->
->              (a : A) ->
->              (as : Vect n A) ->
->              Elem a as ->
->              (p : P a) ->
->              Elem a (getProof (filter d1P as))
+>               {P : A -> Type} ->
+>               (d1P : Dec1 P) ->
+>               (a : A) ->
+>               (as : Vect n A) ->
+>               Elem a as ->
+>               (p : P a) ->
+>               Elem a (getProof (filter d1P as))
 > filterLemma d1P a   Nil       prf  p = absurd prf
 > filterLemma d1P a1 (a1 :: as) Here p with (filter d1P as)
 >   | (n ** as') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = as'}
 >     | (No  contra) = void (contra p)
-> filterLemma d1P a1 (a2 :: as) (There prf) p with (filter d1P as)
+> filterLemma {A} {P} d1P a1 (a2 :: as) (There prf) p with (filter d1P as)
 >   | (n ** as') with (d1P a2)
 >     | (Yes _) = ?issue1920.0 -- There {x = a1} {xs = as'} {y = a2} (filterLemma d1P a1 as prf p)
 >     | (No  _) = ?issue1920.1 -- filterLemma {A} {P} d1P a1 as prf p

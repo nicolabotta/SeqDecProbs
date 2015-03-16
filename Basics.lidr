@@ -4,6 +4,16 @@
 > %default total
 
 
+Replace properties:
+
+> |||
+> replaceLemma : {a : _} -> {x : _} -> {y : _} -> {P : a -> Type} -> 
+>                (prf : x = y) -> (px : P x) -> replace prf px = px
+> replaceLemma Refl px = Refl
+
+
+Cong extensions:
+
 > cong1 : {alpha : Type} ->
 >         {beta : Type} ->
 >         {a1 : alpha} ->

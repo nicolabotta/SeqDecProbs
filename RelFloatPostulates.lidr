@@ -3,11 +3,13 @@
 
 > import Data.So
 
-> -- import RelSyntax
+> import SoProperties
 
 
 > %default total 
 
+
+LTE properties
 
 > ||| 
 > postulate reflexiveFloatLTE : 

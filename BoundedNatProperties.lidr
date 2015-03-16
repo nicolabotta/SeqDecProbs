@@ -1,4 +1,4 @@
-> module BoundedNat
+> module BoundedNatProperties
 
 > import Data.Fin
 > import Control.Isomorphism
@@ -83,6 +83,7 @@ Basic properties
 >        =
 >        LTESucc (finToNatLemma (toFin (n ** prf)))
 >   s2 = Refl
+>   {-
 >   sx : finToNatLemma (toFin (n ** prf))
 >        =
 >        prf
@@ -90,7 +91,8 @@ Basic properties
 >   sy : LTESucc (finToNatLemma (toFin (n ** prf)))
 >        =
 >        LTESucc prf
->   -- sy = cong {a = finToNatLemma (toFin (n ** prf))} {b = prf} {f = LTESucc} sx
+>   sy = cong {a = finToNatLemma (toFin (n ** prf))} {b = prf} {f = LTESucc} sx
+>   -}
 >   s3 : LTESucc (finToNatLemma (toFin (n ** prf)))
 >        =
 >        LTESucc prf

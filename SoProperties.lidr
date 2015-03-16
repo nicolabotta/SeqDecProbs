@@ -31,6 +31,14 @@ Introduction and elimination rules
 
 
 > |||
+> soOrElim : (b1 : Bool) -> (b2 : Bool) -> So (b1 || b2) -> Either (So b1) (So b2)
+> soOrElim True  True  Oh = Left Oh
+> soOrElim True  False Oh = Left Oh
+> soOrElim False True  Oh = Right Oh
+> soOrElim False False Oh impossible
+
+
+> |||
 > soOrElim1 : (b1 : Bool) -> (b2 : Bool) -> So (b1 || b2) -> So (not b1) -> So b2
 > soOrElim1 True  True  Oh Oh impossible
 > soOrElim1 True  False Oh Oh impossible

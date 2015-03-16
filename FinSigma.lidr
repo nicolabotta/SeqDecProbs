@@ -1,12 +1,28 @@
-> module SigmaProperties
+> module FinSigma
 
 > import Control.Isomorphism
 > import IsomorphismOperations
+> import Syntax.PreorderReasoning
+
+> import Basics
+
 
 > %default total
 
 
 Finitess properties
+
+
+to (isoBa (from a')) (from (isoBa' a') b')) 
+
+> lemma1 : (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) -> 
+>          (isoA : Iso A A') -> 
+>          (isoBa  : (a  : A)  -> Iso (B a)               (B' (to isoA a)) ) ->
+>          (isoBa' : (a' : A') -> Iso (B (from isoA a'))  (B' a')          ) ->
+>          (a' : A') -> (b' : B' a') -> 
+>          to (isoBa (from isoA a')) (from (isoBa' a') b') = b'
+
+
 
 finSigma :  {A : Type} -> {A' : Type} ->  {B : A -> Type} -> {B' : A' -> Type} -> 
 
@@ -21,17 +37,26 @@ Only one of isoBa, isoBa' and a corrected version of isoBaa' should be
 enough, but starting out I'm not sure which is more convenient in the
 proof.
 
-> finSigma A A' B B' (MkIso to from toFrom fromTo) isoBa isoBa' = 
->                          MkIso toQ fromQ toFromQ fromToQ where
->         toQ      : Sigma A  B  -> Sigma A' B'
->         toQ   (a ** b)   = (to a ** IsomorphismOperations.to (isoBa a) b)
+> finSigma A A' B B' isoA isoBa isoBa' = MkIso toQ fromQ toFromQ fromToQ 
+>   where toQ      : Sigma A  B  -> Sigma A' B'
+>         toQ   (a ** b)   = (to isoA a ** to (isoBa a) b)
 >         fromQ    : Sigma A' B' -> Sigma A  B
->         fromQ (a' ** b') = (from a' ** IsomorphismOperations.from (isoBa' a') b')
+>         fromQ (a' ** b') = (from isoA a' ** from (isoBa' a') b')
 >         toFromQ  : (ab' : Sigma A' B') -> toQ (fromQ ab') = ab'
->         toFromQ  (a' ** b') = ?qq3
+>         toFromQ  (a' ** b') = 
+>             ( toQ (fromQ (a' ** b'))                                                      )
+>           ={ Refl }=
+>             ( toQ (from isoA a' ** from (isoBa' a') b')                                   )
+>           ={ Refl }=
+>             ( (to isoA (from isoA a') ** to (isoBa (from isoA a')) (from (isoBa' a') b')) )
+>           ={ sigmaEqLemma2 (toFrom isoA) (lemma1 A A' B B' isoA isoBa isoBa') }=
+>             ( (a' ** b')                                                                  )
+>           QED
+>         
 >         fromToQ  : (ab  : Sigma A  B ) -> fromQ (toQ ab) = ab
 >         fromToQ  (a ** b) = ?qq4
 
 TODO: make toQ and fromQ only use one of isoBa and isoBa' (perhaps
 create lemma to translate betwen).
+
 

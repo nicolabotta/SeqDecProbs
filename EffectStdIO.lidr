@@ -6,12 +6,14 @@
 > import Effect.Exception
 
 > import EffectException
+> import BoundedNat
 
 
-> -- %default total
+> %default total
 
 
 > |||
+> %assert_total -- termination not required
 > getNat : { [STDIO] } Eff Nat
 > getNat = 
 >   do putStr (" Nat: " )
@@ -23,12 +25,13 @@
 
 
 > |||
-> getBoundedNat : Nat -> { [STDIO] } Eff Nat
-> getBoundedNat b = 
+> %assert_total -- termination not required
+> getLTB : (b : Nat) -> { [STDIO] } Eff (LTB b)
+> getLTB b = 
 >   do putStr (" Nat, < " ++ cast (cast b) ++ ": " )
->      case the (Either String Nat) (run (parseBoundedNat b (trim !getStr))) of
+>      case the (Either String (LTB b)) (run (parseLTB b (trim !getStr))) of
 >           Left err => do putStr (err ++ "\n")
->                          getBoundedNat b           
+>                          getLTB b           
 >           Right n  => do putStr "thanks!\n"
 >                          pure n
 

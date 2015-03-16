@@ -67,7 +67,8 @@ is the identity monad:
 
 > SeqDecProbMonadic.tagElem = IdentityOperations.tagElem
 
-> SeqDecProbMonadic.containerMonadSpec3 pa _ = ?lula -- pa
+> SeqDecProbMonadic.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 = 
+>   replace (sym a1eqa2) pa2
 
 
 ** M is measurable:
@@ -305,59 +306,26 @@ and |max|, |argmax|:
 >   (outl y) :: (actions (S t) n (Id xys))
 
 
-** Parameters
-
-> maxNumberOfSteps : Nat
-> maxNumberOfSteps = 8
-
+** Computation
 
 > computation : { [STDIO] } Eff ()
 > computation = 
 >   do putStr ("enter number of steps:\n")
->      nSteps <- getBoundedNat maxNumberOfSteps
+>      nSteps <- getNat
 >      putStr ("enter initial column:\n")
->      c0 <- getBoundedNat nColumns
->      ps <- pure (bi Z nSteps)
->      pure ()
+>      x0 <- getLTB nColumns
+>      case (dViable Z nSteps x0) of
+>        (Yes v0) => do ps   <- pure (bi Z nSteps)
+>                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       as   <- pure (actions Z nSteps mxys)
+>                       putStrLn (show as)
+>        (No _)   => putStr ("initial column non viable for " ++ cast (cast nSteps) ++ " steps\n")
 
 
 > main : IO ()
 > main = run computation
 
 
-
-> {-
-
-> ps : PolicySeq Z nSteps
-> ps = bi Z nSteps
-
-> x0 : X Z
-> x0 = (2 ** LTESucc (LTESucc (LTESucc LTEZero)))
-
-> r0 : Reachable {t' = Z} x0
-> r0 = ()
-
-> v0 : Viable {t = Z} nSteps x0
-
-> mxys : Identity (StateCtrlSeq Z nSteps)
-> mxys = stateCtrlTrj x0 r0 v0 ps
-
-> actions : (t : Nat) -> 
->           (n : Nat) -> 
->           Identity (StateCtrlSeq t n) ->
->           Vect n Action
-> actions _ Z _ = Nil
-> actions t (S n) (Id ((x ** y) :: xys)) 
->   = 
->   (outl y) :: (actions (S t) n (Id xys))
-
-> as : Vect nSteps Action
-> as = actions Z nSteps mxys
-
-> main : IO ()
-> main = putStrLn (show as)
-
-> -}
 
 -- Local Variables:
 -- idris-packages: ("effects")
