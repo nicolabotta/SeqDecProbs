@@ -4,7 +4,17 @@
 > %default total
 
 
+Replace extensions:
+
+> replace2 : {a : _} -> {a1 : _} -> {a2 : _} -> 
+>            {b : _} -> {b1 : _} -> {b2 : _} -> 
+>            {P : a -> b -> Type} ->
+>            (a1 = a2) -> (b1 = b2) -> P a1 b1 -> P a2 b2 
+> replace2 Refl Refl p = p
+
+
 Replace properties:
+
 
 > |||
 > replaceLemma : {a : _} -> {x : _} -> {y : _} -> {P : a -> Type} -> 

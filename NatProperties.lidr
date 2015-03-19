@@ -15,6 +15,17 @@
 >   uninhabited (LTESucc x) impossible
 
 
+EQ properties
+
+> predInjective : (left : Nat) -> (right : Nat) -> Not (S left = S right) -> Not (left = right)
+> predInjective left right contra = contra . (eqSucc left right)
+
+> succInjective' : (left : Nat) -> (right : Nat) -> Not (left = right) -> Not (S left = S right)
+> succInjective' left right contra = contra . (succInjective left right)
+
+
+LT, LTE properties
+
 > ||| 
 > lteLemma1 : (m : Nat) -> (n : Nat) -> LTE (S m) n -> LTE m n
 > lteLemma1  Z     Z             prf  = absurd prf
@@ -71,6 +82,25 @@
 > gtZisnotZ : LT Z n -> Not (n = Z)
 > gtZisnotZ {n = Z}   p = absurd p
 > gtZisnotZ {n = S m} p = \ neqZ => absurd neqZ
+
+
+> ||| No number is less than zero                                                                          
+> notLTzero : Not (LT m Z)                                                                                        
+> notLTzero = succNotLTEzero
+
+
+> |||
+> strengthenLT : (m : Nat) -> (n : Nat) -> LT m (S n) -> Not (m = n) -> LT m n 
+> strengthenLT  Z       n  _       zNEQn   = notZisgtZ (zNEQn . sym)
+> strengthenLT (S m)  Z    smLTsz  _       = void (notLTzero (fromLteSucc smLTsz))
+> strengthenLT (S m) (S n) smLTssn smNEQsn = LTESucc mLTn where
+>   mLTsn : LT m (S n)
+>   mLTsn = fromLteSucc smLTssn
+>   mNEQn : Not (m = n)
+>   mNEQn = predInjective m n smNEQsn
+>   mLTn : LT m n
+>   mLTn = strengthenLT m n mLTsn mNEQn
+
 
 
 Decidability
