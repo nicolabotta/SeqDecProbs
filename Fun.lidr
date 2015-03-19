@@ -140,3 +140,77 @@ then implementing |pigeonholeBase| is easy:
 Thus the question is whether we can implement |finEndoLemma|. This is
 going to be "Knochenarbeit", but it is a more fundamental result than
 the pigeonhole lemma, I think.
+
+< finEndoLemma : (n : Nat) -> (f : Fin n -> Fin n) -> Either (Surjective f) (NonInjective f)
+
+> finEndoLemma  Z    f = Left (\ j => absurd j) 
+> finEndoLemma (S Z) f = Left h where
+>   h : (j : Fin (S Z)) -> Exists {a = Fin (S Z)} (\ i => f i = j)
+>   -- h FZ = Evidence FZ Refl
+
+
+> lala : {m : Nat} -> {n : Nat} -> (f : Fin (S m) -> Fin n) -> 
+>        Either (NonInjective (tail f)) (Not (NonInjective (tail f))) ->
+>        Either (Surjective f) (NonInjective f)  
+
+
+
+
+> converse : {m : Nat} -> {n : Nat} -> 
+>            (f : Fin m -> Fin n) -> 
+>            (Fin n -> List (Fin m))
+> converse {m = Z}    {n} f j = Nil 
+> converse {m = S m'} {n} f j with (decEq (f FZ) j)
+>   | (Yes _) = (FZ :: (map FS (converse (tail f) j)))
+>   | (No  _) = map FS (converse (tail f) j)
+
+> converse1 : {m : Nat} -> {n : Nat} -> 
+>             (f : Fin m -> Fin n) -> 
+>             (Fin n -> List (Fin m))
+> converse1 {m = Z}    {n} f j = Nil 
+> converse1 {m = S m'} {n} f j with (map FS (converse (tail f) j))
+>   |  Nil      with (decEq (f FZ) j) 
+>               | (Yes _) = (FZ :: Nil)     -->  
+>               | (No  _) =        Nil      --> not surjective
+>   | (i :: is) with (decEq (f FZ) j) 
+>               | (Yes _) = (FZ :: i :: is) --> not injective
+>               | (No  _) =       (i :: is) --> 
+
+> mapSuccTag : {m : Nat} -> {n : Nat} -> 
+>              (j : Fin n) -> 
+>              (f : Fin (S m) -> Fin n) -> 
+>              List (Sigma (Fin m) (\ i => (tail f) i = j)) -> 
+>              List (Sigma (Fin (S m)) (\ si => f si = j))
+> mapSuccTag j f Nil = Nil
+> mapSuccTag j f ((i ** p) :: is) = 
+>   (FS i ** trans (sym (tailSuccLemma f i)) p) :: (mapSuccTag j f is) 
+
+> converseTag : {m : Nat} -> {n : Nat} -> 
+>               (f : Fin m -> Fin n) -> 
+>               ((j : Fin n) -> List (Sigma (Fin m) (\ i => f i = j)))
+> converseTag {m = Z}    {n} f j = Nil 
+> converseTag {m = S m'} {n} f j with (mapSuccTag j f (converseTag (tail f) j))
+>   |  Nil      with (decEq (f FZ) j) 
+>               | (Yes p) = ((FZ ** p) :: Nil)
+>               | (No  _) =               Nil
+>   | (i :: is) with (decEq (f FZ) j) 
+>               | (Yes p) = ((FZ ** p) :: i :: is)
+>               | (No  _) =              (i :: is) 
+
+
+
+
+
+> g : Fin 3 -> Fin 3
+> g         FZ   = FS FZ
+> g     (FS FZ)  = FS FZ
+> g (FS (FS FZ)) = FS (FS FZ)
+
+
+> {-
+> converseTag : (m : Nat) -> (n : Nat) -> 
+>            (f : Fin m -> Fin n) -> 
+>            ((j : Fin n) -> List (Sigma (Fin m) (\ i => f i = j)))
+> converseTag  Z     n f = \ j => Nil 
+> converseTag (S m') n f = 
+> -}
