@@ -8,6 +8,7 @@
 > import NatProperties
 > import SigmaOperations
 > import RelSyntax
+> import RelFloat
 > import RelFloatPostulates
 
 
@@ -72,8 +73,8 @@ process ...
 > meas : M Float -> Float
 > measMon  :  {A : Type} ->
 >             (f : A -> Float) -> (g : A -> Float) ->
->             ((a : A) -> So (f a <= g a)) ->
->             (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
+>             ((a : A) -> (f a) `FloatLTE` (g a)) ->
+>             (ma : M A) -> (meas (fmap f ma)) `FloatLTE` (meas (fmap g ma))
 
 For every SDP, we can build the following notions:
 
@@ -146,7 +147,8 @@ For every SDP, we can build the following notions:
 > OptPolicySeq : PolicySeq t n -> Prop
 > OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
 >                             (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
->                             So (val x r v ps' <= val x r v ps)
+>                             -- So (val x r v ps' <= val x r v ps)
+>                             (val x r v ps') `FloatLTE` (val x r v ps)                             
 
 > nilOptPolicySeq : OptPolicySeq Nil
 > nilOptPolicySeq ps' x r v = reflexiveFloatLTE 0
@@ -157,7 +159,7 @@ For every SDP, we can build the following notions:
 > OptExt : PolicySeq (S t) m -> Policy t (S m) -> Prop
 > OptExt {t} {m} ps p  =  (p' : Policy t (S m)) ->
 >                         (x : X t) -> (r : Reachable x) -> (v : Viable (S m) x) ->
->                         So (val x r v (p' :: ps) <= val x r v (p :: ps))
+>                         (val x r v (p' :: ps)) `FloatLTE` (val x r v (p :: ps))
 
 
   Bellman's principle of optimality:
@@ -180,9 +182,9 @@ For every SDP, we can build the following notions:
 >     f  : (x' : X (S t) ** x' `Elem` mx') -> Float
 >     f  = mkf x r v y' av' ps
 >     s1 : (x' : X (S t)) -> (r' : Reachable x') -> (v' : Viable m x') ->
->          So (val x' r' v' ps' <= val x' r' v' ps)
+>          (val x' r' v' ps') `FloatLTE` (val x' r' v' ps)
 >     s1 x' r' v' = ops ps' x' r' v'
->     s2 : (z : (x' : X (S t) ** x' `Elem` mx')) -> So (f' z <= f z)
+>     s2 : (z : (x' : X (S t) ** x' `Elem` mx')) -> (f' z) `FloatLTE` (f z)
 >     s2 (x' ** x'emx') = monotoneFloatPlusLTE (reward t x y' x') (s1 x' r' v') where
 >       xpx' : x `Pred` x'
 >       xpx' = Evidence y' x'emx'
@@ -190,11 +192,11 @@ For every SDP, we can build the following notions:
 >       r' = Evidence x (r , xpx')
 >       v' : Viable m x'
 >       v' = containerMonadSpec3 x' mx' av' x'emx'
->     s3 : So (meas (fmap f' (tagElem mx')) <= meas (fmap f (tagElem mx')))
+>     s3 : (meas (fmap f' (tagElem mx'))) `FloatLTE` (meas (fmap f (tagElem mx')))
 >     s3 = measMon f' f s2 (tagElem mx')
->     s4 : So (val x r v (p' :: ps') <= val x r v (p' :: ps))
+>     s4 : (val x r v (p' :: ps')) `FloatLTE` (val x r v (p' :: ps))
 >     s4 = s3
->     s5 : So (val x r v (p' :: ps) <= val x r v (p :: ps))
+>     s5 : (val x r v (p' :: ps)) `FloatLTE` (val x r v (p :: ps))
 >     s5 = oep p' x r v
 
 
@@ -217,7 +219,7 @@ that fulfill the specification
 > maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >                (s : (y : Y t x ** All (Viable n) (step t x y))) ->
->                So (f s <= SeqDecProbMonadic.max t x v f)
+>                (f s) `FloatLTE` (SeqDecProbMonadic.max t x v f)
 > argmaxSpec  :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >                typeHelper t x v f -- SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
@@ -263,18 +265,18 @@ extensions for arbitrary policy sequences:
 >   f     =  mkf x r v y av ps
 >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Float
 >   f'    =  mkf x r v y' av' ps
->   s1    :  So (g yav' <= SeqDecProbMonadic.max t x v g)
+>   s1    :  (g yav') `FloatLTE` (SeqDecProbMonadic.max t x v g)
 >   s1    =  maxSpec t x v g yav'
->   s2    :  So (g yav' <= g (argmax t x v g))
->   s2    =  replace {P = \ z => So (g yav' <= z)} (argmaxSpec t x v g) s1
+>   s2    :  (g yav') `FloatLTE` (g (argmax t x v g))
+>   s2    =  replace {P = \ z => (g yav' `FloatLTE` z)} (argmaxSpec t x v g) s1
 >   -- the rest of the steps are for the human reader
->   s3    :  So (g yav' <= g yav)
+>   s3    :  (g yav') `FloatLTE` (g yav)
 >   s3    =  s2
->   s4    :  So (mkg x r v ps yav' <=  mkg x r v ps yav)
+>   s4    :  (mkg x r v ps yav') `FloatLTE`  (mkg x r v ps yav)
 >   s4    =  s3
->   s5    :  So (meas (fmap f' (tagElem (step t x y'))) <= meas (fmap f (tagElem (step t x y))))
+>   s5    :  (meas (fmap f' (tagElem (step t x y')))) `FloatLTE` (meas (fmap f (tagElem (step t x y))))
 >   s5    =  s4
->   s6    :  So (val x r v (p' :: ps) <= val x r v (p :: ps))
+>   s6    :  (val x r v (p' :: ps)) `FloatLTE` (val x r v (p :: ps))
 >   s6    =  s5
 
 
@@ -334,3 +336,6 @@ possible future evolutions from a (viable) initial state:
 >         r' = Evidence x (r , xpx')
 >         v' : Viable m x'
 >         v' = containerMonadSpec3 x' mx' av x'estep
+
+
+> ---}

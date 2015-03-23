@@ -5,6 +5,7 @@
 > import Decidable.Order
 
 > import Order
+> import RelFloat
 > import RelFloatPostulates
 > import SoProperties
 
@@ -12,16 +13,12 @@
 > %default total 
 
 
-> LTE : Float -> Float -> Type
-> LTE x y = So (x <= y)
-
-
-> instance Preorder Float LTE where
+> instance Preorder Float FloatLTE where
 >   reflexive = reflexiveFloatLTE
 >   transitive x y z xLTEy yLTEz = transitiveFloatLTE xLTEy yLTEz
 
 
-> instance Preordered Float LTE where
+> instance Preordered Float FloatLTE where
 >   preorder = totalFloatLTE
 
 

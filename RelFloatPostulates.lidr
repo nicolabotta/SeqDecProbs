@@ -4,33 +4,34 @@
 > import Data.So
 
 > import SoProperties
+> import RelFloat
 
 
 > %default total 
 
 
-LTE properties
+FloatLTE properties
 
 > ||| 
 > postulate reflexiveFloatLTE : 
->   (x : Float) -> So (x <= x)
+>   (x : Float) -> FloatLTE x x
 
 
 > |||
 > postulate transitiveFloatLTE : 
 >   {x : Float} -> {y : Float} -> {z : Float} ->
->   So (x <= y) -> So (y <= z) -> So (x <= z)
+>   FloatLTE x y -> FloatLTE y z -> FloatLTE x z
 
 
 > |||
 > totalFloatLTE : 
 >   (x : Float) -> (y : Float) -> 
->   Either (So (x <= y)) (So (y <= x))
+>   Either (FloatLTE x y) (FloatLTE y x)
 
 
 > |||
 > postulate monotoneFloatPlusLTE : 
 >   {x : Float} -> {y : Float} -> 
->   (z : Float) -> So (x <= y) -> So (z + x <= z + y)
+>   (z : Float) -> x `FloatLTE` y -> (z + x) `FloatLTE` (z + y)
 
 

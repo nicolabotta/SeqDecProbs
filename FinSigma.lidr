@@ -13,15 +13,6 @@
 Finitess properties
 
 
-to (isoBa (from a')) (from (isoBa' a') b')) 
-
-> lemma1 : (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) -> 
->          (isoA : Iso A A') -> 
->          (isoBa  : (a  : A)  -> Iso (B a)               (B' (to isoA a)) ) ->
->          (isoBa' : (a' : A') -> Iso (B (from isoA a'))  (B' a')          ) ->
->          (a' : A') -> (b' : B' a') -> 
->          to (isoBa (from isoA a')) (from (isoBa' a') b') = b'
-
 
 
 finSigma :  {A : Type} -> {A' : Type} ->  {B : A -> Type} -> {B' : A' -> Type} -> 
@@ -52,7 +43,6 @@ proof.
 >           ={ sigmaEqLemma2 (toFrom isoA) (lemma1 A A' B B' isoA isoBa isoBa') }=
 >             ( (a' ** b')                                                                  )
 >           QED
->         
 >         fromToQ  : (ab  : Sigma A  B ) -> fromQ (toQ ab) = ab
 >         fromToQ  (a ** b) = ?qq4
 

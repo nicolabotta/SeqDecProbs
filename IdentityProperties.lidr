@@ -4,11 +4,29 @@
 > import Control.Monad.Identity
 
 > import IdentityOperations
+> import ContainerMonad
 > import Decidable
 > import Unique
 
 
 > %default total 
+
+
+> ||| Id is injective
+> injectiveId : {a : Type} -> {left : a} -> {right : a} -> (Id left) = (Id right) -> left = right
+> injectiveId Refl = Refl
+
+
+> ||| Identity is a container monad
+> instance ContainerMonad Identity where
+>   Elem a1 (Id a2) = a1 = a2
+>   tagElem (Id a) = Id (a ** Refl)
+>   All P (Id a) = P a
+>   spec1 = Refl
+>   spec2 {x = x1} {mx = Id x2} {mmx = Id (Id x3)} x1eqx2 idx2eqidx3 =
+>     trans x1eqx2 (injectiveId idx2eqidx3)
+>   spec3 {mx = Id x} = Refl
+>   spec4  {x = x1} {mx = Id x2} {P = P} px2 x1eqx2 = replace (sym x1eqx2) px2
 
 
 Container monad decidability:

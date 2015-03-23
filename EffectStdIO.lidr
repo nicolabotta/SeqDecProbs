@@ -28,7 +28,7 @@
 > %assert_total -- termination not required
 > getLTB : (b : Nat) -> { [STDIO] } Eff (LTB b)
 > getLTB b = 
->   do putStr (" Nat, < " ++ cast (cast b) ++ ": " )
+>   do putStr (" Nat, < " ++ cast {from = Int} (cast b) ++ ": " )
 >      case the (Either String (LTB b)) (run (parseLTB b (trim !getStr))) of
 >           Left err => do putStr (err ++ "\n")
 >                          getLTB b           

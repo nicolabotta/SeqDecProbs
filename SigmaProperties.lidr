@@ -336,7 +336,7 @@ Sigma Fin properties:
 >     ( Sigma (Fin (S n)) (Fin . f)                                     ) 
 >   ={ sigmaEitherLemma {n = n} {P = Fin . f} }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (tail (Fin . f)))            )     
->   ={ isoRefl }=
+>   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (tail (Fin . f)) k)) )     
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . f) (FS k)))   )     

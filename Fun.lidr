@@ -139,36 +139,60 @@ then implementing |pigeonholeBase| is easy:
 
 Thus the question is whether we can implement |finEndoLemma|. This is
 going to be "Knochenarbeit", but it is a more fundamental result than
-the pigeonhole lemma, I think.
+the pigeonhole lemma, I think. It is easy to implement
 
 < finEndoLemma : (n : Nat) -> (f : Fin n -> Fin n) -> Either (Surjective f) (NonInjective f)
 
+if we can show that |NonInjective| is decidable
+
+> decNonInjective : (f : Fin m -> Fin n) -> Dec (NonInjective f)
+
+and that
+
+> finEndoAutAut : (f : Fin (S m) -> Fin (S m)) -> 
+>                 Not (NonInjective (tail f)) -> 
+>                 Either (Surjective f) (NonInjective f)
+> finEndoAutAut {n = Z}       f nninj = Left (\ j => absurd j) 
+> finEndoAutAut {n = S Z}     f nninj = Left ?liki
+> finEndoAutAut {n = S (S m)} f nninj 
+
+
+then
+
+> finEndoLemma n f with (decNonInjective f)
+>   | (Yes p)     = Right p
+>   | (No contra) = Left (finEndoAutAut f contra)
+
+
+
+> {-
+
 > finEndoLemma  Z    f = Left (\ j => absurd j) 
-> finEndoLemma (S Z) f = Left h where
->   h : (j : Fin (S Z)) -> Exists {a = Fin (S Z)} (\ i => f i = j)
->   -- h FZ = Evidence FZ Refl
+> finEndoLemma (S m) f with (decNonInjective (tail f))
+>   | (Yes evi) =  Right (Evidence (FS i) (Evidence (FS j) (sinesj , fsiefsj))) where
+>     i       : Fin m
+>     i       = getWitness evi
+>     j       : Fin m
+>     j       = getWitness (getProof evi)
+>     sinesj  : Not (FS i = FS j)
+>     sinesj  = fsInjective' i j (fst (getProof (getProof evi)))
+>     fsiefsj : f (FS i) = f (FS j)
+>     fsiefsj = tailSuccEqLemma i j f (snd (getProof (getProof evi)))
+>   | (No contra) = ?liki 
 
-
-> lala : {m : Nat} -> {n : Nat} -> (f : Fin (S m) -> Fin n) -> 
->        Either (NonInjective (tail f)) (Not (NonInjective (tail f))) ->
->        Either (Surjective f) (NonInjective f)  
-
-
-
-
-> converse : {m : Nat} -> {n : Nat} -> 
->            (f : Fin m -> Fin n) -> 
->            (Fin n -> List (Fin m))
-> converse {m = Z}    {n} f j = Nil 
+> converse : {m : Nat} -> {n : Nat} ->
+> (f : Fin m -> Fin n) ->
+> (Fin n -> List (Fin m))
+> converse {m = Z} {n} f j = Nil
 > converse {m = S m'} {n} f j with (decEq (f FZ) j)
->   | (Yes _) = (FZ :: (map FS (converse (tail f) j)))
->   | (No  _) = map FS (converse (tail f) j)
+> | (Yes _) = (FZ :: (map FS (converse (tail f) j)))
+> | (No _) = map FS (converse (tail f) j)
 
 > converse1 : {m : Nat} -> {n : Nat} -> 
 >             (f : Fin m -> Fin n) -> 
 >             (Fin n -> List (Fin m))
 > converse1 {m = Z}    {n} f j = Nil 
-> converse1 {m = S m'} {n} f j with (map FS (converse (tail f) j))
+> converse1 {m = S m'} {n} f j with (map FS (converse1 (tail f) j))
 >   |  Nil      with (decEq (f FZ) j) 
 >               | (Yes _) = (FZ :: Nil)     -->  
 >               | (No  _) =        Nil      --> not surjective
@@ -197,20 +221,11 @@ the pigeonhole lemma, I think.
 >               | (Yes p) = ((FZ ** p) :: i :: is)
 >               | (No  _) =              (i :: is) 
 
-
-
-
-
 > g : Fin 3 -> Fin 3
 > g         FZ   = FS FZ
 > g     (FS FZ)  = FS FZ
 > g (FS (FS FZ)) = FS (FS FZ)
 
-
-> {-
-> converseTag : (m : Nat) -> (n : Nat) -> 
->            (f : Fin m -> Fin n) -> 
->            ((j : Fin n) -> List (Sigma (Fin m) (\ i => f i = j)))
-> converseTag  Z     n f = \ j => Nil 
-> converseTag (S m') n f = 
 > -}
+
+
