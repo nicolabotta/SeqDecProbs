@@ -1,0 +1,26 @@
+package all
+
+modules = DynamicProgramming.S1101_Context,
+          DynamicProgramming.S1102_OptimalControls,
+          DynamicProgramming.S1103_OptimalPolicies,
+          DynamicProgramming.S1104_MaxArgmax,
+          DynamicProgramming.S1105_BackwardsInduction,
+
+          DynamicProgramming.S1201_Context,
+          DynamicProgramming.S1202_ReachabilityViability,
+          DynamicProgramming.S1203_OptimalControls,
+          DynamicProgramming.S1203_OptimalPolicies,
+          DynamicProgramming.S1204_MaxArgmax,
+          DynamicProgramming.S1205_BackwardsInduction,
+          
+          DynamicProgramming.S1301_Context,
+          DynamicProgramming.S1302_Reachability,
+          DynamicProgramming.S1302_ViabilityDefaults,
+          DynamicProgramming.S1302_Viability,
+          DynamicProgramming.S1303_OptimalPolicies,
+          DynamicProgramming.S1303_Trajectories,
+          DynamicProgramming.S1304_MaxArgmax,
+          DynamicProgramming.S1305_BackwardsInduction
+
+          
+
