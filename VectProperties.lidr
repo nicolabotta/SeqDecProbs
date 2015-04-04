@@ -5,7 +5,7 @@
 > import Data.Vect.Quantifiers
 > import Data.Fin
 > import Syntax.PreorderReasoning
-> import Decidable.Order
+> -- import Decidable.Order
 
 > import Prop
 > import VectOperations
@@ -148,6 +148,8 @@ Filtering
 
 Max and argmax
 
+> {-
+
 > |||
 > maxLemma : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >            (a : A) -> (as : Vect n A) -> (p : LT Z n) -> a `Elem` as -> 
@@ -193,6 +195,8 @@ Max and argmax
 >   | (k, max) with (preorder a' max)
 >     | (Left   _) = ?issue1920.7 -- There (maxElemLemma (a'' :: as) (ltZS m))
 >     | (Right  _) = Here
+
+> -}
 
 
 > {-

@@ -6,7 +6,7 @@
 > import Data.So
 
 > import Decidable
-> import Order
+> -- import Order
 > import NatProperties
 
 
@@ -58,6 +58,8 @@ Filtering
 
 Searching
 
+> {-
+
 > |||
 > argmaxMax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >             Vect n A -> LT Z n -> (Fin n, A)
@@ -78,6 +80,8 @@ Searching
 > max : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
 >       Vect n A -> LT Z n -> A
 > max as p = snd (argmaxMax as p)
+
+> -}
 
 
 > {-

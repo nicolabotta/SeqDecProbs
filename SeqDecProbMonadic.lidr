@@ -10,6 +10,7 @@
 > import RelSyntax
 > import RelFloat
 > import RelFloatPostulates
+> -- import ContainerMonad
 
 
 > %default total
@@ -21,6 +22,10 @@ The theory of monadic sequential decision problems (SDP):
 A SDP is specified in terms of a monad ...
 
 > M : Type -> Type
+
+> {-
+> instance ConatainerMonad M where
+> -}
 
 > fmap : {A, B : Type} -> (A -> B) -> M A -> M B
 > -- unused functorSpec1 : fmap . id = id
@@ -53,6 +58,7 @@ A SDP is specified in terms of a monad ...
 
 The standard examples are |M = Id| (deterministic SDP), |M = List|
 (non-deterministic SDP) and |M = Prob| (stochastic SDP).
+
 
 The decision problem itself is specified by giving the decision
 process ...
