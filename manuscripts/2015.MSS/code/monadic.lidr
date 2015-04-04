@@ -4,8 +4,6 @@
 > import Data.Fin
 > import Control.Isomorphism
 
-> import Prop
-
 
 Hiding stuff:
 
@@ -18,53 +16,55 @@ Checking if we use composition (if so it needs to be explained).
 
 
 Require totality:
- 
-> %default total 
 
+> %default total
+
+> Prop : Type
+> Prop = Type
 
 Syntax extensions:
 
-> namespace RelLib 
+> namespace RelLib
 
->   syntax reflexive [alpha] [r] = 
+>   syntax reflexive [alpha] [r] =
 >     (a : alpha) -> So (r a a)
->   syntax transitive [alpha] [r] = 
+>   syntax transitive [alpha] [r] =
 >     {a1 : alpha} -> {a2 : alpha} -> {a3 : alpha} ->
 >     So (r a1 a2) -> So (r a2 a3) -> So (r a1 a3)
->   syntax monotone [alpha] [r] [op2] = 
+>   syntax monotone [alpha] [r] [op2] =
 >     {a1 : alpha} -> {a2 : alpha} ->
 >     (a3 : alpha) -> So (r a1 a2) -> So (r (op2 a3 a1) (op2 a3 a2))
 
-> -- end namespace RelLib 
+> -- end namespace RelLib
 
 Postulates:
 
-> namespace FloatLib 
+> namespace FloatLib
 
 >   postulate reflexiveFloatLTE     :  reflexive   Float  (<=)
 >   postulate transitiveFloatLTE    :  transitive  Float  (<=)
->   postulate monotoneFloatPlusLTE  :  monotone    Float  (<=) (+) 
+>   postulate monotoneFloatPlusLTE  :  monotone    Float  (<=) (+)
 
-> -- end namespace FloatLib 
+> -- end namespace FloatLib
 
 
-> namespace NatLib 
+> namespace NatLib
 
 >   postulate eqInLTE             : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
 >   postulate idSuccPreservesLTE  : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
 
-> -- end namespace NatLib 
+> -- end namespace NatLib
 
 Globals:
 
-> namespace SigmaLib 
+> namespace SigmaLib
 
 >   outl : {A : Type} -> {P : A -> Prop} -> Sigma A P -> A
 >   outl = getWitness
 >   outr : {A : Type} -> {P : A -> Prop} -> (s : Sigma A P) -> P (outl s)
 >   outr = getProof
 
-> -- end namespace SigmaLib 
+> -- end namespace SigmaLib
 
 
 
@@ -73,7 +73,7 @@ The theory of monadic sequential decision problems (SDP):
 
 A SDP is specified in terms of a monad ...
 
-> namespace MonadLib 
+> namespace MonadLib
 
 >   M : Type -> Type
 
@@ -86,17 +86,17 @@ A SDP is specified in terms of a monad ...
 >   -- unused monadSpec1   :  (fmap f) . ret = ret . f
 >   -- unused monadSpec21  :  bind (ret a) f = f a
 >   -- unused monadSpec22  :  bind ma ret = ma
->   -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} -> 
+>   -- unused monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} ->
 >   --                        bind (bind ma f) g = bind ma (\ a => bind (f a) g)
 
 >   join  :  {A : Type} -> M (M A) -> M A
 >   join mma = bind mma id
 
-> -- end namespace MonadLib 
+> -- end namespace MonadLib
 
 ... which is required to be a "container" monad:
 
-> namespace ContainerMonadLib 
+> namespace ContainerMonadLib
 
 >   Elem     :  {A : Type} -> A -> M A -> Prop
 >   All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
@@ -106,16 +106,16 @@ A SDP is specified in terms of a monad ...
 >   -- unused containerMonadSpec2  :  {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
 >   --                                a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
 >   -- containerMonadSpec3  :  {A : Type} -> {P : A -> Prop} -> {a : A} -> {ma : M A} -> All P ma -> a `Elem` ma -> P a
->   -- containerMonadSpec3 {A} {P} {a} {ma} aPma = aPma a 
+>   -- containerMonadSpec3 {A} {P} {a} {ma} aPma = aPma a
 >   -- unused containerMonadSpec4  :  {A : Type} -> {P : A -> Prop} -> a `Elem` ma -> Not (P a) -> Not (All P ma) -- follows from All
 
 >   tagElem      :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
 >   -- unused tagElemSpec  :  {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
-> -- end namespace ContainerMonadLib 
+> -- end namespace ContainerMonadLib
 
 The standard examples are |M = Id| (deterministic SDP), |M = List|
-(non-deterministic SDP) and |M = Prob| (stochastic SDP). 
+(non-deterministic SDP) and |M = Prob| (stochastic SDP).
 
 The decision problem itself is specified by giving the decision
 process ...
@@ -133,15 +133,15 @@ process ...
 
 ... and a measure:
 
-> namespace MeasLib 
+> namespace MeasLib
 
 >   meas : M Float -> Float
->   measMon  :  {A : Type} -> 
->               (f : A -> Float) -> (g : A -> Float) -> 
+>   measMon  :  {A : Type} ->
+>               (f : A -> Float) -> (g : A -> Float) ->
 >               ((a : A) -> So (f a <= g a)) ->
 >               (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
 
-> -- end namespace MeasLib 
+> -- end namespace MeasLib
 
 For every SDP, we can build the following notions:
 
@@ -217,7 +217,7 @@ For every SDP, we can build the following notions:
 
 >   mkf : (x  : X t) ->
 >         (r  : Reachable x) ->
->         (v  : Viable (S m) x) -> 
+>         (v  : Viable (S m) x) ->
 >         (y  : Y t x) ->
 >         (av : All (Viable m) (step t x y)) ->
 >         (ps : PolicySeq (S t) m) ->
@@ -246,7 +246,7 @@ For every SDP, we can build the following notions:
   Optimality of policy sequences:
 
 > OptPolicySeq : PolicySeq t n -> Prop
-> OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) -> 
+> OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
 >                             (x : X t) ->
 >                             (r : Reachable x) ->
 >                             (v : Viable n x) ->
@@ -261,11 +261,11 @@ For every SDP, we can build the following notions:
 > OptExt : PolicySeq (S t) m -> Policy t (S m) -> Prop
 > OptExt {t} {m} ps p  =  (p' : Policy t (S m)) ->
 >                         (x : X t) ->
->                         (r : Reachable x) -> 
->                         (v : Viable (S m) x) -> 
+>                         (r : Reachable x) ->
+>                         (v : Viable (S m) x) ->
 >                         So (val x r v (p' :: ps) <= val x r v (p :: ps))
 
-  
+
   Bellman's principle of optimality:
 
 > Bellman  :  (ps : PolicySeq (S t) m) ->
@@ -282,7 +282,7 @@ For every SDP, we can build the following notions:
 >     mx' : M (X (S t))
 >     mx' = step t x y'
 >     av' : All (Viable m) mx'
->     av' = outr (p' x r v)    
+>     av' = outr (p' x r v)
 >     f' : (x' : X (S t) ** x' `Elem` mx') -> Float
 >     f' = mkf x r v y' av' ps'
 >     f  : (x' : X (S t) ** x' `Elem` mx') -> Float
@@ -321,7 +321,7 @@ extensions for arbitrary policy sequences:
 
 > mkg : (x  : X t) ->
 >       (r  : Reachable x) ->
->       (v  : Viable (S n) x) -> 
+>       (v  : Viable (S n) x) ->
 >       (ps : PolicySeq (S t) n) ->
 >       (y : Y t x ** All (Viable n) (step t x y)) -> Float
 > -- mkg {t} {n} x r v ps (y ** av) = meas (fmap f (tagElem (step t x y))) where
@@ -349,7 +349,7 @@ extensions for arbitrary policy sequences:
 >   yav   =  p x r v
 >   y     :  Y t x
 >   y     =  outl yav
->   av    :  All (Viable n) (step t x y) 
+>   av    :  All (Viable n) (step t x y)
 >   av    =  outr yav
 >   yav'  :  (y : Y t x ** All (Viable n) (step t x y))
 >   yav'  =  p' x r v
@@ -360,9 +360,9 @@ extensions for arbitrary policy sequences:
 >   g     :  (y : Y t x ** All (Viable n) (step t x y)) -> Float
 >   g     =  mkg x r v ps
 >   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
->   f     =  mkf x r v y av ps        
+>   f     =  mkf x r v y av ps
 >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Float
->   f'    =  mkf x r v y' av' ps        
+>   f'    =  mkf x r v y' av' ps
 >   s1    :  So (g yav' <= max g)
 >   s1    =  maxSpec g yav'
 >   s2    :  So (g yav' <= g (argmax g))
@@ -373,7 +373,7 @@ extensions for arbitrary policy sequences:
 >   s4    :  So (mkg x r v ps yav' <=  mkg x r v ps yav)
 >   s4    =  s3
 >   s5    :  So (meas (fmap f' (tagElem (step t x y'))) <= meas (fmap f (tagElem (step t x y))))
->   s5    =  s4          
+>   s5    =  s4
 >   s6    :  So (val x r v (p' :: ps) <= val x r v (p :: ps))
 >   s6    =  s5
 
@@ -409,22 +409,22 @@ possible future evolutions from a (viable) initial state:
 
 >   data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
 >     Nil   :  (x : X t) -> StateCtrlSeq t Z
->     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n) 
+>     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 
->   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) -> 
+>   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                    (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
 
 >   stateCtrlTrj {t} {n = Z}   x r v Nil = ret (Nil x)
 
->   stateCtrlTrj {t} {n = S m} x r v (p :: ps') = 
->     fmap g (bind (tagElem mx') f) where  
+>   stateCtrlTrj {t} {n = S m} x r v (p :: ps') =
+>     fmap g (bind (tagElem mx') f) where
 >       y : Y t x
 >       y = outl (p x r v)
 >       mx' : M (X (S t))
 >       mx' = step t x y
 >       av  : All (Viable m) mx'
 >       av  = outr (p x r v)
->       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n) 
+>       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 >       g = ((x ** y) ::)
 >       f : (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
 >       f (x' ** x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
@@ -441,8 +441,8 @@ future state to be avoidable. For this, we have to introduce a
 reachability relation:
 
 > ReachableFrom : X t'' -> X t -> Prop
-> ReachableFrom {t'' = Z   } {t} x'' x  =  (t = Z , x = x'') 
-> ReachableFrom {t'' = S t'} {t} x'' x  = 
+> ReachableFrom {t'' = Z   } {t} x'' x  =  (t = Z , x = x'')
+> ReachableFrom {t'' = S t'} {t} x'' x  =
 >   Either (t = S t' , x = x'') (Exists (\ x' => (x' `ReachableFrom` x , x' `Pred` x'')))
 
 
@@ -450,22 +450,22 @@ It is easy to show that we are indeed modeling reachability of "future"
 states:
 
 > reachableFromLemma : (x'' : X t'') -> (x : X t) -> x'' `ReachableFrom` x -> t'' `GTE` t
-> reachableFromLemma {t'' = Z}    {t = Z}    x'' x prf =  
+> reachableFromLemma {t'' = Z}    {t = Z}    x'' x prf =
 >   LTEZero
-> reachableFromLemma {t'' = Z}    {t = S m}  x'' x (prf1 , prf2) = 
+> reachableFromLemma {t'' = Z}    {t = S m}  x'' x (prf1 , prf2) =
 >   void (uninhabited u) where
->     u : Z = S m 
->     u = trans (sym prf1) Refl 
-> reachableFromLemma {t'' = S t'} {t = Z}    x'' x prf =  
+>     u : Z = S m
+>     u = trans (sym prf1) Refl
+> reachableFromLemma {t'' = S t'} {t = Z}    x'' x prf =
 >   LTEZero
-> reachableFromLemma {t'' = S t'} {t = S t'} x'' x (Left (Refl , prf2)) =  
->   eqInLTE (S t') (S t') Refl 
-> reachableFromLemma {t'' = S t'} {t = t}    x'' x (Right (Evidence x' (prf1 , prf2))) =  
+> reachableFromLemma {t'' = S t'} {t = S t'} x'' x (Left (Refl , prf2)) =
+>   eqInLTE (S t') (S t') Refl
+> reachableFromLemma {t'' = S t'} {t = t}    x'' x (Right (Evidence x' (prf1 , prf2))) =
 >   s3 where
 >     s1  :  t' `GTE` t
 >     s1  =  reachableFromLemma x' x prf1
 >     s3  :  S t' `GTE` t
->     s3  =  idSuccPreservesLTE t t' s1 
+>     s3  =  idSuccPreservesLTE t t' s1
 
 
 Now we can explain what it means for a state |x'| to be avoidable in a
@@ -496,10 +496,10 @@ about decidability in general:
 >   Dec0 P = Dec P
 
 >   Dec1 : {A : Type} -> (P : A -> Prop) -> Prop
->   Dec1 {A} P  =  (a : A) -> Dec (P a) 
+>   Dec1 {A} P  =  (a : A) -> Dec (P a)
 
 >   Dec2 : {A, B : Type} -> (P : A -> B -> Prop) -> Prop
->   Dec2 {A} {B} P  =  (a : A) -> (b : B) -> Dec (P a b) 
+>   Dec2 {A} {B} P  =  (a : A) -> (b : B) -> Dec (P a b)
 
 >   decNot : {P : Prop} -> Dec P -> Dec (Not P)
 >   decNot {P} (Yes prf) = No contra where
@@ -591,7 +591,7 @@ of |ReachableFrom|
 >   dp : Dec (t = Z)
 >   dp = decEqNat t Z
 >   dq : Dec (x = x'')
->   dq = decEqX x x'' 
+>   dq = decEqX x x''
 > decReachableFrom {t'' = S t'} {t} x'' x = decEither dp dq where
 >   dp : Dec (t = S t' , x = x'')
 >   dp = decPair (decEqNat t (S t')) (decEqX x x'')
@@ -615,14 +615,13 @@ and, finally of |AvoidableFrom|:
 >   q : Dec (Viable m x'' , Not (x'' = x'))
 >   q = decPair (decViable m x'') (decNot (decEqX x'' x'))
 
-> decAvoidableFrom : (x' : X t') -> 
->                    (x : X t) -> 
->                    x' `ReachableFrom` x -> 
->                    (m : Nat) -> 
+> decAvoidableFrom : (x' : X t') ->
+>                    (x : X t) ->
+>                    x' `ReachableFrom` x ->
+>                    (m : Nat) ->
 >                    Dec (AvoidableFrom x' x r m)
 > decAvoidableFrom {t'} {t} x' x r m = finiteDecLemma fX dA where
 >   fX : Finite (X t')
 >   fX = finX t'
 >   dA : Dec1 (Alternative x x' m)
 >   dA x'' = decAlternative x x' m x''
-
