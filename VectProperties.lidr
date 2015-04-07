@@ -120,10 +120,15 @@ Filtering
 >   | (n ** as') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = as'}
 >     | (No  contra) = void (contra p)
-> filterLemma {A} {P} d1P a1 (a2 :: as) (There prf) p with (filter d1P as)
+> filterLemma {A} {P} d1P a1 (a2 :: as) (There prf) p with (filter d1P as) proof itsEqual
 >   | (n ** as') with (d1P a2)
->     | (Yes _) = ?issue1920.0 -- There {x = a1} {xs = as'} {y = a2} (filterLemma d1P a1 as prf p)
->     | (No  _) = ?issue1920.1 -- filterLemma {A} {P} d1P a1 as prf p
+>     | (Yes _) = -- There {x = a1} {xs = as'} {y = a2} (filterLemma d1P a1 as prf p)
+>                 There {x = a1} {xs = as'} {y = a2} $
+>                   replace {P = \rec => Elem a1 (getProof rec)} (sym itsEqual) $
+>                     filterLemma {A} {P} d1P a1 as prf p
+>     | (No  _) = -- filterLemma {A} {P} d1P a1 as prf p
+>                 replace {P = \rec => Elem a1 (getProof rec)} (sym itsEqual) $
+>                   filterLemma {P = P} d1P a1 as prf p
 
 
 > ||| |filterTag| preserves membership
@@ -140,11 +145,15 @@ Filtering
 >   | (n ** aps') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = map Sigma.getWitness aps'}
 >     | (No  contra) = void (contra p)
-> filterTagLemma d1P a1 (a2 :: as) (There prf) p with (filterTag d1P as)
+> filterTagLemma d1P a1 (a2 :: as) (There prf) p with (filterTag d1P as) proof itsEqual
 >   | (n ** aps') with (d1P a2)
->     | (Yes _) = ?issue1920.2 -- There {x = a1} {xs = map Sigma.getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p) 
->     | (No  _) = ?issue1920.3 -- filterTagLemma d1P a1 as prf p
-
+>     | (Yes _) = -- There {x = a1} {xs = map Sigma.getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p) 
+>                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
+>                   replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
+>                     filterTagLemma d1P a1 as prf p
+>     | (No  _) = -- filterTagLemma d1P a1 as prf p
+>                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
+>                   filterTagLemma d1P a1 as prf p
 
 Max and argmax
 
