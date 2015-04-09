@@ -4,15 +4,17 @@
 > import Control.Isomorphism
 > import Data.Fin
 > import Data.Vect
-> import Decidable.Order
+> -- import Decidable.Order
 > import Syntax.PreorderReasoning
 
 > import Finite
 > import FiniteOperations
 > import FiniteProperties
-> import Order
-> import OrderOperations
-> import OrderProperties
+> -- import Order
+> -- import OrderOperations
+> -- import OrderProperties
+> import TotalPreorder
+> import TotalPreorderOperations
 > import VectOperations
 > import VectProperties
 > import Util
@@ -21,6 +23,57 @@
 
 > %default total 
 
+
+> argmaxMax : {A, B : Type} -> 
+>             TotalPreorder B -> 
+>             (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>             (f : A -> B) -> (A,B)
+> argmaxMax {A} {B} tp fA nefA f = max (fromTotalPreorder2 tp) abs ltZn where
+>   n    : Nat
+>   n    = card fA
+>   ltZn : LT Z n
+>   ltZn = notZisgtZ nefA
+>   abs  : Vect n (A,B)
+>   abs  = map (pair (id, f)) (toVect fA)
+
+
+> max : {A, B : Type} ->
+>       TotalPreorder B -> 
+>       (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>       (f : A -> B) -> B
+> max tp fA nefA f = snd (argmaxMax tp fA nefA f)
+
+
+> argmax : {A, B : Type} ->
+>          TotalPreorder B -> 
+>          (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>          (f : A -> B) -> A
+> argmax tp fA nefA f = fst (argmaxMax tp fA nefA f)
+
+
+> maxSpec : {A, B : Type} -> 
+>           (tp : TotalPreorder B) -> 
+>           (fA : Finite A) -> (nefA : NonEmpty fA) -> 
+>           (f : A -> B) ->
+>           (a : A) -> R tp (f a) (max tp fA nefA f)
+> maxSpec {A} {B} tp fA nefA f a = s4 where
+>   n    : Nat
+>   n    = card fA
+>   ltZn : LT Z n
+>   ltZn = notZisgtZ nefA
+>   abs  : Vect n (A,B)
+>   abs  = map (pair (id, f)) (toVect fA)
+>   s1   : Elem (a, f a) abs
+>   s1   = mapLemma (toVect fA) (pair (id, f)) a (toVectComplete fA a)
+>   s2   : (from2 (R tp)) (a, f a) (max (fromTotalPreorder2 tp) abs ltZn) 
+>   s2   = maxLemma (fromTotalPreorder2 tp) (a, f a) abs ltZn s1
+>   s3   : R tp (f a) (snd (max (fromTotalPreorder2 tp) abs ltZn))
+>   s3   = s2
+>   s4   : R tp (f a) (max tp fA nefA f)
+>   s4   = s3
+
+
+> {-
 
 > argmaxMax : {A, B : Type} -> {TO : B -> B -> Type} -> 
 >             Preordered B TO => 
@@ -87,4 +140,4 @@
 >   s3 : max fA nefA f = f (argmax fA nefA f)
 >   s3 = sym s2
 
-
+> -}

@@ -42,12 +42,15 @@
 >              (\ x => \ y => either (fst x) (fst y))
 
 
+> from2 : {A, B : Type} -> (B -> B -> Type) -> (A, B) -> (A, B) -> Type
+> from2 R x y = R (snd x) (snd y)
+
 > ||| Total preorders on |B| induce total preorders on |(A, B)|
 > fromTotalPreorder2 : {A, B : Type} -> TotalPreorder B -> TotalPreorder (A, B)
-> fromTotalPreorder2 (MkTotalPreorder R reflexive transitive either) = 
->   MkTotalPreorder (\ x => \ y => R (snd x) (snd y))
->              (\ x => reflexive (snd x))
->              (\ x => \ y => \ z => \ xRy => \ yRz => transitive (snd x) (snd y) (snd z) xRy yRz)
->              (\ x => \ y => either (snd x) (snd y))
+> fromTotalPreorder2 to = 
+>   MkTotalPreorder (from2 (R to))
+>                   (\ x => reflexive to (snd x))
+>                   (\ x => \ y => \ z => \ xRy => \ yRz => transitive to (snd x) (snd y) (snd z) xRy yRz)
+>                   (\ x => \ y => either to (snd x) (snd y))
 
 
