@@ -65,25 +65,21 @@ Searching
 > argmaxMax {n = Z}       tp  Nil                p = absurd p
 > argmaxMax {n = S Z}     tp (a :: Nil)          _ = (FZ, a)
 > argmaxMax {n = S (S m)} tp (a' :: (a'' :: as)) _ with (argmaxMax tp (a'' :: as) (ltZS m))
->   | (k, max) with ((either tp) a' max)
+>   | (k, max) with (either tp a' max)
 >     | (Left  _) = (FS k, max)
 >     | (Right _) = (FZ, a')
 
 
-> {-
-
 > |||
-> argmax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
->          Vect n A -> LT Z n -> Fin n
-> argmax as p = fst (argmaxMax as p)
+> argmax : {A : Type} -> 
+>          TotalPreorder A -> Vect n A -> LT Z n -> Fin n
+> argmax tp as p = fst (argmaxMax tp as p)
 
 
 > |||
-> max : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
->       Vect n A -> LT Z n -> A
-> max as p = snd (argmaxMax as p)
-
-> -}
+> max : {A : Type} -> 
+>       TotalPreorder A -> Vect n A -> LT Z n -> A
+> max tp as p = snd (argmaxMax tp as p)
 
 
 > {-
