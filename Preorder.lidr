@@ -1,7 +1,4 @@
-> module Order
-
-
-> -- import Decidable.Order
+> module Preorder
 
 
 > %default total 
@@ -9,21 +6,11 @@
 
 > ||| Preorder
 > data Preorder : Type -> Type where
->   MkPreorder : {T : Type} -> 
->                (R : T -> T -> Type) ->
->                (reflexive : (x : T) -> R x x) ->
->                (transitive : (x : T) -> (y : T) -> (z : T) -> R x y -> R y z -> R x z) ->
->                Preorder T
-
-
-> ||| TotalPreorder
-> data TotalPreorder : Type -> Type where
->   MkTotalPreorder : {T : Type} -> 
->                     (R : T -> T -> Type) ->
->                     (reflexive : (x : T) -> R x x) ->
->                     (transitive : (x : T) -> (y : T) -> (z : T) -> R x y -> R y z -> R x z) ->
->                     (either : (x : T) -> (y : T) -> Either (R x y) (R y x)) ->
->                     TotalPreorder T
+>   MkPreorder : {A : Type} -> 
+>                (R : A -> A -> Type) ->
+>                (reflexive : (x : A) -> R x x) ->
+>                (transitive : (x : A) -> (y : A) -> (z : A) -> R x y -> R y z -> R x z) ->
+>                Preorder A
 
 
 > {-

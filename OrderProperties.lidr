@@ -10,6 +10,8 @@
 > %default total 
 
 
+> {-
+
 > ||| Preorders on |a| induce preorders on |(a, b)|
 > instance [fstPreorder] Preorder a => Preorder (a, b) where
 >   C x y = C (fst x) (fst y)
@@ -30,12 +32,10 @@
 >     s1 : Either (C @{fstPreorder} x y) (C @{fstPreorder} y x)
 >     s1= ?lala
 
-
-
+> -}
 
 
 > {-
-
 
 > ||| Total preorders on |a| induce total preorders on |(a,b)|
 > instance Preordered a po => Preordered (a,b) (fstType {a} {b} po) where

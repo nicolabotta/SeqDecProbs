@@ -6,7 +6,8 @@
 > import Data.So
 
 > import Decidable
-> -- import Order
+> import TotalPreorder
+> import TotalPreorderOperations
 > import NatProperties
 
 
@@ -58,17 +59,18 @@ Filtering
 
 Searching
 
-> {-
-
 > |||
-> argmaxMax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
->             Vect n A -> LT Z n -> (Fin n, A)
-> argmaxMax     {n = Z}        Nil                p = absurd p
-> argmaxMax     {n = S Z}     (a :: Nil)          _ = (FZ, a)
-> argmaxMax {A} {n = S (S m)} (a' :: (a'' :: as)) _ with (argmaxMax (a'' :: as) (ltZS m))
->   | (k, max) with (preorder a' max)
+> argmaxMax : {A : Type} -> 
+>             TotalPreorder A -> Vect n A -> LT Z n -> (Fin n, A)
+> argmaxMax {n = Z}       tp  Nil                p = absurd p
+> argmaxMax {n = S Z}     tp (a :: Nil)          _ = (FZ, a)
+> argmaxMax {n = S (S m)} tp (a' :: (a'' :: as)) _ with (argmaxMax tp (a'' :: as) (ltZS m))
+>   | (k, max) with ((either tp) a' max)
 >     | (Left  _) = (FS k, max)
 >     | (Right _) = (FZ, a')
+
+
+> {-
 
 > |||
 > argmax : {A : Type} -> {TO : A -> A -> Type} -> Preordered A TO => 
