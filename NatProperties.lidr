@@ -4,6 +4,10 @@
 > import Decidable.Order
 
 
+> import Preorder
+> import TotalPreorder
+
+
 > %default total
 
 
@@ -104,6 +108,39 @@ LT, LTE properties
 >   mLTn : LT m n
 >   mLTn = strengthenLT m n mLTsn mNEQn
 
+> monotoneNatPlusLTE : {x : Nat} -> {y : Nat} -> 
+>                      (z : Nat) -> LTE x y -> LTE (z + x) (z + y)
+> monotoneNatPlusLTE {x} {y}  Z    xLTEy = xLTEy
+> monotoneNatPlusLTE {x} {y} (S n) xLTEy = LTESucc (monotoneNatPlusLTE {x} {y} n xLTEy)
+
+
+
+> reflexiveLTE : (n : Nat) -> LTE n n
+> reflexiveLTE n = lteRefl {n}
+
+
+> transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
+>                 LTE m n -> LTE n o -> LTE m o
+> transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
+> transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
+
+
+> totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
+> totalLTE  Z    n     = Left LTEZero
+> totalLTE (S m) Z     = Right LTEZero
+> totalLTE (S m) (S n) with (totalLTE m n)
+>   | (Left  p) = Left  (LTESucc p)
+>   | (Right p) = Right (LTESucc p)
+
+
+> preorderNatLTE : Preorder Nat
+> preorderNatLTE = 
+>   MkPreorder LTE reflexiveLTE transitiveLTE
+
+
+> totalPreorderNatLTE : TotalPreorder Nat
+> totalPreorderNatLTE = 
+>   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
 
 
 Decidability
