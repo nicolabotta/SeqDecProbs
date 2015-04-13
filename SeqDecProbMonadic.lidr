@@ -176,7 +176,11 @@ For every SDP, we can build the following notions:
 
 > Bellman {t} {m} ps ops p oep = opps where
 >   opps : OptPolicySeq (p :: ps)
->   opps (p' :: ps') x r v = transitiveFloatLTE s4 s5 where
+>   opps (p' :: ps') x r v = transitiveFloatLTE 
+>                            (val x r v (p' :: ps'))
+>                            (val x r v (p' :: ps))
+>                            (val x r v (p :: ps))
+>                            s4 s5 where
 >     y' : Y t x
 >     y' = outl (p' x r v)
 >     mx' : M (X (S t))
@@ -224,7 +228,7 @@ that fulfill the specification
 
 > maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
->                (s : (y : Y t x ** All (Viable n) (step t x y))) ->
+>                (s : Sigma (Y t x) (\ y => All (Viable n) (step t x y))) ->
 >                (f s) `FloatLTE` (SeqDecProbMonadic.max t x v f)
 > argmaxSpec  :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->

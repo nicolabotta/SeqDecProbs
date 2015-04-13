@@ -19,12 +19,12 @@ FloatLTE properties
 
 > |||
 > postulate transitiveFloatLTE : 
->   {x : Float} -> {y : Float} -> {z : Float} ->
+>   (x : Float) -> (y : Float) -> (z : Float) ->
 >   FloatLTE x y -> FloatLTE y z -> FloatLTE x z
 
 
 > |||
-> totalFloatLTE : 
+> postulate totalFloatLTE : 
 >   (x : Float) -> (y : Float) -> 
 >   Either (FloatLTE x y) (FloatLTE y x)
 

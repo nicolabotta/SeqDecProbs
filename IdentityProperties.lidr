@@ -4,7 +4,7 @@
 > import Control.Monad.Identity
 
 > import IdentityOperations
-> import ContainerMonad
+> -- import ContainerMonad
 > import Decidable
 > import Unique
 
@@ -17,6 +17,8 @@
 > injectiveId Refl = Refl
 
 
+> {-
+
 > ||| Identity is a container monad
 > instance ContainerMonad Identity where
 >   Elem a1 (Id a2) = a1 = a2
@@ -27,6 +29,8 @@
 >     trans x1eqx2 (injectiveId idx2eqidx3)
 >   spec3 {mx = Id x} = Refl
 >   spec4  {x = x1} {mx = Id x2} {P = P} px2 x1eqx2 = replace (sym x1eqx2) px2
+
+> -}
 
 
 Container monad decidability:

@@ -3,15 +3,11 @@
 
 > import Control.Monad.Identity
 
-> -- import ClassContainerMonad
-
 
 > %default total 
 
 
 |Identity| is a container monad:
-
-> {-
 
 > ||| Membership
 > Elem : {A : Type} -> (a : A) -> (ma : Identity A) -> Type
@@ -22,6 +18,5 @@
 > tagElem  :  {A : Type} -> (ma : Identity A) -> Identity (a : A ** a `Elem` ma)
 > tagElem (Id a) = Id (a ** Refl)
 
-> -}
 
 

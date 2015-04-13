@@ -11,6 +11,7 @@
 > import Effect.StdIO
 
 > import SeqDecProbMonadic
+> -- import ContainerMonad
 > import IdentityOperations
 > import IdentityProperties
 > import BoundedNat
@@ -31,8 +32,9 @@
 > import EqualityProperties
 > import SingletonProperties
 > import Opt
+> import RelFloat
 > import RelFloatProperties
-> import Order
+> import TotalPreorder
 > import EffectException
 > import EffectStdIO
 > import FinOperations
@@ -74,13 +76,11 @@ is the identity monad:
 > -- SeqDecProbMonadic.containerMonadSpec3 {ma = Id a} pa Refl = pa
 
 
-
 ** M is measurable:
 
 > SeqDecProbMonadic.meas (Id x) = x
 
 > SeqDecProbMonadic.measMon f g prf (Id x) = prf x
-
 
 
 
@@ -281,13 +281,20 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadic.max     {n} t x v  =  Opt.max     (fYAV t n  x v) (neYAV t n x v)
+> SeqDecProbMonadic.max     {n} t x v  =  
+>   Opt.max totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadic.argmax  {n} t x v  =  Opt.argmax  (fYAV t n  x v) (neYAV t n x v)
+> SeqDecProbMonadic.argmax  {n} t x v  =  
+>   Opt.argmax totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadic.maxSpec {n} t x v f s = s1 where
-> --   s1 : So (f s <= SeqDecProbMonadic.max t x v f)
-> --   s1 = ?liki -- Opt.maxSpec (fYAV t n  x v) (neYAV t n x v) f s
+> SeqDecProbMonadic.maxSpec {n} t x v f s = 
+>   Opt.maxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>               {B = Float} 
+>               totalPreorderFloatLTE 
+>               (fYAV t n x v) 
+>               (neYAV t n x v) 
+>               f 
+>               s
 
 > -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
 
@@ -336,12 +343,11 @@ and |max|, |argmax|:
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       as   <- pure (actions Z nSteps mxys)
 >                       putStrLn (show as)
->        (No _)   => putStr ("initial column non viable for " ++ cast (cast nSteps) ++ " steps\n")
+>        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 
 
 > main : IO ()
 > main = run computation
-
 
 
 -- Local Variables:

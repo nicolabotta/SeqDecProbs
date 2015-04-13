@@ -73,6 +73,22 @@
 >   s4   = s3
 
 
+> argmaxSpec : {A, B : Type} -> 
+>              (tp : TotalPreorder B) -> 
+>              (fA : Finite A) -> (nefA : NonEmpty fA) -> 
+>              (f : A -> B) ->
+>              (max tp fA nefA f) = f (argmax tp fA nefA f)
+> argmaxSpec {A} {B} tp fA nefA f = s3 where
+>   ab : (A,B)
+>   ab = argmaxMax tp fA nefA f
+>   s1 : Elem ab (map (pair (id, f)) (toVect fA))
+>   s1 = maxElemLemma (fromTotalPreorder2 tp) (map (pair (id, f)) (toVect fA)) (notZisgtZ nefA)
+>   s2 : f (fst ab) = snd ab
+>   s2 = mapIdfLemma (toVect fA) f ab s1
+>   s3 : max tp fA nefA f = f (argmax tp fA nefA f)
+>   s3 = sym s2
+
+
 > {-
 
 > argmaxMax : {A, B : Type} -> {TO : B -> B -> Type} -> 
