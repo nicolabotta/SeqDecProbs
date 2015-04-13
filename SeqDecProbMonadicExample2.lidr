@@ -287,6 +287,7 @@ and |max|, |argmax|:
 > SeqDecProbMonadic.argmax  {n} t x v  =  
 >   Opt.argmax totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
+> {-
 > SeqDecProbMonadic.maxSpec {n} t x v f s = 
 >   Opt.maxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
 >               {B = Float} 
@@ -295,6 +296,7 @@ and |max|, |argmax|:
 >               (neYAV t n x v) 
 >               f 
 >               s
+> -}
 
 > -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  Opt.argmaxSpec (fYAV t n  x v) (neYAV t n x v)
 
