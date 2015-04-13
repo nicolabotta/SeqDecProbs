@@ -133,6 +133,7 @@ LT, LTE properties
 >   | (Right p) = Right (LTESucc p)
 
 
+
 > preorderNatLTE : Preorder Nat
 > preorderNatLTE = 
 >   MkPreorder LTE reflexiveLTE transitiveLTE
