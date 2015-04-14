@@ -223,7 +223,7 @@ that fulfill the specification
 >              Type
 > typeHelper t x v f = max t x v f = f (argmax t x v f)
 
-> postulate maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
+> maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >                (s : Sigma (Y t x) (\ y => All (Viable n) (step t x y))) ->
 >                (f s) `LTE` (max t x v f)
