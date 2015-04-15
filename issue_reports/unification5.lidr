@@ -261,3 +261,25 @@
 >     s5 : LTE (f s) (max {n} t x v f)
 >     s5 = ?kika
 
+
+Specifically:
+
+  Can't unify
+
+    snd (snd (argmaxMax (MkTotalPreorder (from2 LTE)
+                                         (\x1 => lteRefl)
+                                         (\x4 => \y => \z => \xRy => \yRz => transitiveLTE (snd x4) (snd y) (snd z) xRy yRz)
+                                         (\x9 => \y10 => totalLTE (snd x9) (snd y10)))
+                                         (Data.VectType.Vect.Vect n instance of Prelude.Functor.Functor, 
+                                          method map (getWitness (fYAV t n x v1)) (pair (id, f)) (toVect (fYAV t n x v1))) 
+                                          (notZisgtZ (neYAV t n x v1))))
+
+  with
+
+    snd (snd (argmaxMax (MkTotalPreorder (from2 LTE)
+                                         (\x1 => lteRefl) 
+                                         (\x4 => \y => \z => \xRy => \yRz => transitiveLTE (snd x4) (snd y) (snd z) xRy yRz)
+                                         (\x9 => \y10 => totalLTE (snd x9) (snd y10)))
+                                         (Data.VectType.Vect.Vect n instance of Prelude.Functor.Functor, 
+                                          method map (getWitness (fYAV t n x v)) (pair (id, f)) (toVect (fYAV t n x v)))
+                                          (notZisgtZ (neYAV t n x v))))

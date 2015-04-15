@@ -23,6 +23,12 @@
 >   uninhabited (There p) impossible      
 
 
+
+
+> Nubbed : Vect n t -> Type
+> Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> index i xs = index j xs -> i = j 
+
+
 Indexing and lookup
 
 > indexLemma : (k : Fin n) -> (xs : Vect n t) -> Elem (index k xs) xs 
@@ -54,14 +60,17 @@ Indexing and lookup
 >   s3 = indexLookupLemma x xs prf
 > -}
 
-> %assert_total
+> -- %assert_total
 > lookupIndexLemma : (k : Fin n) ->
 >                    (xs : Vect n t) ->
 >                    (prf : Elem (index k xs) xs) ->
 >                    lookup (index k xs) xs prf = k
-> lookupIndexLemma  k      Nil       prf        = absurd prf
-> lookupIndexLemma  FZ    (x :: xs)  Here       = Refl
-> lookupIndexLemma (FS k) (x :: xs) (There prf) = 
+> lookupIndexLemma  k      Nil                     prf  = absurd prf
+> lookupIndexLemma  FZ    (x :: xs)          Here       = Refl
+> lookupIndexLemma  FZ    (x :: Nil)        (There prf) = absurd prf
+> lookupIndexLemma  FZ    (x :: (x' :: xs)) (There prf) = ?lula
+> -- lookupIndexLemma (FS k) (x :: xs)          Here       = ?lala
+> lookupIndexLemma (FS k) (x :: xs)         (There prf) = 
 >   let ih = lookupIndexLemma k xs prf in rewrite ih in Refl
 
 

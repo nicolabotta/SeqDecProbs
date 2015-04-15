@@ -193,11 +193,11 @@ Finitness properties
 >   iso : Iso (LTB b) (Fin b)
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma
 
-
+> {-
 > ||| Subtypes of bounded |Nat|s are finite:
 > finiteSubLTB : (b : Nat) -> (P : LTB b -> Type) -> Dec1 P -> (uP : Unique1 P) -> Finite (SubType (LTB b) P uP)
 > finiteSubLTB b P dP uP = finiteSubTypeLemma0 {A = LTB b} {P} (finiteLTB b) dP uP
-
+> -}
 
 Decidability properties
 
