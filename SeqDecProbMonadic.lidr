@@ -226,11 +226,11 @@ that fulfill the specification
 >              Type
 > typeHelper t x v f = SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
 
-> maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
+> maxSpec     :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >                (s : Sigma (Y t x) (\ y => All (Viable n) (step t x y))) ->
 >                (f s) `FloatLTE` (SeqDecProbMonadic.max t x v f)
-> argmaxSpec  :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
+> argmaxSpec  :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
 >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 >                typeHelper t x v f -- SeqDecProbMonadic.max t x v f = f (SeqDecProbMonadic.argmax t x v f)
 

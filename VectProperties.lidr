@@ -87,7 +87,7 @@ this up.
 > lookupIndexLemma  k      Nil                     prf  = absurd prf
 > lookupIndexLemma  FZ    (x :: xs)          Here       = Refl
 > lookupIndexLemma  FZ    (x :: Nil)        (There prf) = absurd prf
-> lookupIndexLemma  FZ    (x :: (x' :: xs)) (There prf) = ?lula
+> -- lookupIndexLemma  FZ    (x :: (x' :: xs)) (There prf) = ?lula
 > -- lookupIndexLemma (FS k) (x :: xs)          Here       = ?lala
 > lookupIndexLemma (FS k) (x :: xs)         (There prf) = 
 >   let ih = lookupIndexLemma k xs prf in rewrite ih in Refl

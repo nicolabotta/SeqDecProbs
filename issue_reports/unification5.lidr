@@ -237,7 +237,7 @@
 >   max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
 >            (f : Sigma (Y t x) (\ y => Lala.All (Viable n) (step t x y)) -> Nat) ->
 >            Nat
->   maxSpec     :  (t : Nat) -> (x : X t) -> Viable (S n) x ->
+>   maxSpec     :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
 >                  (f : Sigma (Y t x) (\ y => Lala.All (Viable n) (step t x y)) -> Nat) ->
 >                  (s : Sigma (Y t x) (\ y => Lala.All (Viable n) (step t x y))) ->
 >                  (f s) `LTE` (max t x v f)
@@ -251,35 +251,6 @@
 >                   (y ** v)
 >   max     {n} t x v  =  
 >     optmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
->   maxSpec {n} t x v f s = s5 where
->     {-
->     s1 : (R totalPreorderNatLTE) (f s) (Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v) f)
->     s1 = Opt.maxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->                      {B = Nat} 
->                      totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v) f s
->     -}
->     s5 : LTE (f s) (max {n} t x v f)
->     s5 = ?kika
+>   maxSpec {n} t x v f s = 
+>     optmaxSpec totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v) f s
 
-
-Specifically:
-
-  Can't unify
-
-    snd (snd (argmaxMax (MkTotalPreorder (from2 LTE)
-                                         (\x1 => lteRefl)
-                                         (\x4 => \y => \z => \xRy => \yRz => transitiveLTE (snd x4) (snd y) (snd z) xRy yRz)
-                                         (\x9 => \y10 => totalLTE (snd x9) (snd y10)))
-                                         (Data.VectType.Vect.Vect n instance of Prelude.Functor.Functor, 
-                                          method map (getWitness (fYAV t n x v1)) (pair (id, f)) (toVect (fYAV t n x v1))) 
-                                          (notZisgtZ (neYAV t n x v1))))
-
-  with
-
-    snd (snd (argmaxMax (MkTotalPreorder (from2 LTE)
-                                         (\x1 => lteRefl) 
-                                         (\x4 => \y => \z => \xRy => \yRz => transitiveLTE (snd x4) (snd y) (snd z) xRy yRz)
-                                         (\x9 => \y10 => totalLTE (snd x9) (snd y10)))
-                                         (Data.VectType.Vect.Vect n instance of Prelude.Functor.Functor, 
-                                          method map (getWitness (fYAV t n x v)) (pair (id, f)) (toVect (fYAV t n x v)))
-                                          (notZisgtZ (neYAV t n x v))))
