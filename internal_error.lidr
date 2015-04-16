@@ -1,8 +1,16 @@
+> module SigmaProperties
+
+
 > import Data.Fin
+> import Data.Vect
 > import Control.Isomorphism
 
-> %default total
 
+
+> -- import VectProperties
+
+
+> %default total
 
 > postulate lambdaLemma1 : {A, B : Type} -> (f : A -> B) -> (\ a => f a) = f
 
@@ -12,26 +20,10 @@
 > tail : {A : Type} -> (Fin (S n) -> A) -> (Fin n -> A)
 > tail f k = f (FS k)
 
+> ||| Decomposition lemma
 > sigmaEitherLemma : {n : Nat} -> 
 >                    {P : Fin (S n) -> Type} ->
 >                    Iso (Sigma (Fin (S n)) P) (Either (P FZ) (Sigma (Fin n) (tail P)))
-
-
-> sigmaFinEitherLemma1 : {n : Nat} -> {f : Fin (S n) -> Nat} ->
->                        Iso 
->                        (Sigma (Fin (S n)) (\ k => Fin (f k))) 
->                        (Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k))))
-> sigmaFinEitherLemma1 {n} {f} =
->     ( Sigma (Fin (S n)) (\ k => Fin (f k))                            ) 
->   ={ isoCong {P = \ X => (Sigma (Fin (S n)) X)} (lambdaLemma1 (Fin . f)) }=
->     ( Sigma (Fin (S n)) (Fin . f)                            ) 
->   ={ sigmaEitherLemma {n = n} {P = Fin . f} }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (tail (Fin . f)))            )     
->   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (tail (Fin . f)) k)) )     
->   ={ isoRefl }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )
->   QED
 
 > sigmaFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
 >                       Iso 
@@ -54,3 +46,5 @@
 >   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f)))            )
 >   QED
+
+

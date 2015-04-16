@@ -160,6 +160,7 @@ The second result is
 > sigmaUniqueLemma1 u1P a1 p1 ((a2 ** p2) :: ss) (There prf) = 
 >   There (sigmaUniqueLemma1 u1P a1 p1 ss prf)
 
+
 With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 |toVect| is complete:
 
