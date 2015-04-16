@@ -19,7 +19,12 @@
 > instance Uninhabited (LTE (S n) Z) where
 >   uninhabited LTEZero impossible
 >   uninhabited (LTESucc x) impossible
-> -}
+
+> lteRefl : LTE n n
+> lteRefl {n = Z}   = LTEZero
+> lteRefl {n = S k} = LTESucc lteRefl
+
+> ---}
 
 
 EQ properties
