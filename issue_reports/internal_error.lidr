@@ -2,10 +2,9 @@
 > import Data.Vect
 > import Control.Isomorphism
 
-> %default total
-
-> namespace ScrewUp
+> namespace Troublemaker
 >   k : Fin 2
+>   k = FS FZ
 
 > postulate lambdaLemma1 : {A, B : Type} -> (f : A -> B) -> (\ a => f a) = f
 
@@ -20,25 +19,23 @@
 >                    Iso (Sigma (Fin (S n)) P) (Either (P FZ) (Sigma (Fin n) (tail P)))
 
 > sigmaFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
->                       Iso 
->                       (Sigma (Fin (S n)) (Fin . f)) 
+>                       Iso
+>                       (Sigma (Fin (S n)) (Fin . f))
 >                       (Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f))))
 > sigmaFinEitherLemma {n} {f} =
->     ( Sigma (Fin (S n)) (Fin . f)                                     ) 
+>     ( Sigma (Fin (S n)) (Fin . f)                                     )
 >   ={ sigmaEitherLemma {n = n} {P = Fin . f} }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (tail (Fin . f)))            )     
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (tail (Fin . f)))            )
 >   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (tail (Fin . f)) k)) )     
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (tail (Fin . f)) k)) )
 >   ={ isoRefl }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . f) (FS k)))   )     
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . f) (FS k)))   )
 >   ={ isoRefl }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin (f (FS k))))     )     
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin (f (FS k))))     )
 >   ={ isoRefl }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )     
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )
 >   ={ isoRefl }=
->     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . (tail f)) k)) )     
+>     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . (tail f)) k)) )
 >   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f)))            )
 >   QED
-
-
