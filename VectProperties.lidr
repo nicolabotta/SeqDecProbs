@@ -23,8 +23,6 @@
 >   uninhabited (There p) impossible
 
 
-
-
 > Nubbed : Vect n t -> Type
 > Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> index i xs = index j xs -> i = j 
 
@@ -64,6 +62,7 @@ Indexing and lookup
 
 The "lemma" lookupIndexLemma does not hold: consider the following counter-example:
 
+> {-
 > namespace Counterexample
 >   two0 : Vect 2 Nat
 >   two0 = 0 :: 0 :: []
@@ -73,6 +72,7 @@ The "lemma" lookupIndexLemma does not hold: consider the following counter-examp
 >   prf = Here
 >   test : Fin 2
 >   test = lookup (index k two0) two0 prf
+> -}
 
 The problem is hidden by the use of "assert_total".  To solve the
 problem we need to analyse the use case more: in practice the vectors

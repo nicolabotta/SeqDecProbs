@@ -1,16 +1,11 @@
-> module SigmaProperties
-
-
 > import Data.Fin
 > import Data.Vect
 > import Control.Isomorphism
 
-
-
-> -- import VectProperties
-
-
 > %default total
+
+> namespace ScrewUp
+>   k : Fin 2
 
 > postulate lambdaLemma1 : {A, B : Type} -> (f : A -> B) -> (\ a => f a) = f
 
@@ -20,7 +15,6 @@
 > tail : {A : Type} -> (Fin (S n) -> A) -> (Fin n -> A)
 > tail f k = f (FS k)
 
-> ||| Decomposition lemma
 > sigmaEitherLemma : {n : Nat} -> 
 >                    {P : Fin (S n) -> Type} ->
 >                    Iso (Sigma (Fin (S n)) P) (Either (P FZ) (Sigma (Fin n) (tail P)))
