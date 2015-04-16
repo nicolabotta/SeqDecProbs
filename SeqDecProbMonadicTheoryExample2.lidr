@@ -284,11 +284,11 @@ and |max|, |argmax|:
 > SeqDecProbMonadicTheory.argmax  {n} t x v  =  
 >   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadicTheory.maxSpec {n} t x v f s = believe_me {a = Nat} {b = LTE (f s) (max t x v f)} Z
-> --   Opt.maxSpec totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
+> SeqDecProbMonadicTheory.maxSpec {n} t x v =
+>   Opt.maxSpec totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadicTheory.argmaxSpec {n} t x v  =  
-> --   Opt.argmaxSpec totalPreorderNatLTE (fYAV t n  x v) (neYAV t n x v)
+> SeqDecProbMonadicTheory.argmaxSpec {n} t x v  =  
+>   Opt.argmaxSpec totalPreorderNatLTE (fYAV t n  x v) (neYAV t n x v)
 
 
 

@@ -287,11 +287,11 @@ and |max|, |argmax|:
 > SeqDecProbMonadic.argmax  {n} t x v  =  
 >   Opt.argmax totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadic.maxSpec {n} t x v = 
-> --   Opt.maxSpec totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
+> SeqDecProbMonadic.maxSpec {n} t x v = 
+>   Opt.maxSpec totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadic.argmaxSpec {n} t x v  =  
-> --   Opt.argmaxSpec totalPreorderFloatLTE (fYAV t n  x v) (neYAV t n x v)
+> SeqDecProbMonadic.argmaxSpec {n} t x v  =  
+>   Opt.argmaxSpec totalPreorderFloatLTE (fYAV t n  x v) (neYAV t n x v)
 
 
 
