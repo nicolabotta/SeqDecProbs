@@ -2,6 +2,7 @@
 
 
 > import Data.Vect
+> import Data.VectType
 > import Data.Vect.Quantifiers
 > import Data.Fin
 > import Syntax.PreorderReasoning
@@ -12,6 +13,7 @@
 > import TotalPreorder
 > import TotalPreorderOperations
 > import NatProperties
+> import FinProperties
 > import Util
 
 
@@ -24,7 +26,12 @@
 
 
 > Nubbed : Vect n t -> Type
-> Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> index i xs = index j xs -> i = j 
+> Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> Not (i = j) -> Not (index i xs = index j xs)
+
+> nubbedLemma : (xs : Vect (S n) t) -> Nubbed xs -> Nubbed (tail xs)
+> nubbedLemma  Nil      prf _ _ _ impossible
+> nubbedLemma (x :: xs) prf i j inej = prf (FS i) (FS j) (fsInjective' i j inej)
+
 
 
 Indexing and lookup
@@ -58,8 +65,6 @@ Indexing and lookup
 >   s3 = indexLookupLemma x xs prf
 > -}
 
-> -- %assert_total
-
 The "lemma" lookupIndexLemma does not hold: consider the following counter-example:
 
 > {-
@@ -79,18 +84,36 @@ problem we need to analyse the use case more: in practice the vectors
 will not have duplicates, but it is not a priori clear how to code
 this up.
 
-> %assert_total
 > lookupIndexLemma : (k : Fin n) ->
 >                    (xs : Vect n t) ->
->                    (prf : Elem (index k xs) xs) ->
->                    lookup (index k xs) xs prf = k
-> lookupIndexLemma  k      Nil                     prf  = absurd prf
-> lookupIndexLemma  FZ    (x :: xs)          Here       = Refl
-> lookupIndexLemma  FZ    (x :: Nil)        (There prf) = absurd prf
-> -- lookupIndexLemma  FZ    (x :: (x' :: xs)) (There prf) = ?lula
-> -- lookupIndexLemma (FS k) (x :: xs)          Here       = ?lala
-> lookupIndexLemma (FS k) (x :: xs)         (There prf) = 
->   let ih = lookupIndexLemma k xs prf in rewrite ih in Refl
+>                    (p : Nubbed xs) ->
+>                    (q : Elem (index k xs) xs) ->
+>                    lookup (index k xs) xs q = k
+> lookupIndexLemma  FZ     Nil      _  _        impossible
+> lookupIndexLemma  FZ    (x :: xs) p  Here     = Refl
+> lookupIndexLemma  FZ    (x :: xs) p (There q) = s5 where
+>   s1 : Not (FZ = lookup x (x :: xs) (There q))
+>   s1 Refl impossible
+>   s2 : index FZ (x :: xs) = x
+>   s2 = Refl
+>   s3 : index (lookup x (x :: xs) (There q)) (x :: xs) = x
+>   s3 = indexLookupLemma x (x :: xs) (There q)
+>   s4 : index FZ (x :: xs) = index (lookup x (x :: xs) (There q)) (x :: xs)
+>   s4 = trans s2 (sym s3)
+>   s5 : lookup (index FZ (x :: xs)) (x :: xs) (There q) = FZ
+>   s5 = void ((p FZ (lookup x (x :: xs) (There q)) s1) s4)
+> lookupIndexLemma (FS k)  Nil      _  _        impossible
+> lookupIndexLemma (FS k) (_ :: xs) p  Here     = s5 where
+>   s1 : Not (FZ = FS k)
+>   s1 Refl impossible
+>   s2 : index FZ ((index k xs) :: xs) = index (FS k) ((index k xs) :: xs)
+>   s2 = Refl
+>   s5 : lookup (index (FS k) ((index k xs) :: xs)) ((index k xs) :: xs) Here = (FS k)
+>   s5 = void ((p FZ (FS k) s1) s2)
+> lookupIndexLemma (FS k) (x :: xs) p (There q) =
+>   let p' = nubbedLemma (x :: xs) p in
+>   let ih = lookupIndexLemma k xs p' q in 
+>   rewrite ih in Refl
 
 
 Membership, quantifiers:

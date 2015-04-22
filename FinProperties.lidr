@@ -12,9 +12,9 @@
 > %default total
 
 
-> %hide Prelude.List.tail
-> %hide Prelude.Stream.tail
-> %hide Data.VectType.Vect.tail
+> -- %hide Prelude.List.tail
+> -- %hide Prelude.Stream.tail
+> -- %hide Data.VectType.Vect.tail
 
 
 |Fin 0| properties:

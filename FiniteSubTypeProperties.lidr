@@ -28,13 +28,15 @@
 >   n        : Nat
 >   n        = getWitness (toVect fA dP)
 >   rho      : Vect n (SubType A P uP)
->   rho      = getProof (toVect fA dP) 
+>   rho      = getProof (toVect fA dP)
+>   nrho     : Nubbed rho
+>   nrho     = ?lala 
 >   to       : SubType A P uP -> Fin n
 >   to s     = lookup s rho (toVectComplete fA dP uP s)
 >   from     : Fin n -> SubType A P uP
 >   from k   = index k rho
 >   toFrom   : (k : Fin n) -> to (from k) = k
->   toFrom k = lookupIndexLemma k rho (toVectComplete fA dP uP (from k))
+>   toFrom k = lookupIndexLemma k rho nrho (toVectComplete fA dP uP (from k))
 >   fromTo   : (s : SubType A P uP) -> from (to s) = s
 >   fromTo s = indexLookupLemma s rho (toVectComplete fA dP uP s) 
 >   iso      : Iso (SubType A P uP) (Fin n)
