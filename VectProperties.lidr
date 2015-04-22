@@ -24,7 +24,7 @@
 
 
 > Nubbed : Vect n t -> Type
-> Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> index i xs = index j xs -> i = j 
+> Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> index i xs = index j xs -> i = j
 
 
 Indexing and lookup
@@ -89,7 +89,7 @@ this up.
 > lookupIndexLemma  FZ    (x :: Nil)        (There prf) = absurd prf
 > -- lookupIndexLemma  FZ    (x :: (x' :: xs)) (There prf) = ?lula
 > -- lookupIndexLemma (FS k) (x :: xs)          Here       = ?lala
-> lookupIndexLemma (FS k) (x :: xs)         (There prf) = 
+> lookupIndexLemma (FS k) (x :: xs)         (There prf) =
 >   let ih = lookupIndexLemma k xs prf in rewrite ih in Refl
 
 

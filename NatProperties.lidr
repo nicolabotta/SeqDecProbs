@@ -11,8 +11,8 @@
 > %default total
 
 
-> instance Uninhabited (S n = Z) where                                                                                      
->   uninhabited Refl impossible  
+> instance Uninhabited (S n = Z) where
+>   uninhabited Refl impossible
 
 
 > {-
@@ -38,7 +38,7 @@ EQ properties
 
 LT, LTE properties
 
-> ||| 
+> |||
 > lteLemma1 : (m : Nat) -> (n : Nat) -> LTE (S m) n -> LTE m n
 > lteLemma1  Z     Z             prf  = absurd prf
 > lteLemma1  Z    (S n)  LTEZero        impossible
@@ -48,19 +48,19 @@ LT, LTE properties
 > lteLemma1 (S m) (S n) (LTESucc prf) = LTESucc (lteLemma1 m n prf)
 
 
-> ||| 
+> |||
 > ltLemma1 : (m : Nat) -> (n : Nat) -> LT (S m) n -> LT m n
 > ltLemma1 m n prf = lteLemma1 (S m) n prf
 
 
 > ||| LT is contained in LTE
 > ltInLTE : (m : Nat) -> (n : Nat) -> LT m n -> LTE m n
-> ltInLTE = lteLemma1 
+> ltInLTE = lteLemma1
 
 
 > ||| EQ is contained in LTE
 > eqInLTE : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
-> eqInLTE  Z     n    prf = LTEZero 
+> eqInLTE  Z     n    prf = LTEZero
 > eqInLTE (S m)  Z    prf = absurd prf
 > eqInLTE (S m) (S n) prf = LTESucc (eqInLTE m n (succInjective m n prf))
 
@@ -74,35 +74,35 @@ LT, LTE properties
 
 > ||| Zero is smaller than any successor
 > ltZS : (m : Nat) -> LT Z (S m)
-> ltZS  Z    = LTESucc LTEZero 
+> ltZS  Z    = LTESucc LTEZero
 > ltZS (S m) = idSuccPreservesLTE (S Z) (S m) (ltZS m)
 
 
 > ||| Any number is smaller than its successor
 > ltIdS : (m : Nat) -> LT m (S m)
-> ltIdS  Z    = LTESucc LTEZero 
+> ltIdS  Z    = LTESucc LTEZero
 > ltIdS (S m) = LTESucc (ltIdS m)
 
 
 > ||| Any number which is not zero is greater than zero
-> notZisgtZ : Not (n = Z) -> LT Z n
-> notZisgtZ {n = Z}   contra = void (contra Refl) 
+> notZisgtZ : {n : Nat} -> Not (n = Z) -> LT Z n
+> notZisgtZ {n = Z}   contra = void (contra Refl)
 > notZisgtZ {n = S m} _      = ltZS m
 
 
 > ||| Any number which is greater than zero is not zero
-> gtZisnotZ : LT Z n -> Not (n = Z)
+> gtZisnotZ : {n : Nat} -> LT Z n -> Not (n = Z)
 > gtZisnotZ {n = Z}   p = absurd p
-> gtZisnotZ {n = S m} p = \ neqZ => absurd neqZ
+> gtZisnotZ {n = S m} p = absurd
 
 
-> ||| No number is less than zero                                                                          
-> notLTzero : Not (LT m Z)                                                                                        
+> ||| No number is less than zero
+> notLTzero : {n : Nat} -> Not (LT n Z)
 > notLTzero = succNotLTEzero
 
 
 > |||
-> strengthenLT : (m : Nat) -> (n : Nat) -> LT m (S n) -> Not (m = n) -> LT m n 
+> strengthenLT : (m : Nat) -> (n : Nat) -> LT m (S n) -> Not (m = n) -> LT m n
 > strengthenLT  Z       n  _       zNEQn   = notZisgtZ (zNEQn . sym)
 > strengthenLT (S m)  Z    smLTsz  _       = void (notLTzero (fromLteSucc smLTsz))
 > strengthenLT (S m) (S n) smLTssn smNEQsn = LTESucc mLTn where
@@ -113,7 +113,7 @@ LT, LTE properties
 >   mLTn : LT m n
 >   mLTn = strengthenLT m n mLTsn mNEQn
 
-> monotoneNatPlusLTE : {x : Nat} -> {y : Nat} -> 
+> monotoneNatPlusLTE : {x : Nat} -> {y : Nat} ->
 >                      (z : Nat) -> LTE x y -> LTE (z + x) (z + y)
 > monotoneNatPlusLTE {x} {y}  Z    xLTEy = xLTEy
 > monotoneNatPlusLTE {x} {y} (S n) xLTEy = LTESucc (monotoneNatPlusLTE {x} {y} n xLTEy)
@@ -140,24 +140,24 @@ LT, LTE properties
 
 
 > preorderNatLTE : Preorder Nat
-> preorderNatLTE = 
+> preorderNatLTE =
 >   MkPreorder LTE reflexiveLTE transitiveLTE
 
 
 > totalPreorderNatLTE : TotalPreorder Nat
-> totalPreorderNatLTE = 
+> totalPreorderNatLTE =
 >   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
 
 
 Decidability
 
 > ||| LTE is decidable
-> decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)                                                                             
+> decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)
 > decLTE = lte
 
 
 > ||| LT is decidable
-> decLT : (m : Nat) -> (n : Nat) -> Dec (LT m n)                                                                             
+> decLT : (m : Nat) -> (n : Nat) -> Dec (LT m n)
 > decLT m n = decLTE (S m) n
 
 
@@ -171,7 +171,5 @@ Uniqueness
 > uniqueLTE (LTESucc p) (LTESucc q) = cong (uniqueLTE p q)
 
 > ||| LT is unique
-> uniqueLT : (p1 : LT m n) -> (p2 : LT m n) -> p1 = p2                                                                       
+> uniqueLT : (p1 : LT m n) -> (p2 : LT m n) -> p1 = p2
 > uniqueLT {m} {n} = uniqueLTE {m = S m} {n = n}
-
- 
