@@ -33,7 +33,6 @@
 > nubbedLemma (x :: xs) prf i j inej = prf (FS i) (FS j) (fsInjective' i j inej)
 
 
-
 Indexing and lookup
 
 > indexLemma : (k : Fin n) -> (xs : Vect n t) -> Elem (index k xs) xs
