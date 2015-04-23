@@ -13,8 +13,9 @@
 > import TotalPreorder
 > import TotalPreorderOperations
 > import NatProperties
+> import FinOperations
 > import FinProperties
-> import Util
+> import FunOperations
 
 
 > %default total
@@ -25,12 +26,35 @@
 >   uninhabited (There p) impossible
 
 
-> Nubbed : Vect n t -> Type
-> Nubbed {n} xs = (i : Fin n) -> (j : Fin n) -> Not (i = j) -> Not (index i xs = index j xs)
+Injectivity (of |flip index|):
 
-> nubbedLemma : (xs : Vect (S n) t) -> Nubbed xs -> Nubbed (tail xs)
-> nubbedLemma  Nil      prf _ _ _ impossible
-> nubbedLemma (x :: xs) prf i j inej = prf (FS i) (FS j) (fsInjective' i j inej)
+> ||| Injectivity (one direction)
+> Injective1 : Vect n t -> Type
+> Injective1 {n} xs = (i : Fin n) -> (j : Fin n) -> index i xs = index j xs -> i = j
+
+
+> ||| Injectivity (the other direction)
+> Injective2 : Vect n t -> Type
+> Injective2 {n} xs = (i : Fin n) -> (j : Fin n) -> Not (i = j) -> Not (index i xs = index j xs)
+
+
+> ||| Injective1 implies Injective2
+> injectiveLemma : (xs : Vect n t) -> Injective1 xs -> Injective2 xs
+> injectiveLemma xs i1xs i j contra = contra . (i1xs i j) 
+
+
+> ||| Tail preserves injectivity (one direction)
+> injectiveTailLemma1 : (xs : Vect (S n) t) -> Injective1 xs -> Injective1 (tail xs)
+> injectiveTailLemma1  Nil      p _ _ _ impossible
+> injectiveTailLemma1 (x :: xs) p i j q = FSInjective i j (p (FS i) (FS j) q') where
+>   q' : index (FS i) (x :: xs) = index (FS j) (x :: xs)
+>   q' = q
+
+
+> ||| Tail preserves injectivity (the other direction)
+> injectiveTailLemma2 : (xs : Vect (S n) t) -> Injective2 xs -> Injective2 (tail xs)
+> injectiveTailLemma2  Nil      p _ _ _ impossible
+> injectiveTailLemma2 (x :: xs) p i j q = p (FS i) (FS j) (fsInjective2 i j q)
 
 
 Indexing and lookup
@@ -64,28 +88,11 @@ Indexing and lookup
 >   s3 = indexLookupLemma x xs prf
 > -}
 
-The "lemma" lookupIndexLemma does not hold: consider the following counter-example:
 
-> {-
-> namespace Counterexample
->   two0 : Vect 2 Nat
->   two0 = 0 :: 0 :: []
->   k : Fin 2
->   k = FS FZ
->   prf  : Elem   (index k two0) two0
->   prf = Here
->   test : Fin 2
->   test = lookup (index k two0) two0 prf
-> -}
-
-The problem is hidden by the use of "assert_total".  To solve the
-problem we need to analyse the use case more: in practice the vectors
-will not have duplicates, but it is not a priori clear how to code
-this up.
-
+> |||
 > lookupIndexLemma : (k : Fin n) ->
 >                    (xs : Vect n t) ->
->                    (p : Nubbed xs) ->
+>                    (p : Injective2 xs) ->
 >                    (q : Elem (index k xs) xs) ->
 >                    lookup (index k xs) xs q = k
 > lookupIndexLemma  FZ     Nil      _  _        impossible
@@ -110,9 +117,13 @@ this up.
 >   s5 : lookup (index (FS k) ((index k xs) :: xs)) ((index k xs) :: xs) Here = (FS k)
 >   s5 = void ((p FZ (FS k) s1) s2)
 > lookupIndexLemma (FS k) (x :: xs) p (There q) =
->   let p' = nubbedLemma (x :: xs) p in
+>   let p' = injectiveTailLemma2 (x :: xs) p in
 >   let ih = lookupIndexLemma k xs p' q in 
 >   rewrite ih in Refl
+
+
+> |||
+> -- indexToVectLemma : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> f k = index k (toVect f)
 
 
 Membership, quantifiers:
@@ -204,6 +215,16 @@ Filtering
 >     | (No  _) = -- filterTagLemma d1P a1 as prf p
 >                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
 >                   filterTagLemma d1P a1 as prf p
+
+
+> ||| |filterTag| preserves injectivity
+> injectiveFilterTagLemma : {A : Type} ->
+>                           {P : A -> Type} ->
+>                           (d1P : Dec1 P) ->
+>                           (as : Vect n A) ->
+>                           Injective1 as ->
+>                           Injective1 (getProof (filterTag d1P as))
+
 
 Max and argmax
 

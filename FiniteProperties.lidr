@@ -13,7 +13,9 @@
 > import FinProperties
 > import VectProperties
 > import IsomorphismOperations
+> import IsomorphismProperties
 > import NatProperties
+> import Basics
 
 
 > %default total 
@@ -39,6 +41,20 @@
 >   s3  :  Elem a (toVect fA)
 >   s3  =  replace {P = \ z => Elem z (toVect fA)} s2 s1
 > -}
+
+
+> ||| |toVect| representations of finite types are injective
+> toVectInjective1 : {A : Type} -> (fA : Finite A) -> Injective1 (toVect fA)
+> toVectInjective1 {A} (Evidence n iso) i j p = s3 where
+>   s1 : index i (toVect (from iso)) = index j (toVect (from iso))
+>   s1 = p
+>   s2 : (from iso) i = (from iso) j
+>   s2 = replace2 {a = A} {a1 = index i (toVect (from iso))} {a2 = (from iso) i}
+>                 {b = A} {b1 = index j (toVect (from iso))} {b2 = (from iso) j}
+>                 {P = \ a => \b => a = b}
+>                 (toVectRepr (from iso) i) (toVectRepr (from iso) j) s1
+>   s3 : i = j 
+>   s3 = injectiveFrom iso i j s2
 
 
 Non empty finite types

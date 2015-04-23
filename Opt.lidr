@@ -17,7 +17,7 @@
 > import TotalPreorderOperations
 > import VectOperations
 > import VectProperties
-> import Util
+> import FunOperations
 > import NatProperties
 
 
