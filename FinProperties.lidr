@@ -4,17 +4,18 @@
 > import Data.Vect
 > import Syntax.PreorderReasoning
 
+> import FunProperties
 > import FinOperations
 > import NatProperties
 > import Basics
- 
+
 
 > %default total
 
 
-> %hide Prelude.List.tail
-> %hide Prelude.Stream.tail
-> %hide Data.VectType.Vect.tail
+> -- %hide Prelude.List.tail
+> -- %hide Prelude.Stream.tail
+> -- %hide Data.VectType.Vect.tail
 
 
 |Fin 0| properties:
@@ -32,11 +33,24 @@
 > fin1Lemma (FS k) (FS j) = absurd k
 
 
-Injectivity of FS (the other way round)
+Injectivity of FS
 
-> ||| FS in injective
-> fsInjective' : (left : Fin n) -> (right : Fin n) -> Not (left = right) -> Not (FS left = FS right)
-> fsInjective' left right contra = contra . (FSInjective left right)
+> ||| FS is injective (one direction)
+> fsInjective1 : (left : Fin n) -> (right : Fin n) -> FS left = FS right -> left = right
+> fsInjective1 = FSInjective  
+
+
+> ||| FS is injective (the other way round)
+> fsInjective2 : (left : Fin n) -> (right : Fin n) -> Not (left = right) -> Not (FS left = FS right)
+> -- fsInjective2 left right contra = contra . (FSInjective left right)
+> fsInjective2 = injectiveLemma FS fsInjective1
+
+
+> ||| FS preserves equality
+> fsPreservesEq : (left : Fin n) -> (right : Fin n) -> left = right -> FS left = FS right
+> fsPreservesEq left right = cong
+
+
 
 
 |finToNat| properties:
@@ -94,5 +108,7 @@ Injectivity of FS (the other way round)
 > toVectComplete         f (FS j) = There (toVectComplete (tail f) j)
 
 
-
-
+> toVectRepr : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> index k (toVect f) = f k
+> toVectRepr {n = Z}   f k  = absurd k
+> toVectRepr {n = S m} f FZ     = Refl
+> toVectRepr {n = S m} f (FS k) = toVectRepr (tail f) k

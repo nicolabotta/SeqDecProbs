@@ -178,6 +178,14 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0
 
 
+> toVectInjective1 : {A   : Type} ->
+>                    {P   : A -> Type} ->
+>                    (fA  : Finite A) -> 
+>                    (d1P : Dec1 P) -> 
+>                    Unique1 {t0 = A} P ->
+>                    Injective1 (getProof (toVect fA d1P))
+> toVectInjective1 fA dP uP = injectiveFilterTagLemma dP (toVect fA) (toVectInjective1 fA)
+
 
 Sigma Fin properties:
 
