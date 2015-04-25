@@ -2,6 +2,7 @@
 
 
 > import Preorder
+> import TotalPreorder
 
 
 > %default total
