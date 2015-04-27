@@ -264,11 +264,11 @@ Max and argmax
 > maxLemma {n = S Z}     tp a (a  :: Nil)         _  Here       = reflexive tp a
 > maxLemma {n = S Z}     tp a (a' :: Nil)         _ (There prf) = absurd prf
 > maxLemma {n = S (S m)} tp a (a :: (a'' :: as))  _  Here with (argmaxMax tp (a'' :: as) (ltZS m))
->   | (k, max) with (either tp a max)
+>   | (k, max) with (totalPre tp a max)
 >     | (Left  p) = p
 >     | (Right _) = reflexive tp a
 > maxLemma {n = S (S m)} tp a (a' :: (a'' :: as)) _ (There prf) with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
->   | (k, max) with (either tp a' max)
+>   | (k, max) with (totalPre tp a' max)
 >     | (Left  _) = replace {P = \rec => R tp a (snd rec)}
 >                           (sym itsEqual)
 >                           (maxLemma {n = S m} tp a (a'' :: as) (ltZS m) prf)
@@ -290,7 +290,7 @@ Max and argmax
 > argmaxLemma {n = Z}       tp  Nil              p = absurd p
 > argmaxLemma {n = S Z}     tp (a :: Nil)        p = Refl
 > argmaxLemma {n = S (S m)} tp (a' :: (a'' :: as)) p with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
->   | (k, max') with (either tp a' max')
+>   | (k, max') with (totalPre tp a' max')
 >     | (Left   _) = replace {P = \rec => Data.VectType.Vect.index (fst rec) (a'' :: as) = snd rec}
 >                            (sym itsEqual)
 >                            (argmaxLemma tp (a'' :: as) (ltZS m))
@@ -306,7 +306,7 @@ Max and argmax
 > maxElemLemma {n = Z}       tp  Nil                p = absurd p
 > maxElemLemma {n = S Z}     tp (a :: Nil)          p = Here
 > maxElemLemma {n = S (S m)} tp (a' :: (a'' :: as)) p with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
->   | (k, max) with (either tp a' max)
+>   | (k, max) with (totalPre tp a' max)
 >     | (Left   _) = replace {P = \rec => Elem (snd rec) (a' :: (a'' :: as))}
 >                            (sym itsEqual)
 >                            (There (maxElemLemma tp (a'' :: as) (ltZS m)))

@@ -12,25 +12,25 @@
 
 > namespace TotalPreorder
 >   data TotalPreorder : Type -> Type where
->     MkTotalPreorder : {A : Type} -> 
+>     MkTotalPreorder : {A : Type} ->
 >                       (R : A -> A -> Type) ->
 >                       (reflexive : (x : A) -> R x x) ->
 >                       (transitive : (x : A) -> (y : A) -> (z : A) -> R x y -> R y z -> R x z) ->
->                       (either : (x : A) -> (y : A) -> Either (R x y) (R y x)) ->
+>                       (totalPre : (x : A) -> (y : A) -> Either (R x y) (R y x)) ->
 >                       TotalPreorder A
 
 > namespace NatProperties
->   instance Uninhabited (S n = Z) where                                                                                      
->     uninhabited Refl impossible  
+>   instance Uninhabited (S n = Z) where
+>     uninhabited Refl impossible
 >   idSuccPreservesLTE : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
 >   idSuccPreservesLTE  Z     n    prf = LTEZero
 >   idSuccPreservesLTE (S m)  Z    prf = absurd prf
 >   idSuccPreservesLTE (S m) (S n) prf = LTESucc (idSuccPreservesLTE m n (fromLteSucc prf))
 >   ltZS : (m : Nat) -> LT Z (S m)
->   ltZS  Z    = LTESucc LTEZero 
+>   ltZS  Z    = LTESucc LTEZero
 >   ltZS (S m) = idSuccPreservesLTE (S Z) (S m) (ltZS m)
 >   notZisgtZ : Not (n = Z) -> LT Z n
->   notZisgtZ {n = Z}   contra = void (contra Refl) 
+>   notZisgtZ {n = Z}   contra = void (contra Refl)
 >   notZisgtZ {n = S m} _      = ltZS m
 >   gtZisnotZ : LT Z n -> Not (n = Z)
 >   gtZisnotZ {n = Z}   p = absurd p
@@ -48,7 +48,7 @@
 >     | (Left  p) = Left  (LTESucc p)
 >     | (Right p) = Right (LTESucc p)
 >   totalPreorderNatLTE : TotalPreorder Nat
->   totalPreorderNatLTE = 
+>   totalPreorderNatLTE =
 >     MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
 
 > namespace FinOperations
@@ -56,7 +56,7 @@
 >   tail f k = f (FS k)
 >   toVect : {A : Type} -> (Fin n -> A) -> Vect n A
 >   toVect {n =   Z} _ = Nil
->   toVect {n = S m} f = (f FZ) :: (toVect (tail f)) 
+>   toVect {n = S m} f = (f FZ) :: (toVect (tail f))
 
 > namespace FinProperties
 >   toVectComplete : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> Elem (f k) (toVect f)
@@ -67,51 +67,51 @@
 > namespace TotalPreorderOperations
 >   R : {A : Type} -> TotalPreorder A -> (A -> A -> Type)
 >   R (MkTotalPreorder R _ _ _) = R
->   reflexive : {A : Type} -> 
->               (tp : TotalPreorder A) -> 
+>   reflexive : {A : Type} ->
+>               (tp : TotalPreorder A) ->
 >               (x : A) -> (R tp) x x
 >   reflexive (MkTotalPreorder _ reflexive _ _) = reflexive
->   transitive : {A : Type} -> 
->                (tp : TotalPreorder A) -> 
+>   transitive : {A : Type} ->
+>                (tp : TotalPreorder A) ->
 >                (x : A) -> (y : A) -> (z : A) -> (R tp) x y -> (R tp) y z -> (R tp) x z
 >   transitive (MkTotalPreorder _ _ transitive _) = transitive
->   either : {A : Type} -> 
->            (tp : TotalPreorder A) -> 
+>   totalPre : {A : Type} ->
+>            (tp : TotalPreorder A) ->
 >            (x : A) -> (y : A) -> Either ((R tp) x y) ((R tp) y x)
->   either (MkTotalPreorder _ _ _ either) = either
+>   totalPre (MkTotalPreorder _ _ _ totalPre) = totalPre
 >   from2 : {A, B : Type} -> (B -> B -> Type) -> (A, B) -> (A, B) -> Type
 >   from2 R x y = R (snd x) (snd y)
 >   fromTotalPreorder2 : {A, B : Type} -> TotalPreorder B -> TotalPreorder (A, B)
->   fromTotalPreorder2 to = 
+>   fromTotalPreorder2 to =
 >     MkTotalPreorder (from2 (R to))
 >                     (\ x => reflexive to (snd x))
 >                     (\ x => \ y => \ z => \ xRy => \ yRz => transitive to (snd x) (snd y) (snd z) xRy yRz)
->                     (\ x => \ y => either to (snd x) (snd y))
+>                     (\ x => \ y => totalPre to (snd x) (snd y))
 
 > namespace VectOperations
->   argmaxMax : {A : Type} -> 
+>   argmaxMax : {A : Type} ->
 >               TotalPreorder A -> Vect n A -> LT Z n -> (Fin n, A)
 >   argmaxMax {n = Z}       tp  Nil                p = absurd p
 >   argmaxMax {n = S Z}     tp (a :: Nil)          _ = (FZ, a)
 >   argmaxMax {n = S (S m)} tp (a' :: (a'' :: as)) _ with (argmaxMax tp (a'' :: as) (ltZS m))
->     | (k, max) with (either tp a' max)
+>     | (k, max) with (totalPre tp a' max)
 >       | (Left  _) = (FS k, max)
 >       | (Right _) = (FZ, a')
->   max : {A : Type} -> 
+>   max : {A : Type} ->
 >         TotalPreorder A -> Vect n A -> LT Z n -> A
 >   max tp as p = snd (argmaxMax tp as p)
 
 > namespace VectProperties
 >   instance Uninhabited (Elem {a} x Nil) where
->     uninhabited Here impossible                                                                                          
->     uninhabited (There p) impossible      
->   elemLemma : {A : Type} -> {n : Nat} -> 
+>     uninhabited Here impossible
+>     uninhabited (There p) impossible
+>   elemLemma : {A : Type} -> {n : Nat} ->
 >               (a : A) -> (as : Vect n A) ->
 >               Elem a as -> LT Z n
 >   elemLemma {n = Z}   a Nil p = absurd p
 >   elemLemma {n = S m} a as  p = ltZS m
 >   AnyExistsLemma : {A : Type} -> {P : A -> Type} -> Any P as -> Exists P
->   AnyExistsLemma (Here {x} px) = Evidence x px 
+>   AnyExistsLemma (Here {x} px) = Evidence x px
 >   AnyExistsLemma (There prf) = AnyExistsLemma prf
 >   ElemAnyLemma : {A : Type} -> {P : A -> Type} -> P a -> Elem a as -> Any P as
 >   ElemAnyLemma p Here = Here p
@@ -121,21 +121,21 @@
 >   mapLemma  Nil      f a aeas = absurd aeas
 >   mapLemma (a :: as) f a   Here       = Here
 >   mapLemma (a :: as) f a' (There prf) = There (mapLemma as f a' prf)
->   maxLemma : {A : Type} -> 
->              (tp : TotalPreorder A) -> 
->              (a : A) -> (as : Vect n A) -> (p : LT Z n) -> a `Elem` as -> 
+>   maxLemma : {A : Type} ->
+>              (tp : TotalPreorder A) ->
+>              (a : A) -> (as : Vect n A) -> (p : LT Z n) -> a `Elem` as ->
 >              R tp a (max tp as p)
 >   maxLemma {n = Z}       tp a        Nil          p  _          = absurd p
 >   maxLemma {n = S Z}     tp a (a  :: Nil)         _  Here       = reflexive tp a
 >   maxLemma {n = S Z}     tp a (a' :: Nil)         _ (There prf) = absurd prf
 >   maxLemma {n = S (S m)} tp a (a :: (a'' :: as))  _  Here with (argmaxMax tp (a'' :: as) (ltZS m))
->     | (k, max) with (either tp a max)
+>     | (k, max) with (totalPre tp a max)
 >       | (Left  p) = p
 >       | (Right _) = reflexive tp a
 >   maxLemma {n = S (S m)} tp a (a' :: (a'' :: as)) _ (There prf) with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
->     | (k, max) with (either tp a' max)
->       | (Left  _) = replace {P = \rec => R tp a (snd rec)} 
->                             (sym itsEqual) 
+>     | (k, max) with (totalPre tp a' max)
+>       | (Left  _) = replace {P = \rec => R tp a (snd rec)}
+>                             (sym itsEqual)
 >                             (maxLemma {n = S m} tp a (a'' :: as) (ltZS m) prf)
 >       | (Right p) = s3 where
 >         s1 : R tp a (snd (VectOperations.argmaxMax tp (a'' :: as) (ltZS m)))
@@ -161,7 +161,7 @@
 
 > namespace FiniteOperations
 >   card : {A : Type} -> (fA : Finite A) -> Nat
->   card = getWitness 
+>   card = getWitness
 >   toVect : {A : Type} -> (fA : Finite A) -> Vect (card fA) A
 >   toVect (Evidence n iso) = toVect (from iso)
 >   Empty : {A : Type} -> Finite A -> Type
@@ -173,7 +173,7 @@
 >   toVectComplete : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (toVect fA)
 >   toVectComplete (Evidence n iso) a = s3 where
 >     s1  :  Elem (from iso (to iso a)) (toVect (from iso))
->     s1  =  toVectComplete (from iso) (to iso a) 
+>     s1  =  toVectComplete (from iso) (to iso a)
 >     s2  :  from iso (to iso a) = a
 >     s2  =  fromTo iso a
 >     s3  :  Elem a (toVect (from iso))
@@ -182,9 +182,9 @@
 >   nonEmptyLemma fA a = gtZisnotZ (elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a))
 
 > namespace Opt
->   optargmaxMax : {A, B : Type} -> 
->                  TotalPreorder B -> 
->                  (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>   optargmaxMax : {A, B : Type} ->
+>                  TotalPreorder B ->
+>                  (fA : Finite A) -> (ne : NonEmpty fA) ->
 >                  (f : A -> B) -> (A,B)
 >   optargmaxMax {A} {B} tp fA nefA f = max (fromTotalPreorder2 tp) abs ltZn where
 >     n    : Nat
@@ -194,13 +194,13 @@
 >     abs  : Vect n (A,B)
 >     abs  = map (pair (id, f)) (toVect fA)
 >   optmax : {A, B : Type} ->
->            TotalPreorder B -> 
->            (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>            TotalPreorder B ->
+>            (fA : Finite A) -> (ne : NonEmpty fA) ->
 >            (f : A -> B) -> B
 >   optmax tp fA nefA f = snd (optargmaxMax tp fA nefA f)
->   optmaxSpec : {A, B : Type} -> 
->                (tp : TotalPreorder B) -> 
->                (fA : Finite A) -> (nefA : NonEmpty fA) -> 
+>   optmaxSpec : {A, B : Type} ->
+>                (tp : TotalPreorder B) ->
+>                (fA : Finite A) -> (nefA : NonEmpty fA) ->
 >                (f : A -> B) ->
 >                (a : A) -> R tp (f a) (optmax tp fA nefA f)
 >   optmaxSpec {A} {B} tp fA nefA f a = s4 where
@@ -212,7 +212,7 @@
 >     abs  = map (pair (id, f)) (toVect fA)
 >     s1   : Elem (a, f a) abs
 >     s1   = mapLemma (toVect fA) (pair (id, f)) a (toVectComplete fA a)
->     s2   : (from2 (R tp)) (a, f a) (max (fromTotalPreorder2 tp) abs ltZn) 
+>     s2   : (from2 (R tp)) (a, f a) (max (fromTotalPreorder2 tp) abs ltZn)
 >     s2   = maxLemma (fromTotalPreorder2 tp) (a, f a) abs ltZn s1
 >     s3   : R tp (f a) (snd (max (fromTotalPreorder2 tp) abs ltZn))
 >     s3   = s2
@@ -245,12 +245,11 @@
 >          Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 >   neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >           NonEmpty (fYAV t n x v)
->   neYAV t n x (Evidence y v) = 
->     nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->                   (fYAV t n x (Evidence y v)) 
+>   neYAV t n x (Evidence y v) =
+>     nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>                   (fYAV t n x (Evidence y v))
 >                   (y ** v)
->   max     {n} t x v  =  
+>   max     {n} t x v  =
 >     optmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
->   maxSpec {n} t x v f s = 
+>   maxSpec {n} t x v f s =
 >     optmaxSpec totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v) f s
-

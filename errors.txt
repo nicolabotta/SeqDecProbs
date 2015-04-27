@@ -1,0 +1,171 @@
+patrikj@etyd:~/src/ext/SeqDecProbs$ make all
+find . -name '*.lidr' | xargs -n 1 idris -p contrib -p effects --check
+././FinSigma.lidr:37:18:
+When elaborating right hand side of FinSigma.finSigma, toFromQ:
+When elaborating an application of function Syntax.PreorderReasoning.Equal.step:
+        No such variable sigmaEqLemma2
+././ContainerMonad.lidr:10:7:
+When elaborating type of ContainerMonad.spec1:
+Can't resolve type class ContainerMonad m
+builtin:0:0:When elaborating left hand side of finEndoAutAut:
+Can't unify
+        Either (Surjective f) (NonInjective f) (Type of finEndoAutAut f
+                                                                      _)
+with
+        argTy -> retTy (Is finEndoAutAut f
+                                         _ applied to too many arguments?)
+
+Specifically:
+        Can't unify
+                Either ((b : Fin (S m)) -> Exists (\a => f a = b))
+        with
+                \{uv0} => argTy -> uv
+././OrderOperations.lidr:25:20:
+When elaborating type of PreorderOperations.fromTotalPreorder1:
+No such variable TotalPreorder
+././issue_reports/2058_namespaces.1.lidr:7:3:
+When elaborating right hand side of i:
+Can't disambiguate name: Main.lala.foo, Main.lula.foo
+././issue_reports/totalityChecker.lidr:33:1:
+Main.filterLemma is not total as there are missing cases
+././issue_reports/unification.lidr:29:19:
+When elaborating left hand side of lookupIndexLemma:
+When elaborating argument prf to Main.lookupIndexLemma:
+        Unifying xs and index FZ xs :: xs would lead to infinite value
+././issue_reports/1928_totality_checker.lidr:28:1:
+Main.lookupIndexLemma is not total as there are missing cases
+././issue_reports/reflection.lidr:30:1:
+Main.lula is possibly not total due to: with block in Main.lula
+././issue_reports/preorderReasoning.lidr:6:10:
+Overlapping instance: Uninhabited (LTE (S n) 0) already defined
+./Syntax/PreorderReasoning.idr:7:43:
+When elaborating right hand side of toFinLemma2:
+When elaborating an application of function Syntax.PreorderReasoning.Equal.step:
+        Can't unify
+                (\{n6} => \{prf7} => LTESucc prf) (finToNat (toFin (MkSigma n4
+                                                                            prf5)))
+                                                  (finToNatLemma (toFin (MkSigma n4
+                                                                                 prf5))) =
+                (\{n6} => \{prf7} => LTESucc prf) n4
+                                                  prf5 (Type of depCong2' (\{n6} =>
+                                                                             \{prf7} =>
+                                                                               LTESucc prf)
+                                                                          (toFinLemma0 n
+                                                                                       b
+                                                                                       prf)
+                                                                          (toFinLemma2 n
+                                                                                       b
+                                                                                       prf))
+        with
+                LTESucc (finToNatLemma (toFin (MkSigma n4 prf5))) =
+                (\{n6} => \{prf7} => LTESucc prf) n4 prf5 (Expected type)
+
+        Specifically:
+                Can't unify
+                        (\n1 =>
+                           \prf2 => LTESucc prf2) (finToNat (toFin (MkSigma n
+                                                                            prf)))
+                                                  (finToNatLemma (toFin (MkSigma n
+                                                                                 prf)))
+                with
+                        LTESucc (finToNatLemma (toFin (MkSigma n prf)))
+././issue_reports/2053_derived_instances.1.lidr:2:58:
+When elaborating type of Main.Main.(a, b), \ab1 => \ab2 => po (fst ab1) (fst ab2) instance of Main.Preorder, method transitive:
+No such variable t
+././issue_reports/totalityChecker1.lidr:28:1:
+Main.lookupIndexLemma is not total as there are missing cases
+././issue_reports/2150_internal_error.lidr:25:21:
+When elaborating right hand side of sigmaFinEitherLemma:
+When elaborating an application of function Control.Isomorphism.step:
+        Unifying b and Either (Fin (f FZ))
+                              (Sigma (Fin n)
+                                     (\{lamp0} =>
+                                        case block in sigmaFinEitherLemma n
+                                                                          f
+                                                                          b
+                                                                          lamp
+                                                                          lamp)) would lead to infinite value
+././issue_reports/equality.lidr:38:12:
+Overlapping instance: Uninhabited (LTE (S n) 0) already defined
+././issue_reports/1993_type_classes.lidr:4:7:
+When elaborating type of Main.spec1:
+Can't resolve type class ContainerMonad m
+././issue_reports/1993_type_classes.lidr:10:10:ContainerMonad is not a type class
+././issue_reports/2014_type_classes.lidr:11:10:
+Overlapping instance: Uninhabited (LTE (S n) 0) already defined
+././issue_reports/2058_namespaces.2.lidr:13:12:
+Overlapping instance: Preorder (t1, t2) already defined
+Can't find import Rel/Syntax
+Can't find import Rel/Syntax
+././manuscripts/2014.LMCS/code/Logic/Ops.lidr:6:24: error: not
+    a terminator, expected: "$",
+    "&&", "*", "*>", "+", "++", "-",
+    "->", ".", "/", "/=", "::", ";",
+    "<", "<#>", "<$>", "<*", "<*>",
+    "<+>", "<->", "<.>", "<<", "<=",
+    "<|>", "=", "==", ">", ">=",
+    ">>", ">>=", "\\\\", "`", "||",
+    "~=~",
+    ambiguous use of a left-associative operator,
+    ambiguous use of a non-associative operator,
+    ambiguous use of a right-associative operator,
+    end of input, function argument,
+    matching application expression,
+    where block
+Not A         =  A -> _|_
+                       ^
+././manuscripts/2014.LMCS/code/Logic/Properties.lidr:21:41: error: not
+    a terminator, expected: "$",
+    "&&", "*", "*>", "+", "++", "-",
+    "->", ".", "/", "/=", "::", ";",
+    "<", "<#>", "<$>", "<*", "<*>",
+    "<+>", "<->", "<.>", "<<", "<=",
+    "<|>", "=", "==", ">", ">=",
+    ">>", ">>=", "\\\\", "`", "||",
+    "~=~",
+    ambiguous use of a left-associative operator,
+    ambiguous use of a non-associative operator,
+    ambiguous use of a right-associative operator,
+    end of input, function argument,
+    matching application expression,
+    where block
+                           C False s = _|_
+                                        ^
+././manuscripts/2014.LMCS/code/List/testFilter0.lidr:31:16:
+When elaborating right hand side of main:
+When elaborating an application of function Prelude.Stream.head:
+        Can't unify
+                List Nat (Type of nats)
+        with
+                Stream (argTy -> retTy) (Expected type)
+././manuscripts/2014.LMCS/code/List/testFilter1.lidr:40:16:
+When elaborating right hand side of main:
+When elaborating an application of function Prelude.Stream.head:
+        Can't unify
+                List Nat (Type of nats)
+        with
+                Stream (argTy -> retTy) (Expected type)
+Can't find import Rel/Syntax
+././manuscripts/2014.LMCS/code/Nat/Postulates.lidr:4:18:
+When elaborating type of Postulates.Sid_preserves_LT:
+No such variable so
+Can't find import Vect/Ops
+Can't find import Prob/SimpleProb
+././manuscripts/2014.LMCS/code/Prob/testSimpleProb1.lidr:12:17:
+When elaborating type of Main.mapFilter:
+No such variable Vect
+Can't find import List/Ops
+Can't find import BoundedNat/Blt
+Can't find import Util/VectExtensions1
+Can't find import Logic/Properties
+Can't find import Logic/Properties
+Can't find import Rel/DecEq
+Can't find import Rel/Syntax
+Can't find import Rel/Syntax
+Can't find import Nat/Postulates
+Can't find import DynamicProgramming/S1301_Context
+Can't find import Util/VectExtensions1
+Can't find import Logic/Properties
+Can't find import Float/Properties
+^CMakefile:8: recipe for target 'all' failed
+make: *** [all] Interrupt

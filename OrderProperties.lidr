@@ -7,7 +7,7 @@
 > -- import OrderOperations
 
 
-> %default total 
+> %default total
 
 
 > {-
@@ -28,7 +28,7 @@
 
 > ||| Total preorders on |a| induce total preorders on |(a, b)|
 > instance TotalPreorder a => TotalPreorder (a, b) where
->   either x y = s1 where
+>   totalPre x y = s1 where
 >     s1 : Either (C @{fstPreorder} x y) (C @{fstPreorder} y x)
 >     s1= ?lala
 

@@ -7,13 +7,13 @@
 > import Control.Isomorphism
 
 
-> %default total 
+> %default total
 
 
 In the context of
 
 > Dec1 : (p : alpha -> Type) -> Type
-> Dec1 {alpha} p  =  (a : alpha) -> Dec (p a) 
+> Dec1 {alpha} p  =  (a : alpha) -> Dec (p a)
 
 > Finite : Type -> Type
 > Finite alpha = Exists (\ n => Iso alpha (Fin n))
@@ -35,10 +35,10 @@ We want to show that
 > finiteDecLemma : Finite alpha -> Dec1 {alpha} p -> Dec (Exists p)
 
 
-The idea is to start by noticing the one can implement a function 
+The idea is to start by noticing the one can implement a function
 
 > asVect : (fa : Finite alpha) -> Vect (getWitness fa) alpha
- 
+
 that provides a |Vect|-representation of a finite type in the sense that
 it fulfills the specification
 
@@ -69,7 +69,6 @@ it is easy to prove |finiteDecLemma|:
 >       contra' :  Exists p -> Void
 >       contra' (Evidence a pa) = contra (ElemAnyLemma pa (asVectLemma fa a))
 
-
 Thus, the question is whether we can implement
 
 < asVect : (fa : Finite alpha) -> Vect (getWitness fa) alpha
@@ -86,7 +85,7 @@ Thus, the question is whether we can implement
 
 > toVect : (Fin n -> alpha) -> Vect n alpha
 > toVect {n =   Z} _ = Nil
-> toVect {n = S m} f = (f FZ) :: (toVect (tail f)) 
+> toVect {n = S m} f = (f FZ) :: (toVect (tail f))
 
 > toVectLemma : (f : Fin n -> alpha) -> (k : Fin n) -> Elem (f k) (toVect f)
 > toVectLemma {n = Z} _  k     = void (uninhabited k)
@@ -99,7 +98,7 @@ Thus, the question is whether we can implement
 > -- asVectLemma : (fa : Finite alpha) -> (a : alpha) -> Elem a (asVect fa)
 > asVectLemma fa a = s3 where
 >   s1  :  Elem (fromFin fa (toFin fa a)) (asVect fa)
->   s1  =  toVectLemma (fromFin fa) (toFin fa a) 
+>   s1  =  toVectLemma (fromFin fa) (toFin fa a)
 >   s2  :  fromFin fa (toFin fa a) = a
 >   s2  =  FromFinToFin fa a
 >   s3  :  Elem a (asVect fa)
@@ -109,7 +108,7 @@ Thus, the question is whether we can implement
 # AnyExistsLemma
 
 > -- AnyExistsLemma : Any p as -> Exists p
-> AnyExistsLemma (Here {x} px) = Evidence x px 
+> AnyExistsLemma (Here {x} px) = Evidence x px
 > AnyExistsLemma (There prf) = AnyExistsLemma prf
 
 
