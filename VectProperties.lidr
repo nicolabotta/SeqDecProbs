@@ -217,13 +217,40 @@ Filtering
 >                   filterTagLemma d1P a1 as prf p
 
 
+> ||| |filter| preserves injectivity
+> injectiveFilterLemma : {A : Type} ->
+>                        {P : A -> Type} ->
+>                        {n : Nat} ->
+>                        (dP : Dec1 P) ->
+>                        (as : Vect n A) ->
+>                        Injective1 as ->
+>                        Injective1 (getProof (filter dP as))
+>     
+>     
+> {-     
+>     = s0 where
+>   n'  : Nat
+>   n'  = getWitness (filter dP (a :: as))
+>   as' : Vect n' A
+>   as' = getProof (filter dP (a :: as))
+>   s0 : Injective1 (getProof (filter dP (a :: as)))
+>   s0 i j q with (filter dP as)
+>     | (n' ** as') with (dP a)
+>       | (Yes _) = ?liko
+>       | (No  _) = s5 where
+>         s5 : i = j
+>         s5 = ?lala -- injectiveFilterLemma dP as (injectiveTailLemma1 (a :: as) iaas) i j q
+> -}
+
+
 > ||| |filterTag| preserves injectivity
 > injectiveFilterTagLemma : {A : Type} ->
 >                           {P : A -> Type} ->
->                           (d1P : Dec1 P) ->
+>                           (dP : Dec1 P) ->
 >                           (as : Vect n A) ->
 >                           Injective1 as ->
 >                           Injective1 (getProof (filterTag d1P as))
+> injectiveFilterTagLemma {n = Z}   dP Nil i1as i j p = absurd i
 
 
 Max and argmax

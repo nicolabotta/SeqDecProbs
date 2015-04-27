@@ -8,6 +8,8 @@
 > import NatProperties
 > import SigmaOperations
 > import RelSyntax
+> import Finite
+> import FiniteOperations
 
 
 > %default total
@@ -343,6 +345,30 @@ possible future evolutions from a (viable) initial state:
 >         r' = Evidence x (r , xpx')
 >         v' : Viable m x'
 >         v' = containerMonadSpec3 x' mx' av x'estep
+
+
+The major disadvantage of |bi| is that its computational cost is
+polynomial in the number of steps. If the state space is finite
+
+> fX : (t : Nat) -> Finite (X t)
+
+we can implement a "tabulated" versions of |bi| which is linear in the
+number of steps. The starting point for implementing a tabulated version
+of |bi| is an implementation of |optExt| based on an accumulator. At
+time |t|, this is a value of type |Vect (card (fX t)) Nat| where |card
+(fX t)| is a natural number representing the cardinality of |X t|, see
+|FiniteOperations.lidr|:
+
+> tabOptExt : Vect (card (fX t)) Nat -> Policy t (S n)
+
+The idea is that the 
+
+< optExt : PolicySeq (S t) n -> Policy t (S n)
+< optExt {t} {n} ps = p where
+<   p : Policy t (S n)
+<   p x r v = argmax t x v g where
+<     g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
+<     g = mkg x r v ps
 
 
 > ---}
