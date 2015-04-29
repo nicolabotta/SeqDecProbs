@@ -1,3 +1,20 @@
+2015-04-29: Patrik: Current status
+
+  One missing metavariable when loading SeqDecProbMonadicExample2.lidr:
+    VectProperties.injectiveFilterLemma
+  Call chain? (what part of the proof depends on this?):
+    (Unclear - the lemma is never used.)
+
+  New try:
+    make run
+    # (compiles ~/src/ext/SeqDecProbs/SeqDecProbMonadicTheoryExample2.lidr)
+patrikj@etyd:~/src/ext/SeqDecProbs$ make
+idris -p contrib -p effects SeqDecProbMonadicTheoryExample2.lidr -o example
+There are undefined metavariables: [SeqDecProbMonadicTheory.tabOptExt,SeqDecProbMonadicTheory.fX,VectProperties.injectiveFilterLemma]
+  Fixed those (by commenting them out).
+  Now the example runs.
+  (But the theory has at least one hole.)
+
 2015-03-05: Patrik: Left to do
 
   Problems in SeqDecProbMonadicExample2.lidr:
@@ -49,12 +66,12 @@
     SoProperties.lidr              -- OK
     SubType.lidr                   -- OK
 
-2015-02-13: Patrik: 
+2015-02-13: Patrik:
 
   Added EmbProj which could be more handy for some finite sets (see
   comment in Finite.lidr).
 
-2015-02-12: Patrik: Overview of the files and their imports 
+2015-02-12: Patrik: Overview of the files and their imports
   TODO: refactor the imports a bit more
 
   (While I was off-line a few other commits had solved most of the
@@ -88,17 +105,17 @@
     FiniteOperations.lidr          -- OK
       import Finite, FinOperations, IsomorphismOperations
     FiniteProperties.lidr          -- OK, but 1 unsolved meta (from VectProperties)
-      import Finite, FinOperations, IsomorphismOperations,    
+      import Finite, FinOperations, IsomorphismOperations,
                      FinProperties,
-             FiniteOperations, 
-             Prop, Decidable, 
+             FiniteOperations,
+             Prop, Decidable,
              VectProperties
 
     SigmaOperations.lidr           -- OK
       import Finite, Decidable, Unique, FiniteOperations, VectOperations
 
     SigmaProperties.lidr           -- OK, but 2 unsolved metas
-      import SigmaOperations, 
+      import SigmaOperations,
              Finite, Decidable, Unique, FiniteOperations, VectOperations
 
   Goals:
