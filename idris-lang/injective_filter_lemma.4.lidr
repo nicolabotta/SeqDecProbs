@@ -77,13 +77,18 @@ should also preserve injectivity
 >   Injective1 as -> Injective1 (filterDec2 dP as)
 
 It turns out that a direct proof of |injectiveFilterDecLemma| is
-awkward. 
+awkward. You can find an attempt at a direct proof in
 
-...
+https://github.com/nicolabotta/SeqDecProbs/blob/master/idris-lang/injective_filter_lemma.3.lidr
 
-Matteo has suggested a more elegant approach. The idea (if I have
-understood it correctly) is to give inductive notions of the property of
-having no duplicates
+The code type checks but is incomplete. Also, it is ugly (look at the
+extensive usage of |replace| in the computation of |s9| at lines
+80-120!). I am probably missing something obvious but I have not managed
+to come up wiht a clean direct proof.
+
+Matteo has suggested a more elegant approach. The idea is, if I have
+understood it correctly, to give inductive definitions of the property
+of having no duplicates
 
 > namespace NotElem
 
@@ -132,26 +137,30 @@ With |noDupsFilterDecLemma|, |noDupsInjective1Lemma| and
 >     ndfas = noDupsFilterDecLemma dP as ndas
 
 Thus, the question is whether one can implement |noDupsFilterDecLemma|,
-|noDupsInjective1Lemma| and |injective1NoDupsLemma|. 
+|noDupsInjective1Lemma| and |injective1NoDupsLemma|. It is easy to
+implement |noDupsFilterDecLemma| if one can show
 
-> --noDupsFilterDecLemma : 
-> --  {A : Type} -> {P : A -> Type} -> {n : Nat} ->
-> --  (dP : Dec1 P) -> (as : Vect n A) ->
-> --  NoDups as -> NoDups (filterDec2 dP as)
+> notElemFilterDecLemma : 
+>   {A : Type} -> {P : A -> Type} -> {n : Nat} -> 
+>   (a : A) -> (as : Vect n A) -> (dP : Dec1 P) ->
+>   NotElem a as -> NotElem a (filterDec2 dP as)
+
+Then
+
 > noDupsFilterDecLemma dP  Nil      ndNil = Nil
 > noDupsFilterDecLemma dP (a :: as) (neaas :: ndas) with (filterDec dP as) proof itsEqual
 >   | (n ** fas) with (dP a) 
->     | (Yes _) = ?lika
+>     | (Yes _) = neafas :: ndfas where
+>       neafas : NotElem a fas 
+>       neafas = replace {P = \ rec => NotElem a (getProof rec)} (sym itsEqual) (notElemFilterDecLemma a as dP neaas)
+>       ndfas  : NoDups fas
+>       ndfas  = replace {P = \ rec => NoDups (getProof rec)} (sym itsEqual) (noDupsFilterDecLemma dP as ndas)
 >     | (No  _) = replace {P = \ rec => NoDups (getProof rec)} (sym itsEqual) (noDupsFilterDecLemma dP as ndas)
 
-
-filterDec-NoDups : ∀ {n}{xs : Vec A n} → NoDups xs → NoDups (filterDec₂ dec xs)
-filterDec-NoDups [] = []
-filterDec-NoDups (_∷_ {x = x} a ns) with dec x
-filterDec-NoDups (_∷_ n ns) | yes p = filterDec-□ n ∷ filterDec-NoDups ns
-filterDec-NoDups (_∷_ n ns) | no ¬p = filterDec-NoDups ns
-
-
+Thus, we are left with the problem of proving |notElemFilterDecLemma|,
+|noDupsInjective1Lemma| and |injective1NoDupsLemma|. Matteo has
+recognized that |notElemFilterDecLemma| is a special case of a more
+general lemma:
 
 > namespace All
 
@@ -161,11 +170,81 @@ filterDec-NoDups (_∷_ n ns) | no ¬p = filterDec-NoDups ns
 >     (::) : {A : Type} -> {n : Nat} -> {P : A -> Type} -> {x : A} -> {xs : Vect n A} -> 
 >            P x -> All P xs -> All P (x :: xs)
 
+> allFilterDecLemma : 
+>   {A : Type} -> {n : Nat} -> 
+>   (P1 : A -> Type) -> (P2 : A -> Type) -> (dP2 : Dec1 P2) -> (as : Vect n A) ->
+>   All P1 as -> All P1 (filterDec2 dP2 as)
+> allFilterDecLemma P1 P2 dP2  Nil             allas  = Nil
+> allFilterDecLemma P1 P2 dP2 (a :: as) (pa :: allas) with (filterDec dP2 as) proof itsEqual
+>   | (n ** fas) with (dP2 a) 
+>     | (Yes _) = pa :: allfas where
+>       allfas : All P1 fas 
+>       allfas = replace {P = \ rec => All P1 (getProof rec)} (sym itsEqual) (allFilterDecLemma P1 P2 dP2 as allas)
+>     | (No  _) = replace {P = \ rec => All P1 (getProof rec)} (sym itsEqual) (allFilterDecLemma P1 P2 dP2 as allas)
+
+since |NotElem a as| can be inferred from |All (\ a' => Not (a' = a)) as|:
+
+> allNotElemLemma : 
+>   {A : Type} -> {n : Nat} -> 
+>   (a : A) -> (as : Vect n A) -> All (\ a' => Not (a = a')) as -> NotElem a as
+> allNotElemLemma a  Nil        prf             = Nil
+> allNotElemLemma a (a' :: as) (naeqa' :: prf') = neaa'as where
+>   neaas   : NotElem a as
+>   neaas   = allNotElemLemma a as prf'
+>   neaa'as : NotElem a (a' :: as)
+>   neaa'as = naeqa' :: neaas
+
+and the other way round
+
+> notElemAllLemma : 
+>   {A : Type} -> {n : Nat} -> 
+>   (a : A) -> (as : Vect n A) -> NotElem a as -> All (\ a' => Not (a = a')) as
+> notElemAllLemma a  Nil       prf = Nil
+> notElemAllLemma a (a' :: as) (naeqa' :: neaas) = (naeqa' :: allas) where
+>   allas : All (\ a' => Not (a = a')) as
+>   allas = notElemAllLemma a as neaas
+
+and therefore
+
+> notElemFilterDecLemma {A} {P} {n} a as dP neaas = neafas where
+>   P1 : A -> Type
+>   P1 = \ a' => Not (a = a')
+>   allas  : All P1 as
+>   allas  = notElemAllLemma a as neaas
+>   allfas : All P1 (filterDec2 dP as)
+>   allfas = allFilterDecLemma P1 P dP as allas
+>   neafas : NotElem a (filterDec2 dP as)
+>   neafas = allNotElemLemma a (filterDec2 dP as) allfas
+
+In fact, Matteo has shown a more interesting result: namely that both
+|allFilterDecLemma| and |noDupsFilterDecLemma| can be derived from a
+more general property:
+
+> namespace DeepAll
+
+>   data DeepAll : {A : Type} -> {n : Nat} -> 
+>                  (P : (m : Nat) -> A -> Vect m A -> Type) -> Vect n A -> Type where 
+>     Nil  : {A : Type} -> {P : (m : Nat) -> A -> Vect m A -> Type} -> 
+>            DeepAll {A} {n = Z} P Nil
+>     (::) : {A : Type} -> {n : Nat} -> {P : (m : Nat) -> A -> Vect m A -> Type} -> 
+>            {a : A} -> {as : Vect n A} -> 
+>            P n a as -> DeepAll P as -> DeepAll P (a :: as)
+
+< deepAllFilterDecLemma : 
+<   {A : Type} -> {n : Nat} -> 
+<   (P1 : (m : Nat) -> A -> Vect m A -> Type) -> (P2 : A -> Type) -> (dP2 : Dec1 P2) -> (a : A) -> (as : Vect n A) ->
+<   P1 n a as -> 
+<   P1 (filterDec1 dP2 as) a (filterDec2 dP2 as) -> 
+<   DeepAll P1 as -> 
+<   DeepAll P1 (filterDec2 dP2 as)
+
+...
+
+No matter how |allFilterDecLemma| and |noDupsFilterDecLemma| are
+derived, we are left with two proof obligations: |noDupsInjective1Lemma|
+and |injective1NoDupsLemma|. Following Matteo's derivation ...
 
 
-
-
-> AllNotElemLemma1 : NotElem x xs -> All (\ y => Not (y = x)) xs
 
 
 
