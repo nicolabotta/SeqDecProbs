@@ -1,11 +1,8 @@
 > module TotalPreorderOperations
 
-
 > import TotalPreorder
 
-
 > %default total
-
 
 > ||| R
 > R : {A : Type} -> TotalPreorder A -> (A -> A -> Type)

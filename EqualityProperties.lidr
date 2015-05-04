@@ -1,6 +1,5 @@
 > module EqualityProperties
 
-
 > import Unique
 
 

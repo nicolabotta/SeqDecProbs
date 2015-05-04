@@ -2,6 +2,5 @@
 
 > %default total
 
-
 > Prop : Type
 > Prop = Type

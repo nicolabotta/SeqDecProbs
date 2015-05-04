@@ -1,6 +1,5 @@
 > module FiniteSubType
 
-
 > import Finite
 > import SubType
 > import Unique

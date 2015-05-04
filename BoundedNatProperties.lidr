@@ -11,10 +11,10 @@
 > import SigmaProperties
 > import FinProperties
 > import Finite
-> import Decidable
+> -- import Decidable
 > import Unique
-> import SubType
-> import FiniteSubTypeProperties
+> -- import SubType
+> -- import FiniteSubTypeProperties
 
 > %default total
 
@@ -206,5 +206,3 @@ Decidability properties
 > decEqLTB {b} (m ** p) (n ** q) with (decEq m n)
 >   | (Yes prf)   = Yes (sigmaEqLemma1 (m ** p) (n ** q) prf (uniqueLT))
 >   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
-
-

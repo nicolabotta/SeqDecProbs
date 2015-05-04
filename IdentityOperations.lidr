@@ -4,7 +4,7 @@
 > import Control.Monad.Identity
 
 
-> %default total 
+> %default total
 
 
 |Identity| is a container monad:
@@ -17,6 +17,3 @@
 > ||| Tagging
 > tagElem  :  {A : Type} -> (ma : Identity A) -> Identity (a : A ** a `Elem` ma)
 > tagElem (Id a) = Id (a ** Refl)
-
-
-

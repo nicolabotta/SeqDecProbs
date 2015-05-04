@@ -18,7 +18,7 @@
 > import Basics
 
 
-> %default total 
+> %default total
 
 > -- toVectComplete : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> Elem (f k) (toVect f)
 
@@ -27,7 +27,7 @@
 > toVectComplete : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (toVect fA)
 > toVectComplete (Evidence n iso) a = s3 where
 >   s1  :  Elem (from iso (to iso a)) (toVect (from iso))
->   s1  =  toVectComplete (from iso) (to iso a) 
+>   s1  =  toVectComplete (from iso) (to iso a)
 >   s2  :  from iso (to iso a) = a
 >   s2  =  fromTo iso a
 >   s3  :  Elem a (toVect (from iso))
@@ -35,7 +35,7 @@
 > {-
 > toVectComplete fA a = s3 where
 >   s1  :  Elem (fromFin fA (toFin fA a)) (toVect fA)
->   s1  =  FinProperties.toVectComplete (fromFin fA) (toFin fA a) 
+>   s1  =  FinProperties.toVectComplete (fromFin fA) (toFin fA a)
 >   s2  :  fromFin fA (toFin fA a) = a
 >   s2  =  FromFinToFin fA a
 >   s3  :  Elem a (toVect fA)
@@ -53,7 +53,7 @@
 >                 {b = A} {b1 = index j (toVect (from iso))} {b2 = (from iso) j}
 >                 {P = \ a => \b => a = b}
 >                 (toVectRepr (from iso) i) (toVectRepr (from iso) j) s1
->   s3 : i = j 
+>   s3 : i = j
 >   s3 = injectiveFrom iso i j s2
 
 
@@ -97,7 +97,7 @@ this by applying |contra|. To this end, we need a value of type |Any P
 Finiteness of products
 
 > finiteProduct : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
-> finiteProduct {A} {B} (Evidence m isoA) (Evidence n isoB) = 
+> finiteProduct {A} {B} (Evidence m isoA) (Evidence n isoB) =
 >   Evidence (m * n) (isoTrans (pairCong isoA isoB) finPairTimes)
 
 
@@ -106,7 +106,7 @@ Finiteness of products
 Porting the proof from the Vect world to the Finite world.
 
 Pseudo-code: case on the size |n| of the finite set
-0: empty set => No 
+0: empty set => No
 (n+1): case P (A 0) of
          Yes -> Yes
          No  -> recursive call with slightly smaller Finite
@@ -134,7 +134,7 @@ i)) or No (a function showing that any such "index+proof-pair" is
 absurd). To show that, we compute the lowest index for which we get a
 Yes, or No if no such index exists.
 
-A predicate over |Fin n| can be seen as a vector, so we use the 
+A predicate over |Fin n| can be seen as a vector, so we use the
 helper function |tail| from FinOperations.lidr:
 
 < tail : {A : Type} -> (Fin (S n) -> A) -> (Fin n -> A)
@@ -164,11 +164,11 @@ predicate. (Pick the lowest index with a |Yes|.)
 > using (n : Nat, P : Fin (S n) -> Prop)
 >   exiCons  :                    Exists (tail P)  ->      Exists P
 >   exiCons (Evidence i p) = Evidence (FS i) p
-    
->   nExiCons : Not (P FZ) -> Not (Exists (tail P)) -> Not (Exists P) 
+
+>   nExiCons : Not (P FZ) -> Not (Exists (tail P)) -> Not (Exists P)
 >   nExiCons n0 nt (Evidence FZ      p) = n0 p
 >   nExiCons n0 nt (Evidence (FS i)  p) = nt (Evidence i p)
-    
+
 >   decCons  : Dec (P FZ) -> Dec (Exists (tail P)) -> Dec (Exists P)
 >   decCons (Yes p) _        = Yes (Evidence FZ p)
 >   decCons (No np) (Yes pt) = Yes (exiCons pt)
@@ -178,18 +178,18 @@ Find the lowest index for which |dP| says |Yes|.
 
 > decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> Dec1 P -> Dec (Exists P)
 > decExistsFin Z     P dP = decNil
-> decExistsFin (S n) P dP = decCons (dP FZ) (decExistsFin n (tail P) 
+> decExistsFin (S n) P dP = decCons (dP FZ) (decExistsFin n (tail P)
 >                                                           (tailDec1 dP))
 
 With the simpler case out of the way we can return to the more general case:
 
-> existsIsoTo : {X : Type} -> {Y : Type} -> 
->             (iso : Iso X Y) -> (P : X -> Type) -> 
+> existsIsoTo : {X : Type} -> {Y : Type} ->
+>             (iso : Iso X Y) -> (P : X -> Type) ->
 >             Exists (P . (from iso)) -> Exists P
 > existsIsoTo {X} {Y} iso P (Evidence y pf) = Evidence (from iso y) pf
 
-> existsIsoFrom : {X : Type} -> {Y : Type} -> 
->             (iso : Iso X Y) -> (P : X -> Type) -> 
+> existsIsoFrom : {X : Type} -> {Y : Type} ->
+>             (iso : Iso X Y) -> (P : X -> Type) ->
 >             Exists P -> Exists (P . (from iso))
 > existsIsoFrom {X} {Y} iso P (Evidence x pf) = Evidence (to iso x) pf'
 >   where
@@ -198,15 +198,15 @@ With the simpler case out of the way we can return to the more general case:
 
 This is the core result:
 
-> finiteDecHelper : (n : Nat) -> {A : Type} -> FiniteN n A -> 
+> finiteDecHelper : (n : Nat) -> {A : Type} -> FiniteN n A ->
 >                   (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
-> finiteDecHelper n iso P dP = decIso' (existsIsoTo   iso P) 
->                                      (existsIsoFrom iso P) 
->                                      (decExistsFin n  (P . (from iso)) 
+> finiteDecHelper n iso P dP = decIso' (existsIsoTo   iso P)
+>                                      (existsIsoFrom iso P)
+>                                      (decExistsFin n  (P . (from iso))
 >                                                       (\x => dP (from iso x)))
 
 which can be packaged up as what we aimed for at the beginning:
 
-> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} -> 
+> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} ->
 >                   Finite A -> Dec1 P -> Dec (Exists P)
 > finiteDecLemma2 {P} (Evidence n iso) dP = finiteDecHelper n iso P dP

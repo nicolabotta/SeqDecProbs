@@ -2,10 +2,10 @@
 
 
 > import Data.Vect
-> import Data.VectType
+> -- import Data.VectType
 > import Data.Vect.Quantifiers
 > import Data.Fin
-> import Syntax.PreorderReasoning
+> -- import Syntax.PreorderReasoning
 
 > import Prop
 > import VectOperations
@@ -13,7 +13,7 @@
 > import TotalPreorder
 > import TotalPreorderOperations
 > import NatProperties
-> import FinOperations
+> -- import FinOperations
 > import FinProperties
 > import FunOperations
 
