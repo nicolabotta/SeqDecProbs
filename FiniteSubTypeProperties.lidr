@@ -10,6 +10,7 @@
 > import FiniteSubType
 > import Decidable
 > import Unique
+> import UniqueProperties
 > import SigmaOperations
 > import SigmaProperties
 > import VectOperations
@@ -21,9 +22,12 @@
 
 
 > ||| For decidable and unique predicates, subtypes of finite types are finite
+> ||| (proof suggested my Matteo Acerbi)
 > finiteSubTypeLemma0 : {A : Type} -> {P : A -> Type} ->
 >                       Finite A -> Dec1 P -> (uP : Unique1 P) ->
 >                       Finite (SubType A P uP)
+> finiteSubTypeLemma0 fA dP uP = finiteSigmaLemma0 fA (\ a => decUniqueFiniteLemma (dP a) (uP a))
+> {-                      
 > finiteSubTypeLemma0 {A} {P} fA dP uP = Evidence n iso where
 >   n        : Nat
 >   n        = getWitness (toVect fA dP)
@@ -43,5 +47,6 @@
 >   fromTo s = indexLookupLemma s rho (toVectComplete fA dP uP s)
 >   iso      : Iso (SubType A P uP) (Fin n)
 >   iso      = MkIso to from toFrom fromTo
+> -}
 
 TODO (perhaps): get rid of dependency on Vect (stay with isos).
