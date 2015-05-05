@@ -2,10 +2,10 @@
 
 
 > import Data.Vect
-> import Data.VectType
+> -- import Data.VectType
 > import Data.Vect.Quantifiers
 > import Data.Fin
-> import Syntax.PreorderReasoning
+> -- import Syntax.PreorderReasoning
 
 > import Prop
 > import VectOperations
@@ -13,7 +13,7 @@
 > import TotalPreorder
 > import TotalPreorderOperations
 > import NatProperties
-> import FinOperations
+> -- import FinOperations
 > import FinProperties
 > import FunOperations
 
@@ -40,7 +40,7 @@ Injectivity (of |flip index|):
 
 > ||| Injective1 implies Injective2
 > injectiveLemma : (xs : Vect n t) -> Injective1 xs -> Injective2 xs
-> injectiveLemma xs i1xs i j contra = contra . (i1xs i j) 
+> injectiveLemma xs i1xs i j contra = contra . (i1xs i j)
 
 
 > ||| Tail preserves injectivity (one direction)
@@ -118,7 +118,7 @@ Indexing and lookup
 >   s5 = void ((p FZ (FS k) s1) s2)
 > lookupIndexLemma (FS k) (x :: xs) p (There q) =
 >   let p' = injectiveTailLemma2 (x :: xs) p in
->   let ih = lookupIndexLemma k xs p' q in 
+>   let ih = lookupIndexLemma k xs p' q in
 >   rewrite ih in Refl
 
 
@@ -216,7 +216,7 @@ Filtering
 >                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
 >                   filterTagLemma d1P a1 as prf p
 
-
+> {- Just commented out for testing
 > ||| |filter| preserves injectivity
 > injectiveFilterLemma : {A : Type} ->
 >                        {P : A -> Type} ->
@@ -225,9 +225,8 @@ Filtering
 >                        (as : Vect n A) ->
 >                        Injective1 as ->
 >                        Injective1 (getProof (filter dP as))
->     
->     
-> {-     
+> -}
+> {-
 >     = s0 where
 >   n'  : Nat
 >   n'  = getWitness (filter dP (a :: as))

@@ -1,6 +1,5 @@
 > module FiniteSubTypeProperties
 
-
 > import Data.Fin
 > import Data.Vect
 > import Control.Isomorphism
@@ -15,7 +14,7 @@
 > import SigmaProperties
 > import VectOperations
 > import VectProperties
-> import FiniteOperations
+> -- import FiniteOperations
 
 
 > %default total

@@ -11,18 +11,14 @@
 > import SoProperties
 
 
-> %default total 
+> %default total
 
 
 > preorderFloatLTE : Preorder Float
-> preorderFloatLTE = 
+> preorderFloatLTE =
 >   MkPreorder FloatLTE reflexiveFloatLTE transitiveFloatLTE
 
 
 > totalPreorderFloatLTE : TotalPreorder Float
-> totalPreorderFloatLTE = 
+> totalPreorderFloatLTE =
 >   MkTotalPreorder FloatLTE reflexiveFloatLTE transitiveFloatLTE totalFloatLTE
-
-
-
-

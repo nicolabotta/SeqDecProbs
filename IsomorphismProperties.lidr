@@ -1,6 +1,5 @@
 > module IsomorphismProperties
 
-
 > import Control.Isomorphism
 
 > import IsomorphismOperations
@@ -8,7 +7,7 @@
 > import Basics
 
 
-> %default total 
+> %default total
 
 
 > |||
@@ -18,7 +17,7 @@
 
 > |||
 > isoCong : {A : Type} -> {x : A} -> {y : A} -> {P : A -> Type} -> x = y -> Iso (P x) (P y)
-> isoCong {x} {P} prf = replace {P = \ z => Iso (P x) (P z)} prf isoRefl 
+> isoCong {x} {P} prf = replace {P = \ z => Iso (P x) (P z)} prf isoRefl
 
 
 Injectivity of to and from

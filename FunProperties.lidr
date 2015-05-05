@@ -1,8 +1,6 @@
 > module FunProperties
 
-
 > %default total
-
 
 > ||| Injectivity (one direction)
 > Injective1 : {A, B : Type} -> (f : A -> B) -> Type
@@ -16,24 +14,24 @@
 
 > ||| Non injectivity, constructive
 > NonInjective : {A, B : Type} -> (f : A -> B) -> Type
-> NonInjective f = Exists (\ a1 => Exists (\ a2 => (Not (a1 = a2) , f a1 = f a2))) 
+> NonInjective f = Exists (\ a1 => Exists (\ a2 => (Not (a1 = a2) , f a1 = f a2)))
 
 
 > ||| Surjectivity
 > Surjective : {A, B : Type} -> (f : A -> B) -> Type
-> Surjective {B} f = (b : B) -> Exists (\ a => f a = b) 
+> Surjective {B} f = (b : B) -> Exists (\ a => f a = b)
 
 
 > ||| Non surjectivity, constructive
 > NonSurjective : {A, B : Type} -> (f : A -> B) -> Type
-> NonSurjective {A} f = Exists (\ b => (a : A) -> Not (f a = b)) 
+> NonSurjective {A} f = Exists (\ b => (a : A) -> Not (f a = b))
 
 
 Relationships of injectivity notions
 
 > ||| Injective1 implies Injective2
 > injectiveLemma : {A, B : Type} -> (f : A -> B) -> Injective1 f -> Injective2 f
-> injectiveLemma f i1f a1 a2 contra = contra . (i1f a1 a2) 
+> injectiveLemma f i1f a1 a2 contra = contra . (i1f a1 a2)
 
 
 Properties of constructive proofs
@@ -47,6 +45,4 @@ Properties of constructive proofs
 > ||| NonSurjective => Not Surjective
 > nonSurjectiveNotSurjective : {A, B : Type} -> (f : A -> B) -> NonSurjective f -> Not (Surjective f)
 > nonSurjectiveNotSurjective f (Evidence b faanfab) =
->   \ surjectivef => let a = (getWitness (surjectivef b)) in (faanfab a) (getProof (surjectivef b))  
-
-
+>   \ surjectivef => let a = (getWitness (surjectivef b)) in (faanfab a) (getProof (surjectivef b))

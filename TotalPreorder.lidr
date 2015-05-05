@@ -1,8 +1,6 @@
 > module TotalPreorder
 
-
 > import Preorder
-
 
 > %default total
 

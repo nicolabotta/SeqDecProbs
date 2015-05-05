@@ -51,7 +51,7 @@ A SDP is specified in terms of a monad ...
 > -- unused containerMonadSpec1 : a `Elem` (ret a)
 > -- unused containerMonadSpec2 : {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
 > --                               a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
-> containerMonadSpec3 : {A : Type} -> {P : A -> Prop} -> (a : A) -> (ma : M A) -> 
+> containerMonadSpec3 : {A : Type} -> {P : A -> Prop} -> (a : A) -> (ma : M A) ->
 >                       All P ma -> a `Elem` ma -> P a
 > -- unused tagElemSpec : {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
@@ -153,7 +153,7 @@ For every SDP, we can build the following notions:
 > OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
 >                             (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                             -- So (val x r v ps' <= val x r v ps)
->                             (val x r v ps') `LTE` (val x r v ps)                             
+>                             (val x r v ps') `LTE` (val x r v ps)
 
 > nilOptPolicySeq : OptPolicySeq Nil
 > nilOptPolicySeq ps' x r v = reflexiveLTE Z
@@ -175,7 +175,7 @@ For every SDP, we can build the following notions:
 
 > Bellman {t} {m} ps ops p oep = opps where
 >   opps : OptPolicySeq (p :: ps)
->   opps (p' :: ps') x r v = transitiveLTE 
+>   opps (p' :: ps') x r v = transitiveLTE
 >                            (val x r v (p' :: ps'))
 >                            (val x r v (p' :: ps))
 >                            (val x r v (p :: ps))
@@ -327,15 +327,15 @@ possible future evolutions from a (viable) initial state:
 
 >   stateCtrlTrj {t} {n = Z}   x r v Nil = ret (Nil x)
 
->   stateCtrlTrj {t} {n = S m} x r v (p :: ps') = 
->     fmap g (bind (tagElem mx') f) where  
+>   stateCtrlTrj {t} {n = S m} x r v (p :: ps') =
+>     fmap g (bind (tagElem mx') f) where
 >       y : Y t x
 >       y = outl (p x r v)
 >       mx' : M (X (S t))
 >       mx' = step t x y
 >       av  : All (Viable m) mx'
 >       av  = outr (p x r v)
->       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n) 
+>       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 >       g = ((x ** y) ::)
 >       f : (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
 >       f (x' ** x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
@@ -350,7 +350,7 @@ possible future evolutions from a (viable) initial state:
 The major disadvantage of |bi| is that its computational cost is
 polynomial in the number of steps. If the state space is finite
 
-> fX : (t : Nat) -> Finite (X t)
+< fX : (t : Nat) -> Finite (X t)
 
 we can implement a "tabulated" versions of |bi| which is linear in the
 number of steps. The starting point for implementing a tabulated version
@@ -359,9 +359,9 @@ time |t|, this is a value of type |Vect (card (fX t)) Nat| where |card
 (fX t)| is a natural number representing the cardinality of |X t|, see
 |FiniteOperations.lidr|:
 
-> tabOptExt : Vect (card (fX t)) Nat -> Policy t (S n)
+< tabOptExt : Vect (card (fX t)) Nat -> Policy t (S n)
 
-The idea is that the 
+The idea is that the
 
 < optExt : PolicySeq (S t) n -> Policy t (S n)
 < optExt {t} {n} ps = p where

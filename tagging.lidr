@@ -1,12 +1,12 @@
 > module Tagging
 
 > import Data.List
- 
-
-> %default total 
 
 
-> getW : {A : Type} -> {P : A -> Type} -> Sigma A P -> A 
+> %default total
+
+
+> getW : {A : Type} -> {P : A -> Type} -> Sigma A P -> A
 > getW = Prelude.Pairs.Sigma.getWitness
 
 
@@ -27,8 +27,8 @@
 > mapFstMapCrossLemma : (acs : List (a, c)) -> map fst (map (cross (id, f)) acs) = map fst acs
 > mapFstMapCrossLemma Nil = Refl
 > mapFstMapCrossLemma {f} (ac :: acs) = s5 where
->   s1 : map fst (map (cross (id, f)) (ac :: acs)) 
->        = 
+>   s1 : map fst (map (cross (id, f)) (ac :: acs))
+>        =
 >        map fst (((cross (id, f)) ac) :: (map (cross (id, f)) acs))
 >   s1 = Refl
 >   s2 : map fst (((cross (id, f)) ac) :: (map (cross (id, f)) acs))
@@ -38,9 +38,9 @@
 >   s3 : fst ((cross (id, f)) ac) :: (map fst (map (cross (id, f)) acs))
 >        =
 >        fst ac :: (map fst acs)
->   s3 = cong2 (::) (crossLemma ac) (mapFstMapCrossLemma acs)              
->   s4 : fst ac :: (map fst acs) 
->        = 
+>   s3 = cong2 (::) (crossLemma ac) (mapFstMapCrossLemma acs)
+>   s4 : fst ac :: (map fst acs)
+>        =
 >        map fst (ac :: acs)
 >   s4 = Refl
 >   s5 : map fst (map (cross (id, f)) (ac :: acs)) = map fst (ac :: acs)
@@ -60,24 +60,24 @@
 
 > mapGetWMapDepCrossLemma : {A : Type} -> {P1 : A -> Type} -> {P2 : A -> Type} ->
 >                           {f : (a : A) -> P1 a -> P2 a} ->
->                           (xs : List (a : A ** P1 a)) -> 
+>                           (xs : List (a : A ** P1 a)) ->
 >                           map (getW {P = P2}) (map (depCross (id ** f)) xs) = map (getW {P = P1}) xs
 > mapGetWMapDepCrossLemma Nil = Refl
 > mapGetWMapDepCrossLemma {A} {P1} {P2} {f} (x :: xs) = s5 where
->   gigi : getW (depCross (id ** f) x) 
->          = 
+>   gigi : getW (depCross (id ** f) x)
+>          =
 >          getW x
 >   gigi = depCrossLemma x
 >   gaga : map (getW {P = P2}) (map (depCross (id ** f)) xs)
 >          =
 >          map (getW {P = P1}) xs
 >   gaga = mapGetWMapDepCrossLemma xs
->   s1 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs)) 
->        = 
+>   s1 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs))
+>        =
 >        map (getW {P = P2}) ((depCross (id ** f) x) :: (map (depCross (id ** f)) xs))
 >   s1 = Refl
 >   s2 : map (getW {P = P2}) ((depCross (id ** f) x) :: (map (depCross (id ** f)) xs))
->        = 
+>        =
 >        ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
 >   s2 = Refl
 >   s3 : ((getW {P = P2}) (depCross (id ** f) x)) :: (map (getW {P = P2}) (map (depCross (id ** f)) xs))
@@ -88,7 +88,7 @@
 >        =
 >        map (getW {P = P1}) (x :: xs)
 >   s4 = Refl
->   s5 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs)) 
+>   s5 : map (getW {P = P2}) (map (depCross (id ** f)) (x :: xs))
 >        =
 >        map (getW {P = P1}) (x :: xs)
 >   s5 = trans s1 (trans s2 (trans s3 s4))
@@ -99,10 +99,10 @@
 
 
 > {-
- 
+
 > tagElemList : (as : List alpha) -> List (a : alpha ** a `Elem` as)
 > tagElemList Nil = Nil
-> tagElemList (a :: as) = (a ** Here) :: (map (depCross (id ** f a)) (tagElemList as)) 
+> tagElemList (a :: as) = (a ** Here) :: (map (depCross (id ** f a)) (tagElemList as))
 
 > tagElemListSpec : (as : List alpha) -> map getW (tagElemList as) = as
 > tagElemListSpec Nil = Refl
@@ -120,7 +120,7 @@
 >   s0 : lhs = rhs
 >   s0 = Refl
 >   s1 : map getW lhs = map getW rhs
->   s1 = Refl 
+>   s1 = Refl
 >   s2 : map getW rhs = (getW {P}) (a ** Here) :: (map (getW {P}) rhs')
 >   s2 = Refl
 >   s3 : (getW {P}) (a ** Here) :: (map (getW {P}) rhs')
@@ -138,19 +138,19 @@
 
 > {-
 
-> mapSnd : {alpha : Type} -> {P1 : alpha -> Type} -> {P2 : alpha -> Type} -> 
+> mapSnd : {alpha : Type} -> {P1 : alpha -> Type} -> {P2 : alpha -> Type} ->
 >          (f : (a : alpha) -> P1 a -> P2 a) -> (a : alpha ** P1 a) -> (a : alpha ** P2 a)
 > mapSnd f (a ** b) = (a ** f a b)
 
-> mapSndLemma : {alpha : Type} -> {P1 : alpha -> Type} -> {P2 : alpha -> Type} -> 
+> mapSndLemma : {alpha : Type} -> {P1 : alpha -> Type} -> {P2 : alpha -> Type} ->
 >               (f : (a : alpha) -> P1 a -> P2 a) ->
->               (ab : (a : alpha ** P1 a)) -> 
+>               (ab : (a : alpha ** P1 a)) ->
 >               getW (mapSnd f ab) = getW ab
 > mapSndLemma f (a ** Pa) = Refl
 
 > f : (a' : alpha) -> (a : alpha ** a `Elem` as) -> (a : alpha ** a `Elem` (a' :: as))
 > -- f a' (a ** prf) = (a ** There prf)
-> f a' = mapSnd (\ a, b => There b) 
+> f a' = mapSnd (\ a, b => There b)
 
 > tagElemList : (as : List alpha) -> List (a : alpha ** a `Elem` as)
 > tagElemList Nil = Nil
@@ -160,7 +160,7 @@
 > tagElemListSpec Nil = Refl
 > tagElemListSpec (a :: as) = s5 where
 >   s1 : a = a
->   s1 = Refl 
+>   s1 = Refl
 >   s2 : map getW (tagElemList as) = as
 >   s2 = tagElemListSpec as
 >   s3 : map getW (tagElemList (a :: as)) = map getW ((a ** Here) :: (map (f a) (tagElemList as)))
@@ -174,4 +174,3 @@
 > -}
 
 > --}
- 

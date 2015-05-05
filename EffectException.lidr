@@ -1,5 +1,5 @@
 > module EffectException
- 
+
 
 > import Effects
 > import Effect.Exception
@@ -36,9 +36,6 @@
 >   = if all (\x => isDigit x || x == '-') (unpack str)
 >     then pure (cast {to = Int} str)
 >     else raise "Not an Int!"
-
-
-
 
 
 -- Local Variables:

@@ -5,7 +5,7 @@
 > import Prop
 
 
-> %default total 
+> %default total
 
 
 > ||| If |P| is decidable, |Not P| is decidable
@@ -26,12 +26,9 @@
 
 > ||| If |P| and |Q| are decidable, |Either P Q| is decidable
 > decEither : {P, Q : Prop} -> Dec P -> Dec Q -> Dec (Either P Q)
-> decEither (Yes p) (Yes q) = Yes (Left p)
-> decEither (Yes p) (No nq) = Yes (Left p)
+> decEither (Yes p) _       = Yes (Left p)
 > decEither (No np) (Yes q) = Yes (Right q)
 > decEither {P} {Q} (No np) (No nq) = No contra where
 >   contra : Either P Q -> Void
 >   contra (Left  p) = np p
 >   contra (Right q) = nq q
-
-
