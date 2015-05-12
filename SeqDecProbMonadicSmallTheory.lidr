@@ -557,10 +557,10 @@ of |trbi|:
 >      psvt = biT (S t) n
 >      ps : PolicySeq (S t) n
 >      ps = fst psvt
->      p : Policy t (S n)
->      p = optExt ps
 >      vt : ValueTable (S t) n
 >      vt = snd psvt
+>      p : Policy t (S n)
+>      p = tabOptExt ps vt
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVX t (S n)) -> Nat

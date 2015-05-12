@@ -98,6 +98,7 @@ is the identity monad:
 > column : X t -> Nat
 > column = outl
 
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fX t = finiteLTB _
 
 ** Actions:
 
@@ -269,6 +270,41 @@ and
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
 >   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (Main.fViable (S t) n) (step t x y)
 
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fViable = Main.fViable
+
+TODO: fix these definitions
+
+> finiteEmpty : Not (a = a') -> Finite (a = a')
+> finiteEmpty contra = Evidence Z (MkIso (\x  => void (contra x))        -- a = a' -> Fin Z
+>                                        (\fz => void (uninhabited fz))  -- Fin Z  -> a = a'
+>                                        (\fz => void (uninhabited fz))  --
+>                                        (\x => void (contra x)))
+
+> finElem : {A : Type} -> DecEq A => (a : A) -> (ma : M A) -> Finite (a `IdentityOperations.Elem` ma)
+> finElem a (Id a') with (decEq a a')
+>   finElem a (Id a)  | (Yes Refl)  = ?foo -- finiteSingleton -- TODO
+>   finElem a (Id a') | (No contra) = finiteEmpty contra
+
+> finPred : (x : X t) -> (x' : X (S t)) -> Finite (x `Pred` x')
+> finPred {t} x x' = finiteExistsLemma (fY t x) fElem where
+>   fElem : Finite1 (\ y => x' `Elem` (step t x y))
+>   fElem y = finElem x' (step t x y)
+
+> finReachable : (x : X t) -> Finite (Reachable x)
+> finReachable {t = Z}   x' = ?bar -- finiteSingleton
+> finReachable {t = S n} x' = finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
+
+of |Pred|
+
+
+> fReach : (t : Nat) -> (x : X t) -> Finite (Reachable x)
+> fReach t x = ?foos
+
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fReachable = ?lala
+
+SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.vtLemma =
+
+
 With |f1AllViable| we can finally implement |fYAV|
 
 > fYAV t n x v = finiteSigmaLemma0 (fY t x) (f1AllViable t n x)
@@ -351,7 +387,7 @@ and |max|, |argmax|:
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable Z nSteps x0) of
->        (Yes v0) => do ps   <- bie Z nSteps -- pure (bi Z nSteps)
+>        (Yes v0) => do let ps = fst (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       -- as   <- pure (actions Z nSteps mxys)
 >                       -- putStrLn (show as)
