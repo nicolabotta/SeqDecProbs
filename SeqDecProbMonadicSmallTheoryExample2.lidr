@@ -23,6 +23,7 @@
 > import FiniteOperations
 > import FiniteProperties
 > import Unique
+> import UniqueProperties
 > import SoProperties
 > import SubType
 > import Decidable
@@ -280,19 +281,19 @@ TODO: fix these definitions
 >                                        (\fz => void (uninhabited fz))  --
 >                                        (\x => void (contra x)))
 
-> finElem : {A : Type} -> DecEq A => (a : A) -> (ma : M A) -> Finite (a `IdentityOperations.Elem` ma)
+> finElem : {A : Type} -> DecEq A => (a : A) -> (ma : M A) -> Finite (SeqDecProbMonadicSmallTheory.Elem a ma)
 > finElem a (Id a') with (decEq a a')
->   finElem a (Id a)  | (Yes Refl)  = ?foo -- finiteSingleton -- TODO
+>   finElem a (Id a)  | (Yes Refl)  = uniqueFiniteLemma1 Refl (uniqueEq a a)
 >   finElem a (Id a') | (No contra) = finiteEmpty contra
 
 > finPred : (x : X t) -> (x' : X (S t)) -> Finite (x `Pred` x')
 > finPred {t} x x' = finiteExistsLemma (fY t x) fElem where
->   fElem : Finite1 (\ y => x' `Elem` (step t x y))
->   fElem y = finElem x' (step t x y)
+>   fElem : Finite1 (\ y => SeqDecProbMonadicSmallTheory.Elem x' (step t x y))
+>   fElem y = ?jika -- finElem x' (step t x y)
 
 > finReachable : (x : X t) -> Finite (Reachable x)
 > finReachable {t = Z}   x' = ?bar -- finiteSingleton
-> finReachable {t = S n} x' = finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
+> finReachable {t = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
 
 of |Pred|
 
