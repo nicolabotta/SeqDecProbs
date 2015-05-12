@@ -101,6 +101,7 @@ is the identity monad:
 
 > SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fX t = finiteLTB _
 
+
 ** Actions:
 
 > data Action = Left | Ahead | Right
@@ -286,10 +287,18 @@ TODO: fix these definitions
 >   finElem a (Id a)  | (Yes Refl)  = uniqueFiniteLemma1 Refl (uniqueEq a a)
 >   finElem a (Id a') | (No contra) = finiteEmpty contra
 
-> finPred : (x : X t) -> (x' : X (S t)) -> Finite (x `Pred` x')
-> finPred {t} x x' = finiteExistsLemma (fY t x) fElem where
->   fElem : Finite1 (\ y => SeqDecProbMonadicSmallTheory.Elem x' (step t x y))
->   fElem y = ?jika -- finElem x' (step t x y)
+> finPred : (x : X t) -> (x' : X (S t)) -> Finite (Pred {t} x x') -- Finite (x `Pred` x')
+> finPred {t} x x' = fPred where -- finiteExistsLemma (fY t x) fElem where
+>   P : Y t x -> Type
+>   P = \ y => SeqDecProbMonadicSmallTheory.Elem x' (step t x y)
+>   fElem : Finite1 P
+>   fElem y = ?lala -- finElem x' (step t x y) -- we have to say that |X t| is in |DecEq|: how ?
+>   fExistsY : Finite (Exists P)
+>   fExistsY = finiteExistsLemma (fY t x) fElem
+>   guga  : Exists P = Pred {t} x x'
+>   guga  = Refl
+>   fPred : Finite (Pred {t} x x')
+>   fPred = replace guga fExistsY
 
 > finReachable : (x : X t) -> Finite (Reachable x)
 > finReachable {t = Z}   x' = ?bar -- finiteSingleton
