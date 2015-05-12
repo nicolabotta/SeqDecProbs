@@ -29,8 +29,8 @@
 
 
 > ||| Unique properties are finite
-> uniqueFiniteLemma2 : {P : Type} -> Not P -> Unique P -> Finite P
-> uniqueFiniteLemma2 {P} contra up = Evidence n (MkIso to from toFrom fromTo) where
+> uniqueFiniteLemma2 : {P : Type} -> Not P -> Finite P
+> uniqueFiniteLemma2 {P} contra = Evidence n (MkIso to from toFrom fromTo) where
 >   n : Nat
 >   n = Z
 >   to : P -> Fin n
@@ -45,5 +45,5 @@
 
 > ||| Decidable and unique properties are finite
 > decUniqueFiniteLemma : {P : Type} -> Dec P -> Unique P -> Finite P
-> decUniqueFiniteLemma (Yes p) uP = uniqueFiniteLemma1 p uP
-> decUniqueFiniteLemma (No contra) uP = uniqueFiniteLemma2 contra uP
+> decUniqueFiniteLemma (Yes p)     uP = uniqueFiniteLemma1 p uP
+> decUniqueFiniteLemma (No contra) _ = uniqueFiniteLemma2 contra
