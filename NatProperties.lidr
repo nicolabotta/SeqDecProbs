@@ -160,10 +160,10 @@ Properties of |minus|:
 >   s1 : S m' - S n' = m' - n'
 >   s1 = Refl
 >   s2 : m' - n' = Z
->   s2 = minusLemma0 (succInjective m' n' prf) 
+>   s2 = minusLemma0 (succInjective m' n' prf)
 
 
-> ||| 
+> |||
 > minusLemma1 : n - m = S l -> l = n - (S m)
 > minusLemma1 {l} {m = Z}    {n = Z}    p = absurd p
 > minusLemma1 {l} {m = Z}    {n = S n'} p = s5 where
@@ -187,7 +187,7 @@ Properties of |minus|:
 >   s3 = trans s2 Refl
 
 
-> ||| 
+> |||
 > minusLemma2 : LTE m n -> n - m = S l -> LTE (S m) n
 > minusLemma2 {m = Z}    {n = Z}    p q = absurd q
 > minusLemma2 {m = Z}    {n = S n'} p q = LTESucc LTEZero
@@ -195,19 +195,19 @@ Properties of |minus|:
 > minusLemma2 {m = S m'} {n = S n'} (LTESucc p') q = LTESucc (minusLemma2 p' q)
 
 
-> ||| 
+> |||
 > minusLemma3 : LTE m n -> Z = n - m -> m = n
 > minusLemma3 {m = Z}    {n = Z}    p q = Refl
 > minusLemma3 {m = Z}    {n = S n'} p q = absurd q
 > minusLemma3 {m = S m'} {n = Z}    p q = absurd p
-> minusLemma3 {m = S m'} {n = S n'} (LTESucc p') q = 
+> minusLemma3 {m = S m'} {n = S n'} (LTESucc p') q =
 >   eqSucc m' n' (minusLemma3 {m = m'} {n = n'} p' q') where
 >     q' : Z = n' - m'
 >     q' = trans q Refl
 
 
-> ||| 
-> minusLemma4 : LTE m n -> n - m = S l -> n - (S m) = l
+> |||
+> -- minusLemma4 : LTE m n -> n - m = S l -> n - (S m) = l
 
 
 Decidability

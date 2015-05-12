@@ -301,9 +301,9 @@ induction:
 
 > bi : (t : Nat) -> (n : Nat) -> PolicySeq t n
 > bi t  Z     =  Nil
-> bi t (S n)  =  (optExt ps :: ps) where
->   ps : PolicySeq (S t) n
->   ps = bi (S t) n
+> bi t (S n)  =  let -- ps : PolicySeq (S t) n
+>                    ps = bi (S t) n
+>                in (optExt ps :: ps)
 
 -- > biLemma : (t : Nat) -> (n : Nat) -> OptPolicySeq (bi t n)
 -- > biLemma t  Z     =  nilOptPolicySeq
@@ -355,7 +355,9 @@ possible future evolutions from a (viable) initial state:
 
 
 
-The major disadvantage of |bi| 
+
+
+The major disadvantage of |bi|
 
 < bi : (t : Nat) -> (n : Nat) -> PolicySeq t n
 < bi t  Z     =  Nil
@@ -384,7 +386,7 @@ resulting in
 
 or 7 calls to |optExt|. One more decision step implies 15 calls to
 |optExt| suggesting that the number of calls to |optExt| for |n|
-decision steps is |sum_{i = 0}^{n - 1} 2^j = (1 - 2^n) / (1 - 2)|.  
+decision steps is |sum_{i = 0}^{n - 1} 2^j = (1 - 2^n) / (1 - 2)|.
 
 We can make the number of calls to |optExt| linear in |n| by rewriting
 |bi| in tail-recursive form. The first step is to replace the recursive
@@ -394,10 +396,10 @@ an auxiliary function |ibi| which implements backwards induction
 iteratively:
 
 > %assert_total
-> ibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n -> 
+> ibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n ->
 >       PolicySeq (n - c + t) c -> PolicySeq t n
 > ibi t n c prf ps with (n - c) proof itsEqual
->   |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn 
+>   |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn
 >             ps where
 >       ceqn : c = n
 >       ceqn = minusLemma3 prf itsEqual
@@ -405,7 +407,7 @@ iteratively:
 >       prf' : LTE (S c) n
 >       prf' = minusLemma2 prf (sym itsEqual)
 >       ps'  : PolicySeq (n - (S c) + t) (S c)
->       ps'  = replace {P = \ x => PolicySeq (x + t) (S c)} (minusLemma1 (sym itsEqual)) 
+>       ps'  = replace {P = \ x => PolicySeq (x + t) (S c)} (minusLemma1 (sym itsEqual))
 >              ((optExt ps) :: ps)
 
 > trbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
@@ -415,16 +417,16 @@ We can easily check that |trbi 0 3| and |bi 0 3| reduce to the same expression
 
 < trbi 0 3
 <   = {def. |trbi|}
-< ibi 0 3 0 LTEZero 
+< ibi 0 3 0 LTEZero
 < Nil
 <   = {def. |ibi|}
-< ibi 0 3 1 (...) 
+< ibi 0 3 1 (...)
 < (optExt Nil) :: Nil
 <   = {def. |ibi|}
-< ibi 0 3 2 (...) 
+< ibi 0 3 2 (...)
 < (optExt ((optExt Nil) :: Nil)) :: (optExt Nil) :: Nil
 <   = {def. |ibi|}
-< ibi 0 3 3 (...) 
+< ibi 0 3 3 (...)
 < (optExt ((optExt ((optExt Nil) :: Nil)) :: (optExt Nil) :: Nil)) :: (optExt ((optExt Nil) :: Nil)) :: (optExt Nil) :: Nil
 <   = {def. |ibi|}
 < (optExt ((optExt ((optExt Nil) :: Nil)) :: (optExt Nil) :: Nil)) :: (optExt ((optExt Nil) :: Nil)) :: (optExt Nil) :: Nil
@@ -494,11 +496,11 @@ storing the value, for a given |ps : PolicySeq (S t) n| and for every
 state in |RVX t (S n)|, of taking |n| decision steps with |ps| starting
 from that state:
 
->   vtLemma : (t : Nat) -> (n : Nat) -> 
->             (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) -> 
->             (x : X (S t)) -> (r : Reachable x) -> (v : Viable n x) -> 
->             index (lookup (x ** (r , v)) (rRVX (S t) n) (rRVXcomplete (S t) n (x ** (r , v)))) vt 
->             = 
+>   vtLemma : (t : Nat) -> (n : Nat) ->
+>             (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) ->
+>             (x : X (S t)) -> (r : Reachable x) -> (v : Viable n x) ->
+>             index (lookup (x ** (r , v)) (rRVX (S t) n) (rRVXcomplete (S t) n (x ** (r , v)))) vt
+>             =
 >             val x r v ps
 
 Under these assumption, one can implement |tabOptExt| from |optExt| by
@@ -539,13 +541,51 @@ Nat|:
 With |tabOptExt| in place, it is easy to implement a tabulated version
 of |trbi|:
 
+> ValueTable : Nat -> Nat -> Type
+> ValueTable t n = Vect (cRVX t n) Nat  -- a table of the result of calling flip val (roughly) on a PolicySeq
+> PolicySeqAndTab : Nat -> Nat -> Type
+> PolicySeqAndTab t n = (PolicySeq t n, ValueTable t n)
+
+> zeroVec : (n : Nat) -> Vect n Nat
+> zeroVec Z     = Nil
+> zeroVec (S n) = Z :: zeroVec n
+
+> biT : (t : Nat) -> (n : Nat) -> PolicySeqAndTab t n
+> biT t  Z     =  (Nil, zeroVec _)
+> biT t (S n)  =  (p :: ps , vt') where
+>      psvt : PolicySeqAndTab (S t) n
+>      psvt = biT (S t) n
+>      ps : PolicySeq (S t) n
+>      ps = fst psvt
+>      p : Policy t (S n)
+>      p = optExt ps
+>      vt : ValueTable (S t) n
+>      vt = snd psvt
+>      vt' : ValueTable t (S n)
+>      vt' = toVect vtf where
+>         vtf : Fin (cRVX t (S n)) -> Nat
+>         vtf k = g yav where
+>           xrv : Sigma (X t) (ReachableAndViable t (S n))
+>           xrv = index k (rRVX t (S n))
+>           x   : X t
+>           x   = getWitness xrv
+>           r   : Reachable x
+>           r   = fst (getProof xrv)
+>           v   : Viable (S n) x
+>           v   = snd (getProof xrv)
+>           g   : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
+>           g   = TabulatedBackwardsInduction.mkg x r v vt
+>           yav : (y : Y t x ** All (Viable n) (step t x y))
+>           yav = p x r v
+
+> {-
 > %assert_total
-> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n -> 
->          PolicySeq (n - c + t) c -> 
+> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n ->
+>          PolicySeq (n - c + t) c ->
 >          (vt : Vect (cRVX (n - c + t) c) Nat) ->
 >          PolicySeq t n
 > tabibi t n c prf ps vt with (n - c) proof itsEqual
->   |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn 
+>   |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn
 >             ps where
 >       ceqn : c = n
 >       ceqn = minusLemma3 prf itsEqual
@@ -557,14 +597,14 @@ of |trbi|:
 >       prf' : LTE c' n
 >       prf' = minusLemma2 prf (sym itsEqual)
 >       ps'  : PolicySeq t' c'
->       ps'  = replace {P = \ x => PolicySeq (x + t) c'} (minusLemma1 (sym itsEqual)) 
+>       ps'  = replace {P = \ x => PolicySeq (x + t) c'} (minusLemma1 (sym itsEqual))
 >              ((tabOptExt ps vt) :: ps)
 >       vt'  : Vect (cRVX t' c') Nat
 >       vt'  = toVect vt'f where
 >         vt'f : Fin (cRVX t' c') -> Nat
 >         vt'f k = g yav where
 >           xrv : Sigma (X t') (ReachableAndViable t' c')
->           xrv = index k (rRVX t' c') 
+>           xrv = index k (rRVX t' c')
 >           x   : X t'
 >           x   = getWitness xrv
 >           r   : Reachable x

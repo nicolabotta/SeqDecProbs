@@ -37,7 +37,7 @@
 > import FinOperations
 
 
-> %default total 
+> %default total
 
 
 We reimplement the example from "S1306_Example2" in the new theory. |M|
@@ -67,7 +67,7 @@ is the identity monad:
 
 > SeqDecProbMonadicSmallTheory.tagElem = IdentityOperations.tagElem
 
-> SeqDecProbMonadicSmallTheory.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 = 
+> SeqDecProbMonadicSmallTheory.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
 >   replace (sym a1eqa2) pa2
 
 > -- SeqDecProbMonadicSmallTheory.containerMonadSpec3 {ma = Id a} pa Refl = pa
@@ -168,10 +168,10 @@ for each step.
 *** Admissible is decidable and unique:
 
 > d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
-> d1Admissible t x = dec1So {A = Action} (admissible t x) 
+> d1Admissible t x = dec1So {A = Action} (admissible t x)
 
 > u1Admissible : (t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
-> u1Admissible t x = unique1So {A = Action} (admissible t x) 
+> u1Admissible t x = unique1So {A = Action} (admissible t x)
 
 *** Controls proper:
 
@@ -195,21 +195,21 @@ for each step.
 
 ** Transition function:
 
-> SeqDecProbMonadicSmallTheory.step t (Z   ** prf) (Left  ** aL) = 
+> SeqDecProbMonadicSmallTheory.step t (Z   ** prf) (Left  ** aL) =
 >   Id (maxColumn ** ltIdS maxColumn)
-> SeqDecProbMonadicSmallTheory.step t (S n ** prf) (Left  ** aL) = 
+> SeqDecProbMonadicSmallTheory.step t (S n ** prf) (Left  ** aL) =
 >   Id (n ** ltLemma1 n nColumns prf)
-> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Ahead ** aA) = 
+> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Ahead ** aA) =
 >   Id (n ** prf)
-> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn) 
+> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn)
 >   | (Yes p)     = Id (S n ** LTESucc p)
->   | (No contra) = Id (Z   ** LTESucc LTEZero) 
+>   | (No contra) = Id (Z   ** LTESucc LTEZero)
 
 
 
 ** Reward function:
 
-> SeqDecProbMonadicSmallTheory.reward t x y x' = 
+> SeqDecProbMonadicSmallTheory.reward t x y x' =
 >   if column {t = S t} x' == Z
 >   then (S Z)
 >   else if S (column {t = S t} x') == nColumns
@@ -223,10 +223,10 @@ for each step.
 We want to implement
 
 < max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
-<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) -> 
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 <          Nat
 < argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
-<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) -> 
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 <          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
 This can be easily done using |Opt.max| and |Opt.argmax| if we can show
@@ -241,9 +241,9 @@ non-emptiness is straightforward:
 
 > neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
-> neYAV t n x (Evidence y v) = 
->   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->                 (fYAV t n x (Evidence y v)) 
+> neYAV t n x (Evidence y v) =
+>   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>                 (fYAV t n x (Evidence y v))
 >                 (y ** v)
 
 Thus, the problem is that of implementing |fYAV|. We already know that
@@ -251,11 +251,11 @@ Thus, the problem is that of implementing |fYAV|. We already know that
 n) (step t x y)| is also finite, we can apply |finiteSigmaLemma| from
 |SigmaProperties| and we are done. We show the result in two steps
 
-> fAll : {t : Nat} -> {P : X t -> Type} -> 
+> fAll : {t : Nat} -> {P : X t -> Type} ->
 >        Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
-> fAll f1P (Id x) = f1P x 
+> fAll f1P (Id x) = f1P x
 
-and 
+and
 
 > mutual
 
@@ -275,10 +275,10 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadicSmallTheory.max     {n} t x v  =  
+> SeqDecProbMonadicSmallTheory.max     {n} t x v  =
 >   Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadicSmallTheory.argmax  {n} t x v  =  
+> SeqDecProbMonadicSmallTheory.argmax  {n} t x v  =
 >   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
 
@@ -287,7 +287,7 @@ and |max|, |argmax|:
 
 ** Viable is decidable:
 
-> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
+> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx)
 > dAll t P dP (Id x) = dP x
 
 > dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
@@ -303,29 +303,59 @@ and |max|, |argmax|:
 
 ** Actions of state/control sequences
 
-> actions : (t : Nat) -> 
->           (n : Nat) -> 
+> actions : (t : Nat) ->
+>           (n : Nat) ->
 >           Identity (StateCtrlSeq t n) ->
 >           Vect n Action
 > actions _ Z _ = Nil
-> actions t (S n) (Id ((x ** y) :: xys)) 
->   = 
+> actions t (S n) (Id ((x ** y) :: xys))
+>   =
 >   (outl y) :: (actions (S t) n (Id xys))
 
 
+> showState : X t -> String
+> showState {t} x = show (column {t} x)
+> showControl : Y t x -> String
+> showControl y = show (getWitness y)
+>
+> showStateControl : (x : X t ** Y t x) -> String
+> showStateControl {t} (x ** y) = showState {t} x ++ " ** " ++ showControl y
+
+> showSCS : StateCtrlSeq t n -> String
+> showSCS {t} (Nil x)   = "Nil" ++ showState {t} x
+> showSCS (p :: ps) = showStateControl p ++ " :: " ++ showSCS ps
+
+> showMSCS : Identity (StateCtrlSeq t n) -> String
+> showMSCS (Id scs) = showSCS scs
+
 ** Computation
 
+> showSeq : PolicySeq t n -> String
+> showSeq Nil = "Nil"
+> showSeq (p :: ps) = "? :: " ++ showSeq ps
+
+
+> %assert_total
+> bie : (t : Nat) -> (n : Nat) -> ({ [STDIO] } Eff (PolicySeq t n))
+> bie t  Z     =  pure Nil
+> bie t (S n)  =  do ps <- bie (S t) n
+>                    putStrLn (showSeq ps)
+>                    pure (optExt ps :: ps)
+
+
+
 > computation : { [STDIO] } Eff ()
-> computation = 
+> computation =
 >   do putStr ("enter number of steps:\n")
 >      nSteps <- getNat
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable Z nSteps x0) of
->        (Yes v0) => do ps   <- pure (trbi Z nSteps)
+>        (Yes v0) => do ps   <- bie Z nSteps -- pure (bi Z nSteps)
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       as   <- pure (actions Z nSteps mxys)
->                       putStrLn (show as)
+>                       -- as   <- pure (actions Z nSteps mxys)
+>                       -- putStrLn (show as)
+>                       putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 
 
