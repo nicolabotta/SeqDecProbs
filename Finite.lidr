@@ -2,7 +2,7 @@
 > import Prelude.Maybe
 > import Data.Fin
 > import Control.Isomorphism
-> import EmbProj
+> -- import EmbProj
 > 
 > %default total 
 
@@ -17,6 +17,7 @@
 > Finite1 : {A : Type} -> (P : A -> Type) -> Type
 > Finite1 {A} P = (a : A) -> Finite0 (P a) 
 
+> {-
 
 This definition requires an exact cardinality |n| which may be
 difficult to compute. But it is enough to know a finite bound, so an
@@ -29,3 +30,5 @@ alternative definition which may be more convenient is the following:
 
 > FiniteN : Nat -> Type -> Type
 > FiniteN n A = Iso A (Fin n)
+
+> ---}

@@ -96,10 +96,17 @@ this by applying |contra|. To this end, we need a value of type |Any P
 
 Finiteness of products
 
+> ||| If |P| and |Q| are finite, |(P , Q)| is finite
 > finiteProduct : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
 > finiteProduct {A} {B} (Evidence m isoA) (Evidence n isoB) =
 >   Evidence (m * n) (isoTrans (pairCong isoA isoB) finPairTimes)
 
+
+> finitePair : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
+> finitePair = finiteProduct
+
+
+> {- we have to comply with the new |record| syntax for this to type check
 
 ----
 
@@ -210,3 +217,5 @@ which can be packaged up as what we aimed for at the beginning:
 > finiteDecLemma2 : {A : Type} -> {P : A -> Prop} ->
 >                   Finite A -> Dec1 P -> Dec (Exists P)
 > finiteDecLemma2 {P} (Evidence n iso) dP = finiteDecHelper n iso P dP
+
+> ---}

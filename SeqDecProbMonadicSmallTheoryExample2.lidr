@@ -10,7 +10,7 @@
 > import Effect.Exception
 > import Effect.StdIO
 
-> import SeqDecProbMonadicTheory
+> import SeqDecProbMonadicSmallTheory
 > import IdentityOperations
 > import IdentityProperties
 > import BoundedNat
@@ -50,34 +50,32 @@ is the identity monad:
 
 ** M is a monad:
 
-> SeqDecProbMonadicTheory.M = Identity
+> SeqDecProbMonadicSmallTheory.M = Identity
 
-> SeqDecProbMonadicTheory.fmap = map
+> SeqDecProbMonadicSmallTheory.fmap = map
 
-> SeqDecProbMonadicTheory.ret = return
+> SeqDecProbMonadicSmallTheory.ret = return
 
-> SeqDecProbMonadicTheory.bind = (>>=)
+> SeqDecProbMonadicSmallTheory.bind = (>>=)
 
 
 ** M is a container monad:
 
-> SeqDecProbMonadicTheory.Elem = IdentityOperations.Elem
+> SeqDecProbMonadicSmallTheory.Elem = IdentityOperations.Elem
 
-> SeqDecProbMonadicTheory.All P (Id a) = P a
+> SeqDecProbMonadicSmallTheory.All P (Id a) = P a
 
-> SeqDecProbMonadicTheory.tagElem = IdentityOperations.tagElem
+> SeqDecProbMonadicSmallTheory.tagElem = IdentityOperations.tagElem
 
-> SeqDecProbMonadicTheory.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 = 
+> SeqDecProbMonadicSmallTheory.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 = 
 >   replace (sym a1eqa2) pa2
 
-> -- SeqDecProbMonadicTheory.containerMonadSpec3 {ma = Id a} pa Refl = pa
+> -- SeqDecProbMonadicSmallTheory.containerMonadSpec3 {ma = Id a} pa Refl = pa
 
 
 ** M is measurable:
 
-> SeqDecProbMonadicTheory.meas (Id x) = x
-
-> SeqDecProbMonadicTheory.measMon f g prf (Id x) = prf x
+> SeqDecProbMonadicSmallTheory.meas (Id x) = x
 
 
 
@@ -95,7 +93,7 @@ is the identity monad:
 
 ** States:
 
-> SeqDecProbMonadicTheory.X t = LTB nColumns
+> SeqDecProbMonadicSmallTheory.X t = LTB nColumns
 
 > column : X t -> Nat
 > column = outl
@@ -177,7 +175,7 @@ for each step.
 
 *** Controls proper:
 
-> SeqDecProbMonadicTheory.Y t x = SubType Action (Admissible t x) (u1Admissible t x)
+> SeqDecProbMonadicSmallTheory.Y t x = SubType Action (Admissible t x) (u1Admissible t x)
 
 *** Controls are finite:
 
@@ -197,13 +195,13 @@ for each step.
 
 ** Transition function:
 
-> SeqDecProbMonadicTheory.step t (Z   ** prf) (Left  ** aL) = 
+> SeqDecProbMonadicSmallTheory.step t (Z   ** prf) (Left  ** aL) = 
 >   Id (maxColumn ** ltIdS maxColumn)
-> SeqDecProbMonadicTheory.step t (S n ** prf) (Left  ** aL) = 
+> SeqDecProbMonadicSmallTheory.step t (S n ** prf) (Left  ** aL) = 
 >   Id (n ** ltLemma1 n nColumns prf)
-> SeqDecProbMonadicTheory.step t (n   ** prf) (Ahead ** aA) = 
+> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Ahead ** aA) = 
 >   Id (n ** prf)
-> SeqDecProbMonadicTheory.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn) 
+> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn) 
 >   | (Yes p)     = Id (S n ** LTESucc p)
 >   | (No contra) = Id (Z   ** LTESucc LTEZero) 
 
@@ -211,7 +209,7 @@ for each step.
 
 ** Reward function:
 
-> SeqDecProbMonadicTheory.reward t x y x' = 
+> SeqDecProbMonadicSmallTheory.reward t x y x' = 
 >   if column {t = S t} x' == Z
 >   then (S Z)
 >   else if S (column {t = S t} x') == nColumns
@@ -277,17 +275,11 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadicTheory.max     {n} t x v  =  
+> SeqDecProbMonadicSmallTheory.max     {n} t x v  =  
 >   Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadicTheory.argmax  {n} t x v  =  
+> SeqDecProbMonadicSmallTheory.argmax  {n} t x v  =  
 >   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
-
-> SeqDecProbMonadicTheory.maxSpec {n} t x v =
->   Opt.maxSpec totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
-
-> SeqDecProbMonadicTheory.argmaxSpec {n} t x v  =  
->   Opt.argmaxSpec totalPreorderNatLTE (fYAV t n  x v) (neYAV t n x v)
 
 
 
@@ -330,7 +322,7 @@ and |max|, |argmax|:
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable Z nSteps x0) of
->        (Yes v0) => do ps   <- pure (bi Z nSteps)
+>        (Yes v0) => do ps   <- pure (trbi Z nSteps)
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       as   <- pure (actions Z nSteps mxys)
 >                       putStrLn (show as)

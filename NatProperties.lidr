@@ -149,6 +149,67 @@ LT, LTE properties
 >   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
 
 
+Properties of |minus|:
+
+> ||| The difference of equal numbers is zero
+> minusLemma0 : m = n -> m - n = Z
+> minusLemma0 {m = Z}    {n = Z}    Refl = Refl
+> minusLemma0 {m = Z}    {n = S n'} prf  = absurd prf
+> minusLemma0 {m = S m'} {n = Z}    prf  = absurd prf
+> minusLemma0 {m = S m'} {n = S n'} prf  = trans s1 s2 where
+>   s1 : S m' - S n' = m' - n'
+>   s1 = Refl
+>   s2 : m' - n' = Z
+>   s2 = minusLemma0 (succInjective m' n' prf) 
+
+
+> ||| 
+> minusLemma1 : n - m = S l -> l = n - (S m)
+> minusLemma1 {l} {m = Z}    {n = Z}    p = absurd p
+> minusLemma1 {l} {m = Z}    {n = S n'} p = s5 where
+>   s1 : S n' = S l
+>   s1 = p
+>   s2 : l = n'
+>   s2 = sym (succInjective n' l s1)
+>   s3 : n' = n' - Z
+>   s3 = sym (minusZeroRight n')
+>   s4 : n' - Z = S n' - S Z
+>   s4 = Refl
+>   s5 : l = S n' - S Z
+>   s5 = trans s2 (trans s3 s4)
+> minusLemma1 {l} {m = S m'} {n = Z}    p = absurd p
+> minusLemma1 {l} {m = S m'} {n = S n'} p = s3 where
+>   s1 : n' - m' = S l
+>   s1 = p
+>   s2 : l = n' - (S m')
+>   s2 = minusLemma1 s1
+>   s3 : l = S n' - S (S m')
+>   s3 = trans s2 Refl
+
+
+> ||| 
+> minusLemma2 : LTE m n -> n - m = S l -> LTE (S m) n
+> minusLemma2 {m = Z}    {n = Z}    p q = absurd q
+> minusLemma2 {m = Z}    {n = S n'} p q = LTESucc LTEZero
+> minusLemma2 {m = S m'} {n = Z}    p q = absurd p
+> minusLemma2 {m = S m'} {n = S n'} (LTESucc p') q = LTESucc (minusLemma2 p' q)
+
+
+> ||| 
+> minusLemma3 : LTE m n -> Z = n - m -> m = n
+> minusLemma3 {m = Z}    {n = Z}    p q = Refl
+> minusLemma3 {m = Z}    {n = S n'} p q = absurd q
+> minusLemma3 {m = S m'} {n = Z}    p q = absurd p
+> minusLemma3 {m = S m'} {n = S n'} (LTESucc p') q = 
+>   eqSucc m' n' (minusLemma3 {m = m'} {n = n'} p' q') where
+>     q' : Z = n' - m'
+>     q' = trans q Refl
+
+
+> ||| 
+> minusLemma4 : LTE m n -> n - m = S l -> n - (S m) = l
+
+
 Decidability
 
 > ||| LTE is decidable

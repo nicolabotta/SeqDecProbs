@@ -2,7 +2,6 @@
 
 > import Data.Fin
 > import Data.Vect
-> import Syntax.PreorderReasoning
 
 > import FunProperties
 > import FinOperations
