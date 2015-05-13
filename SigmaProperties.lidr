@@ -57,8 +57,6 @@ Equality of Sigma types:
 > sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
 
 
-
-
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} -> 
 >                 {P : A -> Type} -> 
@@ -76,6 +74,7 @@ Equality of Sigma types:
 >                 Unique0 (P (getWitness s1)) ->
 >                 s1 = s2
 > sigmaEqLemma1 (a ** p) (a ** q) Refl uP = cong (uP p q)
+
 
 
 Decidability of Sigma equality:
