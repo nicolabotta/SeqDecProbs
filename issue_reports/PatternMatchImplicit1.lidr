@@ -58,7 +58,7 @@
 > Reachable' t x = Reachable x
 
 
-------
+
 > ||| Works
 > finReachable' : {t' : Nat} -> (x : X t') -> Finite (Reachable' t' x)
 > finReachable' {t' = Z}   x' = finiteSingleton
