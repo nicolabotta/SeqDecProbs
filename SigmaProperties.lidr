@@ -57,6 +57,8 @@ Equality of Sigma types:
 > sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
 
 
+
+
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} -> 
 >                 {P : A -> Type} -> 

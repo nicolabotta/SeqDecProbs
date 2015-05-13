@@ -9,6 +9,7 @@
 > import Effects
 > import Effect.Exception
 > import Effect.StdIO
+> import Syntax.PreorderReasoning
 
 > import SeqDecProbMonadicSmallTheory
 > import IdentityOperations
@@ -282,17 +283,17 @@ TODO: fix these definitions
 >                                        (\fz => void (uninhabited fz))  --
 >                                        (\x => void (contra x)))
 
-> finElem : {A : Type} -> DecEq A => (a : A) -> (ma : M A) -> Finite (SeqDecProbMonadicSmallTheory.Elem a ma)
-> finElem a (Id a') with (decEq a a')
->   finElem a (Id a)  | (Yes Refl)  = uniqueFiniteLemma1 Refl (uniqueEq a a)
->   finElem a (Id a') | (No contra) = finiteEmpty contra
+> finElem : {A : Type} -> DecEq0 A -> (a : A) -> (ma : M A) -> Finite (SeqDecProbMonadicSmallTheory.Elem a ma)
+> finElem deq a (Id a') with (deq a a')
+>   finElem deq a (Id a)  | (Yes Refl)  = uniqueFiniteLemma1 Refl (uniqueEq a a)
+>   finElem deq a (Id a') | (No contra) = finiteEmpty contra
 
 > finPred : (x : X t) -> (x' : X (S t)) -> Finite (Pred {t} x x') -- Finite (x `Pred` x')
-> finPred {t} x x' = fPred where -- finiteExistsLemma (fY t x) fElem where
+> finPred {t} x x' = fPred where
 >   P : Y t x -> Type
 >   P = \ y => SeqDecProbMonadicSmallTheory.Elem x' (step t x y)
 >   fElem : Finite1 P
->   fElem y = ?lala -- finElem x' (step t x y) -- we have to say that |X t| is in |DecEq|: how ?
+>   fElem y = finElem decEqLTB x' (step t x y)
 >   fExistsY : Finite (Exists P)
 >   fExistsY = finiteExistsLemma (fY t x) fElem
 >   guga  : Exists P = Pred {t} x x'
@@ -300,9 +301,24 @@ TODO: fix these definitions
 >   fPred : Finite (Pred {t} x x')
 >   fPred = replace guga fExistsY
 
-> finReachable : (x : X t) -> Finite (Reachable x)
-> finReachable {t = Z}   x' = ?bar -- finiteSingleton
-> finReachable {t = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
+> finReachable : (x : X t') -> Finite (Reachable x)
+> {-
+> finReachable {t = Z}   x' =
+>     ( Finite (Reachable x') )
+>   ={ Refl }=
+>     ( Finite ()            )
+>   ={ IsoRefl finiteSingleton }=
+>   QED
+> -}
+> finReachable {t' = Z}   x' = s3 where
+>   s1 : Reachable x' = ()
+>   s1 = Refl
+>   s2 : Finite ()
+>   s2 = finiteSingleton
+>   s3 : Finite (Reachable x')
+>   s3 = replace (sym s1) s2
+
+> finReachable {t' = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
 
 of |Pred|
 
