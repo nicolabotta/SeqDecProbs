@@ -1,0 +1,5 @@
+package pretab
+
+opts = "-i .."
+
+modules = PreTab

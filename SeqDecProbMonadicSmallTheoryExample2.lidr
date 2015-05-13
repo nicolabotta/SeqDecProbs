@@ -301,35 +301,11 @@ TODO: fix these definitions
 >   fPred : Finite (Pred {t} x x')
 >   fPred = replace guga fExistsY
 
-> finReachable : {t' : Nat} -> (x : X t') -> Finite (Reachable' t' x)
-> {-
-> finReachable {t = Z}   x' =
->     ( Finite (Reachable x') )
->   ={ Refl }=
->     ( Finite ()            )
->   ={ IsoRefl finiteSingleton }=
->     (TODO)
->   QED
-> -}
-> finReachable {t' = Z}   x' = finiteSingleton
->  {- s3 where
->   s1 : (Reachable' Z x') = ()
->   s1 = Refl
->   s2 : Finite ()
->   s2 = finiteSingleton
->   s3 : Finite (Reachable' Z x')
->   s3 = replace (sym s1) s2
->  -}
+> finReachable : (t' : Nat) -> (x : X t') -> Finite (Reachable' t' x)
+> finReachable Z     x' = finiteSingleton
+> finReachable (S n) x' = finiteExistsLemma (fX n) (\x => finitePair (finReachable n x) (finPred x x'))
 
-> finReachable {t' = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
-
-of |Pred|
-
-
-> fReach : (t : Nat) -> (x : X t) -> Finite (Reachable x)
-> fReach t x = ?foos
-
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fReachable = ?lala
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fReachable = finReachable
 
 SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.vtLemma =
 
@@ -416,11 +392,12 @@ and |max|, |argmax|:
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable Z nSteps x0) of
->        (Yes v0) => do let ps = fst (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
->                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>        (Yes v0) => do let vt = snd (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
+>                       putStrLn (show vt)
+>                       -- mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       -- as   <- pure (actions Z nSteps mxys)
 >                       -- putStrLn (show as)
->                       putStrLn (showMSCS mxys)
+>                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 
 

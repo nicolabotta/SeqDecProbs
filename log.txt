@@ -1,3 +1,107 @@
+2015-05-13
+
+TODO: Make sure the cardinality of "XRV" is no bigger than the cardinality of X.
+  (to make the tabulation feasible)
+
+From Finite X -> Dec (Reachable x) -> Dec (Viable n x) -> Finite (
+
+See prototypes/PreTab.lidr
+
+
+2015-05-13: Patrik + Nicola: status
+
+TODO:
+* create sub-modules for XOperations.lidr -> X/Operations, XProperties.lidr -> X/Properties.lidr
+* separate library components from domain-specific components
+** some library components are intended as extensions to Idris library components (Nat for example) - could later be merged into the Idris code base
+* how to handle variants of the theory?
+* add one (or more) package file(s)
+* explore which modules should re-export which other definitions
+
+* Library components
+Basics.lidr -- For proofs
+
+BoundedNat.lidr
+BoundedNatOperations.lidr
+BoundedNatProperties.lidr
+
+ContainerMonad.lidr
+
+Decidable.lidr
+DecidableProperties.lidr
+
+EffectException.lidr
+EffectStdIO.lidr
+
+EmbProj.lidr
+EqualityProperties.lidr
+FinOperations.lidr
+FinProperties.lidr
+Finite.lidr
+FiniteOperations.lidr
+FiniteProperties.lidr
+FiniteSubType.lidr
+FiniteSubTypeOperations.lidr
+FiniteSubTypeProperties.lidr
+FunOperations.lidr
+FunProperties.lidr
+IdentityOperations.lidr
+IdentityProperties.lidr
+IsomorphismOperations.lidr
+IsomorphismProperties.lidr
+
+LambdaPostulates.lidr
+NatProperties.lidr
+
+Order.lidr
+OrderOperations.lidr
+OrderProperties.lidr
+
+Preorder.lidr
+PreorderOperations.lidr
+Prop.lidr
+RelFloat.lidr
+RelFloatPostulates.lidr
+RelFloatProperties.lidr
+RelSyntax.lidr
+
+SigmaOperations.lidr
+SigmaProperties.lidr
+SingletonProperties.lidr
+SoProperties.lidr
+SubType.lidr
+TotalPreorder.lidr
+TotalPreorderOperations.lidr
+Unique.lidr
+UniqueProperties.lidr
+Util.lidr
+VectOperations.lidr
+VectProperties.lidr
+
+tagging.lidr   -- TODO: Check
+
+* Intermediate library components
+Opt.lidr
+
+
+* Domain-specific components
+SeqDecProbMonadicSmallTheory.lidr
+SeqDecProbMonadicSmallTheoryExample2.lidr
+
+SeqDecProbMonadic.lidr
+SeqDecProbMonadicExample2.lidr
+SeqDecProbMonadicTheory.lidr
+SeqDecProbMonadicTheoryExample2.1.lidr
+SeqDecProbMonadicTheoryExample2.lidr
+
+* Issue reports
+issue_reports
+
+* Other
+funprogintro.lidr
+idris-lang
+
+
 2015-04-29: Patrik: Current status
 
   One missing metavariable when loading SeqDecProbMonadicExample2.lidr:

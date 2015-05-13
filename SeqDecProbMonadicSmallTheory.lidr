@@ -463,7 +463,7 @@ and, for a given |n : Nat|, the subset of reachable and |n|-viable
 states
 
 >   RVX : (t : Nat) -> (n : Nat) -> Type
->   RVX t n = Sigma (X t) (ReachableAndViable t n)
+>   RVX t n = Sigma (X t) (ReachableAndViable t n)   -- perhaps replace Sigma with Subset
 
 is finite:
 
@@ -492,18 +492,22 @@ steps:
 The idea is to equip |optExt| with an additional argument |vt : Vect
 (cRVX t n) Nat|, the so-called "value table"
 
->   tabOptExt : (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) -> Policy t (S n)
+  tabOptExt : (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) -> Policy t (S n)
+
+>   tabOptExt : (vt : Vect (cRVX (S t) n) Nat) -> Policy t (S n)
 
 storing the value, for a given |ps : PolicySeq (S t) n| and for every
 state in |RVX t (S n)|, of taking |n| decision steps with |ps| starting
 from that state:
 
+> {-
 >   vtLemma : (t : Nat) -> (n : Nat) ->
 >             (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) ->
 >             (x : X (S t)) -> (r : Reachable x) -> (v : Viable n x) ->
 >             index (lookup (x ** (r , v)) (rRVX (S t) n) (rRVXcomplete (S t) n (x ** (r , v)))) vt
 >             =
 >             val x r v ps
+> -}
 
 Under these assumption, one can implement |tabOptExt| from |optExt| by
 just replacing |ps : PolicySeq (S t) n| with |vt : Vect (cRVX (S t) n)
@@ -534,7 +538,7 @@ Nat|:
 >     f' : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Nat
 >     f' = mkf' x r v (outl yav) (outr yav) vt
 
->   tabOptExt {t} {n} ps vt = p where
+>   tabOptExt {t} {n} vt = p where
 >     p : Policy t (S n)
 >     p x r v = argmax t x v g where
 >       g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
@@ -562,7 +566,7 @@ of |trbi|:
 >      vt : ValueTable (S t) n
 >      vt = snd psvt
 >      p : Policy t (S n)
->      p = tabOptExt ps vt
+>      p = tabOptExt vt
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVX t (S n)) -> Nat
