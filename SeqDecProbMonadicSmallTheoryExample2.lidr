@@ -301,22 +301,25 @@ TODO: fix these definitions
 >   fPred : Finite (Pred {t} x x')
 >   fPred = replace guga fExistsY
 
-> finReachable : (x : X t') -> Finite (Reachable x)
+> finReachable : {t' : Nat} -> (x : X t') -> Finite (Reachable' t' x)
 > {-
 > finReachable {t = Z}   x' =
 >     ( Finite (Reachable x') )
 >   ={ Refl }=
 >     ( Finite ()            )
 >   ={ IsoRefl finiteSingleton }=
+>     (TODO)
 >   QED
 > -}
-> finReachable {t' = Z}   x' = s3 where
->   s1 : Reachable x' = ()
+> finReachable {t' = Z}   x' = finiteSingleton
+>  {- s3 where
+>   s1 : (Reachable' Z x') = ()
 >   s1 = Refl
 >   s2 : Finite ()
 >   s2 = finiteSingleton
->   s3 : Finite (Reachable x')
+>   s3 : Finite (Reachable' Z x')
 >   s3 = replace (sym s1) s2
+>  -}
 
 > finReachable {t' = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
 

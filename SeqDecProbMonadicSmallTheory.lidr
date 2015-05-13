@@ -113,6 +113,8 @@ For every SDP, we can build the following notions:
 > Reachable {t' =   Z} _   =  ()
 > Reachable {t' = S t} x'  =  Exists (\ x => (Reachable x, x `Pred` x'))
 
+> Reachable' : (t' : Nat) -> X t' -> Prop
+> Reachable' t x = Reachable x
 
   Refined policies:
 
