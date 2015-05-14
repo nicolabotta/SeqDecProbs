@@ -390,9 +390,12 @@ and |max|, |argmax|:
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable Z nSteps x0) of
->        (Yes v0) => do --let vt = snd (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
->                       --putStrLn (show vt)
->                       ps   <- pure (fst (biT Z nSteps))
+>        (Yes v0) => do -- let vt = snd (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
+>                       -- putStrLn (show vt)
+>                       -- ps   <- pure (fst (biT Z nSteps))
+>                       ps   <- pure (tabtrbi Z nSteps)
+>                       -- vt   <- pure (snd (biT Z Z))
+>                       -- putStrLn (show vt)
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       as   <- pure (actions Z nSteps mxys)
 >                       putStrLn (show as)

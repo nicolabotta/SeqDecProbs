@@ -620,6 +620,7 @@ of |trbi|:
 
 > ValueTable : Nat -> Nat -> Type
 > ValueTable t n = Vect (cRVX t n) Nat  -- a table of the result of calling flip val (roughly) on a PolicySeq
+
 > PolicySeqAndTab : Nat -> Nat -> Type
 > PolicySeqAndTab t n = (PolicySeq t n, ValueTable t n)
 
@@ -658,51 +659,44 @@ of |trbi|:
 >           yav : (y : Y t x ** All (Viable n) (step t x y))
 >           yav = p x r v
 
-> {-
-> %assert_total
+
 > tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n ->
->          PolicySeq (n - c + t) c ->
->          (vt : Vect (cRVX (n - c + t) c) Nat) ->
+>          PolicySeq (c + t) (n - c) ->
+>          (vt : Vect (cRVX (c + t) (n - c)) Nat) ->
 >          PolicySeq t n
-> tabibi t n c prf ps vt with (n - c) proof itsEqual
->   |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn
->             ps where
->       ceqn : c = n
->       ceqn = minusLemma3 prf itsEqual
->   | (S m) = tabibi t n (S c) prf' ps' vt' where
->       c'   : Nat
->       c'   = S c
->       t'   : Nat
->       t'   = n - c' + t
->       prf' : LTE c' n
->       prf' = minusLemma2 prf (sym itsEqual)
->       ps'  : PolicySeq t' c'
->       ps'  = replace {P = \ x => PolicySeq (x + t) c'} (minusLemma1 (sym itsEqual))
->              ((tabOptExt ps vt) :: ps)
->       vt'  : Vect (cRVX t' c') Nat
->       vt'  = toVect vt'f where
->         vt'f : Fin (cRVX t' c') -> Nat
->         vt'f k = g yav where
->           xrv : Sigma (X t') (ReachableAndViable t' c')
->           xrv = index k (rRVX t' c')
->           x   : X t'
->           x   = getWitness xrv
->           r   : Reachable x
->           r   = ?giga
->           v   : Viable c' x
->           v   = ?guga
->           bic : n - c' = m
->           bic = ?liku
->           g   : (y : Y t' x ** All (Viable c) (step t' x y)) -> Nat
->           g   = replace {P = \ rec => Y (rec + t) x} bic -- (minusLemma1 (sym itsEqual))
->                 TabulatedBackwardsInduction.mkg x r v vt
->           yav : (y : Y t' x ** All (Viable c) (step t' x y))
->           yav = ?lala
-> -}
+>        
+> tabibi t n  Z     prf ps vt = replace {P = \ z => PolicySeq t z} (minusZeroRight n) ps
+>
+> tabibi t n (S c') prf ps vt = tabibi t n c' prf' ps' vt'' where
+>   bic  : S (n - S c') = n - c'
+>   bic  = minusLemma4 prf
+>   prf' : LTE c' n
+>   prf' = lteLemma1 c' n prf
+>   p    : Policy (c' + t) (S (n - S c'))
+>   p    = tabOptExt vt
+>   ps'  : PolicySeq (c' + t) (n - c')
+>   ps'  = replace {P = \ z => PolicySeq (c' + t) z} bic (p :: ps)
+>   vt'  : Vect (cRVX (c' + t) (S (n - S c'))) Nat
+>   vt'  = toVect vt'f where
+>     vt'f : Fin (cRVX (c' + t) (S (n - S c'))) -> Nat
+>     vt'f k = g yav where
+>       xrv : Sigma (X (c' + t)) (ReachableViable (c' + t) (S (n - S c')))
+>       xrv = index k (rRVX (c' + t) (S (n - S c')))
+>       x   : X (c' + t)
+>       x   = Sigma.getWitness xrv
+>       r   : Reachable {t' = c' + t} x
+>       r   = fst (Sigma.getProof xrv)
+>       v   : Viable {t = c' + t} (S (n - S c')) x
+>       v   = snd (Sigma.getProof xrv)
+>       g   : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
+>       g   = TabulatedBackwardsInduction.mkg x r v vt
+>       yav : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y))
+>       yav = p x r v
+>   vt''  : Vect (cRVX (c' + t) (n - c')) Nat
+>   vt''  = replace {P = \z => Vect (cRVX (c' + t) z) Nat} bic vt'
 
-> -- tabtrbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
-> -- tabtrbi t n = ibi t n Z LTEZero Nil
+> tabtrbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
+> tabtrbi t n = tabibi t n n (reflexiveLTE n) zps (zeroVec _) where
+>   zps : PolicySeq (n + t) (n - n)
+>   zps = replace {P = \ z => PolicySeq (n + t) z} (minusZeroN n) Nil
 
-
-
-> ---}

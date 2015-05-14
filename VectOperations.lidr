@@ -49,7 +49,6 @@ Filtering
 >             {P : A -> Type} ->
 >             Dec1 P ->
 >             Vect n A -> 
->             -- (m : Nat ** Vect m (Sigma A P))
 >             Sigma Nat (\ m => Vect m (Sigma A P))
 > filterTag d1P Nil = (Z ** Nil)
 > filterTag d1P (a :: as) with (filterTag d1P as)

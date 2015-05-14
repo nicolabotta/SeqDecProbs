@@ -2,6 +2,7 @@
 
 
 > import Decidable.Order
+> import Syntax.PreorderReasoning
 
 
 > import Preorder
@@ -207,7 +208,27 @@ Properties of |minus|:
 
 
 > |||
-> -- minusLemma4 : LTE m n -> n - m = S l -> n - (S m) = l
+> minusLemma4 : LTE (S m) n -> S (n - S m) = n - m
+> minusLemma4 {m = Z} {n = Z}    p = absurd p
+> minusLemma4 {m = Z} {n = S n'} (LTESucc p') =
+>     ( S (S n' - S Z) )
+>   ={ Refl }=
+>     ( S (n' - Z)     )
+>   ={ cong (minusZeroRight n') }=              
+>     ( S n'           )
+>   ={ Refl }=                
+>     ( S n' - Z       )
+>   QED
+> minusLemma4 {m = S m'} {n = Z} p = absurd p
+> minusLemma4 {m = S m'} {n = S n'} (LTESucc p') =
+>     ( S (S n' - S (S m')) )
+>   ={ Refl }=
+>     ( S (n' - S m')       )
+>   ={ minusLemma4 p' }=
+>     ( n' - m'             )
+>   ={ Refl }=
+>     ( S n' - S m'         )
+>   QED
 
 
 Decidability
