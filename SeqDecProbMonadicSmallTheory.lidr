@@ -562,7 +562,7 @@ Nat|:
 >     xpx' = Evidence y x'estep
 >     r'   : Reachable x'
 >     r'   = Evidence x (r , xpx')
->     v'   : Viable n x'
+>     v'   : Viable {t = S t} n x'
 >     v'   = containerMonadSpec3 x' (step t x y) av x'estep
 >     k    : Fin (cRVX (S t) n)
 >     k    = lookup x' (map Sigma.getWitness (rRVX (S t) n)) prf' where
@@ -571,7 +571,7 @@ Nat|:
 >       prf : Elem x' (rX (S t))
 >       prf = toVectComplete (fX (S t)) x'
 >       prf' : Elem x' (map Sigma.getWitness (rRVX (S t) n))
->       prf' = ?lala -- filterTagLemma dRV x' (rX (S t)) prf (r',v')
+>       prf' = filterTagLemma {A = X (S t)} {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
 
 >   mkg : (x  : X t) ->
 >         (r  : Reachable x) ->
