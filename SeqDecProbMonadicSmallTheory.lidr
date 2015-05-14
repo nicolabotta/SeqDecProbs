@@ -473,7 +473,7 @@ and |Reachable| and |Viable n| are also decidable
 >   dReachable : (t : Nat) -> (x : X t) -> Dec (Reachable x)
 >   dReachable  Z    x' = Yes ()
 >   dReachable (S t) x' = s1 where
->     s1 : Dec (Exists (\ x => (Reachable x, x `Pred` x')))
+>     s1 : Dec (Exists (\ x => (Reachable x, Pred {t} x x')))
 >     s1 = finiteDecLemma (fX t) (\x => decPair (dReachable t x) (dPred t x x'))
 
 >   dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
@@ -639,7 +639,7 @@ of |trbi|:
 >      vt = snd psvt
 >      p : Policy t (S n)
 >      p = tabOptExt vt
->      
+>
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVX t (S n)) -> Nat
@@ -664,7 +664,7 @@ of |trbi|:
 >          PolicySeq (c + t) (n - c) ->
 >          (vt : Vect (cRVX (c + t) (n - c)) Nat) ->
 >          PolicySeq t n
->        
+>
 > tabibi t n  Z     prf ps vt = replace {P = \ z => PolicySeq t z} (minusZeroRight n) ps
 >
 > tabibi t n (S c') prf ps vt = tabibi t n c' prf' ps' vt'' where
@@ -699,4 +699,3 @@ of |trbi|:
 > tabtrbi t n = tabibi t n n (reflexiveLTE n) zps (zeroVec _) where
 >   zps : PolicySeq (n + t) (n - n)
 >   zps = replace {P = \ z => PolicySeq (n + t) z} (minusZeroN n) Nil
-
