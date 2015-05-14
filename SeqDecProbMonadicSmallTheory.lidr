@@ -454,12 +454,39 @@ vector
 >   rX : (t : Nat) -> Vect (cX t) (X t)
 >   rX t = toVect (fX t)
 
-and if |Reachable| and |Viable n| are decidable
+If the control space is finite and |Elem| and |All| for the container
+monad |M| is decidable
+
+>   fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
+>   dElem : (t : Nat) -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)
+>   dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
+
+then |Pred| is decidable
+
+>   dPred : (t : Nat) -> (x : X t) -> (x' : X (S t)) -> Dec (x `Pred` x')
+>   dPred t x x' = finiteDecLemma (fY t x) d1Elem where
+>     d1Elem : Dec1 (\ y => x' `Elem` (step t x y))
+>     d1Elem y = dElem (S t) x' (step t x y)
+
+and |Reachable| and |Viable n| are also decidable
 
 >   dReachable : (t : Nat) -> (x : X t) -> Dec (Reachable x)
->   dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
+>   dReachable  Z    x' = Yes ()
+>   dReachable (S t) x' = s1 where
+>     s1 : Dec (Exists (\ x => (Reachable x, x `Pred` x')))
+>     s1 = finiteDecLemma (fX t) (\x => decPair (dReachable t x) (dPred t x x'))
 
-then
+>   dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
+>   dViable t  Z    x = Yes ()
+>   dViable t (S m) x = s3 where
+>     s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
+>     s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
+>     s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>     s2    =  finiteDecLemma (fY t x) s1
+>     s3    :  Dec (Viable {t = t} (S m) x)
+>     s3    =  s2
+
+then their conjunction
 
 >   ReachableViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Prop
 >   ReachableViable t n x = (Reachable x , Viable {t} n x)
