@@ -167,15 +167,6 @@ Container monad properties
 
 Filtering
 
-> |||
-> filterLemma0 : {A : Type} ->
->                {P : A -> Type} ->
->                (d1P : Dec1 P) ->
->                (a : A) ->
->                (as : Vect n A) ->
->                Elem a (getProof (filter d1P as)) -> P a
-
-
 > ||| |filter| preserves membership
 > filterLemma : {A : Type} ->
 >               {P : A -> Type} ->

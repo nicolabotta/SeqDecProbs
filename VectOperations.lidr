@@ -44,7 +44,6 @@ Filtering
 >     | (Yes _) = (S n ** a :: as')
 >     | (No  _) = (n ** as')
 
-
 > ||| Filters a vector on a decidable property and pairs elements with proofs
 > filterTag : {A : Type} ->
 >             {P : A -> Type} ->

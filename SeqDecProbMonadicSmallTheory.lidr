@@ -471,11 +471,14 @@ is also decidable
 
 and one can collect all states which are reachable and viable in a vector:
 
->   cRVX : (t : Nat) -> (n : Nat) -> Nat
->   cRVX t n = getWitness (VectOperations.filter (dReachableViable t n) (rX t))
+>   crRVX : (t : Nat) -> (n : Nat) -> Sigma Nat (\ m => Vect m (Sigma (X t) (ReachableViable t n)))
+>   crRVX t n = filterTag (dReachableViable t n) (rX t)
 
->   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (X t)
->   rRVX t n = getProof (VectOperations.filter (dReachableViable t n) (rX t))
+>   cRVX : (t : Nat) -> (n : Nat) -> Nat
+>   cRVX t n = getWitness (crRVX t n)
+
+>   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (Sigma (X t) (ReachableViable t n))
+>   rRVX t n = getProof (crRVX t n)
 
 > {-
 
@@ -561,17 +564,14 @@ Nat|:
 >     r'   = Evidence x (r , xpx')
 >     v'   : Viable n x'
 >     v'   = containerMonadSpec3 x' (step t x y) av x'estep
->     -- s'   : RVX (S t) n
->     -- s'   = (x' ** (r' , v'))
 >     k    : Fin (cRVX (S t) n)
->     -- k    = lookup s' (rRVX (S t) n) (rRVXcomplete (S t) n s')
->     k    = lookup x' (rRVX (S t) n) prf' where
+>     k    = lookup x' (map Sigma.getWitness (rRVX (S t) n)) prf' where
 >       dRV : Dec1 (ReachableViable (S t) n)
 >       dRV = dReachableViable (S t) n
->       prf : Elem x' (toVect (fX (S t))) -- Elem x' (rX (S t))
+>       prf : Elem x' (rX (S t))
 >       prf = toVectComplete (fX (S t)) x'
->       prf' : Elem x' (rRVX (S t) n)
->       prf' = ?lala -- filterLemma dRV x' (toVect (fX (S t))) prf (r',v') -- filterLemma dRV x' (rX (S t)) prf (r',v')
+>       prf' : Elem x' (map Sigma.getWitness (rRVX (S t) n))
+>       prf' = ?lala -- filterTagLemma dRV x' (rX (S t)) prf (r',v')
 
 >   mkg : (x  : X t) ->
 >         (r  : Reachable x) ->
@@ -611,14 +611,17 @@ of |trbi|:
 >      vt = snd psvt
 >      p : Policy t (S n)
 >      p = tabOptExt vt
+>      
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVX t (S n)) -> Nat
 >         vtf k = g yav where
+>           xrv : Sigma (X t) (ReachableViable t (S n))
+>           xrv = index k (rRVX t (S n))
 >           x   : X t
->           x   = index k (rRVX t (S n))
+>           x   = getWitness xrv
 >           rv  : ReachableViable t (S n) x
->           rv  = filterLemma0 (dReachableViable t (S n)) x (rX t) (indexLemma k (rRVX t (S n)))
+>           rv  = getProof xrv
 >           r   : Reachable x
 >           r   = fst rv
 >           v   : Viable (S n) x
