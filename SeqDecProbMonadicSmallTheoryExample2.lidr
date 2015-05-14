@@ -28,6 +28,7 @@
 > import SoProperties
 > import SubType
 > import Decidable
+> import DecidableProperties
 > import FiniteSubTypeProperties
 > import Prop
 > import EqualityProperties
@@ -273,6 +274,8 @@ and
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
 >   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (Main.fViable (S t) n) (step t x y)
 
+> {-
+
 > SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fViable = Main.fViable
 
 TODO: fix these definitions
@@ -309,6 +312,7 @@ TODO: fix these definitions
 
 SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.vtLemma =
 
+> -}
 
 With |f1AllViable| we can finally implement |fYAV|
 
@@ -326,14 +330,43 @@ and |max|, |argmax|:
 
 * The computation:
 
-** Viable is decidable:
+** Reachable and Viable are decidable:
+
+> dElem : (t : Nat) -> (x : X t) -> (mx : Identity (X t)) -> Dec (SeqDecProbMonadicSmallTheory.Elem x mx)
+> dElem t x (Id x') = decEqLTB x x'
+
+> dPred : (t : Nat) -> (x : X t) -> (x' : X (S t)) -> Dec (x `Pred` x')
+> dPred t x x' = s3 where
+>   P : (y : Y t x) -> Prop
+>   P y = SeqDecProbMonadicSmallTheory.Elem x' (step t x y)
+>   d1P : Dec1 P
+>   d1P y = dElem (S t) x' (step t x y)
+>   s1 : Dec (Exists P)
+>   s1 = finiteDecLemma (fY t x) d1P
+>   s2 : x `Pred` x' = Exists P
+>   s2 = ?meta1 -- Refl
+>   s3 : Dec (x `Pred` x')
+>   s3 = replace (sym s2) s1
+
+> dReachable : (t' : Nat) -> (x' : X t') -> Dec (Reachable' t' x')
+> dReachable  Z    x' = Yes ()
+> dReachable (S t) x' = s3 where
+>   s1 : Dec (Exists (\ x => (Reachable' t x, x `Pred` x')))
+>   s1 = finiteDecLemma (fX t) (\x => decPair (Main.dReachable t x) (dPred t x x'))
+>   s2 : Reachable' (S t) x' = Exists (\ x => (Reachable' t x, x `Pred` x'))
+>   s2 = ?meta2 -- Refl
+>   s3 : Dec (Reachable' (S t) x')
+>   s3 = ?meta3 -- replace (sym s2) s1
+
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dReachable = Main.dReachable
+
 
 > dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx)
 > dAll t P dP (Id x) = dP x
 
-> dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
-> dViable t  Z    x = Yes ()
-> dViable t (S m) x = s3 where
+> -- dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dViable t  Z    x = Yes ()
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dViable t (S m) x = s3 where
 >   s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
 >   s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
 >   s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
@@ -392,11 +425,12 @@ and |max|, |argmax|:
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable Z nSteps x0) of
->        (Yes v0) => do let vt = snd (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
->                       putStrLn (show vt)
->                       -- mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       -- as   <- pure (actions Z nSteps mxys)
->                       -- putStrLn (show as)
+>        (Yes v0) => do --let vt = snd (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
+>                       --putStrLn (show vt)
+>                       ps   <- pure (fst (biT Z nSteps))
+>                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       as   <- pure (actions Z nSteps mxys)
+>                       putStrLn (show as)
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 
