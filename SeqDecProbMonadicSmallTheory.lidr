@@ -103,7 +103,7 @@ For every SDP, we can build the following notions:
 
   Viability and reachability:
 
-> Pred : X t -> X (S t) -> Prop
+> Pred : {t : Nat} -> X t -> X (S t) -> Prop
 > Pred {t} x x'  =  Exists (\ y => x' `Elem` step t x y)
 
 > Viable : (n : Nat) -> X t -> Prop
@@ -221,10 +221,10 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+> max    : (t : Nat) -> (x : X t) -> (Viable (S n) x) ->
 >          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Nat
-> argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+> argmax : (t : Nat) -> (x : X t) -> (Viable (S n) x) ->
 >          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
@@ -580,11 +580,13 @@ Under these assumption, one can implement |tabOptExt| from |optExt| by
 just replacing |ps : PolicySeq (S t) n| with |vt : Vect (cRVX (S t) n)
 Nat|:
 
->   mkf' : (x  : X t) -> (r  : Reachable x) -> (v  : Viable (S n) x) ->
+>   mkf' : (x  : X t) -> .(r  : Reachable x) -> (v  : Viable (S n) x) ->
 >          (y  : Y t x) -> (av : All (Viable n) (step t x y)) ->
->          (vt : Vect (cRVX (S t) n) Nat) -> -- (ps : PolicySeq (S t) n) ->
+>          (vt : Vect (cRVX (S t) n) Nat) ->
 >          (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
 >   mkf' {t} {n} x r v y av vt (x' ** x'estep) = reward t x y x' + index k vt where
+>     rvxs : Vect (cRVX (S t) n) (X (S t))
+>     rvxs = map getWitness (rRVX (S t) n)
 >     xpx' : x `Pred` x'
 >     xpx' = Evidence y x'estep
 >     r'   : Reachable x'
@@ -592,28 +594,59 @@ Nat|:
 >     v'   : Viable {t = S t} n x'
 >     v'   = containerMonadSpec3 x' (step t x y) av x'estep
 >     k    : Fin (cRVX (S t) n)
->     k    = lookup x' (map Sigma.getWitness (rRVX (S t) n)) prf' where
+>     k    = lookup x' rvxs prf' where
 >       dRV : Dec1 (ReachableViable (S t) n)
 >       dRV = dReachableViable (S t) n
 >       prf : Elem x' (rX (S t))
 >       prf = toVectComplete (fX (S t)) x'
->       prf' : Elem x' (map Sigma.getWitness (rRVX (S t) n))
->       prf' = filterTagLemma {A = X (S t)} {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
+>       prf' : Elem x' rvxs
+>       prf' = filterTagLemma {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
 
 >   mkg : (x  : X t) ->
 >         (r  : Reachable x) ->
 >         (v  : Viable (S n) x) ->
->         (vt : Vect (cRVX (S t) n) Nat) -> -- (ps : PolicySeq (S t) n) ->
+>         (vt : Vect (cRVX (S t) n) Nat) -> 
 >         (y : Y t x ** All (Viable n) (step t x y)) -> Nat
->   mkg {t} {n} x r v vt yav = meas (fmap f' (tagElem (step t x (outl yav)))) where
->     f' : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Nat
->     f' = mkf' x r v (outl yav) (outr yav) vt
+>   mkg {t} x r v vt (y ** av) = meas (fmap f' (tagElem (step t x y))) where
+>     f' : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
+>     f' = mkf' x r v y av vt
 
 >   tabOptExt {t} {n} vt = p where
 >     p : Policy t (S n)
 >     p x r v = argmax t x v g where
 >       g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
 >       g = mkg x r v vt
+
+> {-
+
+>   tabOptExt' : (vt : Vect (cRVX (S t) n) Nat) -> Policy t (S n)
+>   tabOptExt' {t} {n} vt = p where
+>     p : Policy t (S n)
+>     p x r v = yav where
+>       yav : (y : Y t x ** All (Viable n) (step t x y))
+>       yav = argmax t x v g where
+>         g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
+>         g (y ** av) = meas (fmap f' (tagElem (step t x y))) where
+>         f' : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
+>         f' (x' ** x'estep) = reward t x y x' + index k vt where
+>           rvxs : Vect (cRVX (S t) n) (X (S t))
+>           rvxs = map getWitness (rRVX (S t) n)
+>           xpx' : x `Pred` x'
+>           xpx' = Evidence y x'estep
+>           r'   : Reachable x'
+>           r'   = Evidence x (r , xpx')
+>           v'   : Viable {t = S t} n x'
+>           v'   = containerMonadSpec3 x' (step t x y) av x'estep
+>           k    : Fin (cRVX (S t) n)
+>           k    = lookup x' rvxs prf' where
+>             dRV : Dec1 (ReachableViable (S t) n)
+>             dRV = dReachableViable (S t) n
+>             prf : Elem x' (rX (S t))
+>             prf = toVectComplete (fX (S t)) x'
+>             prf' : Elem x' rvxs
+>             prf' = filterTagLemma {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
+
+> -}
 
 With |tabOptExt| in place, it is easy to implement a tabulated version
 of |trbi|:
@@ -660,7 +693,7 @@ of |trbi|:
 >           yav = p x r v
 
 
-> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n ->
+> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> .(LTE c n) ->
 >          PolicySeq (c + t) (n - c) ->
 >          (vt : Vect (cRVX (c + t) (n - c)) Nat) ->
 >          PolicySeq t n
@@ -683,11 +716,11 @@ of |trbi|:
 >       xrv : Sigma (X (c' + t)) (ReachableViable (c' + t) (S (n - S c')))
 >       xrv = index k (rRVX (c' + t) (S (n - S c')))
 >       x   : X (c' + t)
->       x   = Sigma.getWitness xrv
+>       x   = getWitness xrv
 >       r   : Reachable {t' = c' + t} x
->       r   = fst (Sigma.getProof xrv)
+>       r   = fst (getProof xrv)
 >       v   : Viable {t = c' + t} (S (n - S c')) x
->       v   = snd (Sigma.getProof xrv)
+>       v   = snd (getProof xrv)
 >       g   : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
 >       g   = TabulatedBackwardsInduction.mkg x r v vt
 >       yav : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y))

@@ -17,7 +17,7 @@
 Lookup
 
 > ||| Lookup the index of an element of a vector
-> lookup : {A : Type} -> (a : A) -> (as : Vect n A) -> Elem a as -> Fin n
+> lookup : {A : Type} -> .(a : A) -> .(as : Vect n A) -> Elem a as -> Fin n
 > lookup {n = Z}   a  Nil        Here         impossible
 > lookup {n = Z}   a  Nil       (There p)     impossible
 > lookup {n = S m} a (a :: as)   Here       = FZ
@@ -50,18 +50,18 @@ Filtering
 >             Dec1 P ->
 >             Vect n A -> 
 >             Sigma Nat (\ m => Vect m (Sigma A P))
-> filterTag d1P Nil = (Z ** Nil)
+> filterTag d1P Nil = (_ ** Nil)
 > filterTag d1P (a :: as) with (filterTag d1P as)
 >   | (_ ** tail) with (d1P a)
->     | (Yes p)     = (_ ** (a ** p) :: tail)
->     | (No contra) = (_ ** tail)
+>     | (Yes p) = (_ ** (a ** p) :: tail)
+>     | (No  _) = (_ ** tail)
 
 
 Searching
 
 > |||
 > argmaxMax : {A : Type} ->
->             TotalPreorder A -> Vect n A -> LT Z n -> (Fin n, A)
+>             TotalPreorder A -> Vect n A -> .(LT Z n) -> (Fin n, A)
 > argmaxMax {n = Z}       tp  Nil                p = absurd p
 > argmaxMax {n = S Z}     tp (a :: Nil)          _ = (FZ, a)
 > argmaxMax {n = S (S m)} tp (a' :: (a'' :: as)) _ with (argmaxMax tp (a'' :: as) (ltZS m))
@@ -72,13 +72,13 @@ Searching
 
 > |||
 > argmax : {A : Type} ->
->          TotalPreorder A -> Vect n A -> LT Z n -> Fin n
+>          TotalPreorder A -> Vect n A -> .(LT Z n) -> Fin n
 > argmax tp as p = fst (argmaxMax tp as p)
 
 
 > |||
 > max : {A : Type} ->
->       TotalPreorder A -> Vect n A -> LT Z n -> A
+>       TotalPreorder A -> Vect n A -> .(LT Z n) -> A
 > max tp as p = snd (argmaxMax tp as p)
 
 
