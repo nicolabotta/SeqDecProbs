@@ -41,6 +41,7 @@
 
 > %default total
 
+> -- %logging 5
 
 We reimplement the example from "S1306_Example2" in the new theory. |M|
 is the identity monad:
@@ -391,14 +392,14 @@ and |max|, |argmax|:
 >                       -- putStrLn (show vt)
 >                       -- ps   <- pure (bi Z nSteps)
 >                       -- ps   <- pure (fst (biT Z nSteps))
->                       ps   <- pure (tabtrbi Z nSteps)
->                       putStrLn ("after ps")
->                       -- vt   <- pure (snd (biT Z Z))
->                       -- putStrLn (show vt)
->                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       putStrLn ("after mxys")
->                       as   <- pure (actions Z nSteps mxys)
->                       putStrLn (show as)
+>                       -- ps   <- pure (tabtrbi Z nSteps)
+>                       -- putStrLn ("after ps")
+>                       vt   <- pure (snd (biT Z Z))
+>                       putStrLn (show vt)
+>                       -- mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       -- putStrLn ("after mxys")
+>                       -- as   <- pure (actions Z nSteps mxys)
+>                       -- putStrLn (show as)
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 

@@ -22,8 +22,10 @@
 >   to x = FZ
 >   from : Fin n -> P
 >   from FZ = p
+>   from (FS k) = absurd k
 >   toFrom : (k : Fin n) -> to (from k) = k
 >   toFrom FZ = Refl
+>   toFrom (FS k) = absurd k
 >   fromTo : (x : P) -> from (to x) = x
 >   fromTo x = uP p x
 
