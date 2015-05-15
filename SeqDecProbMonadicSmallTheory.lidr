@@ -443,7 +443,7 @@ The second step ...
 
 If the state space is finite
 
->   fX : (t : Nat) -> Finite (X t)
+>   fX : (t : Nat) -> Finite (X t)     -- Assumption
 
 one can compute the number of values of type |X t| and collect them in a
 vector
@@ -457,9 +457,9 @@ vector
 If the control space is finite and |Elem| and |All| for the container
 monad |M| is decidable
 
->   fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
->   dElem : (t : Nat) -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)
->   dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
+>   fY : (t : Nat) -> (x : X t) -> Finite (Y t x)  -- Assumption
+>   dElem : (t : Nat) -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)  -- Assumption
+>   dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)  -- Assumption
 
 then |Pred| is decidable
 
@@ -497,6 +497,8 @@ is also decidable
 >   dReachableViable t n x = decPair (dReachable t x) (dViable t n x)
 
 and one can collect all states which are reachable and viable in a vector:
+
+TODO: Check if we can use Subset to erase the ReachableViable component during compilation.
 
 >   crRVX : (t : Nat) -> (n : Nat) -> Sigma Nat (\ m => Vect m (Sigma (X t) (ReachableViable t n)))
 >   crRVX t n = filterTag (dReachableViable t n) (rX t)

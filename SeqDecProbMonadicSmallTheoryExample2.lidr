@@ -39,7 +39,6 @@
 > import EffectStdIO
 > import FinOperations
 
-
 > %default total
 
 
@@ -380,8 +379,6 @@ and |max|, |argmax|:
 > bie t (S n)  =  do ps <- bie (S t) n
 >                    putStrLn (showSeq ps)
 >                    pure (optExt ps :: ps)
-
-
 
 > computation : { [STDIO] } Eff ()
 > computation =

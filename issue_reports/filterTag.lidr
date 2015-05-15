@@ -9,13 +9,13 @@
 > %default total
 
 > Dec1 : {A : Type} -> (P : A -> Type) -> Type
-> Dec1 {A} P = (a : A) -> Dec (P a) 
+> Dec1 {A} P = (a : A) -> Dec (P a)
 
 > ||| Filters a vector on a decidable property and pairs elements with proofs
 > filterTag : {A : Type} ->
 >             {P : A -> Type} ->
 >             Dec1 P ->
->             Vect n A -> 
+>             Vect n A ->
 >             Sigma Nat (\ m => Vect m (Sigma A P))
 > filterTag d1P Nil = (Z ** Nil)
 > filterTag d1P (a :: as) with (filterTag d1P as)
@@ -43,4 +43,4 @@
 >      putStrLn (show v')
 
 > main : IO ()
-> main = run computation 
+> main = run computation
