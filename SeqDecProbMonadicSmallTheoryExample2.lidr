@@ -41,6 +41,7 @@
 
 > %default total
 
+> -- %logging 5
 
 We reimplement the example from "S1306_Example2" in the new theory. |M|
 is the identity monad:

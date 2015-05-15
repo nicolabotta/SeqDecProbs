@@ -221,10 +221,10 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max    : (t : Nat) -> (x : X t) -> (Viable (S n) x) ->
+> max    : (t : Nat) -> (x : X t) -> .(Viable (S n) x) ->
 >          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Nat
-> argmax : (t : Nat) -> (x : X t) -> (Viable (S n) x) ->
+> argmax : (t : Nat) -> (x : X t) -> .(Viable (S n) x) ->
 >          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
@@ -329,7 +329,7 @@ possible future evolutions from a (viable) initial state:
 > namespace MonadicTrajectories
 
 >   data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
->     Nil   :  (x : X t) -> StateCtrlSeq t Z
+>     Nil   :  .(x : X t) -> StateCtrlSeq t Z
 >     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 
 >   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
@@ -582,7 +582,7 @@ Under these assumption, one can implement |tabOptExt| from |optExt| by
 just replacing |ps : PolicySeq (S t) n| with |vt : Vect (cRVX (S t) n)
 Nat|:
 
->   mkf' : (x  : X t) -> .(r  : Reachable x) -> (v  : Viable (S n) x) ->
+>   mkf' : (x  : X t) -> .(r  : Reachable x) -> .(v  : Viable (S n) x) ->
 >          (y  : Y t x) -> (av : All (Viable n) (step t x y)) ->
 >          (vt : Vect (cRVX (S t) n) Nat) ->
 >          (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
@@ -605,8 +605,8 @@ Nat|:
 >       prf' = filterTagLemma {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
 
 >   mkg : (x  : X t) ->
->         (r  : Reachable x) ->
->         (v  : Viable (S n) x) ->
+>         .(r  : Reachable x) ->
+>         .(v  : Viable (S n) x) ->
 >         (vt : Vect (cRVX (S t) n) Nat) -> 
 >         (y : Y t x ** All (Viable n) (step t x y)) -> Nat
 >   mkg {t} x r v vt (y ** av) = meas (fmap f' (tagElem (step t x y))) where
@@ -618,37 +618,6 @@ Nat|:
 >     p x r v = argmax t x v g where
 >       g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
 >       g = mkg x r v vt
-
-> {-
-
->   tabOptExt' : (vt : Vect (cRVX (S t) n) Nat) -> Policy t (S n)
->   tabOptExt' {t} {n} vt = p where
->     p : Policy t (S n)
->     p x r v = yav where
->       yav : (y : Y t x ** All (Viable n) (step t x y))
->       yav = argmax t x v g where
->         g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
->         g (y ** av) = meas (fmap f' (tagElem (step t x y))) where
->         f' : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
->         f' (x' ** x'estep) = reward t x y x' + index k vt where
->           rvxs : Vect (cRVX (S t) n) (X (S t))
->           rvxs = map getWitness (rRVX (S t) n)
->           xpx' : x `Pred` x'
->           xpx' = Evidence y x'estep
->           r'   : Reachable x'
->           r'   = Evidence x (r , xpx')
->           v'   : Viable {t = S t} n x'
->           v'   = containerMonadSpec3 x' (step t x y) av x'estep
->           k    : Fin (cRVX (S t) n)
->           k    = lookup x' rvxs prf' where
->             dRV : Dec1 (ReachableViable (S t) n)
->             dRV = dReachableViable (S t) n
->             prf : Elem x' (rX (S t))
->             prf = toVectComplete (fX (S t)) x'
->             prf' : Elem x' rvxs
->             prf' = filterTagLemma {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
-
-> -}
 
 With |tabOptExt| in place, it is easy to implement a tabulated version
 of |trbi|:
@@ -663,6 +632,8 @@ of |trbi|:
 > zeroVec Z     = Nil
 > zeroVec (S n) = Z :: zeroVec n
 
+
+> ||| Tabulated backwards induction
 > biT : (t : Nat) -> (n : Nat) -> PolicySeqAndTab t n
 > biT t  Z     =  (Nil, zeroVec _)
 > biT t (S n)  =  (p :: ps , vt') where
@@ -695,6 +666,7 @@ of |trbi|:
 >           yav = p x r v
 
 
+> ||| Tabulated tail-recursive backwards induction
 > tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> .(LTE c n) ->
 >          PolicySeq (c + t) (n - c) ->
 >          (vt : Vect (cRVX (c + t) (n - c)) Nat) ->
@@ -730,6 +702,8 @@ of |trbi|:
 >   vt''  : Vect (cRVX (c' + t) (n - c')) Nat
 >   vt''  = replace {P = \z => Vect (cRVX (c' + t) z) Nat} bic vt'
 
+
+> |||
 > tabtrbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
 > tabtrbi t n = tabibi t n n (reflexiveLTE n) zps (zeroVec _) where
 >   zps : PolicySeq (n + t) (n - n)
