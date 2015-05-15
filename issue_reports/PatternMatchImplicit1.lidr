@@ -62,11 +62,12 @@
 > ||| Works
 > finReachable' : {t' : Nat} -> (x : X t') -> Finite (Reachable' t' x)
 > finReachable' {t' = Z}   x' = finiteSingleton
+> finReachable' {t' = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
 
 > ||| Fails with "Can't unify () with ()"
 > finReachable : (x : X t') -> Finite (Reachable x)
 > finReachable {t' = Z}   x' = s3 where
->   s1 : (Reachable x') = ()
+>   s1 : (Reachable x') = Unit -- () did not work, but Unit works
 >   s1 = Refl
 >   s2 : Finite ()
 >   s2 = finiteSingleton
@@ -75,7 +76,6 @@
 
 > finReachable {t' = S n} x' = ?foo -- finiteExistsLemma (fX n) (\x => finitePair (finReachable x) (finPred x x'))
 
-of |Pred|
 
 
 -- Local Variables:
