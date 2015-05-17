@@ -153,12 +153,12 @@ is the identity monad:
 
 *** Admissibility:
 
-> admissible : (t : Nat) -> X t -> Action -> Bool
+> admissible : .(t : Nat) -> X t -> Action -> Bool
 > admissible t x Ahead = column {t} x == Z || column {t} x == maxColumn
 > admissible t x Left  = column {t} x <= maxColumnO2
 > admissible t x Right = column {t} x >= maxColumnO2
 
-> Admissible : (t : Nat) -> X t -> Action -> Type
+> Admissible : .(t : Nat) -> X t -> Action -> Type
 > Admissible t x a = So (admissible t x a)
 
 If starting in the middle (with x = maxColumnO2) there is a genuine
@@ -172,10 +172,10 @@ for each step.
 
 *** Admissible is decidable and unique:
 
-> d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
+> d1Admissible : .(t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
 > d1Admissible t x = dec1So {A = Action} (admissible t x)
 
-> u1Admissible : (t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
+> u1Admissible : .(t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
 > u1Admissible t x = unique1So {A = Action} (admissible t x)
 
 *** Controls proper:
@@ -190,7 +190,7 @@ for each step.
 *** Controls are not empty:
 
 > %assert_total
-> nefY : (t : Nat) -> (x : X t) -> NonEmpty (fY t x)
+> nefY : .(t : Nat) -> .(x : X t) -> NonEmpty (fY t x)
 > nefY t (Z               ** prf) = nonEmptyLemma (fY t (Z               ** prf)) (Ahead ** Oh)
 > nefY t (S Z             ** prf) = nonEmptyLemma (fY t (S Z             ** prf)) (Left  ** Oh)
 > nefY t (S (S Z)         ** prf) = nonEmptyLemma (fY t (S (S Z)         ** prf)) (Left  ** Oh)
@@ -239,12 +239,12 @@ that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))| is finite and
 non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
 we have finiteness
 
-> fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
+> fYAV : .(t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
 >        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 
 non-emptiness is straightforward:
 
-> neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
+> neYAV : .(t : Nat) -> .(n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
 > neYAV t n x (Evidence y v) =
 >   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
@@ -264,13 +264,13 @@ and
 
 > mutual
 
->   fViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Viable {t} n x)
+>   fViable : .(t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Viable {t} n x)
 >   fViable t  Z    x  = finiteSingleton
 >   fViable t (S m) x  = s3 where
 >     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
 >     s3 = finiteExistsLemma (fY t x) (f1AllViable t m x)
 
->   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
+>   f1AllViable : .(t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
 >   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (Main.fViable (S t) n) (step t x y)
 
@@ -342,8 +342,8 @@ and |max|, |argmax|:
 
 ** Actions of state/control sequences
 
-> actions : (t : Nat) ->
->           (n : Nat) ->
+> actions : .(t : Nat) ->
+>           .(n : Nat) ->
 >           Identity (StateCtrlSeq t n) ->
 >           Vect n Action
 > actions _ Z _ = Nil
@@ -392,14 +392,14 @@ and |max|, |argmax|:
 >                       -- putStrLn (show vt)
 >                       -- ps   <- pure (bi Z nSteps)
 >                       -- ps   <- pure (fst (biT Z nSteps))
->                       -- ps   <- pure (tabtrbi Z nSteps)
->                       -- putStrLn ("after ps")
->                       vt   <- pure (snd (biT Z Z))
->                       putStrLn (show vt)
->                       -- mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       -- putStrLn ("after mxys")
->                       -- as   <- pure (actions Z nSteps mxys)
->                       -- putStrLn (show as)
+>                       ps   <- pure (tabtrbi Z nSteps)
+>                       putStrLn ("after ps")
+>                       -- vt   <- pure (snd (biT Z Z))
+>                       -- putStrLn (show vt)
+>                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       putStrLn ("after mxys")
+>                       as   <- pure (actions Z nSteps mxys)
+>                       putStrLn (show as)
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 

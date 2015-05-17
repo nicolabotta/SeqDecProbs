@@ -26,7 +26,8 @@
 
 > argmaxMax : {A, B : Type} -> 
 >             TotalPreorder B -> 
->             (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>             (fA : Finite A) -> 
+>             .(ne : NonEmpty fA) -> 
 >             (f : A -> B) -> (A,B)
 > argmaxMax {A} {B} tp fA nefA f = max (fromTotalPreorder2 tp) abs ltZn where
 >   n    : Nat
@@ -39,21 +40,24 @@
 
 > max : {A, B : Type} ->
 >       TotalPreorder B -> 
->       (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>       (fA : Finite A) -> 
+>       .(ne : NonEmpty fA) -> 
 >       (f : A -> B) -> B
 > max tp fA nefA f = snd (argmaxMax tp fA nefA f)
 
 
 > argmax : {A, B : Type} ->
 >          TotalPreorder B -> 
->          (fA : Finite A) -> (ne : NonEmpty fA) -> 
+>          (fA : Finite A) -> 
+>          .(ne : NonEmpty fA) -> 
 >          (f : A -> B) -> A
 > argmax tp fA nefA f = fst (argmaxMax tp fA nefA f)
 
 
 > maxSpec : {A, B : Type} -> 
 >           (tp : TotalPreorder B) -> 
->           (fA : Finite A) -> (nefA : NonEmpty fA) -> 
+>           (fA : Finite A) -> 
+>           (nefA : NonEmpty fA) -> 
 >           (f : A -> B) ->
 >           (a : A) -> R tp (f a) (max tp fA nefA f)
 > maxSpec {A} {B} tp fA nefA f a = s4 where
@@ -75,7 +79,8 @@
 
 > argmaxSpec : {A, B : Type} -> 
 >              (tp : TotalPreorder B) -> 
->              (fA : Finite A) -> (nefA : NonEmpty fA) -> 
+>              (fA : Finite A) -> 
+>              (nefA : NonEmpty fA) -> 
 >              (f : A -> B) ->
 >              (max tp fA nefA f) = f (argmax tp fA nefA f)
 > argmaxSpec {A} {B} tp fA nefA f = s3 where

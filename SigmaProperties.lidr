@@ -54,9 +54,9 @@ Equality of Sigma types:
 >                 getWitness s1 = getWitness s2 ->
 >                 getProof s1 = getProof s2 ->
 >                 s1 = s2
-> -- sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
-> sigmaEqLemma2 {s1 = (a ** p)} {s2 = (a' ** p')} pf1 pf2 with (pf1,pf2)
->   sigmaEqLemma2 {s1 = (a ** p)} {s2 = (a ** p)} pf1 pf2 | (Refl, Refl) = Refl
+> sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
+> -- sigmaEqLemma2 {s1 = (a ** p)} {s2 = (a' ** p')} pf1 pf2 with (pf1,pf2)
+> --   sigmaEqLemma2 {s1 = (a ** p)} {s2 = (a ** p)} pf1 pf2 | (Refl, Refl) = Refl
 
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} -> 
