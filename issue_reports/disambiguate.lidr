@@ -75,7 +75,7 @@
 >                     (a : A) ->
 >                     (p : P a) ->
 >                     (ss : Vect n (Sigma A P)) ->
->                     Elem a (map Sigma.getWitness ss) -> 
+>                     Elem a (map getWitness ss) -> 
 >                     Elem (a ** p) ss
 
 > toVectComplete : {A   : Type} ->

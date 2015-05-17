@@ -154,7 +154,7 @@ The second result is
 >                     (a : A) ->
 >                     (p : P a) ->
 >                     (ss : Vect n (Sigma A P)) ->
->                     Elem a (map getWitness ss) -> 
+>                     Elem a (map Sigma.getWitness ss) -> 
 >                     Elem (a ** p) ss
 > sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
 > sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) (Here {x = a}) with (u1P a p q) 
