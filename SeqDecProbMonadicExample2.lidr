@@ -40,7 +40,7 @@
 > import FinOperations
 
 
-> %default total 
+> %default total
 
 
 We reimplement the example from "S1306_Example2" in the new theory. |M|
@@ -70,7 +70,7 @@ is the identity monad:
 
 > SeqDecProbMonadic.tagElem = IdentityOperations.tagElem
 
-> SeqDecProbMonadic.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 = 
+> SeqDecProbMonadic.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
 >   replace (sym a1eqa2) pa2
 
 > -- SeqDecProbMonadic.containerMonadSpec3 {ma = Id a} pa Refl = pa
@@ -173,10 +173,10 @@ for each step.
 *** Admissible is decidable and unique:
 
 > d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
-> d1Admissible t x = dec1So {A = Action} (admissible t x) 
+> d1Admissible t x = dec1So {A = Action} (admissible t x)
 
 > u1Admissible : (t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
-> u1Admissible t x = unique1So {A = Action} (admissible t x) 
+> u1Admissible t x = unique1So {A = Action} (admissible t x)
 
 *** Controls proper:
 
@@ -200,22 +200,22 @@ for each step.
 
 ** Transition function:
 
-> SeqDecProbMonadic.step t (Z   ** prf) (Left  ** aL) = 
+> SeqDecProbMonadic.step t (Z   ** prf) (Left  ** aL) =
 >   Id (maxColumn ** ltIdS maxColumn)
-> SeqDecProbMonadic.step t (S n ** prf) (Left  ** aL) = 
+> SeqDecProbMonadic.step t (S n ** prf) (Left  ** aL) =
 >   Id (n ** ltLemma1 n nColumns prf)
-> SeqDecProbMonadic.step t (n   ** prf) (Ahead ** aA) = 
+> SeqDecProbMonadic.step t (n   ** prf) (Ahead ** aA) =
 >   Id (n ** prf)
-> SeqDecProbMonadic.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn) 
+> SeqDecProbMonadic.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn)
 >   | (Yes p)     = Id (S n ** LTESucc p)
->   | (No contra) = Id (Z   ** LTESucc LTEZero) 
+>   | (No contra) = Id (Z   ** LTESucc LTEZero)
 
 
 
 
 ** Reward function:
 
-> SeqDecProbMonadic.reward t x y x' = 
+> SeqDecProbMonadic.reward t x y x' =
 >   if column {t = S t} x' == Z
 >   then 1.0
 >   else if S (column {t = S t} x') == nColumns
@@ -229,10 +229,10 @@ for each step.
 We want to implement
 
 < max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
-<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 <          Float
 < argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
-<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) -> 
+<          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Float) ->
 <          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
 This can be easily done using |Opt.max| and |Opt.argmax| if we can show
@@ -247,9 +247,9 @@ non-emptiness is straightforward:
 
 > neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
-> neYAV t n x (Evidence y v) = 
->   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->                 (fYAV t n x (Evidence y v)) 
+> neYAV t n x (Evidence y v) =
+>   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>                 (fYAV t n x (Evidence y v))
 >                 (y ** v)
 
 Thus, the problem is that of implementing |fYAV|. We already know that
@@ -257,11 +257,11 @@ Thus, the problem is that of implementing |fYAV|. We already know that
 n) (step t x y)| is also finite, we can apply |finiteSigmaLemma| from
 |SigmaProperties| and we are done. We show the result in two steps
 
-> fAll : {t : Nat} -> {P : X t -> Type} -> 
+> fAll : {t : Nat} -> {P : X t -> Type} ->
 >        Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
-> fAll f1P (Id x) = f1P x 
+> fAll f1P (Id x) = f1P x
 
-and 
+and
 
 > mutual
 
@@ -281,16 +281,16 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadic.max     {n} t x v  =  
+> SeqDecProbMonadic.max     {n} t x v  =
 >   Opt.max totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadic.argmax  {n} t x v  =  
+> SeqDecProbMonadic.argmax  {n} t x v  =
 >   Opt.argmax totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadic.maxSpec {n} t x v = 
+> SeqDecProbMonadic.maxSpec {n} t x v =
 >   Opt.maxSpec totalPreorderFloatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadic.argmaxSpec {n} t x v  =  
+> SeqDecProbMonadic.argmaxSpec {n} t x v  =
 >   Opt.argmaxSpec totalPreorderFloatLTE (fYAV t n  x v) (neYAV t n x v)
 
 
@@ -299,7 +299,7 @@ and |max|, |argmax|:
 
 ** Viable is decidable:
 
-> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx) 
+> dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : Identity (X t)) -> Dec (All P mx)
 > dAll t P dP (Id x) = dP x
 
 > dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
@@ -315,20 +315,20 @@ and |max|, |argmax|:
 
 ** Actions of state/control sequences
 
-> actions : (t : Nat) -> 
->           (n : Nat) -> 
+> actions : (t : Nat) ->
+>           (n : Nat) ->
 >           Identity (StateCtrlSeq t n) ->
 >           Vect n Action
 > actions _ Z _ = Nil
-> actions t (S n) (Id ((x ** y) :: xys)) 
->   = 
+> actions t (S n) (Id ((x ** y) :: xys))
+>   =
 >   (outl y) :: (actions (S t) n (Id xys))
 
 
 ** Computation
 
 > computation : { [STDIO] } Eff ()
-> computation = 
+> computation =
 >   do putStr ("enter number of steps:\n")
 >      nSteps <- getNat
 >      putStr ("enter initial column:\n")

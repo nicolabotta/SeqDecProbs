@@ -196,7 +196,7 @@ for each step.
 > nefY t (S (S Z)         ** prf) = nonEmptyLemma (fY t (S (S Z)         ** prf)) (Left  ** Oh)
 > nefY t (S (S (S Z))     ** prf) = nonEmptyLemma (fY t (S (S (S Z))     ** prf)) (Right ** Oh)
 > nefY t (S (S (S (S Z))) ** prf) = nonEmptyLemma (fY t (S (S (S (S Z))) ** prf)) (Ahead ** Oh)
-
+> -- nefY t (S (S (S (S (S Z)))) ** prf) = -- suitable proof using that LTE 6 5 is uninhabited
 
 ** Transition function:
 
