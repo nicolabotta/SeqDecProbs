@@ -1,3 +1,27 @@
+2015-05-17: Looking around for %assert_total
+
+  /home/patrikj/src/ext/SeqDecProbs/:
+  find . \( -type f -exec grep -q -e \%assert_total \{\} \; \) -ls
+  7092316   24 -rw-rw-r--   1 patrikj  patrikj     20746 maj 14 23:22 SeqDecProbMonadicTheory.lidr
+  7092313   12 -rw-rw-r--   1 patrikj  patrikj      9683 maj 17 23:10 SeqDecProbMonadicExample2.lidr
+  7092314   16 -rw-rw-r--   1 patrikj  patrikj     12691 maj 17 23:13 SeqDecProbMonadicSmallTheoryExample2.lidr
+  7092317   12 -rw-rw-r--   1 patrikj  patrikj     10324 maj 14 23:22 SeqDecProbMonadicTheoryExample2.1.lidr
+  7092322    4 -rw-rw-r--   1 patrikj  patrikj      1869 maj 17 23:15 SoProperties.lidr
+  7092320   16 -rw-rw-r--   1 patrikj  patrikj     14258 maj 17 22:27 VectProperties.lidr
+  7079473    4 -rw-rw-r--   1 patrikj  patrikj       986 maj 14 23:22 EffectStdIO.lidr
+  7092300   28 -rw-rw-r--   1 patrikj  patrikj     25459 maj 17 22:27 SeqDecProbMonadicSmallTheory.lidr
+  7092338   12 -rw-rw-r--   1 patrikj  patrikj      8484 maj 17 23:24 log.txt
+  7092318   12 -rw-rw-r--   1 patrikj  patrikj      9781 maj 14 23:22 SeqDecProbMonadicTheoryExample2.lidr
+  7216942    8 -rw-rw-r--   1 patrikj  patrikj      7083 maj 14 23:22 manuscripts/2014.LMCS/code/Util/VectExtensions1.lidr
+  7216746    8 -rw-rw-r--   1 patrikj  patrikj      5887 maj 14 23:22 manuscripts/2014.LMCS/code/DynamicProgramming/S1105_BackwardsInduction.lidr
+
+  SeqDecProbMonadicSmallTheoryExample2: The functions from, toFrom,
+  nefY, bie are "assert total".
+
+  TODO: get rid of as many as possible.  I tried removing a few but
+  then I get strange type error messages elsewhere.
+
+
 2015-05-13
 
 TODO: Make sure the cardinality of "XRV" is no bigger than the cardinality of X.
