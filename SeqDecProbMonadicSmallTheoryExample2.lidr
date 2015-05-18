@@ -272,7 +272,7 @@ and
 
 >   f1AllViable : .(t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
->   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (Main.fViable (S t) n) (step t x y)
+>   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (fViable (S t) n) (step t x y)
 
 > {-
 

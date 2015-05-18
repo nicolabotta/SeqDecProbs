@@ -185,10 +185,10 @@ Filtering
 >   | (n ** as') with (d1P a2)
 >     | (Yes _) = -- There {x = a1} {xs = as'} {y = a2} (filterLemma d1P a1 as prf p)
 >                 There {x = a1} {xs = as'} {y = a2} $
->                   replace {P = \rec => Elem a1 (Sigma.getProof rec)} (sym itsEqual) $
+>                   replace {P = \rec => Elem a1 (getProof rec)} (sym itsEqual) $
 >                     filterLemma {A} {P} d1P a1 as prf p
 >     | (No  _) = -- filterLemma {A} {P} d1P a1 as prf p
->                 replace {P = \rec => Elem a1 (Sigma.getProof rec)} (sym itsEqual) $
+>                 replace {P = \rec => Elem a1 (getProof rec)} (sym itsEqual) $
 >                   filterLemma {P = P} d1P a1 as prf p
 
 
@@ -200,20 +200,20 @@ Filtering
 >                  (as : Vect n A) ->
 >                  Elem a as ->
 >                  (p : P a) ->
->                  Elem a (map Sigma.getWitness (getProof (filterTag d1P as)))
+>                  Elem a (map getWitness (getProof (filterTag d1P as)))
 > filterTagLemma d1P a   Nil       prf  p = absurd prf
 > filterTagLemma d1P a1 (a1 :: as) Here p with (filterTag d1P as)
 >   | (n ** aps') with (d1P a1)
->     | (Yes _) = Here {x = a1} {xs = map Sigma.getWitness aps'}
+>     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
 >     | (No  contra) = void (contra p)
 > filterTagLemma d1P a1 (a2 :: as) (There prf) p with (filterTag d1P as) proof itsEqual
 >   | (n ** aps') with (d1P a2)
->     | (Yes _) = -- There {x = a1} {xs = map Sigma.getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p)
->                 There {x = a1} {xs = map Sigma.getWitness aps'} {y = a2} $
->                   replace {P = \rec => Elem a1 (map Sigma.getWitness (Sigma.getProof rec))} (sym itsEqual) $
+>     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p)
+>                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
+>                   replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
 >                     filterTagLemma d1P a1 as prf p
 >     | (No  _) = -- filterTagLemma d1P a1 as prf p
->                 replace {P = \rec => Elem a1 (map Sigma.getWitness (Sigma.getProof rec))} (sym itsEqual) $
+>                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
 >                   filterTagLemma d1P a1 as prf p
 
 > {- Just commented out for testing

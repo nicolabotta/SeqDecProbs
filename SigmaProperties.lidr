@@ -55,8 +55,7 @@ Equality of Sigma types:
 >                 getProof s1 = getProof s2 ->
 >                 s1 = s2
 > sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
-> -- sigmaEqLemma2 {s1 = (a ** p)} {s2 = (a' ** p')} pf1 pf2 with (pf1,pf2)
-> --   sigmaEqLemma2 {s1 = (a ** p)} {s2 = (a ** p)} pf1 pf2 | (Refl, Refl) = Refl
+
 
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} -> 
@@ -127,7 +126,7 @@ We start by deriving two auxiliary results. The first one is
 >               (d1P : Dec1 P) ->
 >               (a : A) ->
 >               (p : P a) ->
->               Elem a (map Sigma.getWitness (getProof (toVect fA d1P))) 
+>               Elem a (map getWitness (getProof (toVect fA d1P))) 
 > toVectLemma {A} {P} fA d1P a p = filterTagLemma d1P a (toVect fA) (toVectComplete fA a) p
 
 The proof is computed by applying |VectProperties.filterTagLemma|:
@@ -138,7 +137,7 @@ The proof is computed by applying |VectProperties.filterTagLemma|:
 <                  (as : Vect n A) ->
 <                  Elem a as ->
 <                  (p : P a) ->
-<                  Elem a (map Sigma.getWitness (getProof (filterTag d1P as)))
+<                  Elem a (map getWitness (getProof (filterTag d1P as)))
 
 to |d1P|, |a|, to the vector-based representation of |A| associated to
 |fA| provided by |FiniteOperations.toVect fA| and to a proof that |a| is
@@ -154,7 +153,7 @@ The second result is
 >                     (a : A) ->
 >                     (p : P a) ->
 >                     (ss : Vect n (Sigma A P)) ->
->                     Elem a (map Sigma.getWitness ss) -> 
+>                     Elem a (map getWitness ss) -> 
 >                     Elem (a ** p) ss
 > sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
 > sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) (Here {x = a}) with (u1P a p q) 
@@ -175,7 +174,7 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 >                  (s   : Sigma A P) -> 
 >                  Elem s (getProof (toVect fA d1P))
 > toVectComplete fA d1P u1P (a ** p) = s1 where
->   s0 : Elem a (map Sigma.getWitness (getProof (toVect fA d1P)))
+>   s0 : Elem a (map getWitness (getProof (toVect fA d1P)))
 >   s0 = toVectLemma fA d1P a p
 >   s1 : Elem (a ** p) (getProof (toVect fA d1P))
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0

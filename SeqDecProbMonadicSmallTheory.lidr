@@ -588,7 +588,7 @@ Nat|:
 >          (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
 >   mkf' {t} {n} x r v y av vt (x' ** x'estep) = reward t x y x' + index k vt where
 >     rvxs : Vect (cRVX (S t) n) (X (S t))
->     rvxs = map Sigma.getWitness (rRVX (S t) n)
+>     rvxs = map getWitness (rRVX (S t) n)
 >     xpx' : x `Pred` x'
 >     xpx' = Evidence y x'estep
 >     r'   : Reachable x'
