@@ -227,10 +227,14 @@ for each step.
 
 We want to implement
 
-< max    : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+< max    : {t : Nat} -> {n : Nat} -> 
+<          (x : X t) -> 
+<          .(Viable (S n) x) ->
 <          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 <          Nat
-< argmax : (t : Nat) -> (x : X t) -> Viable (S n) x ->
+< argmax : {t : Nat} -> {n : Nat} -> 
+<          (x : X t) -> 
+<          .(Viable (S n) x) ->
 <          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 <          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
@@ -320,21 +324,21 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadicSmallTheory.max     {n} t x v  =
+> SeqDecProbMonadicSmallTheory.max     {t} {n} x v  =
 >   Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadicSmallTheory.argmax  {n} t x v  =
+> SeqDecProbMonadicSmallTheory.argmax  {t} {n} x v  =
 >   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
 
 
 * |Elem| and |All| are decidable:
 
-> -- dElem : (t : Nat) -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dElem t x (Id x') = decEqLTB x x'
+> -- dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dElem x (Id x') = decEqLTB x x'
 
-> -- dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dAll t P dP (Id x) = dP x
+> -- dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
+> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dAll P dP (Id x) = dP x
 
 
 
@@ -343,7 +347,7 @@ and |max|, |argmax|:
 ** Actions of state/control sequences
 
 > actions : .(t : Nat) ->
->           .(n : Nat) ->
+>           (n : Nat) ->
 >           Identity (StateCtrlSeq t n) ->
 >           Vect n Action
 > actions _ Z _ = Nil
@@ -387,7 +391,7 @@ and |max|, |argmax|:
 >      nSteps <- getNat
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
->      case (dViable Z nSteps x0) of
+>      case (dViable {t = Z} nSteps x0) of
 >        (Yes v0) => do -- let vt = snd (biT Z nSteps) -- bie Z nSteps -- pure (bi Z nSteps)
 >                       -- putStrLn (show vt)
 >                       -- ps   <- pure (bi Z nSteps)

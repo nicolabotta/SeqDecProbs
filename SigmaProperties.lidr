@@ -31,7 +31,7 @@ Equality of projections:
 >                         {P  : A -> Type} -> 
 >                         {s1 : Sigma A P} -> 
 >                         {s2 : Sigma A P} ->
->                         (s1 = s2) -> (getWitness s1 = getWitness s2)
+>                         .(s1 = s2) -> (getWitness s1 = getWitness s2)
 > getWitnessPreservesEq {s1 = (a ** p)} {s2 = (a ** p)} Refl = Refl
 
 
@@ -40,7 +40,7 @@ Equality of projections:
 >                       {P  : A -> Type} -> 
 >                       {s1 : Sigma A P} -> 
 >                       {s2 : Sigma A P} ->
->                       (s1 = s2) -> (getProof s1 = getProof s2)
+>                       .(s1 = s2) -> (getProof s1 = getProof s2)
 > getProofPreservesEq {s1 = (a ** p)} {s2 = (a ** p)} Refl = Refl
 
 
@@ -51,8 +51,8 @@ Equality of Sigma types:
 >                 {P : A -> Type} -> 
 >                 {s1: Sigma A P} -> 
 >                 {s2: Sigma A P} ->
->                 getWitness s1 = getWitness s2 ->
->                 getProof s1 = getProof s2 ->
+>                 .(getWitness s1 = getWitness s2) ->
+>                 .(getProof s1 = getProof s2) ->
 >                 s1 = s2
 > sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
 
@@ -60,7 +60,7 @@ Equality of Sigma types:
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} -> 
 >                 {P : A -> Type} -> 
->                 (s: Sigma A P) -> 
+>                 .(s: Sigma A P) -> 
 >                 s = (getWitness s ** getProof s)
 > sigmaEqLemma0 (a ** p) = Refl
 
@@ -68,8 +68,8 @@ Equality of Sigma types:
 > ||| Equality for singleton predicates
 > sigmaEqLemma1 : {A  : Type} ->
 >                 {P  : A -> Type} -> 
->                 (s1 : Sigma A P) -> 
->                 (s2 : Sigma A P) ->
+>                 .(s1 : Sigma A P) -> 
+>                 .(s2 : Sigma A P) ->
 >                 getWitness s1 = getWitness s2 -> 
 >                 Unique0 (P (getWitness s1)) ->
 >                 s1 = s2
@@ -83,10 +83,10 @@ Decidability of Sigma equality:
 > ||| Decidability of equality 1
 > sigmaDecEqLemma1 : {A : Type} ->
 >                    {P : A -> Type} ->
->                    DecEq0 A -> 
->                    DecEq1 P ->
->                    (s1 : Sigma A P) ->
->                    (s2 : Sigma A P) ->
+>                    .(DecEq0 A) -> 
+>                    .(DecEq1 P) ->
+>                    .(s1 : Sigma A P) ->
+>                    .(s2 : Sigma A P) ->
 >                    Dec (s1 = s2)
 > sigmaDecEqLemma1 da d1p (a1 ** pa1) (a2 ** pa2)     with (da a1 a2)
 >   sigmaDecEqLemma1 da d1p (a1 ** pa1) (a1 ** pa2)   | (Yes Refl) with ((d1p a1) pa1 pa2)
@@ -98,10 +98,10 @@ Decidability of Sigma equality:
 > ||| Decidability of equality 2
 > sigmaDecEqLemma2 : {A : Type} ->
 >                    {P : A -> Type} ->
->                    DecEq A -> 
->                    Unique1 {t0 = A} P ->
->                    (s1 : Sigma A P) ->
->                    (s2 : Sigma A P) ->
+>                    .(DecEq A) -> 
+>                    .(Unique1 {t0 = A} P) ->
+>                    .(s1 : Sigma A P) ->
+>                    .(s2 : Sigma A P) ->
 >                    Dec (s1 = s2)
 > sigmaDecEqLemma2 da p1P s1 s2 with (decEq (getWitness s1) (getWitness s2)) 
 >   | (Yes prf)   = Yes (sigmaEqLemma1 s1 s2 prf (p1P (getWitness s1)))
@@ -112,20 +112,20 @@ We want to show that |toVect| is complete
 
 < toVectComplete : {A   : Type} ->
 <                  {P   : A -> Type} ->
-<                  (fA  : Finite A) -> 
-<                  (d1P : Dec1 P) -> 
-<                  Unique1 {t0 = A} P ->
-<                  (s   : Sigma A P) -> 
+<                  .(fA  : Finite A) -> 
+<                  .(d1P : Dec1 P) -> 
+<                  .(Unique1 {t0 = A} P) ->
+<                  .(s   : Sigma A P) -> 
 <                  Elem s (getProof (toVect fA d1P))
 
 We start by deriving two auxiliary results. The first one is
 
 > toVectLemma : {A : Type} ->
 >               {P : A -> Type} ->
->               (fA : Finite A) -> 
->               (d1P : Dec1 P) ->
->               (a : A) ->
->               (p : P a) ->
+>               .(fA : Finite A) -> 
+>               .(d1P : Dec1 P) ->
+>               .(a : A) ->
+>               .(p : P a) ->
 >               Elem a (map getWitness (getProof (toVect fA d1P))) 
 > toVectLemma {A} {P} fA d1P a p = filterTagLemma d1P a (toVect fA) (toVectComplete fA a) p
 
@@ -135,7 +135,7 @@ The proof is computed by applying |VectProperties.filterTagLemma|:
 <                  (d1P : Dec1 P) ->
 <                  (a : A) ->
 <                  (as : Vect n A) ->
-<                  Elem a as ->
+<                  (Elem a as) ->
 <                  (p : P a) ->
 <                  Elem a (map getWitness (getProof (filterTag d1P as)))
 
@@ -149,11 +149,11 @@ The second result is
 
 > sigmaUniqueLemma1 : {A   : Type} ->
 >                     {P   : A -> Type} ->
->                     Unique1 {t0 = A} P ->
->                     (a : A) ->
->                     (p : P a) ->
->                     (ss : Vect n (Sigma A P)) ->
->                     Elem a (map getWitness ss) -> 
+>                     .(Unique1 {t0 = A} P) ->
+>                     .(a : A) ->
+>                     .(p : P a) ->
+>                     .(ss : Vect n (Sigma A P)) ->
+>                     .(Elem a (map getWitness ss)) -> 
 >                     Elem (a ** p) ss
 > sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
 > sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) (Here {x = a}) with (u1P a p q) 
@@ -168,10 +168,10 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 
 > toVectComplete : {A   : Type} ->
 >                  {P   : A -> Type} ->
->                  (fA  : Finite A) -> 
->                  (d1P : Dec1 P) -> 
->                  Unique1 {t0 = A} P ->
->                  (s   : Sigma A P) -> 
+>                  .(fA  : Finite A) -> 
+>                  .(d1P : Dec1 P) -> 
+>                  .(Unique1 {t0 = A} P) ->
+>                  .(s   : Sigma A P) -> 
 >                  Elem s (getProof (toVect fA d1P))
 > toVectComplete fA d1P u1P (a ** p) = s1 where
 >   s0 : Elem a (map getWitness (getProof (toVect fA d1P)))
@@ -182,9 +182,9 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 
 > toVectInjective1 : {A   : Type} ->
 >                    {P   : A -> Type} ->
->                    (fA  : Finite A) -> 
->                    (d1P : Dec1 P) -> 
->                    Unique1 {t0 = A} P ->
+>                    .(fA  : Finite A) -> 
+>                    .(d1P : Dec1 P) -> 
+>                    .(Unique1 {t0 = A} P) ->
 >                    Injective1 (getProof (toVect fA d1P))
 > toVectInjective1 fA dP uP = injectiveFilterTagLemma dP (toVect fA) (toVectInjective1 fA)
 
@@ -389,16 +389,16 @@ Sigma Fin properties:
 Sigma Exists properties
 
 > sigmaExistsLemma : {A : Type} -> {P : A -> Type} ->
->                    Iso (Sigma A P) (Exists {a = A} P)
+>                    Iso (Sigma A P) (Exists P)
 > sigmaExistsLemma {A} {P} = MkIso to from toFrom fromTo where
->   to : Sigma A P -> Exists {a = A} P
->   to (MkSigma a p) = Evidence a p
->   from : Exists {a = A} P -> Sigma A P
->   from (Evidence a p) = MkSigma a p
->   toFrom : (e : Exists {a = A} P) -> to (from e) = e
->   toFrom (Evidence a p) = Refl
+>   to : Sigma A P -> Exists P
+>   to (MkSigma _ p) = Evidence _ p
+>   from : Exists P -> Sigma A P
+>   from (Evidence _ p) = MkSigma _ p
+>   toFrom : (e : Exists P) -> to (from e) = e
+>   toFrom (Evidence _ _) = Refl
 >   fromTo : (s : Sigma A P) -> from (to s) = s
->   fromTo (MkSigma a p) = Refl
+>   fromTo (MkSigma _ _) = Refl
 
 
 Finitess properties

@@ -136,8 +136,9 @@ Membership, quantifiers:
 > elemLemma {n = S m} a as  p = ltZS m
 
 
-> AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
-> AnyExistsLemma (Here {x} px) = Evidence x px
+> AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> {as : Vect n A} ->
+>                  Any P as -> Exists P
+> AnyExistsLemma (Here px) = Evidence _ px
 > AnyExistsLemma (There prf) = AnyExistsLemma prf
 
 > ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
@@ -195,6 +196,7 @@ Filtering
 > ||| |filterTag| preserves membership
 > filterTagLemma : {A : Type} ->
 >                  {P : A -> Type} ->
+>                  {n : Nat} ->
 >                  (d1P : Dec1 P) ->
 >                  (a : A) ->
 >                  (as : Vect n A) ->

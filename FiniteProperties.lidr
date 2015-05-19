@@ -25,7 +25,7 @@
 
 > ||| |toVect| representations of finite types are complete
 > toVectComplete : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (toVect fA)
-> toVectComplete (Evidence n iso) a = s3 where
+> toVectComplete (Evidence _ iso) a = s3 where
 >   s1  :  Elem (from iso (to iso a)) (toVect (from iso))
 >   s1  =  toVectComplete (from iso) (to iso a)
 >   s2  :  from iso (to iso a) = a

@@ -107,15 +107,13 @@ For every SDP, we can build the following notions:
 > Pred {t} x x'  =  Exists (\ y => x' `Elem` step t x y)
 
 > Viable : (n : Nat) -> X t -> Prop
-> Viable {t}  Z    _  =  ()
+> Viable {t}  Z    _  =  Unit
 > Viable {t} (S m) x  =  Exists (\ y => All (Viable m) (step t x y))
 
 > Reachable : X t' -> Prop
-> Reachable {t' =   Z} _   =  ()
+> Reachable {t' =   Z} _   =  Unit
 > Reachable {t' = S t} x'  =  Exists (\ x => (Reachable x, x `Pred` x'))
 
-> Reachable' : (t' : Nat) -> X t' -> Prop
-> Reachable' t x = Reachable x
 
   Refined policies:
 
@@ -221,10 +219,14 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max    : (t : Nat) -> (x : X t) -> .(Viable (S n) x) ->
+> max    : {t : Nat} -> {n : Nat} -> 
+>          (x : X t) -> 
+>          .(Viable (S n) x) ->
 >          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Nat
-> argmax : (t : Nat) -> (x : X t) -> .(Viable (S n) x) ->
+> argmax : {t : Nat} -> {n : Nat} -> 
+>          (x : X t) -> 
+>          .(Viable (S n) x) ->
 >          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 
@@ -233,15 +235,15 @@ that fulfill the specification
 -- > typeHelper : (t : Nat) -> (x : X t) -> Viable (S n) x ->
 -- >              (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 -- >              Type
--- > typeHelper t x v f = max t x v f = f (argmax t x v f)
+-- > typeHelper t x v f = max x v f = f (argmax x v f)
 
 -- > maxSpec     :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
 -- >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 -- >                (s : Sigma (Y t x) (\ y => All (Viable n) (step t x y))) ->
--- >                (f s) `LTE` (max t x v f)
+-- >                (f s) `LTE` (max x v f)
 -- > argmaxSpec  :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
 -- >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
--- >                typeHelper t x v f -- max t x v f = f (argmax t x v f)
+-- >                typeHelper t x v f -- max x v f = f (argmax x v f)
 
 then we can implement a function that computes machine checkable optimal
 extensions for arbitrary policy sequences:
@@ -258,7 +260,7 @@ extensions for arbitrary policy sequences:
 > optExt : PolicySeq (S t) n -> Policy t (S n)
 > optExt {t} {n} ps = p where
 >   p : Policy t (S n)
->   p x r v = argmax t x v g where
+>   p x r v = argmax x v g where
 >     g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
 >     g = mkg x r v ps
 
@@ -284,9 +286,9 @@ extensions for arbitrary policy sequences:
 -- >   f     =  mkf x r v y av ps
 -- >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Nat
 -- >   f'    =  mkf x r v y' av' ps
--- >   s1    :  (g yav') `LTE` (max t x v g)
+-- >   s1    :  (g yav') `LTE` (max x v g)
 -- >   s1    =  maxSpec t x v g yav'
--- >   s2    :  (g yav') `LTE` (g (argmax t x v g))
+-- >   s2    :  (g yav') `LTE` (g (argmax x v g))
 -- >   s2    =  replace {P = \ z => (g yav' `LTE` z)} (argmaxSpec t x v g) s1
 -- >   -- the rest of the steps are for the human reader
 -- >   s3    :  (g yav') `LTE` (g yav)
@@ -355,8 +357,6 @@ possible future evolutions from a (viable) initial state:
 >         r' = Evidence x (r , xpx')
 >         v' : Viable m x'
 >         v' = containerMonadSpec3 x' mx' av x'estep
-
-
 
 
 
@@ -458,55 +458,55 @@ If the control space is finite and |Elem| and |All| for the container
 monad |M| is decidable
 
 >   fY : (t : Nat) -> (x : X t) -> Finite (Y t x)  -- Assumption
->   dElem : (t : Nat) -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)  -- Assumption
->   dAll : (t : Nat) -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)  -- Assumption
+>   dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)  -- Assumption
+>   dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)  -- Assumption
 
 then |Pred| is decidable
 
->   dPred : (t : Nat) -> (x : X t) -> (x' : X (S t)) -> Dec (x `Pred` x')
->   dPred t x x' = finiteDecLemma (fY t x) d1Elem where
+>   dPred : {t : Nat} -> (x : X t) -> (x' : X (S t)) -> Dec (x `Pred` x')
+>   dPred {t} x x' = finiteDecLemma (fY t x) d1Elem where
 >     d1Elem : Dec1 (\ y => x' `Elem` (step t x y))
->     d1Elem y = dElem (S t) x' (step t x y)
+>     d1Elem y = dElem x' (step t x y)
 
 and |Reachable| and |Viable n| are also decidable
 
->   dReachable : (t : Nat) -> (x : X t) -> Dec (Reachable x)
->   dReachable  Z    x' = Yes ()
->   dReachable (S t) x' = s1 where
->     s1 : Dec (Exists (\ x => (Reachable x, Pred {t} x x')))
->     s1 = finiteDecLemma (fX t) (\x => decPair (dReachable t x) (dPred t x x'))
+>   dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
+>   dReachable {t' = Z}   x' = Yes ()
+>   dReachable {t' = S t} x' = s1 where
+>     s1 : Dec (Exists (\ x => (Reachable x, Pred x x')))
+>     s1 = finiteDecLemma (fX t) (\x => decPair (dReachable x) (dPred x x'))
 
->   dViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (Viable {t} n x)
->   dViable t  Z    x = Yes ()
->   dViable t (S m) x = s3 where
->     s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
->     s1 y  =  dAll (S t) (Viable {t = S t} m) (dViable (S t) m) (step t x y)
->     s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
+>   dViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Dec (Viable n x)
+>   dViable {t}  Z    x = Yes ()
+>   dViable {t} (S m) x = s3 where
+>     s1    :  Dec1 (\ y => All (Viable m) (step t x y))
+>     s1 y  =  dAll (Viable m) (dViable m) (step t x y)
+>     s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable m) (step t x y)))
 >     s2    =  finiteDecLemma (fY t x) s1
->     s3    :  Dec (Viable {t = t} (S m) x)
+>     s3    :  Dec (Viable (S m) x)
 >     s3    =  s2
 
 then their conjunction
 
->   ReachableViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Prop
->   ReachableViable t n x = (Reachable x , Viable {t} n x)
+>   ReachableViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Prop
+>   ReachableViable n x = (Reachable x , Viable n x)
 
 is also decidable
 
->   dReachableViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Dec (ReachableViable t n x)
->   dReachableViable t n x = decPair (dReachable t x) (dViable t n x)
+>   dReachableViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Dec (ReachableViable n x)
+>   dReachableViable n x = decPair (dReachable x) (dViable n x)
 
 and one can collect all states which are reachable and viable in a vector:
 
 TODO: Check if we can use Subset to erase the ReachableViable component during compilation.
 
->   crRVX : (t : Nat) -> (n : Nat) -> Sigma Nat (\ m => Vect m (Sigma (X t) (ReachableViable t n)))
->   crRVX t n = filterTag (dReachableViable t n) (rX t)
+>   crRVX : (t : Nat) -> (n : Nat) -> Sigma Nat (\ m => Vect m (Sigma (X t) (ReachableViable n)))
+>   crRVX t n = filterTag (dReachableViable n) (rX t)
 
 >   cRVX : (t : Nat) -> (n : Nat) -> Nat
 >   cRVX t n = getWitness (crRVX t n)
 
->   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (Sigma (X t) (ReachableViable t n))
+>   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (Sigma (X t) (ReachableViable n))
 >   rRVX t n = getProof (crRVX t n)
 
 > {-
@@ -582,8 +582,12 @@ Under these assumption, one can implement |tabOptExt| from |optExt| by
 just replacing |ps : PolicySeq (S t) n| with |vt : Vect (cRVX (S t) n)
 Nat|:
 
->   mkf' : (x  : X t) -> .(r  : Reachable x) -> .(v  : Viable (S n) x) ->
->          (y  : Y t x) -> (av : All (Viable n) (step t x y)) ->
+>   mkf' : {t : Nat} -> {n : Nat} ->
+>          (x  : X t) -> 
+>          .(r  : Reachable x) -> 
+>          .(v  : Viable (S n) x) ->
+>          (y  : Y t x) -> 
+>          (av : All (Viable n) (step t x y)) ->
 >          (vt : Vect (cRVX (S t) n) Nat) ->
 >          (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
 >   mkf' {t} {n} x r v y av vt (x' ** x'estep) = reward t x y x' + index k vt where
@@ -597,14 +601,15 @@ Nat|:
 >     v'   = containerMonadSpec3 x' (step t x y) av x'estep
 >     k    : Fin (cRVX (S t) n)
 >     k    = lookup x' rvxs prf' where
->       dRV : Dec1 (ReachableViable (S t) n)
->       dRV = dReachableViable (S t) n
+>       dRV : Dec1 (ReachableViable n)
+>       dRV = dReachableViable n
 >       prf : Elem x' (rX (S t))
 >       prf = toVectComplete (fX (S t)) x'
 >       prf' : Elem x' rvxs
->       prf' = filterTagLemma {P = ReachableViable (S t) n} dRV x' (rX (S t)) prf (r',v')
+>       prf' = filterTagLemma {P = ReachableViable n} dRV x' (rX (S t)) prf (r',v')
 
->   mkg : (x  : X t) ->
+>   mkg : {t : Nat} -> {n : Nat} ->
+>         (x  : X t) ->
 >         .(r  : Reachable x) ->
 >         .(v  : Viable (S n) x) ->
 >         (vt : Vect (cRVX (S t) n) Nat) -> 
@@ -615,7 +620,7 @@ Nat|:
 
 >   tabOptExt {t} {n} vt = p where
 >     p : Policy t (S n)
->     p x r v = argmax t x v g where
+>     p x r v = argmax x v g where
 >       g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
 >       g = mkg x r v vt
 
@@ -645,23 +650,22 @@ of |trbi|:
 >      vt = snd psvt
 >      p : Policy t (S n)
 >      p = tabOptExt vt
->
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVX t (S n)) -> Nat
 >         vtf k = g yav where
->           xrv : Sigma (X t) (ReachableViable t (S n))
+>           xrv : Sigma (X t) (ReachableViable (S n))
 >           xrv = index k (rRVX t (S n))
 >           x   : X t
 >           x   = getWitness xrv
->           rv  : ReachableViable t (S n) x
+>           rv  : ReachableViable (S n) x
 >           rv  = getProof xrv
 >           r   : Reachable x
 >           r   = fst rv
 >           v   : Viable (S n) x
 >           v   = snd rv
 >           g   : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
->           g   = TabulatedBackwardsInduction.mkg x r v vt
+>           g   = mkg x r v vt
 >           yav : (y : Y t x ** All (Viable n) (step t x y))
 >           yav = p x r v
 
@@ -687,7 +691,7 @@ of |trbi|:
 >   vt'  = toVect vt'f where
 >     vt'f : Fin (cRVX (c' + t) (S (n - S c'))) -> Nat
 >     vt'f k = g yav where
->       xrv : Sigma (X (c' + t)) (ReachableViable (c' + t) (S (n - S c')))
+>       xrv : Sigma (X (c' + t)) (ReachableViable (S (n - S c')))
 >       xrv = index k (rRVX (c' + t) (S (n - S c')))
 >       x   : X (c' + t)
 >       x   = getWitness xrv
@@ -696,7 +700,7 @@ of |trbi|:
 >       v   : Viable {t = c' + t} (S (n - S c')) x
 >       v   = snd (getProof xrv)
 >       g   : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
->       g   = TabulatedBackwardsInduction.mkg x r v vt
+>       g   = mkg x r v vt
 >       yav : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y))
 >       yav = p x r v
 >   vt''  : Vect (cRVX (c' + t) (n - c')) Nat
