@@ -1,6 +1,5 @@
 > module SigmaProperties
 
-
 > import Data.Fin
 > import Data.Vect
 > import Control.Isomorphism
@@ -110,34 +109,35 @@ Decidability of Sigma equality:
 
 We want to show that |toVect| is complete
 
-< toVectComplete : {A   : Type} ->
-<                  {P   : A -> Type} ->
-<                  .(fA  : Finite A) -> 
-<                  .(d1P : Dec1 P) -> 
-<                  .(Unique1 {t0 = A} P) ->
-<                  .(s   : Sigma A P) -> 
-<                  Elem s (getProof (toVect fA d1P))
+< toVectSigmaComplete : {A   : Type} ->
+<                       {P   : A -> Type} ->
+<                       .(fA  : Finite A) -> 
+<                       .(d1P : Dec1 P) -> 
+<                       .(Unique1 {t0 = A} P) ->
+<                       .(s   : Sigma A P) -> 
+<                       Elem s (getProof (toVectSigma fA d1P))
 
 We start by deriving two auxiliary results. The first one is
 
-> toVectLemma : {A : Type} ->
->               {P : A -> Type} ->
->               .(fA : Finite A) -> 
->               .(d1P : Dec1 P) ->
->               .(a : A) ->
->               .(p : P a) ->
->               Elem a (map getWitness (getProof (toVect fA d1P))) 
-> toVectLemma {A} {P} fA d1P a p = filterTagLemma d1P a (toVect fA) (toVectComplete fA a) p
+> toVectSigmaLemma : {A : Type} ->
+>                    {P : A -> Type} ->
+>                    .(fA : Finite A) -> 
+>                    .(d1P : Dec1 P) ->
+>                    .(a : A) ->
+>                    .(p : P a) ->
+>                    Elem a (map getWitness (getProof (toVectSigma fA d1P))) 
+> toVectSigmaLemma {A} {P} fA d1P a p = 
+>   filterTagSigmaLemma d1P a (toVect fA) (toVectComplete fA a) p
 
-The proof is computed by applying |VectProperties.filterTagLemma|:
+The proof is computed by applying |VectProperties.filterTagSigmaLemma|:
 
-< filterTagLemma : {A : Type} -> {P : A -> Type} ->
-<                  (d1P : Dec1 P) ->
-<                  (a : A) ->
-<                  (as : Vect n A) ->
-<                  (Elem a as) ->
-<                  (p : P a) ->
-<                  Elem a (map getWitness (getProof (filterTag d1P as)))
+< filterTagSigmaLemma : {A : Type} -> {P : A -> Type} ->
+<                       (d1P : Dec1 P) ->
+<                       (a : A) ->
+<                       (as : Vect n A) ->
+<                       (Elem a as) ->
+<                       (p : P a) ->
+<                       Elem a (map getWitness (getProof (filterTagSigma d1P as)))
 
 to |d1P|, |a|, to the vector-based representation of |A| associated to
 |fA| provided by |FiniteOperations.toVect fA| and to a proof that |a| is
@@ -166,27 +166,30 @@ The second result is
 With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 |toVect| is complete:
 
-> toVectComplete : {A   : Type} ->
->                  {P   : A -> Type} ->
->                  .(fA  : Finite A) -> 
->                  .(d1P : Dec1 P) -> 
->                  .(Unique1 {t0 = A} P) ->
->                  .(s   : Sigma A P) -> 
->                  Elem s (getProof (toVect fA d1P))
-> toVectComplete fA d1P u1P (a ** p) = s1 where
->   s0 : Elem a (map getWitness (getProof (toVect fA d1P)))
->   s0 = toVectLemma fA d1P a p
->   s1 : Elem (a ** p) (getProof (toVect fA d1P))
->   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVect fA d1P)) s0
+> toVectSigmaComplete : {A   : Type} ->
+>                       {P   : A -> Type} ->
+>                       .(fA  : Finite A) -> 
+>                       .(d1P : Dec1 P) -> 
+>                       .(Unique1 {t0 = A} P) ->
+>                       .(s   : Sigma A P) -> 
+>                       Elem s (getProof (toVectSigma fA d1P))
+> toVectSigmaComplete fA d1P u1P (a ** p) = s1 where
+>   s0 : Elem a (map getWitness (getProof (toVectSigma fA d1P)))
+>   s0 = toVectSigmaLemma fA d1P a p
+>   s1 : Elem (a ** p) (getProof (toVectSigma fA d1P))
+>   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVectSigma fA d1P)) s0
 
 
-> toVectInjective1 : {A   : Type} ->
->                    {P   : A -> Type} ->
->                    .(fA  : Finite A) -> 
->                    .(d1P : Dec1 P) -> 
->                    .(Unique1 {t0 = A} P) ->
->                    Injective1 (getProof (toVect fA d1P))
-> toVectInjective1 fA dP uP = injectiveFilterTagLemma dP (toVect fA) (toVectInjective1 fA)
+> {-
+> toVectSigmaInjective1 : {A   : Type} ->
+>                         {P   : A -> Type} ->
+>                        .(fA  : Finite A) -> 
+>                        .(d1P : Dec1 P) -> 
+>                        .(Unique1 {t0 = A} P) ->
+>                        Injective1 (getProof (toVectSigma fA d1P))
+> toVectSigmaInjective1 fA dP uP = 
+>   injectiveFilterTagSigmaLemma dP (toVect fA) (toVectInjective1 fA)
+> -}
 
 
 Sigma Fin properties:

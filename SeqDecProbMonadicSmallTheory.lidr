@@ -119,7 +119,8 @@ For every SDP, we can build the following notions:
 
 > Policy : (t : Nat) -> (n : Nat) -> Type
 > Policy t Z      =  ()
-> Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> (y : Y t x ** All (Viable m) (step t x y))
+> -- Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> (y : Y t x ** All (Viable m) (step t x y))
+> Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> Subset (Y t x) (\ y => All (Viable m) (step t x y))
 
 > data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
 >   Nil   :  PolicySeq t Z
@@ -146,11 +147,11 @@ For every SDP, we can build the following notions:
 >   val {t} {n = Z} x r v ps = Z
 >   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
 >     y    :  Y t x
->     y    =  outl (p x r v)
+>     y    =  getWitness (p x r v)
 >     mx'  :  M (X (S t))
 >     mx'  =  step t x y
 >     av   :  All (Viable m) mx'
->     av   =  outr (p x r v)
+>     av   =  getProof (p x r v)
 >     f    :  (x' : X (S t) ** x' `Elem` mx') -> Nat
 >     f    =  mkf x r v y av ps
 
@@ -222,13 +223,13 @@ The idea is that, if clients can implement max and argmax
 > max    : {t : Nat} -> {n : Nat} -> 
 >          (x : X t) -> 
 >          .(Viable (S n) x) ->
->          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
+>          (f : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Nat
 > argmax : {t : Nat} -> {n : Nat} -> 
 >          (x : X t) -> 
 >          .(Viable (S n) x) ->
->          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
->          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
+>          (f : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
+>          Subset (Y t x) (\ y => All (Viable n) (step t x y))
 
 that fulfill the specification
 
@@ -252,16 +253,16 @@ extensions for arbitrary policy sequences:
 >       (r  : Reachable x) ->
 >       (v  : Viable (S n) x) ->
 >       (ps : PolicySeq (S t) n) ->
->       (y : Y t x ** All (Viable n) (step t x y)) -> Nat
-> mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
->   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Nat
->   f = mkf x r v (outl yav) (outr yav) ps
+>       Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
+> mkg {t} {n} x r v ps (Element y av) = meas (fmap f (tagElem (step t x y))) where
+>   f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
+>   f = mkf x r v y av ps
 
 > optExt : PolicySeq (S t) n -> Policy t (S n)
 > optExt {t} {n} ps = p where
 >   p : Policy t (S n)
 >   p x r v = argmax x v g where
->     g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
+>     g : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >     g = mkg x r v ps
 
 -- > optExtLemma : (ps : PolicySeq (S t) n) -> OptExt ps (optExt ps)
@@ -342,11 +343,11 @@ possible future evolutions from a (viable) initial state:
 >   stateCtrlTrj {t} {n = S m} x r v (p :: ps') =
 >     fmap g (bind (tagElem mx') f) where
 >       y : Y t x
->       y = outl (p x r v)
+>       y = getWitness (p x r v)
 >       mx' : M (X (S t))
 >       mx' = step t x y
 >       av  : All (Viable m) mx'
->       av  = outr (p x r v)
+>       av  = getProof (p x r v)
 >       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 >       g = ((x ** y) ::)
 >       f : (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
@@ -500,13 +501,13 @@ and one can collect all states which are reachable and viable in a vector:
 
 TODO: Check if we can use Subset to erase the ReachableViable component during compilation.
 
->   crRVX : (t : Nat) -> (n : Nat) -> Sigma Nat (\ m => Vect m (Sigma (X t) (ReachableViable n)))
->   crRVX t n = filterTag (dReachableViable n) (rX t)
+>   crRVX : (t : Nat) -> (n : Nat) -> Sigma Nat (\ m => Vect m (Subset (X t) (ReachableViable n)))
+>   crRVX t n = filterTagSubset (dReachableViable n) (rX t)
 
 >   cRVX : (t : Nat) -> (n : Nat) -> Nat
 >   cRVX t n = getWitness (crRVX t n)
 
->   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (Sigma (X t) (ReachableViable n))
+>   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (Subset (X t) (ReachableViable n))
 >   rRVX t n = getProof (crRVX t n)
 
 > {-
@@ -606,22 +607,22 @@ Nat|:
 >       prf : Elem x' (rX (S t))
 >       prf = toVectComplete (fX (S t)) x'
 >       prf' : Elem x' rvxs
->       prf' = filterTagLemma {P = ReachableViable n} dRV x' (rX (S t)) prf (r',v')
+>       prf' = filterTagSubsetLemma {P = ReachableViable n} dRV x' (rX (S t)) prf (r',v')
 
 >   mkg : {t : Nat} -> {n : Nat} ->
 >         (x  : X t) ->
 >         .(r  : Reachable x) ->
 >         .(v  : Viable (S n) x) ->
 >         (vt : Vect (cRVX (S t) n) Nat) -> 
->         (y : Y t x ** All (Viable n) (step t x y)) -> Nat
->   mkg {t} x r v vt (y ** av) = meas (fmap f' (tagElem (step t x y))) where
+>         Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
+>   mkg {t} x r v vt (Element y av) = meas (fmap f' (tagElem (step t x y))) where
 >     f' : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
 >     f' = mkf' x r v y av vt
 
 >   tabOptExt {t} {n} vt = p where
 >     p : Policy t (S n)
 >     p x r v = argmax x v g where
->       g : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
+>       g : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >       g = mkg x r v vt
 
 With |tabOptExt| in place, it is easy to implement a tabulated version
@@ -654,7 +655,7 @@ of |trbi|:
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVX t (S n)) -> Nat
 >         vtf k = g yav where
->           xrv : Sigma (X t) (ReachableViable (S n))
+>           xrv : Subset (X t) (ReachableViable (S n))
 >           xrv = index k (rRVX t (S n))
 >           x   : X t
 >           x   = getWitness xrv
@@ -664,9 +665,9 @@ of |trbi|:
 >           r   = fst rv
 >           v   : Viable (S n) x
 >           v   = snd rv
->           g   : (y : Y t x ** All (Viable n) (step t x y)) -> Nat
+>           g   : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >           g   = mkg x r v vt
->           yav : (y : Y t x ** All (Viable n) (step t x y))
+>           yav : Subset (Y t x) (\ y=> All (Viable n) (step t x y))
 >           yav = p x r v
 
 
@@ -691,7 +692,7 @@ of |trbi|:
 >   vt'  = toVect vt'f where
 >     vt'f : Fin (cRVX (c' + t) (S (n - S c'))) -> Nat
 >     vt'f k = g yav where
->       xrv : Sigma (X (c' + t)) (ReachableViable (S (n - S c')))
+>       xrv : Subset (X (c' + t)) (ReachableViable (S (n - S c')))
 >       xrv = index k (rRVX (c' + t) (S (n - S c')))
 >       x   : X (c' + t)
 >       x   = getWitness xrv
@@ -699,9 +700,9 @@ of |trbi|:
 >       r   = fst (getProof xrv)
 >       v   : Viable {t = c' + t} (S (n - S c')) x
 >       v   = snd (getProof xrv)
->       g   : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
+>       g   : Subset (Y (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
 >       g   = mkg x r v vt
->       yav : (y : Y (c' + t) x ** All (Viable (n - (S c'))) (step (c' + t) x y))
+>       yav : Subset (Y (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y))
 >       yav = p x r v
 >   vt''  : Vect (cRVX (c' + t) (n - c')) Nat
 >   vt''  = replace {P = \z => Vect (cRVX (c' + t) z) Nat} bic vt'

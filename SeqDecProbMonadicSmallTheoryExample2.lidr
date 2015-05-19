@@ -19,6 +19,8 @@
 > import BoundedNatProperties
 > import SigmaOperations
 > import SigmaProperties
+> import SubsetOperations
+> import SubsetProperties
 > import NatProperties
 > import Finite
 > import FiniteOperations
@@ -244,16 +246,16 @@ non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
 we have finiteness
 
 > fYAV : .(t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
->        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+>        Finite (Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 
 non-emptiness is straightforward:
 
 > neYAV : .(t : Nat) -> .(n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
 > neYAV t n x (Evidence y v) =
->   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
 >                 (fYAV t n x (Evidence y v))
->                 (y ** v)
+>                 (Element y v)
 
 Thus, the problem is that of implementing |fYAV|. We already know that
 |Y t x| is finite. If we manage to show that for every |y|, |All (Viable
@@ -272,7 +274,7 @@ and
 >   fViable t  Z    x  = finiteSingleton
 >   fViable t (S m) x  = s3 where
 >     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->     s3 = finiteExistsLemma (fY t x) (f1AllViable t m x)
+>     s3 = SubsetProperties.finiteExistsLemma (fY t x) (f1AllViable t m x)
 
 >   f1AllViable : .(t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
@@ -320,7 +322,7 @@ SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.vtLemma =
 
 With |f1AllViable| we can finally implement |fYAV|
 
-> fYAV t n x v = finiteSigmaLemma0 (fY t x) (f1AllViable t n x)
+> fYAV t n x v = finiteSubsetLemma0 (fY t x) (f1AllViable t n x)
 
 and |max|, |argmax|:
 

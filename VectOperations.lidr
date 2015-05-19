@@ -45,17 +45,42 @@ Filtering
 >     | (No  _) = (n ** as')
 
 > ||| Filters a vector on a decidable property and pairs elements with proofs
-> filterTag : {A : Type} ->
->             {P : A -> Type} ->
->             Dec1 P ->
->             Vect n A -> 
->             Sigma Nat (\ m => Vect m (Sigma A P))
-> filterTag d1P Nil = (_ ** Nil)
-> filterTag d1P (a :: as) with (filterTag d1P as)
+> filterTagSigma : {A : Type} ->
+>                  {P : A -> Type} ->
+>                  Dec1 P ->
+>                  Vect n A -> 
+>                  Sigma Nat (\ m => Vect m (Sigma A P))
+> filterTagSigma d1P Nil = (_ ** Nil)
+> filterTagSigma d1P (a :: as) with (filterTagSigma d1P as)
 >   | (_ ** tail) with (d1P a)
 >     | (Yes p) = (_ ** (a ** p) :: tail)
 >     | (No  _) = (_ ** tail)
 
+
+> ||| Filters a vector on a decidable property and pairs elements with proofs
+> filterTagExists : {A : Type} ->
+>                   {P : A -> Type} ->
+>                   Dec1 P ->
+>                   Vect n A -> 
+>                   Sigma Nat (\ m => Vect m (Exists {a = A} P))
+> filterTagExists d1P Nil = (_ ** Nil)
+> filterTagExists d1P (a :: as) with (filterTagExists d1P as)
+>   | (_ ** tail) with (d1P a)
+>     | (Yes p) = (_ ** (Evidence a p) :: tail)
+>     | (No  _) = (_ ** tail)
+
+
+> ||| Filters a vector on a decidable property and pairs elements with proofs
+> filterTagSubset : {A : Type} ->
+>                   {P : A -> Type} ->
+>                   Dec1 P ->
+>                   Vect n A -> 
+>                   Sigma Nat (\ m => Vect m (Subset A P))
+> filterTagSubset d1P Nil = (_ ** Nil)
+> filterTagSubset d1P (a :: as) with (filterTagSubset d1P as)
+>   | (_ ** tail) with (d1P a)
+>     | (Yes p) = (_ ** (Element a p) :: tail)
+>     | (No  _) = (_ ** tail)
 
 Searching
 

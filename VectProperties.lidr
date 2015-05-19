@@ -193,30 +193,82 @@ Filtering
 >                   filterLemma {P = P} d1P a1 as prf p
 
 
-> ||| |filterTag| preserves membership
-> filterTagLemma : {A : Type} ->
->                  {P : A -> Type} ->
->                  {n : Nat} ->
->                  (d1P : Dec1 P) ->
->                  (a : A) ->
->                  (as : Vect n A) ->
->                  Elem a as ->
->                  (p : P a) ->
->                  Elem a (map getWitness (getProof (filterTag d1P as)))
-> filterTagLemma d1P a   Nil       prf  p = absurd prf
-> filterTagLemma d1P a1 (a1 :: as) Here p with (filterTag d1P as)
+> ||| |filterTagSigma| preserves membership
+> filterTagSigmaLemma : {A : Type} ->
+>                       {P : A -> Type} ->
+>                       {n : Nat} ->
+>                       (d1P : Dec1 P) ->
+>                       (a : A) ->
+>                       (as : Vect n A) ->
+>                       Elem a as ->
+>                       (p : P a) ->
+>                       Elem a (map getWitness (getProof (filterTagSigma d1P as)))
+> filterTagSigmaLemma d1P a   Nil       prf  p = absurd prf
+> filterTagSigmaLemma d1P a1 (a1 :: as) Here p with (filterTagSigma d1P as)
 >   | (n ** aps') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
 >     | (No  contra) = void (contra p)
-> filterTagLemma d1P a1 (a2 :: as) (There prf) p with (filterTag d1P as) proof itsEqual
+> filterTagSigmaLemma d1P a1 (a2 :: as) (There prf) p with (filterTagSigma d1P as) proof itsEqual
+>   | (n ** aps') with (d1P a2)
+>     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagSigmaLemma d1P a1 as prf p)
+>                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
+>                   replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
+>                     filterTagSigmaLemma d1P a1 as prf p
+>     | (No  _) = -- filterTagSigmaLemma d1P a1 as prf p
+>                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
+>                   filterTagSigmaLemma d1P a1 as prf p
+
+
+> ||| |filterTagExists| preserves membership
+> filterTagExistsLemma : {A : Type} ->
+>                        {P : A -> Type} ->
+>                        {n : Nat} ->
+>                        (d1P : Dec1 P) ->
+>                        (a : A) ->
+>                        (as : Vect n A) ->
+>                        Elem a as ->
+>                        (p : P a) ->
+>                        Elem a (map getWitness (getProof (filterTagExists d1P as)))
+> filterTagExistsLemma d1P a   Nil       prf  p = absurd prf
+> filterTagExistsLemma d1P a1 (a1 :: as) Here p with (filterTagExists d1P as)
+>   | (n ** aps') with (d1P a1)
+>     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
+>     | (No  contra) = void (contra p)
+> filterTagExistsLemma d1P a1 (a2 :: as) (There prf) p with (filterTagExists d1P as) proof itsEqual
+>   | (n ** aps') with (d1P a2)
+>     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagExistsLemma d1P a1 as prf p)
+>                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
+>                   replace {P = \rec => Elem a1 (map Exists.getWitness (getProof rec))} (sym itsEqual) $
+>                     filterTagExistsLemma d1P a1 as prf p
+>     | (No  _) = -- filterTagExistsLemma d1P a1 as prf p
+>                 replace {P = \rec => Elem a1 (map Exists.getWitness (getProof rec))} (sym itsEqual) $
+>                   filterTagExistsLemma d1P a1 as prf p
+
+
+> ||| |filterTagSubset| preserves membership
+> filterTagSubsetLemma : {A : Type} ->
+>                        {P : A -> Type} ->
+>                        {n : Nat} ->
+>                        (d1P : Dec1 P) ->
+>                        (a : A) ->
+>                        (as : Vect n A) ->
+>                        Elem a as ->
+>                        (p : P a) ->
+>                        Elem a (map getWitness (getProof (filterTagSubset d1P as)))
+> filterTagSubsetLemma d1P a   Nil       prf  p = absurd prf
+> filterTagSubsetLemma d1P a1 (a1 :: as) Here p with (filterTagSubset d1P as)
+>   | (n ** aps') with (d1P a1)
+>     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
+>     | (No  contra) = void (contra p)
+> filterTagSubsetLemma d1P a1 (a2 :: as) (There prf) p with (filterTagSubset d1P as) proof itsEqual
 >   | (n ** aps') with (d1P a2)
 >     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p)
 >                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
->                   replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
->                     filterTagLemma d1P a1 as prf p
+>                   replace {P = \rec => Elem a1 (map Subset.getWitness (getProof rec))} (sym itsEqual) $
+>                     filterTagSubsetLemma d1P a1 as prf p
 >     | (No  _) = -- filterTagLemma d1P a1 as prf p
->                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
->                   filterTagLemma d1P a1 as prf p
+>                 replace {P = \rec => Elem a1 (map Subset.getWitness (getProof rec))} (sym itsEqual) $
+>                   filterTagSubsetLemma d1P a1 as prf p
 
 > {- Just commented out for testing
 > ||| |filter| preserves injectivity
@@ -244,14 +296,26 @@ Filtering
 > -}
 
 
-> ||| |filterTag| preserves injectivity
-> injectiveFilterTagLemma : {A : Type} ->
->                           {P : A -> Type} ->
->                           (dP : Dec1 P) ->
->                           (as : Vect n A) ->
->                           Injective1 as ->
->                           Injective1 (getProof (filterTag d1P as))
-> injectiveFilterTagLemma {n = Z}   dP Nil i1as i j p = absurd i
+> {-
+> ||| |filterTagSigma| preserves injectivity
+> injectiveFilterTagSigmaLemma : {A : Type} ->
+>                                {P : A -> Type} ->
+>                                (dP : Dec1 P) ->
+>                                (as : Vect n A) ->
+>                                Injective1 as ->
+>                                Injective1 (getProof (filterTagSigma d1P as))
+> injectiveFilterTagSigmaLemma {n = Z}   dP Nil i1as i j p = absurd i
+
+
+> ||| |filterTagSubset| preserves injectivity
+> injectiveFilterTagSubsetLemma : {A : Type} ->
+>                                 {P : A -> Type} ->
+>                                 (dP : Dec1 P) ->
+>                                 (as : Vect n A) ->
+>                                 Injective1 as ->
+>                                 Injective1 (getProof (filterTagSubset d1P as))
+> injectiveFilterTagSubsetLemma {n = Z}   dP Nil i1as i j p = absurd i
+> -}
 
 
 Max and argmax
