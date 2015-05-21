@@ -202,7 +202,7 @@ Filtering
 >                       (as : Vect n A) ->
 >                       Elem a as ->
 >                       (p : P a) ->
->                       Elem a (map getWitness (getProof (filterTagSigma d1P as)))
+>                       Elem a (map Sigma.getWitness (Sigma.getProof (filterTagSigma d1P as)))
 > filterTagSigmaLemma d1P a   Nil       prf  p = absurd prf
 > filterTagSigmaLemma d1P a1 (a1 :: as) Here p with (filterTagSigma d1P as)
 >   | (n ** aps') with (d1P a1)
@@ -228,7 +228,7 @@ Filtering
 >                        (as : Vect n A) ->
 >                        Elem a as ->
 >                        (p : P a) ->
->                        Elem a (map getWitness (getProof (filterTagExists d1P as)))
+>                        Elem a (map Exists.getWitness (Sigma.getProof (filterTagExists d1P as)))
 > filterTagExistsLemma d1P a   Nil       prf  p = absurd prf
 > filterTagExistsLemma d1P a1 (a1 :: as) Here p with (filterTagExists d1P as)
 >   | (n ** aps') with (d1P a1)
@@ -254,7 +254,7 @@ Filtering
 >                        (as : Vect n A) ->
 >                        Elem a as ->
 >                        (p : P a) ->
->                        Elem a (map getWitness (getProof (filterTagSubset d1P as)))
+>                        Elem a (map Subset.getWitness (Sigma.getProof (filterTagSubset d1P as)))
 > filterTagSubsetLemma d1P a   Nil       prf  p = absurd prf
 > filterTagSubsetLemma d1P a1 (a1 :: as) Here p with (filterTagSubset d1P as)
 >   | (n ** aps') with (d1P a1)
