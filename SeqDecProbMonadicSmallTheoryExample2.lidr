@@ -118,7 +118,7 @@ is the identity monad:
 >   (==) Right Right = True
 >   (==) Right     _ = False
 
-> instance Show Action where
+> instance Prelude.Show.Show Action where
 >   show Left  = "L"
 >   show Ahead = "A"
 >   show Right = "R"
@@ -405,7 +405,7 @@ and |max|, |argmax|:
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       putStrLn ("after mxys")
 >                       as   <- pure (actions Z nSteps mxys)
->                       putStrLn (show as)
+>                       putStrLn (show (toList as))
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 

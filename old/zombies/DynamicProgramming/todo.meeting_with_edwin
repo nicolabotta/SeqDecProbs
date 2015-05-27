@@ -1,0 +1,2 @@
+- S1306_Example4 does not type check in reasonable time if |step| is
+  defined in terms of |convComb| even for zero |p|. 

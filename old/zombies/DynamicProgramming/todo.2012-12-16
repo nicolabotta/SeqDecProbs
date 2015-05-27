@@ -1,0 +1,4 @@
+- Replace the specification of |max|, |argmax| with a specification for
+  |argmaxMax| ? Maybe not. Even if the separate implementation of |max|,
+  |argmax| is inefficient, only |argmax| is actually used in generic DP
+  computations. |max| is only needed (if at all) for specifications.

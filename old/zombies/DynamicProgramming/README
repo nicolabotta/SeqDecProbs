@@ -1,0 +1,33 @@
+Naming convention:
+------------------
+
+S11nn: the simplest case: deterministic, time-independent state
+
+S12nn: deterministic, time-dependent
+
+S13nn: monadic, time-dependent
+
+
+Note:
+-----
+
+Not all files (are meant to) type check. Type checking certain files
+yields very large *.ibc files or consumes huge computational
+resources. In particular:
+
+- S1106_Example2.lidr does not type check. This is an instance of a
+  problem discussed in issue #79. This issue has been closed but, in my
+  view, the problem is still open.
+
+- S1206_Example3.lidr and S1206_Example4.lidr type check but yield *.ibc
+  files which are about 1.5 GB each !
+
+- Type checking of S1306_Example3.lidr and S1306_Example4.lidr
+  stalls. After about 6 minutes the processes starts swapping memory
+  after having consumed about 8GB of memory and produced .ibc files of
+  about 500MB. CPU usage goes down to below 10% and type checking
+  effectively stalls.
+
+- Type checking of S1309_Example2.lidr and
+  S1309_ClimateChangePolicyUnderTippingPointUncertainty.lidr also stalls
+  (after about 10 minutes) but no .ibc files is produced.

@@ -1,0 +1,12 @@
+- Implement a version of DP with time dependent state (and controls,
+  transition and reward function) but without notions of reachability
+  and viability.
+
+- Setup an example (e.g., with a barrier) for which such approach is not
+  feasible. 
+
+- Move to the time dependent case with reachability and viability
+  constraints. 
+
+- Think about how the notions of viability and reachability can be
+  extended to the general case !

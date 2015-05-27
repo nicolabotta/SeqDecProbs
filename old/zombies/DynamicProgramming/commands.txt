@@ -1,0 +1,7 @@
+getWitness (yfys 1 2 ((1 ** oh) ** oh) oh oh (\ y => 1.0))
+
+getWitness (Prelude.Vect.filter (viable 2 2) [step 1 ((1 ** oh) ** oh)
+(Left ** oh), step 1 ((1 ** oh) ** oh) (Ahead ** oh), step 1 ((1 ** oh)
+** oh) (Right ** oh)])
+
+controls 1 3 ((1 ** oh) ** oh) oh oh (backwardsInduction 1 3)
