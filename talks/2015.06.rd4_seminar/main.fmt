@@ -1,0 +1,68 @@
+%include lhs2TeX.fmt
+%include lhs2TeX.sty
+% include polycode.fmt
+
+%format : = "\ \mathop{:}\ "
+%format -> = "\ \to\ "
+%format `subset`= "\subset"
+%format jjj     = "\bigcup"
+%format fn      = "f^n"
+%format `leq1`  = "\sqsubseteq_1"
+%format `leq2`  = "\sqsubseteq_2"
+%format `leq3`  = "\sqsubseteq_3"
+%format xs1     = "xs_1"
+%format xs2     = "xs_2"
+%format sp1     = "sp_1"
+%format sp2     = "sp_2"
+%format mx1     = "mx_1"
+%format mx2     = "mx_2"
+%format M1     = "M_1"
+%format M2     = "M_2"
+%format tau    = "\tau"
+%format m1     = "m_1"
+%format m2     = "m_2"
+%format tauinv  = "\tau^{-1}"
+%format Exists  = "\exists"
+%format Forall  = "\forall"
+%format  xx     = "\times"
+%format  <+>  = "\oplus"
+%format  `ccross` = "\otimes"
+%format PI      = "\pi"
+%format s0     = "s_0"
+% the `doubleequals' macro is due to Jeremy Gibbons
+\def\doubleequals{\mathrel{\unitlength 0.01em
+  \begin{picture}(78,40)
+    \put(7,34){\line(1,0){25}} \put(45,34){\line(1,0){25}}
+    \put(7,14){\line(1,0){25}} \put(45,14){\line(1,0){25}}
+  \end{picture}}}
+%% If you remove the %format == command the lhs2TeX default yields ≡, which can be a problem
+%format ==   = "\doubleequals"
+%%
+%% added by Nicola
+%%
+%format Equiv   = "\equiv"
+%format And   = "\wedge"
+%format !=   = "\neq"
+%format alpha  = "\alpha"
+%format beta   = "\beta"
+%format fmap   = "\Varid{fmap}"
+%format bind   = "\Varid{bind}"
+%format return = "\Varid{return}"
+%format Mmap   = "{" fmap "\!}_{M}"
+%format Mret   = "{\Varid{ret}}_{M}"
+%format Mbind  = "{\bind}_{M}"
+%format MareAllTrue  = "{" areAllTrue "}_{M}"
+%format MisIn  = "{" isIn "}_{M}"
+%format MareAllTrueSpec  = "{" areAllTrueSpec "}_{M}"
+%format MisInMareAllTrueSpec  = "{" isInAreAllTrueSpec "}_{M}"
+%format x0     
+%format mx0    
+%format p0     
+%format mxy0   
+%format mx1    
+%format p1     
+%format mxy1   
+
+%format postulate = "\mathbf{postulate}"
+%format bottom  = "\bot"
+%format somedots  = "\dots"

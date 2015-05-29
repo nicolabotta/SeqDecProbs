@@ -1,0 +1,58 @@
+%include lhs2TeX.fmt
+%include lhs2TeX.sty
+%include polycode.fmt
+
+%format : = "\ \mathop{:}\ "
+%format -> = "\ \to\ "
+%format `subset`= "\subset"
+%format jjj     = "\bigcup"
+%format fn      = "f^n"
+%format `leq1`  = "\sqsubseteq_1"
+%format `leq2`  = "\sqsubseteq_2"
+%format `leq3`  = "\sqsubseteq_3"
+%format xs1     = "xs_1"
+%format xs2     = "xs_2"
+%format sp1     = "sp_1"
+%format sp2     = "sp_2"
+%format mx1     = "mx_1"
+%format mx2     = "mx_2"
+%format M1     = "M_1"
+%format M2     = "M_2"
+%format tau    = "\tau"
+%format m1     = "m_1"
+%format m2     = "m_2"
+%format tauinv  = "\tau^{-1}"
+%format Exists  = "\exists"
+%format Sigma  = "\Sigma"
+%format Forall  = "\forall"
+%format bottom  = "\perp"
+%format  xx     = "\times"
+%format  <+>  = "\oplus"
+%format  `ccross` = "\otimes"
+%format PI      = "\pi"
+%format s0     = "s_0"
+% the `doubleequals' macro is due to Jeremy Gibbons
+\def\doubleequals{\mathrel{\unitlength 0.01em
+  \begin{picture}(78,40)
+    \put(7,34){\line(1,0){25}} \put(45,34){\line(1,0){25}}
+    \put(7,14){\line(1,0){25}} \put(45,14){\line(1,0){25}}
+  \end{picture}}}
+%% If you remove the %format == command the lhs2TeX default yields ≡, which can be a problem
+%format ==   = "\doubleequals"
+%format <--> = "\longleftrightarrow"
+%format <=> = "\Leftrightarrow"
+%format deferred = "\textbf{deferred}"
+%format `oDepPlus` = "\oplus"
+%format oDepPlus = "(\oplus)"
+%format `oPlus` = "\oplus"
+%format oPlus = "(\oplus)"
+%format oPlusSpec1 = "Spec1_{\oplus}"
+%format oPlusSpec2 = "Spec2_{\oplus}"
+%format oDepPlusLemma2 = "Lemma2_{\oplus}"
+%format ! = "\ "
+%format Nat = "\mathbb{N}"
+%format redM = "\mathbin{\textcolor{red}{M}}"
+%format redS = "\mathbin{\textcolor{red}{S}}"
+%format ** = "\;*\!*\;"
+%format ! = "\ "
+
