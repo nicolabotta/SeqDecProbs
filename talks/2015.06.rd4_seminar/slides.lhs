@@ -1607,7 +1607,7 @@ complicated but conceptually equivalent.
 \begin{frame}                                                                                                             
 \frametitle{Acknowledgments}                                                                                              
 \vfill                                                                                                                    
-Contributors:                                                                                                             
+Contributors:
 
 Patrik Jansson (Chalmers Univ. of Technology), Cezar Ionescu (Chalmers
 Univ. of Technology), David Christiansen (IT University of Copenhagen),
