@@ -33,7 +33,7 @@
 \addheadbox{section}{
   \quad \tiny
   Formalizing reachability, viability and avoidability in the context of
-  sequential decision problems
+  SDPs
   \ $\rightarrow$ \
   \color{blue} \insertsection
 }
@@ -193,7 +193,7 @@ Further questions, goals
 
 %% -------------------------------------------------------------------
 
-\section{Sequential decision problems}
+\section{Sequential decision problems (intuition)}
 
 %% -------------------------------------------------------------------
 
@@ -839,7 +839,11 @@ Further questions, goals
 \begin{frame}[fragile]
 \frametitle{General sequential decision problems (intuition)} % non-deterministic transition
 
+\vfill
+This intuition is a bit too simplistic \dots
+
 \pause
+\vfill
 \begin{figure}[h]
  \begin{asy}
   include graph;
@@ -927,9 +931,14 @@ Further questions, goals
 
 %% -------------------------------------------------------------------
 
-\begin{frame}[fragile]
-\frametitle{Sequential decision problems (notation)}
+\section{Sequential decision problems}
 
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Notation (language)}
+
+\vfill
 \begin{figure}
 \begin{tabular}{||l||l||}
 \hline
@@ -949,12 +958,13 @@ Further questions, goals
   \caption{Curry-Howard correspondence relating Idris and logic.}
 \end{figure}
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
 
 \begin{frame}[fragile]
-\frametitle{Sequential decision problems (basic ideas)}
+\frametitle{Sequential decision problems (basic notions)}
 
 \begin{figure}[h]
  \begin{asy}
@@ -1033,36 +1043,39 @@ Further questions, goals
     EndArrow);
   }
 
-
 \end{asy}
 \end{figure}
 
 \vfill
-
 \end{frame}
 
 %% -------------------------------------------------------------------
 
 \begin{frame}[fragile]
-\frametitle{Sequential decision problems (basic ideas)}
+\frametitle{Sequential decision problems (basic notions)}
 
+\vfill
 At each decision step, a set of possible states:
 
 > X     :  (t : Nat) -> Type
 
 \pause
+\vfill
 At each decision step and for each state, a set of options
 
 > Y     :  (t : Nat) -> (x : X t) -> Type
 
 \pause
+\vfill
 A transition function
 
 > step  :  (t : Nat) -> (x : X t) -> (y : Y t x) -> redM (X (redS t))
 
 \pause
+\vfill
 What about rewards? What are |M| and |S|? 
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1070,6 +1083,7 @@ What about rewards? What are |M| and |S|?
 \begin{frame}[fragile]
 \frametitle{Sequential decision problems (uncertainties)}
 
+\vfill
 |S t| is just the successor of |t|:
 
 > data Nat : Type where
@@ -1077,7 +1091,8 @@ What about rewards? What are |M| and |S|?
 >   S  :  Nat -> Nat
 
 \pause
-\vspace{0.3\normalbaselineskip}
+%\vspace{0.3\normalbaselineskip}
+\vfill
 |M : Type -> Type| represents the uncertainties of the problem:
 \begin{itemize}
 \vspace{0.3\normalbaselineskip}
@@ -1089,13 +1104,14 @@ What about rewards? What are |M| and |S|?
 \end{itemize}
 
 \pause
-\vspace{0.3\normalbaselineskip}
+\vfill
+%\vspace{0.3\normalbaselineskip}
 
 > data Prob : Type -> Type where
 >   mkProb  :  (as : Vect n a) -> (ps : Vect n Float) ->
 >              sum ps = 1.0 -> Prob a
 
-
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1103,6 +1119,7 @@ What about rewards? What are |M| and |S|?
 \begin{frame}[fragile]
 \frametitle{Sequential decision problems (container monad)}
 
+\vfill
 Formally, |M| is a container monad, that is |M| is a monad:
 
 > fmap  :  (a -> b) -> M a -> M b
@@ -1120,6 +1137,7 @@ Formally, |M| is a container monad, that is |M| is a monad:
 >                bind (bind ma f) g = bind ma (\ x => bind (f x) g)
 > monadSpec5  :  join mma = bind mma id
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1127,22 +1145,28 @@ Formally, |M| is a container monad, that is |M| is a monad:
 \begin{frame}[fragile]
 \frametitle{Sequential decision problems (container monad)}
 
+\vfill
 and |M| is a container:
 
 > Elem  :  a -> M a -> Type
+>
 > All   :  (a -> Type) -> M a -> Type
 
 > containerSpec1  :  a `Elem` (ret a)
+>
 > containerSpec2  :  a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
+>
 > containerSpec3  :  All p ma -> a `Elem` ma -> p a
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
 
 \begin{frame}[fragile]
-\frametitle{Sequential decision problems (basic ideas)}
+\frametitle{Sequential decision problems (basic notions)}
 
+\vfill
 Thus, a concrete sequential decision problem is defined (up to the
 rewards) in terms of 4 entities: |X|, |Y|, |M| and |step|
 
@@ -1153,10 +1177,11 @@ rewards) in terms of 4 entities: |X|, |Y|, |M| and |step|
 > step  :  (t : Nat) -> (x : X t) -> (y : Y t x) -> M (X (S t))
 
 \pause
-
+\vfill
 We formalize reachability, viability and avoidability in terms of
 these notions
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1168,6 +1193,7 @@ these notions
 \begin{frame}[fragile]
 \frametitle{Reachability and viability (intuition)}
 
+\vfill
 \begin{figure}
 %
  \hspace*{-0.5cm}
@@ -1350,7 +1376,8 @@ these notions
 \caption{\small Possible evolution starting from $b$ (left), states with
  limited viability (middle) and unreachable states (right). \label{figure:one}}
 \end{figure}  
-  
+
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1358,12 +1385,15 @@ these notions
 \begin{frame}[fragile]
 \frametitle{Predecessor relation, reachability and viability}
 
+\vfill
+\vspace{0.6\normalbaselineskip}
 The (possible) predecessor relation:
 
 > Pred : X t -> X (S t) -> Type
 > Pred {t} x x'  =  (y : Y t x ** x' `Elem` (step t x y))
 
 \pause
+\vfill
 reachability
 
 > Reachable : X t' -> Type
@@ -1371,12 +1401,14 @@ reachability
 > Reachable {t' = S t} x'  =  (x : X t ** (Reachable x, x `Pred` x'))
 
 \pause
+\vfill
 and viability
 
 > Viable : (n : Nat) -> X t -> Type
 > Viable {t} !Z    x  =  Unit
 > Viable {t} (S m) x  =  (y : Y t x ** All (Viable m) (step t x y))
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1384,6 +1416,7 @@ and viability
 \begin{frame}[fragile]
 \frametitle{Avoidability (intuition)}
 
+\vfill
 \begin{itemize}
 \vspace{0.3\normalbaselineskip}
 \pause
@@ -1405,6 +1438,7 @@ and viability
 \item The notion of avoidability entails the notion of an alternative.
 \end{itemize}
 
+\vfill
 \end{frame}
 
 
@@ -1413,6 +1447,7 @@ and viability
 \begin{frame}[fragile]
 \frametitle{Avoidability}
 
+\vfill
 We are interested in the avoidability of states which are reachable from
 some given state:
 
@@ -1427,11 +1462,13 @@ where
 > data Either a b = Left a | Right b
 
 \pause
+\vfill
 Proof of concept: show that
 
 > reachableFromLemma  :  (x'' : X t'') -> (x : X t) -> 
 >                        x'' `ReachableFrom` x -> t'' `GTE` t
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1439,19 +1476,25 @@ Proof of concept: show that
 \begin{frame}[fragile]
 \frametitle{Avoidability}
 
+\vfill
 The notion of avoidability entails the notion of an alternative state
 |x''|. This has to fulfill three conditions:
 
 > AvoidableFrom  :  (x' : X t') -> (x : X t) ->
 >                   x' `ReachableFrom` x -> (m : Nat) -> Type
+>
 > AvoidableFrom {t'} x' x r m =
->   (x'' : X t' ** (x'' `ReachableFrom` x , (Viable m x'' , Not (x'' = x'))))
+>   (  !x'' : X t'
+>      **
+>      !(!x'' `ReachableFrom` x !,! (Viable m x'' !,! Not (x'' = x'))!)
+>   )
 
 \pause
-
+\vfill
 Back to the minimal goals: under which conditions are reachability,
 viability and avoidability decidable?
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1463,6 +1506,7 @@ viability and avoidability decidable?
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 For every type (predicate) |P : Type|, |Not P| is just a synonym for
 |P -> Void|:
 
@@ -1470,12 +1514,14 @@ For every type (predicate) |P : Type|, |Not P| is just a synonym for
 > Not P = P -> Void 
 
 \pause
-A predicate |P : Type| is decidable if one can compute either a value
-|p : P| or a value of type |Not P|:
+\vfill
+A predicate |P : Type| is \emph{decidable} if one can compute either a
+value |p : P| or a value of type |Not P|:
 
 > Decidable : Type -> Type
 > Decidable P = Either P (Not P)
 
+\vfill
 \end{frame}
 
 
@@ -1484,6 +1530,7 @@ A predicate |P : Type| is decidable if one can compute either a value
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 Thus, the question is under which conditions one can implement
 
 < decReachable : (x : X t) -> Decidable (Reachable x)
@@ -1495,6 +1542,7 @@ Thus, the question is under which conditions one can implement
 >                      (r : x' `ReachableFrom` x) -> (n : Nat) -> 
 >                      Decidable (AvoidableFrom {t'} {t} x' x r n)
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1502,6 +1550,7 @@ Thus, the question is under which conditions one can implement
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 As one would expect, the conditions
 
 > fX : (t : Nat) -> Finite (X t) 
@@ -1512,10 +1561,12 @@ As one would expect, the conditions
 >             Decidable (x `Elem` mx)
 
 > decAll  :  {t : Nat} -> (P : X t -> Type) -> ((x : X t) ->
->            Decidable (P x)) -> (mx : M (X t)) -> Decidable (All P mx)
+>            Decidable (P x)) -> (mx : M (X t)) ->
+>            Decidable (All P mx)
 
 are sufficient for decidability.
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1523,16 +1574,20 @@ are sufficient for decidability.
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 The key lemma for implementing decision procedures for |Reachable|,
 |Viable| and |AvoidableFrom| is intuitively obvious
 
-> finiteDecidableLemma  :  {A : Type} -> {P : A -> Type} -> 
->                          Finite A -> ((a : A) -> Decidable (P a)) ->
+> finiteDecidableLemma  :  {A : Type} ->
+>                          {P : A -> Type} -> 
+>                          Finite A -> ((a : A) ->
+>                          Decidable (P a)) ->
 >                          Decidable (a : A ** P a)
 
 \pause
 but implementing |finiteDecidableLemma| is not trivial!
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1540,6 +1595,7 @@ but implementing |finiteDecidableLemma| is not trivial!
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 With |finiteDecidableLemma|, |fY| and decidability of |Elem| one
 immediately has decidability of |Pred|
 
@@ -1550,6 +1606,7 @@ immediately has decidability of |Pred|
 >   prf : (y : Y t x) -> Decidable (x' `Elem` (step t x y))
 >   prf y = decElem x' (step t x y)
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1557,10 +1614,12 @@ immediately has decidability of |Pred|
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 and, with
 
 > decPair : Decidable p -> Decidable q -> Decidable (p , q)
 
+\vfill
 decidability of |Reachable|:
 
 > decReachable : {t' : Nat} -> (x' : X t') -> Decidable (Reachable x')
@@ -1573,6 +1632,7 @@ decidability of |Reachable|:
 >          (fX t)
 >          (\x => decPair (decReachable x) (decPred x x'))
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
@@ -1580,9 +1640,11 @@ decidability of |Reachable|:
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
+\vfill
 Similarly, one implement (prove) decidability of |Viable|:
 
-> decViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Decidable (Viable n x)
+> decViable  :  {t : Nat} -> (n : Nat) -> (x : X t) ->
+>               Decidable (Viable n x)
 >
 > decViable {t}  Z    x = Left ()
 >
@@ -1594,19 +1656,23 @@ Similarly, one implement (prove) decidability of |Viable|:
 >   s3    :  Decidable (Viable (S m) x)
 >   s3    =  s2
 
+\vfill
 \pause
 Implementing a decidion procedure for |AvoidableFrom| is a bit more
 complicated but conceptually equivalent.
 
+\vfill
 \end{frame}
 
 %% -------------------------------------------------------------------
 
+\section{Acknowledgments}
+
 %% -------------------------------------------------------------------
 
 \begin{frame}                                                                                                             
-\frametitle{Acknowledgments}                                                                                              
-\vfill                                                                                                                    
+\frametitle{Acknowledgments}
+\vfill
 Contributors:
 
 Patrik Jansson (Chalmers Univ. of Technology), Cezar Ionescu (Chalmers
@@ -1615,18 +1681,20 @@ Edwin Brady (University of St. Andrews), Matteo Acerbi, members of the
 Cartesian Seminar at the Univ. of Potsdam
 
 \pause
+\vfill
 These slides:
 
-\url{}
-
+\url{https://github.com/nicolabotta/SeqDecProbs/tree/master/talks/2015.06.rd4_seminar}
 
 \pause
-The code shown: 
+\vfill
+The code shown in these slides:
 
-
-
+\url{https://github.com/nicolabotta/SeqDecProbs/blob/master/talks/2015.06.rd4_seminar/code/Theory.lidr}
+\vfill
 \end{frame}
 
+%% -------------------------------------------------------------------
 
 \end{document}
 
