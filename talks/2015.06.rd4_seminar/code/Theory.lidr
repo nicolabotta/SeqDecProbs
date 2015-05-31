@@ -186,7 +186,7 @@ Decidable |All|:
 > decAll : {t : Nat} -> (P : X t -> Type) -> ((x : X t) -> Decidable (P x)) -> 
 >          (mx : M (X t)) -> Decidable (All P mx)
 
-The key mechanism is a fundamental lemma
+The key mechanism is
 
 > finiteDecidableLemma : {A : Type} -> {P : A -> Type} -> 
 >                        Finite A -> ((a : A) -> Decidable (P a)) -> Decidable (a : A ** P a)

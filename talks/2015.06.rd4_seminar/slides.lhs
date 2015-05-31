@@ -42,7 +42,7 @@
 \title{Formalizing reachability, viability and avoidability in the
   context of sequential decision problems}
 
-\author{Nicola Botta, Cezar Ionescu, Patrik Jansson}
+\author{Nicola Botta}
 
 \begin{document}
 \date{}
@@ -935,13 +935,15 @@ Further questions, goals
 \hline
    Idris                 & Logic
 \\ \hline
-   |P : Type|            & |P| is a proposition
-   |p : P|               & |p| is a proof of |P|
+   |A : Type|            & |A| is a set
+\\ |a : A|               & $a \in A$
+\\ |P : Type|            & |P| is a predicate
+\\ |p : P|               & |p| is a proof of |P|
 \\ |FALSE| (empty type)  & False
 \\ non-empty type        & True
 \\ |P -> Q|              & |P| implies |Q|
-\\ |(x : A ** P x)|      & there exists an |x : A| such that |P x| holds
-\\ |(x : A) -> P x|      & forall |x| of type |A|, |P x| holds
+\\ |(a : A ** P a)|      & there exists an $a \in A$ such that |P a| holds
+\\ |(a : A) -> P a|      & forall $a \in A$, |P a| holds
 \\ \hline
 \end{tabular}
   \caption{Curry-Howard correspondence relating Idris and logic.}
@@ -1152,7 +1154,7 @@ rewards) in terms of 4 entities: |X|, |Y|, |M| and |step|
 
 \pause
 
-We try to formalize reachability, viability and avoidability in terms of
+We formalize reachability, viability and avoidability in terms of
 these notions
 
 \end{frame}
@@ -1440,7 +1442,8 @@ Proof of concept: show that
 The notion of avoidability entails the notion of an alternative state
 |x''|. This has to fulfill three conditions:
 
-> AvoidableFrom : (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> (m : Nat) -> Type
+> AvoidableFrom  :  (x' : X t') -> (x : X t) ->
+>                   x' `ReachableFrom` x -> (m : Nat) -> Type
 > AvoidableFrom {t'} x' x r m =
 >   (x'' : X t' ** (x'' `ReachableFrom` x , (Viable m x'' , Not (x'' = x'))))
 
@@ -1460,12 +1463,169 @@ viability and avoidability decidable?
 \begin{frame}[fragile]
 \frametitle{Decision procedures}
 
-A predicate |P : a -> Type| is decidable is one can compute a 
+For every type (predicate) |P : Type|, |Not P| is just a synonym for
+|P -> Void|:
+
+> Not : Type -> Type                                                                                                        
+> Not P = P -> Void 
+
+\pause
+A predicate |P : Type| is decidable if one can compute either a value
+|p : P| or a value of type |Not P|:
+
+> Decidable : Type -> Type
+> Decidable P = Either P (Not P)
+
+\end{frame}
+
+
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Decision procedures}
+
+Thus, the question is under which conditions one can implement
+
+< decReachable : (x : X t) -> Decidable (Reachable x)
+
+< decViable : (n : Nat) -> (x : X t) -> Decidable (Viable n x)
+
+> decAvoidableFrom  :  {t' : Nat} -> {t : Nat} -> 
+>                      (x' : X t') -> (x : X t) ->
+>                      (r : x' `ReachableFrom` x) -> (n : Nat) -> 
+>                      Decidable (AvoidableFrom {t'} {t} x' x r n)
+
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Decision procedures}
+
+As one would expect, the conditions
+
+> fX : (t : Nat) -> Finite (X t) 
+
+> fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
+
+> decElem  :  {t : Nat} -> (x : X t) -> (mx : M (X t)) ->
+>             Decidable (x `Elem` mx)
+
+> decAll  :  {t : Nat} -> (P : X t -> Type) -> ((x : X t) ->
+>            Decidable (P x)) -> (mx : M (X t)) -> Decidable (All P mx)
+
+are sufficient for decidability.
+
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Decision procedures}
+
+The key lemma for implementing decision procedures for |Reachable|,
+|Viable| and |AvoidableFrom| is intuitively obvious
+
+> finiteDecidableLemma  :  {A : Type} -> {P : A -> Type} -> 
+>                          Finite A -> ((a : A) -> Decidable (P a)) ->
+>                          Decidable (a : A ** P a)
+
+\pause
+but implementing |finiteDecidableLemma| is not trivial!
+
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Decision procedures}
+
+With |finiteDecidableLemma|, |fY| and decidability of |Elem| one
+immediately has decidability of |Pred|
+
+> decPred  :  {t : Nat} -> (x : X t) -> (x' : X (S t)) ->
+>             Decidable (x `Pred` x')
+>
+> decPred {t} x x' = finiteDecidableLemma (fY t x) prf where
+>   prf : (y : Y t x) -> Decidable (x' `Elem` (step t x y))
+>   prf y = decElem x' (step t x y)
+
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Decision procedures}
+
+and, with
+
+> decPair : Decidable p -> Decidable q -> Decidable (p , q)
+
+decidability of |Reachable|:
+
+> decReachable : {t' : Nat} -> (x' : X t') -> Decidable (Reachable x')
+>
+> decReachable {t' = Z}   x' = Left ()
+>
+> decReachable {t' = S t} x' = s1 where
+>   s1  :  Decidable (x : X t ** (Reachable x, x `Pred` x'))
+>   s1  =  finiteDecidableLemma
+>          (fX t)
+>          (\x => decPair (decReachable x) (decPred x x'))
+
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Decision procedures}
+
+Similarly, one implement (prove) decidability of |Viable|:
+
+> decViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Decidable (Viable n x)
+>
+> decViable {t}  Z    x = Left ()
+>
+> decViable {t} (S m) x = s3 where
+>   s1    :  (y : Y t x) -> Decidable (All (Viable m) (step t x y))
+>   s1 y  =  decAll (Viable m) (decViable m) (step t x y)
+>   s2    :  Decidable (y : Y t x ** All (Viable m) (step t x y))
+>   s2    =  finiteDecidableLemma (fY t x) s1
+>   s3    :  Decidable (Viable (S m) x)
+>   s3    =  s2
+
+\pause
+Implementing a decidion procedure for |AvoidableFrom| is a bit more
+complicated but conceptually equivalent.
+
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+%% -------------------------------------------------------------------
+
+\begin{frame}                                                                                                             
+\frametitle{Acknowledgments}                                                                                              
+\vfill                                                                                                                    
+Contributors:                                                                                                             
+
+Patrik Jansson (Chalmers Univ. of Technology), Cezar Ionescu (Chalmers
+Univ. of Technology), David Christiansen (IT University of Copenhagen),
+Edwin Brady (University of St. Andrews), Matteo Acerbi, members of the
+Cartesian Seminar at the Univ. of Potsdam
+
+\pause
+These slides:
+
+\url{}
+
+
+\pause
+The code shown: 
 
 
 
 \end{frame}
-
 
 
 \end{document}
