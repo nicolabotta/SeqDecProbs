@@ -68,6 +68,8 @@
 \item Reachability, viability and avoidability
 \vspace{0.3\normalbaselineskip}
 \item Decision procedures
+\vspace{0.3\normalbaselineskip}
+\item Conclusions
 \end{itemize}
 \vfill
 %
@@ -171,8 +173,8 @@ established, meanings?
     avoidable [reachable, viable, \dots]
   \vspace{0.3\normalbaselineskip}
   \pause
-  \item Explain under which conditions is it \emph{decidable}
-    whether future states are avoidable [reachable, viable, \dots] or not
+  \item Explain under which conditions the question of whether future
+    states are avoidable [reachable, viable, \dots] can be decided
 \end{itemize}
 \pause
 Further questions, goals
@@ -184,7 +186,7 @@ Further questions, goals
   \vspace{0.3\normalbaselineskip}
   \pause
   \item Can one refine decidable notions of viability, avoidability to
-    derive operational notions (measures?) of sustainability,
+    derive decidable notions (measures?) of sustainability,
     adaptability, resilience?
 \end{itemize}
 %
@@ -942,20 +944,24 @@ This intuition is a bit too simplistic \dots
 \begin{figure}
 \begin{tabular}{||l||l||}
 \hline
-   Idris                 & Logic
+   Idris                 & set theory, logic
 \\ \hline
-   |A : Type|            & |A| is a set
+   |A : Type|            & $A$ is a set
 \\ |a : A|               & $a \in A$
-\\ |P : Type|            & |P| is a predicate
-\\ |p : P|               & |p| is a proof of |P|
-\\ |FALSE| (empty type)  & False
-\\ non-empty type        & True
-\\ |P -> Q|              & |P| implies |Q|
-\\ |(a : A ** P a)|      & there exists an $a \in A$ such that |P a| holds
-\\ |(a : A) -> P a|      & forall $a \in A$, |P a| holds
+\\ |f : A -> B|          & $f : A \rightarrow B$
+\\ |b = f a|             & $b = f(a)$
+\\ |(a + b) * c|         & $(a + b) * c$
+\\ |P : Type|            & $P$ is a predicate
+\\ |p : P|               & $p$ is a proof of $P$
+\\ |p : P -> Void|       & $p$ is a proof of $\neg P$
+\\ |P -> Q|              & $P$ implies $Q$
+\\ |P : A -> Type|       & $P$ is a predicate on $A$
+\\ |pa : P a|            & $pa$ is a proof of $P(a)$
+\\ |(a : A ** P a)|      & there exists an $a \in A$ such that $P(a)$ holds
+\\ |(a : A) -> P a|      & forall $a \in A$, $P(a)$ holds
 \\ \hline
 \end{tabular}
-  \caption{Curry-Howard correspondence relating Idris and logic.}
+  \caption{Curry-Howard correspondence relating Idris and set theory, logic.}
 \end{figure}
 
 \vfill
@@ -1073,7 +1079,7 @@ A transition function
 
 \pause
 \vfill
-What about rewards? What are |M| and |S|? 
+What are |M| and |S|? 
 
 \vfill
 \end{frame}
@@ -1084,11 +1090,14 @@ What about rewards? What are |M| and |S|?
 \frametitle{Sequential decision problems (uncertainties)}
 
 \vfill
+\vspace{0.6\normalbaselineskip}
 |S t| is just the successor of |t|:
 
+%include gray.lhs
 > data Nat : Type where
 >   Z  :  Nat
 >   S  :  Nat -> Nat
+%include black.lhs
 
 \pause
 %\vspace{0.3\normalbaselineskip}
@@ -1107,9 +1116,11 @@ What about rewards? What are |M| and |S|?
 \vfill
 %\vspace{0.3\normalbaselineskip}
 
+%include gray.lhs
 > data Prob : Type -> Type where
 >   mkProb  :  (as : Vect n a) -> (ps : Vect n Float) ->
 >              sum ps = 1.0 -> Prob a
+%include black.lhs
 
 \vfill
 \end{frame}
@@ -1127,15 +1138,19 @@ Formally, |M| is a container monad, that is |M| is a monad:
 > bind  :  M a -> (a -> M b) -> M b
 > join  :  M (M a) -> M a
 
+\vfill
+%include gray.lhs
 > functorSpec1  :  fmap . id = id
 > functorSpec2  :  fmap (f . g) = (fmap f) . (fmap g)
-
+>
+>
 > monadSpec1  :  (fmap f) . ret = ret . f
 > monadSpec2  :  bind (ret a) f = f a
 > monadSpec3  :  bind ma ret = ma
 > monadSpec4  :  {f : a -> M b} -> {g : b -> M c} ->
 >                bind (bind ma f) g = bind ma (\ x => bind (f x) g)
 > monadSpec5  :  join mma = bind mma id
+%include black.lhs
 
 \vfill
 \end{frame}
@@ -1463,10 +1478,11 @@ where
 
 \pause
 \vfill
-Proof of concept: show that
-
+\textcolor{gray}{Proof of concept: show that}
+%include gray.lhs
 > reachableFromLemma  :  (x'' : X t'') -> (x : X t) -> 
 >                        x'' `ReachableFrom` x -> t'' `GTE` t
+%include black.lhs
 
 \vfill
 \end{frame}
@@ -1484,10 +1500,7 @@ The notion of avoidability entails the notion of an alternative state
 >                   x' `ReachableFrom` x -> (m : Nat) -> Type
 >
 > AvoidableFrom {t'} x' x r m =
->   (  !x'' : X t'
->      **
->      !(!x'' `ReachableFrom` x !,! (Viable m x'' !,! Not (x'' = x'))!)
->   )
+>   (x'' : X t' ** (x'' `ReachableFrom` x !,! (Viable m x'' !,! Not (x'' = x'))))
 
 \pause
 \vfill
@@ -1580,8 +1593,8 @@ The key lemma for implementing decision procedures for |Reachable|,
 
 > finiteDecidableLemma  :  {A : Type} ->
 >                          {P : A -> Type} -> 
->                          Finite A -> ((a : A) ->
->                          Decidable (P a)) ->
+>                          Finite A ->
+>                          ((a : A) -> Decidable (P a)) ->
 >                          Decidable (a : A ** P a)
 
 \pause
@@ -1605,6 +1618,12 @@ immediately has decidability of |Pred|
 > decPred {t} x x' = finiteDecidableLemma (fY t x) prf where
 >   prf : (y : Y t x) -> Decidable (x' `Elem` (step t x y))
 >   prf y = decElem x' (step t x y)
+
+\pause
+\vfill
+Remember
+
+< Pred {t} x x'  =  (y : Y t x ** x' `Elem` (step t x y))
 
 \vfill
 \end{frame}
@@ -1658,9 +1677,40 @@ Similarly, one implement (prove) decidability of |Viable|:
 
 \vfill
 \pause
-Implementing a decidion procedure for |AvoidableFrom| is a bit more
+Implementing a decision procedure for |AvoidableFrom| is a bit more
 complicated but conceptually equivalent.
 
+\vfill
+\end{frame}
+
+%% -------------------------------------------------------------------
+
+\section{Conclusions}
+
+%% -------------------------------------------------------------------
+
+\begin{frame}                                                                                                             
+\frametitle{Conclusions}
+\vfill
+\begin{itemize}
+\vspace{0.3\normalbaselineskip}
+\item<1-> It is not difficult to formalize viability, reachability and
+  avoidability for a large class of decision problems.
+\vspace{0.3\normalbaselineskip}
+\item<2-> The specific aspects of a concrete decision problem are
+  captured by four abstractions: |X|, |Y|, |M| and |step|.
+\vspace{0.3\normalbaselineskip}
+\item<3-> In particular, different kinds of uncertainty (for instance,
+  of the models underlying |step|) are covered by |M|, a monadic
+  container.
+\vspace{0.3\normalbaselineskip}
+\item<4-> For finite |X| and |Y| decision procedures for viability,
+  reachability and avoidability can be derived rigorously.
+\vspace{0.3\normalbaselineskip}
+\item<5-> Decidable generic [viability, reachability, avoidability]
+  notions are hopefully a good starting point for deriving decidable
+  domain specific notions: sustainability, adaptability, resilience, \dots
+\end{itemize}
 \vfill
 \end{frame}
 
