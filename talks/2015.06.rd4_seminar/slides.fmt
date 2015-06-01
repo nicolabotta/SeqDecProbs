@@ -54,4 +54,3 @@
 %format redM = "\mathbin{\textcolor{red}{M}}"
 %format redS = "\mathbin{\textcolor{red}{S}}"
 %format ** = "\;*\!*\;"
-
