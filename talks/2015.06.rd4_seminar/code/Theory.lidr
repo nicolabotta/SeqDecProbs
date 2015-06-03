@@ -22,13 +22,6 @@
 > %default total
 
 
-Pretty printing syntax
-
-> syntax Lala "(" [val] ")" "(" [prop] ")" =
->   (val ** prop)
-
-
-
 A SDP is specified in terms of a container monad ...
 
 > M : Type -> Type
@@ -230,4 +223,6 @@ and of |Viable|
 >   s3    :  Decidable (Viable (S m) x)
 >   s3    =  s2
 
+
+< pps : Prob (Prob A)
 

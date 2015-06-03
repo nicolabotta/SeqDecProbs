@@ -69,7 +69,7 @@
 \vspace{0.3\normalbaselineskip}
 \item Decision procedures
 \vspace{0.3\normalbaselineskip}
-\item Conclusions
+\item Wrap-up
 \end{itemize}
 \vfill
 %
@@ -1189,6 +1189,8 @@ rewards) in terms of 4 entities: |X|, |Y|, |M| and |step|
 
 > Y     :  (t : Nat) -> (x : X t) -> Type
 
+> M     :  Type -> Type
+
 > step  :  (t : Nat) -> (x : X t) -> (y : Y t x) -> M (X (S t))
 
 \pause
@@ -1685,12 +1687,12 @@ complicated but conceptually equivalent.
 
 %% -------------------------------------------------------------------
 
-\section{Conclusions}
+\section{Wrap-up}
 
 %% -------------------------------------------------------------------
 
 \begin{frame}                                                                                                             
-\frametitle{Conclusions}
+\frametitle{Wrap-up}
 \vfill
 \begin{itemize}
 \vspace{0.3\normalbaselineskip}
