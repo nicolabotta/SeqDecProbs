@@ -3,6 +3,9 @@
 > import Control.Monad.Identity
 > import Data.So
 > import Data.Vect
+> import Effects
+> import Effect.Exception
+> import Effect.StdIO
 
 > import Vect.Ops
 > import Util.VectExtensions1
@@ -15,6 +18,8 @@
 > import Util.Util
 > import Exists.Ops
 > import BoundedNat.Blt
+> import EffectException
+> import EffectStdIO
 
 > import DynamicProgramming.S1301_Context
 > import DynamicProgramming.S1302_Reachability
@@ -376,15 +381,6 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 >   let res : (i = index n (xedni n i)) = believe_me Oh in res
 
   
-# The computation:
-
-> nSteps : Nat
-> nSteps = 6
-
-> ps : PolicySeq Z nSteps
-> -- ps = backwardsInduction Z nSteps
-> ps = tabulatedBackwardsInduction Z nSteps
-
 > controls : (t : Nat) -> 
 >            (n : Nat) -> 
 >            (x : X t) -> 
@@ -409,6 +405,14 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 >     r' = reachableSpec1 {t = t} x r y x' (believe_me Oh)
 >     v' : So (viable {t = S t} n x')
 >     v' = Mspec2 {t = t} mx' (viable {t = S t} n) (getProof yq) x' (believe_me Oh) 
+
+
+# The computation:
+
+> {-
+
+> nSteps : Nat
+> nSteps = 4
            
 > x0 : X Z
 > x0 = (2 ** Oh)
@@ -421,7 +425,32 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 
 > as : Vect nSteps Action 
 > as = controls Z nSteps x0 r0 v0 ps
-       
+
+
+> ps : PolicySeq Z nSteps
+> -- ps = backwardsInduction Z nSteps
+> ps = tabulatedBackwardsInduction Z nSteps
+
 > main : IO ()
 > main = putStrLn (show (toList as))
+
+> -}   
+
+> computation : { [STDIO] } Eff ()
+> computation =
+>   do putStr ("enter number of steps:\n")
+>      nSteps <- getNat
+>      putStr ("enter initial column:\n")
+>      x0 <- getBlt nColumns
+>      r0 <- pure (reachable {t = Z} x0)
+>      v0 <- pure (viable {t = Z} nSteps x0)
+>      case (r0 && v0) of
+>        True  => do ps <- pure (tabulatedBackwardsInduction Z nSteps)
+>                    as <- pure (controls Z nSteps x0 (believe_me Oh) (believe_me Oh) ps)
+>                    putStrLn (show as)
+>        False => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
+
+> main : IO ()
+> main = run computation
+
 

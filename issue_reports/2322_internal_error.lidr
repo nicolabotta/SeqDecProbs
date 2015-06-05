@@ -18,8 +18,8 @@
 >               So (isComponentwiseLE y (map cast x)) ->
 >               Vect n NonNegFloat
 > NNF_minus_F Nil                         _         _ = Nil
-> NNF_minus_F ((MkNonNegFloat x _) :: xs) (y :: ys) p = z :: (NNF_minus_F xs ys ?p') where
->   z : NonNegFloat
->   z = ?lala
+> NNF_minus_F ((MkNonNegFloat x _) :: xs) (y :: ys) p = (MkNonNegFloat (x - y) (believe_me Oh)) :: (NNF_minus_F xs ys ?p') -- where
+>   -- z : NonNegFloat
+>   -- z = (x - y ** believe_me Oh)
 
 

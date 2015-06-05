@@ -1,5 +1,7 @@
 > module VectExtensions1
 
+> import Data.Vect
+> import Data.So
 
 > import BoundedNat.Blt
 > import Logic.Postulates
@@ -21,19 +23,19 @@
 
 > lemma4 : (as : (n : Nat ** Vect n alpha)) ->
 >          (p : alpha -> Bool) ->
->          so (isEmpty as) ->
->          so (not (isAnyBy p as))
-> lemma4 (_ ** Nil) _ _ = oh
+>          So (isEmpty as) ->
+>          So (not (isAnyBy p as))
+> lemma4 (_ ** Nil) _ _ = Oh
 > lemma4 (_ ** (a :: as)) _ soF = soFalseElim soF
 
 -- > lemma5 : (p  : alpha -> Bool) ->
 -- >          (as : (n : Nat ** Vect n alpha)) ->
--- >          (q  : so (isAnyBy p as)) ->
--- >          (q' : so (p (head as) || isAnyBy p (tail as)))
+-- >          (q  : So (isAnyBy p as)) ->
+-- >          (q' : So (p (head as) || isAnyBy p (tail as)))
 
 > parameters (beta : Type,
 >             eqeq : beta -> beta -> Bool,
->             --eqeqSpec1 : (b : beta) -> so (eqeq b b))
+>             --eqeqSpec1 : (b : beta) -> So (eqeq b b))
 >             eqeqSpec1 : reflexive beta eqeq)
 
 >   %assert_total
@@ -43,55 +45,55 @@
 
 >   lemma0 : (b : beta) ->
 >            (bs : Vect n beta) ->
->            so (b `isIn` (_ ** (b :: bs)))
+>            So (b `isIn` (_ ** (b :: bs)))
 >   lemma0 {n} b bs = step2
 >   where
 >     step1 : eqeq b b || (b `isIn` (n ** bs)) = True || (b `isIn` (n ** bs))
 >     step1 = leibniz (\ x => b `isIn` ((S n) ** (b :: bs)) = x || (b `isIn` (n ** bs)))
 >                     (soTrue (eqeqSpec1 b))
->                     refl
->     step2 : so (eqeq b b || (b `isIn` (n ** bs))) 
->     step2 = leibniz (\ x => so x) (sym step1) oh
+>                     Refl
+>     step2 : So (eqeq b b || (b `isIn` (n ** bs))) 
+>     step2 = leibniz (\ x => So x) (sym step1) Oh
 
-> --    lala = leibniz (\x => so (x || b `isIn` (_ ** bs))) (sym (soTrue (eqeqSpec1 b))) oh
+> --    lala = leibniz (\x => So (x || b `isIn` (_ ** bs))) (sym (soTrue (eqeqSpec1 b))) Oh
 
-so (b `isIn` (b :: bs))
+So (b `isIn` (b :: bs))
   
     b `isIn` (b :: bs)
-=   {  refl  }
+=   {  Refl  }
     eqeq b b || b `isIn` bs
-=   {  leibniz (\x => so (x || b `isIn` bs)) (sym (soTrue (eqeqSpec1 b))) oh  }
+=   {  leibniz (\x => So (x || b `isIn` bs)) (sym (soTrue (eqeqSpec1 b))) Oh  }
     True
   
 >   lemma1 : (b : beta) ->
 >            (bs : (n : Nat ** Vect n beta)) ->
->            so (b `isIn` bs) ->
->            so (not (isEmpty bs))
+>            So (b `isIn` bs) ->
+>            So (not (isEmpty bs))
 >   lemma1 _ (_ ** Nil) soF = soFalseElim soF
->   lemma1 _ (_ ** (b :: bs)) _ = oh 
+>   lemma1 _ (_ ** (b :: bs)) _ = Oh 
 
 >   lemma2 : (bs : (n : Nat ** Vect n beta)) ->
->            so (not (isEmpty bs)) ->
->            (b : beta ** so (b `isIn` bs))
+>            So (not (isEmpty bs)) ->
+>            (b : beta ** So (b `isIn` bs))
 >   lemma2 (_ ** Nil) soF = soFalseElim soF
 >   -- lemma2 (_ ** (b :: bs)) _ = (b ** lemma0 b (b :: bs)) ?
->   lemma2 (_ ** (b :: bs)) _ = (b ** believe_me oh)
+>   lemma2 (_ ** (b :: bs)) _ = (b ** believe_me Oh)
 
 >   lemma3 : (b : beta) ->
 >            (p : beta -> Bool) ->
 >            (bs : (n : Nat ** Vect n beta)) ->
->            so (p b) ->
->            so (b `isIn` bs) ->
->            so (isAnyBy p bs)
+>            So (p b) ->
+>            So (b `isIn` bs) ->
+>            So (isAnyBy p bs)
 >   lemma3 _ _ (_ ** Nil) _ soF = soFalseElim soF
->   lemma3 _ _ (_ ** (b :: bs)) _ _ = believe_me oh -- ?
+>   lemma3 _ _ (_ ** (b :: bs)) _ _ = believe_me Oh -- ?
 
 >   lemma6 : (p  : beta -> Bool) ->
 >            (as : (n : Nat ** Vect n beta)) ->
->            so (isAnyBy p as) ->
->            (a : beta ** (so (p a), so (a `isIn` as)))
+>            So (isAnyBy p as) ->
+>            (a : beta ** (So (p a), So (a `isIn` as)))
 >   lemma6 p (_ ** Nil) soF = soFalseElim soF
->   lemma6 p (_ ** (a :: as)) iab = believe_me oh -- ?
+>   lemma6 p (_ ** (a :: as)) iab = believe_me Oh -- ?
 
 
 
@@ -102,7 +104,7 @@ fact, contain all values of that type. We express this property by meand
 of |whole|:
 
 >   whole : (n : Nat ** Vect n beta) -> Type
->   whole bs = (b : beta) -> so (b `isIn` bs)
+>   whole bs = (b : beta) -> So (b `isIn` bs)
 
 One intended usage of |whole| is in combination with the above |lemma3|:
 if we have a value |wbs : whole bs| and we know that |b| fulfills |p|,
@@ -127,8 +129,8 @@ S1206_Example2 for an application.
 
 
 > fmapP' : (alpha -> beta) -> 
->          (n : Nat ** (Vect n alpha, so (n > Z))) -> 
->          (n : Nat ** (Vect n beta, so (n > Z)))
+>          (n : Nat ** (Vect n alpha, So (n > Z))) -> 
+>          (n : Nat ** (Vect n beta, So (n > Z)))
 > fmapP' f (_ ** (Nil, p)) = (_ ** (Nil, p))
 > fmapP' f (_ ** ((a :: as), p)) = (_ ** ((f a :: map f as), p))
 
@@ -144,13 +146,13 @@ S1206_Example2 for an application.
 
 > filterP : (p  : alpha -> Bool) -> 
 >           (as : Vect (S n) alpha) -> 
->           so (isAnyBy p (S n ** as)) ->
+>           So (isAnyBy p (S n ** as)) ->
 >           (m : Nat ** Vect (S m) alpha)
 > filterP p (a :: Nil) q = (_ ** a :: Nil) 
 > filterP p (a :: (a' :: as)) q = 
 >   if (p a) 
 >   then (_ ** (a :: getProof (filter p (a' :: as))))
->   else filterP p (a' :: as) (believe_me oh)
+>   else filterP p (a' :: as) (believe_me Oh)
 
 total filter : (a -> Bool) -> Vect a n -> (p ** Vect a p)
 filter p [] = ( _ ** [] )
@@ -164,29 +166,29 @@ filter p (x::xs) with (filter p xs)
 > %assert_total
 > filterP' : (p  : alpha -> Bool) -> 
 >            (as : Vect n alpha) -> 
->            so (isAnyBy p (n ** as)) ->
->            (m : Nat ** (Vect m alpha, so (m > Z)))
+>            So (isAnyBy p (n ** as)) ->
+>            (m : Nat ** (Vect m alpha, So (m > Z)))
 > filterP' p (a :: as) q = 
 >   if (p a) 
->   then (_ ** (a :: (getProof (filter p as)), oh))
->   else filterP' p as (believe_me oh)
+>   then (_ ** (a :: (getProof (filter p as)), Oh))
+>   else filterP' p as (believe_me Oh)
 
 
 > filterTag : (p  : alpha -> Bool) -> 
 >             Vect n alpha -> 
->             (m : Nat ** Vect m (a : alpha ** so (p a)))
+>             (m : Nat ** Vect m (a : alpha ** So (p a)))
 > filterTag _ Nil = (_ ** Nil)
 > filterTag p (a :: as) with (p a)
 >   | True  = (_ 
 >              ** 
->              (a ** believe_me oh) :: (getProof (filterTag p as))
+>              (a ** believe_me Oh) :: (getProof (filterTag p as))
 >             )
 >   | False = filterTag p as
 
 > filterTagP : (p  : alpha -> Bool) -> 
 >              (as : Vect (S n) alpha) -> 
->              so (isAnyBy p (S n ** as)) ->
->              (m : Nat ** Vect (S m) (a : alpha ** so (p a)))
+>              So (isAnyBy p (S n ** as)) ->
+>              (m : Nat ** Vect (S m) (a : alpha ** So (p a)))
 > filterTagP p (a :: Nil) q = (_ ** ((a ** believe_me (p a)) :: Nil)) 
 > filterTagP p (a :: (a' :: as)) q = 
 >   if (p a) 
@@ -197,21 +199,21 @@ filter p (x::xs) with (filter p xs)
 >               (getProof (filter p (a' :: as)))
 >              )
 >        )
->   else filterTagP p (a' :: as) (believe_me oh)
+>   else filterTagP p (a' :: as) (believe_me Oh)
 
 
 > %assert_total
 > filterTagP' : (p  : alpha -> Bool) -> 
 >               (as : Vect n alpha) -> 
->               so (isAnyBy p (n ** as)) ->
->               (m : Nat ** (Vect m (a : alpha ** so (p a)), so (m > Z)))
+>               So (isAnyBy p (n ** as)) ->
+>               (m : Nat ** (Vect m (a : alpha ** So (p a)), So (m > Z)))
 > filterTagP' p (a :: as) q = 
 >   if (p a) 
 >   then (_ ** ((a ** believe_me (p a)) 
 >               ::
 >               map 
 >               (\ a'' => (a'' ** believe_me (p a''))) 
->               (getProof (filter p as)), oh))
->   else filterTagP' p as (believe_me oh)
+>               (getProof (filter p as)), Oh))
+>   else filterTagP' p as (believe_me Oh)
 
 

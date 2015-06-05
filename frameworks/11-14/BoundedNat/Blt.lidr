@@ -35,17 +35,6 @@
 >   instance Eq (n : Nat ** p n) where
 >     (==) (n ** _) (n' ** _) = n == n'
 
--- > instance Eq (Blt 11) where
--- >   (==) (i ** _) (j ** _) = i == j
-
-> -- partial
-> -- decBlt : Blt b -> Blt b
-> -- decBlt (S k ** q) = (k ** Sid_preserves_LT q)
-
-> -- decBlt : (i : Blt b) -> {p : Blt.toNat i = S m} -> Blt b
-> -- decBlt (S k ** q) = (k ** Sid_preserves_LT q)
-> -- decBlt (  Z ** q) {p = Refl} impossible
-
 > decBlt : (i : Blt b) -> (p : Blt.toNat i = S m) -> Blt b
 > decBlt (S k ** q) Refl = (k ** Sid_preserves_LT q)
 > decBlt (  Z ** q) Refl impossible

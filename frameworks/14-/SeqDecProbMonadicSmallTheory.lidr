@@ -683,7 +683,7 @@ of |trbi|:
 >   bic  : S (n - S c') = n - c'
 >   bic  = minusLemma4 prf
 >   prf' : LTE c' n
->   prf' = lteLemma1 c' n prf
+>   prf' = believe_me True -- lteLemma1 c' n prf
 >   p    : Policy (c' + t) (S (n - S c'))
 >   p    = tabOptExt vt
 >   ps'  : PolicySeq (c' + t) (n - c')
