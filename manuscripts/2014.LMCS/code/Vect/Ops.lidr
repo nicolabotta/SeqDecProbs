@@ -1,8 +1,12 @@
 > module Ops
 
+> import Data.Vect
+> import Data.So
+> import Data.Fin
 
 > import BoundedNat.Blt
 > import Nat.Postulates
+> import Nat.Properties
 
 
 > %default total
@@ -12,7 +16,7 @@
 > nubbedBy {n} p v = n == (getWitness (nubBy p v))
 
 > idx : Vect n alpha -> Blt n -> alpha
-> idx {n = 0} Nil b impossible
+> idx {n = Z} Nil b = void (ltZ_bot (getProof b))
 > idx (a :: as) (Z ** _) = a
 > idx {n = S m} (a :: as) (S k ** q) = idx {n = m} as (k ** lemma5  q)
 
@@ -29,6 +33,8 @@
 > xdi : (p : alpha -> alpha -> Bool) ->
 >       (a : alpha) ->
 >       (as : Vect n alpha) -> 
->       so (elemBy p a as) ->
+>       So (elemBy p a as) ->
 >       Blt n
-> xdi p a as q = (fromMaybe Z (findIndex (p a) as) ** believe_me oh)
+> xdi p a as q = (fromMaybe Z m ** believe_me Oh) where
+>   m : Maybe Nat
+>   m = map finToNat (findIndex (p a) as)

@@ -1,5 +1,6 @@
 > module Postulates
 
+> import Data.So
 
 > import Rel.Syntax
 
