@@ -1,6 +1,10 @@
 > module Opt
 
+> import Data.Vect
+> import Data.So
+
 > import Logic.Properties
+
 
 > %default total
 
@@ -18,7 +22,7 @@
 > maxP : Vect (S n) (alpha, Float) -> (alpha, Float)
 > maxP (af :: afs) = foldr max2' af afs
 
-> maxP' : (Vect n (alpha, Float), so (Z < n)) -> (alpha, Float)
+> maxP' : (Vect n (alpha, Float), So (Z < n)) -> (alpha, Float)
 > maxP' {n = Z} (Nil, ZltZ)         =  soFalseElim ZltZ
 > maxP' {n = S n} ((af :: afs), _)  =  foldr max2' af afs
 

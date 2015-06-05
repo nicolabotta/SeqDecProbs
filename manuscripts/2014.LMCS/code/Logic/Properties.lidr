@@ -1,35 +1,38 @@
 > module Properties
 
+> import Data.So
+
+
 > leibniz : (P : alpha -> Type) -> a1 = a2 -> P a1 -> P a2
-> leibniz P refl p = p
+> leibniz P Refl p = p
 
 Reminder:
 
-data so : Bool -> Type where
-  oh    : so True
+data So : Bool -> Type where
+  Oh    : So True
 
-> total soElim            :  (C : (b : Bool) -> so b -> Type) ->
->                            C True oh                       ->
->                            (b : Bool) -> (s : so b) -> (C b s)
-> soElim C coh .True .oh  =  coh
+> total soElim            :  (C : (b : Bool) -> So b -> Type) ->
+>                            C True Oh                       ->
+>                            (b : Bool) -> (s : So b) -> (C b s)
+> soElim C coh True Oh    =  coh
 
-> soFalseElim             :  so False -> a
-> soFalseElim x           =  FalseElim (soElim C () False x)
+> soFalseElim             :  So False -> a
+> soFalseElim x           =  void (soElim C () False x)
 >                            where
->                            C : (b : Bool) -> so b -> Type
+>                            C : (b : Bool) -> So b -> Type
 >                            C True s = ()
->                            C False s = _|_
+>                            C False s = Void
 
-> soTrue                  :  so b -> b = True
+> soTrue                  :  So b -> b = True
 > soTrue {b = False} x    =  soFalseElim x
-> soTrue {b = True}  x    =  refl
+> soTrue {b = True}  x    =  Refl
 
-> soTrueIntro                  :  b = True -> so b
-> soTrueIntro {b = False} x  = FalseElim (trueNotFalse (sym x))
-> soTrueIntro {b = True}  x  = oh
+> soTrueIntro                  :  b = True -> So b
+> soTrueIntro {b = False} x  = void (trueNotFalse (sym x))
+> soTrueIntro {b = True}  x  = Oh
 
 
-> soIntro : (b : Bool) -> Dec (so b)
+> soIntro : (b : Bool) -> Dec (So b)
 > soIntro False = (No  soFalseElim)
-> soIntro  True = (Yes oh)
+> soIntro  True = (Yes Oh)
 
