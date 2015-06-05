@@ -1,5 +1,7 @@
 > module Properties
 
+> import Data.So
+
 > import Rel.Syntax
 > import Float.Postulates
 

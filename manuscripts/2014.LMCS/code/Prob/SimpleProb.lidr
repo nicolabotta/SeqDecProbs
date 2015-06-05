@@ -139,7 +139,7 @@ and |Monad|.
 
 > instance Applicative SimpleProb where
 >   pure = SimpleProb.return
->   sp1 <$> sp2 = bind sp1 (\f => bind sp2 (SimpleProb.return . f))
+>   sp1 <*> sp2 = bind sp1 (\f => bind sp2 (SimpleProb.return . f))
 
 > instance Monad SimpleProb where
 >   -- return = SimpleProb.return
