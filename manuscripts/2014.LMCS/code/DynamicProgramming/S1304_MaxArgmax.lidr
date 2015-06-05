@@ -1,5 +1,6 @@
 > module MaxArgmax
 
+> import Data.So
 
 > import DynamicProgramming.S1301_Context
 > import DynamicProgramming.S1302_Reachability
@@ -9,32 +10,32 @@
 
 > max : (n : Nat) ->
 >       (x : X t) -> 
->       (r : so (reachable x)) -> 
->       (v : so (viable (S n) x)) ->
->       (f : (y : Y t x ** so (feasible n x y))-> Float) -> 
+>       (r : So (reachable x)) -> 
+>       (v : So (viable (S n) x)) ->
+>       (f : (y : Y t x ** So (feasible n x y))-> Float) -> 
 >       Float
 
 
 > argmax : (n : Nat) ->
 >          (x : X t) -> 
->          (r : so (reachable x)) -> 
->          (v : so (viable (S n) x)) ->
->          (f : (y : Y t x ** so (feasible n x y))-> Float) -> 
->          (y : Y t x ** so (feasible n x y))
+>          (r : So (reachable x)) -> 
+>          (v : So (viable (S n) x)) ->
+>          (f : (y : Y t x ** So (feasible n x y))-> Float) -> 
+>          (y : Y t x ** So (feasible n x y))
 
 
 > maxSpec : (n : Nat) -> 
 >           (x : X t) ->
->           (r : so (reachable {t} x)) -> 
->           (v : so (viable {t} (S n) x)) ->
->           (f : (y : Y t x ** so (feasible n x y))-> Float) -> 
->           (yv : (y : Y t x ** so (feasible n x y))) ->
->           so (f yv <= max n x r v f)
+>           (r : So (reachable {t} x)) -> 
+>           (v : So (viable {t} (S n) x)) ->
+>           (f : (y : Y t x ** So (feasible n x y))-> Float) -> 
+>           (yv : (y : Y t x ** So (feasible n x y))) ->
+>           So (f yv <= max n x r v f)
 
 
 > argmaxSpec : (n : Nat) -> 
 >              (x : X t) ->
->              (r : so (reachable x)) -> 
->              (v : so (viable (S n) x)) ->
->              (f : (y : Y t x ** so (feasible {t = t} n x y))-> Float) -> 
->              so (f (argmax n x r v f) == max n x r v f)
+>              (r : So (reachable x)) -> 
+>              (v : So (viable (S n) x)) ->
+>              (f : (y : Y t x ** So (feasible {t = t} n x y))-> Float) -> 
+>              So (f (argmax n x r v f) == max n x r v f)

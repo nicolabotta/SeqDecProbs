@@ -1,5 +1,8 @@
 > module Context
 
+> import Data.So
+
+
 > %default total
 
 
@@ -49,24 +52,24 @@ state is contained in |M|-structure (on states):
 
 > MareAllTrue      :  M Bool -> Bool
 
-> Mspec1 : (b : Bool) -> so (MareAllTrue (Mret b) == b)
+> Mspec1 : (b : Bool) -> So (MareAllTrue (Mret b) == b)
 
 > Mspec2 : (mx : M alpha) -> (p : alpha -> Bool) ->
->          so (MareAllTrue (Mmap p mx)) ->
->          (x : alpha) -> so (x `MisIn` mx) -> so (p x)
+>          So (MareAllTrue (Mmap p mx)) ->
+>          (x : alpha) -> So (x `MisIn` mx) -> So (p x)
 
 
-> toSub : (ma : M alpha) -> M (a : alpha ** so (a `MisIn` ma))
+> toSub : (ma : M alpha) -> M (a : alpha ** So (a `MisIn` ma))
 > toSubSpec : (ma : M alpha) -> Mmap outl (toSub ma) = ma
 
-MmapIn : (ma : M alpha) -> (f : (a : alpha) -> so (MisIn a ma) -> beta) -> M beta
+MmapIn : (ma : M alpha) -> (f : (a : alpha) -> So (MisIn a ma) -> beta) -> M beta
 
-MmapInSpec : (ma : M alpha) -> (f : (a : alpha) -> so (MisIn a ma) -> beta) ->
+MmapInSpec : (ma : M alpha) -> (f : (a : alpha) -> So (MisIn a ma) -> beta) ->
              MmapIn ma f = Mmap (\ a => f a (believe_me oh)) ma
 
-MbindIn : (ma : M alpha) -> (f : (a : alpha) -> so (MisIn a ma) -> M beta) -> M beta
+MbindIn : (ma : M alpha) -> (f : (a : alpha) -> So (MisIn a ma) -> M beta) -> M beta
 
-MbindInSpec : (ma : M alpha) -> (f : (a : alpha) -> so (MisIn a ma) -> M beta) ->
+MbindInSpec : (ma : M alpha) -> (f : (a : alpha) -> So (MisIn a ma) -> M beta) ->
              MbindIn ma f = Mbind ma (\ a => f a (believe_me oh))
 
 Because |M| is a functor, an |M|-structure on |X (S t)| induces an
@@ -84,8 +87,8 @@ and that such measure satisfies the following monotonicity condition,
 see S130...
 
 > MmeasMon  :  (f : X t -> Float) -> (g : X t -> Float) -> 
->              ((x : X t) -> so (f x <= g x)) ->
->              (mx : M (X t)) -> so (Mmeas (Mmap f mx) <= Mmeas (Mmap g mx))
+>              ((x : X t) -> So (f x <= g x)) ->
+>              (mx : M (X t)) -> So (Mmeas (Mmap f mx) <= Mmeas (Mmap g mx))
 
 > Mreward        :  (t : Nat) -> (x : X t) -> Y t x -> M Float
 > Mreward t x y  =  Mmap (\ x' => reward t x y x') (step t x y)

@@ -1,5 +1,7 @@
 > module OptimalControls
 
+> import Data.So
+
 > import Float.Properties
 > import DynamicProgramming.S1101_Context
 
@@ -34,10 +36,10 @@ other sequence of feasible controls of the same length yield a better
 val when starting in the same x:
 
 -- > OptCtrlSeq : (x : X) -> (n : Nat) -> CtrlSeq x n -> Type
--- > OptCtrlSeq x n ys = (ys' : CtrlSeq x n) -> so (val x n ys' <= val x n ys)
+-- > OptCtrlSeq x n ys = (ys' : CtrlSeq x n) -> So (val x n ys' <= val x n ys)
 
 > OptCtrlSeq : CtrlSeq x n -> Type
-> OptCtrlSeq {x} {n} ys = (ys' : CtrlSeq x n) -> so (val ys' <= val ys)
+> OptCtrlSeq {x} {n} ys = (ys' : CtrlSeq x n) -> So (val ys' <= val ys)
 
 Sanity check: () is optimal control sequence
 

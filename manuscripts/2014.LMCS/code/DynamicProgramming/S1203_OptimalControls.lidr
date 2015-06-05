@@ -1,5 +1,6 @@
 > module OptimalControls
 
+> import Data.So
 
 > import Float.Properties
 > import Exists.Ops
@@ -43,7 +44,7 @@ other sequence of feasible controls of the same length yield a better
 |val| when starting in the same |x|:
 
 > OptCtrlSeq : (x : X t) -> (n : Nat) -> CtrlSeq x n -> Type
-> OptCtrlSeq x n ys = (ys' : CtrlSeq x n) -> so (val x n ys' <= val x n ys)
+> OptCtrlSeq x n ys = (ys' : CtrlSeq x n) -> So (val x n ys' <= val x n ys)
 
 Sanity check: |Nil| is optimal control sequence
 

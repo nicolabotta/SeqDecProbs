@@ -2,5 +2,5 @@
 
 Basic propositional connectives at |Type|-level instead of |Bool|.
 
-> Not           :  (A : Type) -> Type
-> Not A         =  A -> _|_
+> -- Not           :  (A : Type) -> Type
+> -- Not A         =  A -> Void
