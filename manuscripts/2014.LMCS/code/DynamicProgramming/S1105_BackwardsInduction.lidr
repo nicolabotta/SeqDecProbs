@@ -1,9 +1,11 @@
 > module BackwardsInduction
 
+> import Data.So
 
 > import Float.Postulates
 > import Float.Properties
 > import Logic.Properties
+
 > import DynamicProgramming.S1101_Context
 > import DynamicProgramming.S1102_OptimalControls
 > import DynamicProgramming.S1103_OptimalPolicies
@@ -29,7 +31,7 @@ sequences of policies:
 > OptExt : PolicySeq n -> Policy -> Type
 > OptExt ps p  =  (p' : Policy) ->
 >                 (x : X) ->
->                 so (Val x (p' :: ps) <= Val x (p :: ps))
+>                 So (Val x (p' :: ps) <= Val x (p :: ps))
 
 Under the assumptions put forward in section MaxArgmax, it is easy to
 compute optimal extensions for arbitrary sequences of policies:
@@ -83,26 +85,18 @@ Val x (p' :: ps) <= Val x ((optExt ps) :: ps)
 > OptExtLemma ps p' x = step6 where
 >   f : Y x -> Float  
 >   f = valY x ps
->   step1 : so (f (p' x) <= max x f)  
+>   step1 : So (f (p' x) <= max x f)  
 >   step1 = maxSpec x f (p' x)
->   step2 : so (max x f == f (argmax x f))
->   step2 = symmetric_Float_eqeq {a1 = f (argmax x f)} 
->                                {a2 = max x f} 
->                                (argmaxSpec x f)
->   step3 : so (max x f <= f (argmax x f))
->   step3 = sub_Float_eqeq_lte {a1 = max x f} 
->                              {a2 = f (argmax x f)} 
->                              step2
->   step4 : so (f (p' x) <= f (argmax x f))
->   step4 = transitive_Float_lte {a1 = f (p' x)} 
->                                {a2 = max x f}            
->                                {a3 = f (argmax x f)}
->                                step1 
->                                step3
+>   step2 : So (max x f == f (argmax x f))
+>   step2 = symmetric_Float_eqeq (argmaxSpec x f)
+>   step3 : So (max x f <= f (argmax x f))
+>   step3 = sub_Float_eqeq_lte step2
+>   step4 : So (f (p' x) <= f (argmax x f))
+>   step4 = transitive_Float_lte step1 step3
 >   step5 : argmax x f = (optExt ps) x
->   step5 = believe_me oh
->   step6 : so (f (p' x) <= f ((optExt ps) x))
->   step6 = replace {P = \ a => so (f (p' x) <= f a)} step5 step4
+>   step5 = believe_me Oh
+>   step6 : So (f (p' x) <= f ((optExt ps) x))
+>   step6 = replace {P = \ a => So (f (p' x) <= f a)} step5 step4
 
 Now Bellman's principle of optimality states that optimal policy
 sequences  extended with optimal extensions are themselves optimal:
@@ -142,21 +136,12 @@ and a proof of Bellman's principle can be constructed as follows:
 > Bellman {n} ps ops p oep = opps where
 >   %assert_total
 >   opps : OptPolicySeq (S n) (p :: ps)
->   opps x (p' :: ps') = transitive_Float_lte 
->                        {a1 = Val x (p' :: ps')}
->                        {a2 = Val x (p' :: ps)}
->                        {a3 = Val x (p :: ps)}
->                        step2 
->                        step3 where
->     step1 : so (Val (step x (p' x)) ps' <= Val (step x (p' x)) ps)
+>   opps x (p' :: ps') = transitive_Float_lte step2 step3 where
+>     step1 : So (Val (step x (p' x)) ps' <= Val (step x (p' x)) ps)
 >     step1 = ops (step x (p' x)) ps'
->     step2 : so (Val x (p' :: ps') <= Val x (p' :: ps))
->     step2 = monotone_Float_plus_lte {a1 = Val (step x (p' x)) ps'}
->                                     {a2 = Val (step x (p' x)) ps}
->                                     (reward x (p' x) 
->                                     (step x (p' x))) 
->                                     step1
->     step3 : so (Val x (p' :: ps) <= Val x (p :: ps))
+>     step2 : So (Val x (p' :: ps') <= Val x (p' :: ps))
+>     step2 = monotone_Float_plus_lte (reward x (p' x) (step x (p' x))) step1
+>     step3 : So (Val x (p' :: ps) <= Val x (p :: ps))
 >     step3 = oep p' x
 
 Bellman's principle suggests that the problem of computing an optimal

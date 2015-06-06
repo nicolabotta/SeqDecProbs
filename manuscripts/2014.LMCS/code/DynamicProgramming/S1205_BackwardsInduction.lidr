@@ -1,7 +1,11 @@
 > module BackwardsInduction
 
+> import Data.So
 
+> import Logic.Properties
 > import Exists.Ops
+> import Float.Postulates
+> import Float.Properties
 
 > import DynamicProgramming.S1201_Context
 > import DynamicProgramming.S1202_ReachabilityViability
@@ -15,10 +19,10 @@
 > depPairId : {X : Type, P : X -> Type} ->
 >             (dep_pair : (x : X ** P x)) -> 
 >             dep_pair = (outl dep_pair ** getProof dep_pair)
-> depPairId (x ** y) = refl
+> depPairId (x ** y) = Refl
 
 If, for all reachable and viable |x : X t| and for all |f : (y : Y t x
-** so (viable n (step t x y))) -> Float|, we are able to select a
+** So (viable n (step t x y))) -> Float|, we are able to select a
 control which maximises |f|, optimal sequences of policies can be
 computed with Bellman's backwards induction algorithm. This, in turn,
 follows from Bellman's optimality principle.
@@ -35,9 +39,9 @@ sequences of policies:
 > OptExtension t n ps p =  
 >   (p' : Policy t (S n)) ->
 >   (x : X t) ->
->   (r : so (reachable x)) -> 
->   (v : so (viable (S n) x)) -> 
->   so (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
+>   (r : So (reachable x)) -> 
+>   (v : So (viable (S n) x)) -> 
+>   So (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
 
 
 Under the assumptions put forward in S1204_MaxArgmax.lidr, it is easy to
@@ -51,13 +55,13 @@ compute optimal extensions for arbitrary sequences of policies:
 > optExtension t n ps = p where
 >   p : Policy t (S n)
 >   p x r v = yq where 
->     yq : (y : Y t x ** so (viable {t = S t} n (step t x y)))
+>     yq : (y : Y t x ** So (viable {t = S t} n (step t x y)))
 >     yq = argmax n x r v f where
->       f : (y : Y t x ** so (viable {t = S t} n (step t x y))) -> Float  
+>       f : (y : Y t x ** So (viable {t = S t} n (step t x y))) -> Float  
 >       f (y ** v') = reward t x y x' + Val (S t) n x' r' v' ps where
 >         x' : X (S t)
 >         x' = step t x y
->         r' : so (reachable {t = S t} x')
+>         r' : So (reachable {t = S t} x')
 >         r' = reachableSpec1 x r y
 
 
@@ -123,50 +127,46 @@ reward t x oy ox' + Val (S t) n ox' or' ov' ps
 Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
 
 > OptExtensionLemma t n ps p' x r v = step6 where
->   f : (y : Y t x ** so (viable {t = S t} n (step t x y))) -> Float  
+>   f : (y : Y t x ** So (viable {t = S t} n (step t x y))) -> Float  
 >   f (y ** v') = reward t x y x' + Val (S t) n x' r' v' ps where
 >     x' : X (S t)
 >     x' = step t x y
->     r' : so (reachable {t = S t} x')
+>     r' : So (reachable {t = S t} x')
 >     r' = reachableSpec1 x r y
->   step1 : so (f (p' x r v) <= max n x r v f)  
+>   step1 : So (f (p' x r v) <= max n x r v f)  
 >   step1 = maxSpec n x r v f (p' x r v)
->   step2 : so (max n x r v f == f (argmax n x r v f))
->   step2 = symmetric_Float_eqeq {a1 = f (argmax n x r v f)} 
->                                {a2 = max n x r v f} 
->                                (argmaxSpec n x r v f)
->   step3 : so (max n x r v f <= f (argmax n x r v f))
->   step3 = sub_Float_eqeq_lte {a1 = max n x r v f} {a2 = f (argmax n x r v f)} step2
->   step4 : so (f (p' x r v) <= f (argmax n x r v f))
->   step4 = transitive_Float_lte {a1 = f (p' x r v)} 
->                                {a2 = max n x r v f} 
->                                {a3 = f (argmax n x r v f)} step1 step3
+>   step2 : So (max n x r v f == f (argmax n x r v f))
+>   step2 = symmetric_Float_eqeq (argmaxSpec n x r v f)
+>   step3 : So (max n x r v f <= f (argmax n x r v f))
+>   step3 = sub_Float_eqeq_lte step2
+>   step4 : So (f (p' x r v) <= f (argmax n x r v f))
+>   step4 = transitive_Float_lte step1 step3
 >   step4'' : argmax n x r v f = argmax n x r v f 
->   step4'' = refl
+>   step4'' = Refl
 >   step4' : argmax n x r v f = (optExtension t n ps) x r v
 >   step4' = believe_me step4''
->   step5 : so (f (p' x r v) <= f ((optExtension t n ps) x r v))
->   step5 = leibniz (\ a => so (f (p' x r v) <= f a)) step4' step4
+>   step5 : So (f (p' x r v) <= f ((optExtension t n ps) x r v))
+>   step5 = leibniz (\ a => So (f (p' x r v) <= f a)) step4' step4
 >   y1 : Y t x
 >   y1 = outl (p' x r v)
 >   x1' : X (S t)
 >   x1' = step t x y1
->   r1' : so (reachable {t = S t} x1')
+>   r1' : So (reachable {t = S t} x1')
 >   r1' = reachableSpec1 x r y1
->   v1' : so (viable {t = S t} n x1')
+>   v1' : So (viable {t = S t} n x1')
 >   v1' = outr (p' x r v)
 >   oy : Y t x
 >   oy = outl ((optExtension t n ps) x r v)
 >   ox' : X (S t)
 >   ox' = step t x oy
->   or' : so (reachable {t = S t} ox')
+>   or' : So (reachable {t = S t} ox')
 >   or' = reachableSpec1 x r oy
->   ov' : so (viable {t = S t} n ox')
+>   ov' : So (viable {t = S t} n ox')
 >   ov' = outr ((optExtension t n ps) x r v)
 >   step1234 : p' x r v = 
->               Sg_intro 
+>               MkSigma
 >               {P = \ fresh_y  => 
->                      so (viable {t = S t} n (step t x fresh_y))}
+>                      So (viable {t = S t} n (step t x fresh_y))}
 >               y1 v1' 
 >   step1234 = depPairId (p' x r v)
 
@@ -175,31 +175,31 @@ Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
 >   step122 = cong {f = f} step1234 
 >   
 >   step120 : optExtension t n ps x r v =
->               Sg_intro 
+>               MkSigma
 >               {P = \ fresh_y  => 
->                      so (viable {t = S t} n (step t x fresh_y))}
+>                      So (viable {t = S t} n (step t x fresh_y))}
 >               oy ov'
 >   step120 = depPairId (optExtension t n ps x r v)
 >   step121 : f (optExtension t n ps x r v) =
 >             reward t x oy ox' + Val (S t) n ox' or' ov' ps
 >   step121 = cong {f = f} step120
->   step6a  : so (f (p' x r v) <= 
+>   step6a  : So (f (p' x r v) <= 
 >               reward t x oy ox' + Val (S t) n ox' or' ov' ps)
 >   step6a  = leibniz
 >               (\ fresh_var =>
->                   so (f (p' x r v) <= fresh_var))
+>                   So (f (p' x r v) <= fresh_var))
 >               step121 step5
->   step6 : so (reward t x y1 x1' + Val (S t) n x1' r1' v1' ps 
+>   step6 : So (reward t x y1 x1' + Val (S t) n x1' r1' v1' ps 
 >               <= 
 >               reward t x oy ox' + Val (S t) n ox' or' ov' ps
 >              )
 >   step6 = leibniz 
 >             (\ fresh_var =>
->                  so (fresh_var <= 
+>                  So (fresh_var <= 
 >                  reward t x oy ox' + Val (S t) n ox' or' ov' ps))
 >             step122 step6a
 > {-
->   step7 : so (Val t (S n) x r v (p' :: ps) 
+>   step7 : So (Val t (S n) x r v (p' :: ps) 
 >               <= 
 >               Val t (S n) x r v ((optExtension t n ps) :: ps)
 >              )
@@ -271,11 +271,11 @@ and a proof of Bellman's principle can be constructed as follows:
 >         r'     =  reachableSpec1 x r y
 >         v'     :  Viable n x'
 >         v'     =  outr (p' x r v)
->         step1  :  so (Val (S t) n x' r' v' ps' <= Val (S t) n x' r' v' ps)
+>         step1  :  So (Val (S t) n x' r' v' ps' <= Val (S t) n x' r' v' ps)
 >         step1  =  ops ps' x' r' v'        
->         step2  :  so (Val t (S n) x r v (p' :: ps') <= Val t (S n) x r v (p' :: ps))
+>         step2  :  So (Val t (S n) x r v (p' :: ps') <= Val t (S n) x r v (p' :: ps))
 >         step2  =  monotone_Float_plus_lte (reward t x y x') step1
->         step3  :  so (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
+>         step3  :  So (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
 >         step3  =  oep p' x r v
 
 Bellman's principle suggests that the problem of computing an optimal

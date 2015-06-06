@@ -1,5 +1,7 @@
 > module OptimalPolicies
 
+> import Data.Vect
+> import Data.So
 
 > import Logic.Properties
 > -- import Logic.Ops
@@ -53,7 +55,7 @@ from optimal policy sequences are optimal, see below.
 >                        (ys : CtrlSeq x n) ->
 >                        ctrl x (modifyPolicySeq ps ys) = ys
 
-> modifyPolicySeqLemma Nil Nil = refl
+> modifyPolicySeqLemma Nil Nil = Refl
 
 > modifyPolicySeqLemma {x} {n = S m} (p :: ps) (y :: ys) = foo where
 >   ps'  :  PolicySeq m
@@ -65,19 +67,19 @@ from optimal policy sequences are optimal, see below.
 >   s2   :  p' x = y
 >   s2   =  modifyDepFunLemma p (x ** y)
 >   s3   :  p' :: ps' = modifyPolicySeq (p :: ps) (y :: ys) -- = p' :: ps'
->   s3   =  refl
+>   s3   =  Refl
 >   s4   :  ctrl x (p' :: ps') = (p' x) :: ctrl (step x (p' x)) ps'
->   s4   =  refl
+>   s4   =  Refl
 >   s5   :  (p' x) :: ctrl (step x (p' x)) ps' = y :: ctrl (step x y) ps'
 >   s5   =  replace  {a = Y x}
 >                    {x = p' x}
 >                    {P = \ z => (p' x) :: ctrl (step x (p' x)) ps'  = 
->                                z      :: ctrl (step x z) ps'} s2 refl
+>                                z      :: ctrl (step x z) ps'} s2 Refl
 >   s6   :  y :: ctrl (step x y) ps' = y :: ys
 >   -- s6   =  replace {a = CtrlSeq (step x y) m}
 >   --                 {x = ctrl (step x y) ps'}
->   --                 {P = \ z => y :: ctrl (step x y) ps' = y :: z} s1 refl
->   s6   =  rewrite s1 in refl
+>   --                 {P = \ z => y :: ctrl (step x y) ps' = y :: z} s1 Refl
+>   s6   =  rewrite s1 in Refl
 >   s7   :  ctrl x (p' :: ps') = y :: ys   
 >   s7   =  trans (trans s4 s5) s6
 >   foo  :  ctrl x (modifyPolicySeq (p :: ps) (y :: ys)) = y :: ys
@@ -131,7 +133,7 @@ We can implement the proof in Idris and (type) check its correctness:
 >               (ps : PolicySeq n) -> 
 >               Val x ps = val (ctrl x ps)
 
-> valValLemma _ Nil = refl
+> valValLemma _ Nil = Refl
 
 > valValLemma x (p :: ps) = step4 where
 >   y : Y x
@@ -141,33 +143,33 @@ We can implement the proof in Idris and (type) check its correctness:
 >   ih : Val x' ps = val (ctrl x' ps)
 >   ih = valValLemma x' ps
 >   step1 : Val x (p :: ps) = reward x y x' + Val x' ps
->   step1 = refl
+>   step1 = Refl
 >   step2 : Val x (p :: ps) = reward x y x' + val (ctrl x' ps)
 >   step2 = replace {P = \ z => Val x (p :: ps) = reward x y x' + z} ih step1
 >   -- a = b && x = y + a => x = y + b
 >   step3 : reward x y x' + val (ctrl x' ps) = val (ctrl x (p :: ps))
->   step3 = refl
+>   step3 = Refl
 >   step4 : Val x (p :: ps) = val (ctrl x (p :: ps))
 >   step4 = trans step2 step3
 
 > valValLemma' : (ps' : PolicySeq n) -> 
 >                (ps : PolicySeq n) -> 
 >                (x : X) ->
->                so (Val x ps' <= Val x ps) -> 
->                so (val (ctrl x ps') <= val (ctrl x ps))
+>                So (Val x ps' <= Val x ps) -> 
+>                So (val (ctrl x ps') <= val (ctrl x ps))
 
 > valValLemma' ps' ps x o = l2 where
->    l1  : so (val (ctrl x ps') <= Val x ps)
->    l1  = replace {P = \ z => so (z <= Val x ps)} (valValLemma x ps') o
->    l2  : so (val (ctrl x ps') <= val (ctrl x ps))
->    l2  = replace {P = \ z => so (val (ctrl x ps') <= z)} (valValLemma x ps) l1
+>    l1  : So (val (ctrl x ps') <= Val x ps)
+>    l1  = replace {P = \ z => So (z <= Val x ps)} (valValLemma x ps') o
+>    l2  : So (val (ctrl x ps') <= val (ctrl x ps))
+>    l2  = replace {P = \ z => So (val (ctrl x ps') <= z)} (valValLemma x ps) l1
 
 The notion of optimal sequence of policies:
 
 > OptPolicySeq : (n : Nat) -> PolicySeq n -> Type
 > OptPolicySeq n ps = (x : X) -> 
 >                     (ps' : PolicySeq n) -> 
->                     so (Val x ps' <= Val x ps)
+>                     So (Val x ps' <= Val x ps)
 
 (Sanity check: Nil is optimal
 
@@ -194,9 +196,9 @@ The notion of optimal sequence of policies:
 
 2. apply o to deduce Val x ps' <= Val x ps
 
->    o'  : so (Val x ps' <= Val x ps)
+>    o'  : So (Val x ps' <= Val x ps)
 >    o'  = o x ps'
->    l2  : so (val (ctrl x ps') <= val (ctrl x ps))
+>    l2  : So (val (ctrl x ps') <= val (ctrl x ps))
 >    l2  = valValLemma' ps' ps x o'
 
 3. conclude by applying valVal that val ys' <= val (ctrl x ps)
@@ -205,9 +207,9 @@ The notion of optimal sequence of policies:
 >    l3  = replace  {a = CtrlSeq x n}
 >                   {x = ctrl x ps'}
 >                   {y = ys'}
->                   {P = \z => val (ctrl x ps') = val z} m refl
->    r   : so (val ys' <= val (ctrl x ps))
->    r   = replace {P = \ z => so (z <= val (ctrl x ps))} l3 l2
+>                   {P = \z => val (ctrl x ps') = val z} m Refl
+>    r   : So (val ys' <= val (ctrl x ps))
+>    r   = replace {P = \ z => So (z <= val (ctrl x ps))} l3 l2
 
 |OptLemma| ensures that optimal control sequences can be computed from
 optimal sequences of policies. This is particularly useful because, as

@@ -1,5 +1,6 @@
 > module OptimalPolicies
 
+> import Data.So
 
 > import Exists.Ops
 > import Float.Properties
@@ -27,7 +28,7 @@
 >   y     =  getWitness (p x r v)
 >   mx'   :  M (X (S t))
 >   mx'   =  step t x y
->   f     :  (x' : X (S t) ** so (x' `MisIn` mx')) -> Float
+>   f     :  (x' : X (S t) ** So (x' `MisIn` mx')) -> Float
 >   f (x' ** x'ins) =  reward t x y x' + MVal (S t) n x' r' v' ps where
 >     r'  :  Reachable x'
 >     r'  =  reachableSpec1 x r y x' x'ins
@@ -37,10 +38,10 @@
 > {-
 > -- MVal t (S n) x r v (p :: ps) = Mmeas (Mmap f mx') where
 >   f x'  =  reward t x y x' + MVal (S t) n x' r' v' ps where
->     postulate x'ins : so (x' `MisIn` mx')
->     r'  :  so (reachable x')
+>     postulate x'ins : So (x' `MisIn` mx')
+>     r'  :  So (reachable x')
 >     r'  =  reachableSpec1 x r y x' x'ins
->     v'  :  so (viable n x')
+>     v'  :  So (viable n x')
 >     v' = Mspec2 mx' (viable n) (getProof (p x r v)) x' x'ins
 > -}
 
@@ -57,9 +58,9 @@ The notion of optimal sequence of policies
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
 > OptPolicySeq t n ps = (ps' : PolicySeq t n) -> 
 >                       (x : X t) ->
->                       (r : so (reachable x)) -> 
->                       (v : so (viable n x)) -> 
->                       so (MVal t n x r v ps' <= MVal t n x r v ps)
+>                       (r : So (reachable x)) -> 
+>                       (v : So (viable n x)) -> 
+>                       So (MVal t n x r v ps' <= MVal t n x r v ps)
 
 Sanity check: Nil is optimal policy sequence                             
 

@@ -1,5 +1,6 @@
 > module OptimalPolicies
 
+> import Data.So
 
 > import Float.Properties
 > import Exists.Ops
@@ -42,21 +43,21 @@ Given one such sequences, the corresponding sequence of controls is
 
 > ctrl : (x : X t) ->
 >        (n : Nat) -> 
->        (r : so (reachable x)) -> 
->        (v : so (viable n x)) -> 
+>        (r : So (reachable x)) -> 
+>        (v : So (viable n x)) -> 
 >        PolicySeq t n -> 
 >        CtrlSeq x n
 
 > ctrl _ _ _ _ Nil = Nil
 
 > ctrl {t} x (S n) r v (p :: ps) = (yv :: ctrl {t = S t} x' n r' v' ps) where
->   yv : (y : Y t x ** so (viable {t = S t} n (step t x y)))
+>   yv : (y : Y t x ** So (viable {t = S t} n (step t x y)))
 >   yv = p x r v
 >   x' : X (S t)
 >   x' = step t x (outl yv)
->   r' : so (reachable {t = S t} x')
+>   r' : So (reachable {t = S t} x')
 >   r' = reachableSpec1 x r (outl yv)
->   v' : so (viable {t = S t} n x')
+>   v' : So (viable {t = S t} n x')
 >   v' = outr yv
 
 ...
@@ -82,9 +83,9 @@ The notion of optimal sequence of policies
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
 > OptPolicySeq t n ps = (ps' : PolicySeq t n) -> 
 >                       (x : X t) ->
->                       (r : so (reachable x)) -> 
->                       (v : so (viable n x)) -> 
->                       so (Val t n x r v ps' <= Val t n x r v ps)
+>                       (r : So (reachable x)) -> 
+>                       (v : So (viable n x)) -> 
+>                       So (Val t n x r v ps' <= Val t n x r v ps)
 
 (Sanity check: Nil is optimal policy sequence                             
 
@@ -97,14 +98,14 @@ The notion of optimal sequence of policies
 >              (ps : PolicySeq t n) ->                                                                   
 >              OptPolicySeq t n ps ->
 >              (x : X t) ->
->              (r : so (reachable x)) -> 
->              (v : so (viable n x)) -> 
+>              (r : So (reachable x)) -> 
+>              (v : So (viable n x)) -> 
 >              OptCtrlSeq x n (ctrl x n r v ps)
                                                                 
 > -- OptLemma Z Nil _ x r (viableSpec0 x) = nilIsOptCtrlSeq x
 > OptLemma Z Nil _ x _ _  = nilIsOptCtrlSeq x
 
-> OptLemma (S n) (p :: ps) opt_pps x rx vx = believe_me oh
+> OptLemma (S n) (p :: ps) opt_pps x rx vx = believe_me Oh
 
 
 

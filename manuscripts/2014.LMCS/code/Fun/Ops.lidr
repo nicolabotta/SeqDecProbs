@@ -1,6 +1,8 @@
 > module Ops
 
-> -- import Logic.Ops
+> import Data.So
+
+> import Logic.Properties
 > import Rel.EqEq
 > import Rel.ReflEqEq
 > import Rel.DecEq
@@ -17,8 +19,8 @@
 >                  (ab : (alpha, beta)) ->
 >                  modifyFun f ab (fst ab) = snd ab
 > modifyFunLemma f (a,b) = 
->   replace {P = \ z => boolElim (a == a) b (f a) = boolElim z b (f a)} 
->           (soTrue (reflexive_eqeq a)) refl
+>   replace {P = \ z => ifThenElse (a == a) b (f a) = ifThenElse z b (f a)} 
+>           (soTrue (reflexive_eqeq a)) Refl
 
 > modifyDepFun' : (DecEq.DecEq alpha) => 
 >                 {beta : alpha -> Type} ->
@@ -44,14 +46,14 @@
 >                     modifyDepFun f ab (getWitness ab) = getProof ab
 
 > modifyDepFunLemma f (a ** b) = s2 where
->   s0 : modifyDepFun' f (a ** b) a (Left refl) = b
->   s0 = refl
->   s1 : modifyDepFun' f (a ** b) a (Left refl) = modifyDepFun f (a ** b) a
+>   s0 : modifyDepFun' f (a ** b) a (Left Refl) = b
+>   s0 = Refl
+>   s1 : modifyDepFun' f (a ** b) a (Left Refl) = modifyDepFun f (a ** b) a
 >   s1 = replace {a = Either (a = a) (Not (a = a))} 
 >                {x = a `dec_eq` a}
->                {y = Left refl}
+>                {y = Left Refl}
 >                {P = \ z => modifyDepFun' f (a ** b) a z = modifyDepFun f (a ** b) a}
->                (reflexive_dec_eq a) refl
+>                (reflexive_dec_eq a) Refl
 >   s2 : modifyDepFun f (a ** b) a = b
 >   s2 = trans (sym s1) s0
 

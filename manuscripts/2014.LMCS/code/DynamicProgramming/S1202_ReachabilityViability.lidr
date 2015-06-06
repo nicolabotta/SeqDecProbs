@@ -1,5 +1,6 @@
 > module ReachabilityViability
 
+> import Data.So
 
 > import Util.VectExtensions1
 > import DynamicProgramming.S1201_Context
@@ -41,7 +42,7 @@ In a nutshell, we require client of this module to implement
 > reachable       :  X t -> Bool
 > Reachable       :  X t -> Type
 
-> Reachable x = so (reachable x)
+> Reachable x = So (reachable x)
 
 which fulfill the specifications
 
@@ -55,7 +56,7 @@ which fulfill the specifications
 > {-
 
 > Reachable       :  X t -> Type
-> Reachable x = so (reachable x)
+> Reachable x = So (reachable x)
  
 > reachableSpec0  :  (x : X Z) -> Reachable x
 > reachableSpec1  :  (x : X t) ->
@@ -73,7 +74,7 @@ and
 > viable : (n : Nat) -> X t -> Bool
 
 > Viable : (n : Nat) -> X t -> Type
-> Viable n x = so (viable n x)
+> Viable n x = So (viable n x)
 
 > YV : (t : Nat) -> (n : Nat) -> X t -> Type
 > YV t n x = (y : Y t x ** Viable n (step t x y))
