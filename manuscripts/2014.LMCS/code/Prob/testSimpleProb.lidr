@@ -1,8 +1,9 @@
 > module Main
 
-
 > import Prob.SimpleProb
 
+> castN2F : Nat -> Float
+> castN2F = cast {to = Float} {from = Int} . cast
 
 > n1 : Nat
 > n1 = 1
@@ -13,10 +14,10 @@
 --
 
 > d1 : Float
-> d1 = 1.0 / (cast (cast n1))
+> d1 = 1.0 / (castN2F n1)
 
 > xp1 : List (Float, Float)
-> xp1 = [(cast (cast i), d1) | i <- [1..n1]]
+> xp1 = [(castN2F i, d1) | i <- [1..n1]]
 
 > sp1 : SimpleProb Float
 > sp1 = SP xp1
@@ -27,10 +28,10 @@
 --
 
 > d2 : Float
-> d2 = 1.0 / (cast (cast n2))
+> d2 = 1.0 / (castN2F n2)
 
 > xp2 : List (Float, Float)
-> xp2 = [(cast (cast i), d2) | i <- [1..n2]]
+> xp2 = [(castN2F i, d2) | i <- [1..n2]]
 
 > sp2 : SimpleProb Float
 > sp2 = SP xp2
@@ -43,32 +44,14 @@
 > sp : SimpleProb Float
 > sp = convComb eps sp1 sp2 where
 >   eps = 0.1
-              
+
 --
 
 > main : IO ()
-> main = do 
->   putStrLn ("supp sp1 = "
->             ++
->             (show (map cast ssp1))
->            )
->   putStrLn ("supp sp2 = "
->             ++
->             (show (map cast ssp2))
->            )
->   putStrLn ("supp sp = "
->             ++
->             (show (map cast (supp sp)))
->            )
->   putStrLn ("eValue sp1 = "
->             ++
->             (show (eValue sp1))
->            )
->   putStrLn ("eValue sp2 = "
->             ++
->             (show (eValue sp2))
->            )
->   putStrLn ("eValue sp = "
->             ++
->             (show (eValue sp))
->            )
+> main = do
+>   putStrLn ("supp sp1 = "      ++            (show ssp1)           )
+>   putStrLn ("supp sp2 = "      ++            (show ssp2)           )
+>   putStrLn ("supp sp = "       ++            (show (supp sp))      )
+>   putStrLn ("eValue sp1 = "    ++            (show (eValue sp1))   )
+>   putStrLn ("eValue sp2 = "    ++            (show (eValue sp2))   )
+>   putStrLn ("eValue sp = "     ++            (show (eValue sp))    )

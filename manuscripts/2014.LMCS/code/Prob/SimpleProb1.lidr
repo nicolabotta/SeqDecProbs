@@ -1,35 +1,37 @@
+TODO: probably remove this module
+
 > module SimpleProb1
 
-
+> import Data.So
 > import Vect.Ops
 > import Util.VectExtensions1
 > -- import BoundedNat.Blt
 
 
 > data SimpleProb : Type -> Type where
->   SP : (aps : Vect (alpha, Float) n) -> 
->        so (foldl (+) 0.0 (map snd aps) == 1.0) ->
+>   SP : (aps : Vect n (alpha, Float)) ->
+>        So (foldl (+) 0.0 (map snd aps) == 1.0) ->
 >        SimpleProb alpha
 
 
-> suppBy : (alpha -> alpha -> Bool) -> 
->          SimpleProb alpha -> 
->          (n : Nat ** Vect alpha n) 
+> suppBy : (alpha -> alpha -> Bool) ->
+>          SimpleProb alpha ->
+>          (n : Nat ** Vect n alpha)
 > suppBy {alpha} p (SP aps _) = nubBy p (getProof as) where
->  as : (n : Nat ** Vect alpha n) 
+>  as : (n : Nat ** Vect n alpha)
 >  as = mapFilter fst notz aps where
 >    notz : (alpha, Float) -> Bool
 >    notz (_, px) = px /= 0.0
 
 
 > supp : Eq alpha =>
->        SimpleProb alpha -> 
->        (n : Nat ** Vect alpha n) 
+>        SimpleProb alpha ->
+>        (n : Nat ** Vect n alpha)
 > supp = suppBy (==)
 
 
-> normalizeBy : (alpha -> alpha -> Bool) -> 
->               SimpleProb alpha -> 
+> normalizeBy : (alpha -> alpha -> Bool) ->
+>               SimpleProb alpha ->
 >               SimpleProb alpha
 > normalizeBy {alpha} p (SP aps q) = SP (getProof aps') q' where
 >   f : alpha -> (alpha, Float)
@@ -37,51 +39,51 @@
 >     g : Float -> (alpha, Float) -> Float
 >     g e (b, pb) = if (p a b)
 >                   then e + pb
->                   else e 
->   aps' : (n : Nat ** Vect (alpha, Float) n)
+>                   else e
+>   aps' : (n : Nat ** Vect n (alpha, Float))
 >   aps' = fmap f (suppBy p (SP aps q))
->   q' : so (foldl (+) 0.0 (map snd (getProof aps')) == 1.0)
->   q' = believe_me oh
+>   q' : So (foldl (+) 0.0 (map snd (getProof aps')) == 1.0)
+>   q' = believe_me Oh
 
 
 > normalize : Eq alpha => SimpleProb alpha -> SimpleProb alpha
 > normalize = normalizeBy (==)
 
 
--- > eqeqBy : (alpha -> alpha -> Bool) -> 
--- >          SimpleProb alpha -> 
--- >          SimpleProb alpha -> 
+-- > eqeqBy : (alpha -> alpha -> Bool) ->
+-- >          SimpleProb alpha ->
+-- >          SimpleProb alpha ->
 -- >          Bool
 -- > eqeqBy {alpha} p sp1 sp2
 -- >   =
--- >   (length ps1 == length ps2 
--- >    && 
+-- >   (length ps1 == length ps2
+-- >    &&
 -- >    and (map (\ xp => elemBy p' xp ps2) ps1)
--- >   ) where 
+-- >   ) where
 -- >     p' : (alpha, Float) -> (alpha, Float) -> Bool
 -- >     p' (a,pa) (a',pa') = (p a a') && (pa == pa')
 -- >     ps1 : List (alpha, Float)
 -- >     ps1 = toList (normalizeBy p sp1)
 -- >     ps2 : List (alpha, Float)
--- >     ps2 = toList (normalizeBy p sp2)  
+-- >     ps2 = toList (normalizeBy p sp2)
 
 -- > eqeq : Eq alpha => SimpleProb alpha -> SimpleProb alpha -> Bool
 -- > eqeq {alpha} sp1 sp2
 -- >   =
--- >   (length ps1 == length ps2 
--- >    && 
+-- >   (length ps1 == length ps2
+-- >    &&
 -- >    and (map (\ xp => xp `elem` ps2) ps1)
--- >   ) where 
+-- >   ) where
 -- >     ps1 : List (alpha, Float)
 -- >     ps1 = toList (normalize sp1)
 -- >     ps2 : List (alpha, Float)
--- >     ps2 = toList (normalize sp2)  
+-- >     ps2 = toList (normalize sp2)
 
 -- > return : alpha -> SimpleProb alpha
 -- > return {alpha} a = SP alpha 1 [a] [1.0]
 
--- > bind : SimpleProb alpha -> 
--- >        (alpha -> SimpleProb beta) -> 
+-- > bind : SimpleProb alpha ->
+-- >        (alpha -> SimpleProb beta) ->
 -- >        SimpleProb beta
 -- > bind {alpha} {beta} sp f = SP (concat (map g (toList sp))) where
 -- >   g : (alpha, Float) -> List (beta, Float)
@@ -96,13 +98,13 @@
 -- > size : Nat
 -- > size = 3
 
--- > probs : Vect Float size
+-- > probs : Vect size Float
 -- > probs = [0.1, 0.4, 0.5]
 
 -- > index : X -> Blt size
--- > index L = (0 ** oh)
--- > index A = (1 ** oh)
--- > index R = (2 ** oh)
+-- > index L = (0 ** Oh)
+-- > index A = (1 ** Oh)
+-- > index R = (2 ** Oh)
 
 -- > xedni : Blt size -> X
 -- > xedni i = case (cast (toNat i)) of
@@ -111,40 +113,40 @@
 -- >   2 => R
 
 -- > sp1 : SimpleProb Nat
--- > sp1 = SP X 3 probs oh index xedni (believe_me oh) (believe_me oh) 
+-- > sp1 = SP X 3 probs Oh index xedni (believe_me Oh) (believe_me Oh)
 
 
 
 
--- > eqeqBy : (alpha -> alpha -> Bool) -> 
--- >          SimpleProb alpha -> 
--- >          SimpleProb alpha -> 
+-- > eqeqBy : (alpha -> alpha -> Bool) ->
+-- >          SimpleProb alpha ->
+-- >          SimpleProb alpha ->
 -- >          Bool
 -- > eqeqBy {alpha} p sp1 sp2
 -- >   =
--- >   (length ps1 == length ps2 
--- >    && 
+-- >   (length ps1 == length ps2
+-- >    &&
 -- >    and (map (\ xp => elemBy p' xp ps2) ps1)
--- >   ) where 
+-- >   ) where
 -- >     p' : (alpha, Float) -> (alpha, Float) -> Bool
 -- >     p' (a,pa) (a',pa') = (p a a') && (pa == pa')
 -- >     ps1 : List (alpha, Float)
 -- >     ps1 = toList (normalizeBy p sp1)
 -- >     ps2 : List (alpha, Float)
--- >     ps2 = toList (normalizeBy p sp2)  
+-- >     ps2 = toList (normalizeBy p sp2)
 
 -- > eqeq : Eq alpha => SimpleProb alpha -> SimpleProb alpha -> Bool
 -- > eqeq {alpha} sp1 sp2
 -- >   =
--- >   (length ps1 == length ps2 
--- >    && 
+-- >   (length ps1 == length ps2
+-- >    &&
 -- >    and (map (\ xp => xp `elem` ps2) ps1)
--- >   ) where 
+-- >   ) where
 -- >     ps1 : List (alpha, Float)
 -- >     ps1 = toList (normalize sp1)
 -- >     ps2 : List (alpha, Float)
--- >     ps2 = toList (normalize sp2)  
-  
+-- >     ps2 = toList (normalize sp2)
+
 -- return (Nicola 22.01.2013)
 
 -- > return : alpha -> SimpleProb alpha
@@ -152,8 +154,8 @@
 
 -- bind (Nicola 22.01.2013)
 
--- > bind : SimpleProb alpha -> 
--- >        (alpha -> SimpleProb beta) -> 
+-- > bind : SimpleProb alpha ->
+-- >        (alpha -> SimpleProb beta) ->
 -- >        SimpleProb beta
 -- > bind {alpha} {beta} sp f = SP (concat (map g (toList sp))) where
 -- >   g : (alpha, Float) -> List (beta, Float)
@@ -167,7 +169,7 @@
 -- -- > instance Eq a => Eq (SimpleProb a) where
 -- -- >   sp1 == sp2 = length ps1 == length ps2 &&
 -- -- >                and (map (`elem` ps2) ps1)
--- -- >                where 
+-- -- >                where
 -- -- >                ps1 = toList (normalizeSP sp1)
 -- -- >                ps2 = toList (normalizeSP sp2)
 
@@ -208,12 +210,12 @@
 -- -- > concentrated = return
 
 -- -- > uniform : [a] -> SimpleProb a
--- -- > uniform xs = SP [(x, p) | x <- xs] where 
+-- -- > uniform xs = SP [(x, p) | x <- xs] where
 -- -- >   p = 1.0 / (realToFrac (length xs))
 
--- > convComb : Float -> 
--- >            SimpleProb alpha -> 
--- >            SimpleProb alpha -> 
+-- > convComb : Float ->
+-- >            SimpleProb alpha ->
+-- >            SimpleProb alpha ->
 -- >            SimpleProb alpha
 -- > convComb {alpha} t sp1 sp2 = SP (aps1 ++ aps2) where
 -- >   aps1 : List (alpha, Float)
@@ -234,4 +236,3 @@
 -- > eValue (SP xps) = foldl f 0 xps where
 -- >   f : Float -> (Float, Float) -> Float
 -- >   f e (x,p) = e + x * p
-

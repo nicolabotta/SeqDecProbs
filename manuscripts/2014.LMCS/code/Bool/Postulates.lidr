@@ -10,9 +10,3 @@
 > postulate symmetric_Bool_eqeq : symmetric Bool (==)
 
 > postulate transitive_Bool_eqeq : transitive Bool (==)
-
-
-
-
-
-
