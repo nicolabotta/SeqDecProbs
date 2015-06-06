@@ -1,0 +1,26 @@
+2015-06-06: There are still a few things to fix:
+
+patrikj@etyd:~/src/ext/SeqDecProbs/manuscripts/2014.LMCS/code$ make
+find . -name '*.lidr' | xargs -n 1 idris -i .. -p contrib -p effects --check
+././Prob/SimpleProb1.lidr:13:6:
+When checking type of SimpleProb1.SP:
+No such variable NonNegFloat
+././Prob/SimpleProb1.lidr:18:8:
+When checking type of SimpleProb1.suppBy:
+No such variable SimpleProb
+./DynamicProgramming/S1304_MaxArgmax.lidr:11:5:
+When checking type of max:
+When checking an application of type constructor Data.So.So:
+        No such variable feasible
+././DynamicProgramming/S1304_MaxArgmax.lidr:11:5:
+When checking type of max:
+When checking an application of type constructor Data.So.So:
+        No such variable feasible
+././DynamicProgramming/S1302_ViabilityDefaults.lidr:26:11:
+When checking type of ViabilityDefaults.eqeqSpec1:
+No such variable so
+././DynamicProgramming/S1303_Trajectories.lidr:16:15:
+When checking type of Trajectories.stateCtrlTrj:
+No such variable Viable
+Makefile:2: recipe for target 'all' failed
+make: *** [all] Error 123

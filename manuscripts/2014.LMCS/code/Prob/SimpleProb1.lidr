@@ -1,5 +1,7 @@
 TODO: probably remove this module
 
+TODO: otherwise fix dangling references to "NonNegFloat".
+
 > module SimpleProb1
 
 > import Data.So
