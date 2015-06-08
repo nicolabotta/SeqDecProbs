@@ -12,7 +12,7 @@
 > Policy : Nat -> Nat -> Type
 > Policy t Z = ()
 > Policy t (S n) = (x : State t) -> Reachable x -> Viable (S n) x -> CtrlF t n x
- 
+
 
 > data PolicySeq : Nat -> Nat -> Type where
 >   Nil   : PolicySeq t Z
@@ -20,7 +20,7 @@
 
 
 > MVal  :  (t : Nat) -> (n : Nat) ->
->          (x : State t) -> (r : Reachable x) -> (v : Viable n x) -> 
+>          (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
 >          PolicySeq t n -> Float
 > MVal _  Z      _  _  _  _          = 0
 > MVal t  (S n)  x  r  v  (p :: ps)  = Mmeas (Mmap f (toSub mx')) where
@@ -56,14 +56,13 @@
 The notion of optimal sequence of policies
 
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
-> OptPolicySeq t n ps = (ps' : PolicySeq t n) -> 
+> OptPolicySeq t n ps = (ps' : PolicySeq t n) ->
 >                       (x : State t) ->
->                       (r : So (reachable x)) -> 
->                       (v : So (viable n x)) -> 
+>                       (r : So (reachable x)) ->
+>                       (v : So (viable n x)) ->
 >                       So (MVal t n x r v ps' <= MVal t n x r v ps)
 
-Sanity check: Nil is optimal policy sequence                             
+Sanity check: Nil is optimal policy sequence
 
 > nilIsOptPolicySeq : OptPolicySeq t Z Nil
 > nilIsOptPolicySeq _ _ _ _ = reflexive_Float_lte 0
-

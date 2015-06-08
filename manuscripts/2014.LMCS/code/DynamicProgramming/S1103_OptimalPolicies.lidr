@@ -19,23 +19,25 @@
 > PolicySeq : Nat -> Type
 > PolicySeq n = Vect n Policy
 
-> ctrl : (x : State) -> PolicySeq n -> CtrlSeq x n
+> ctrl : {n : Nat} -> (x : State) -> PolicySeq n -> CtrlSeq x n
 > ctrl x Nil = Nil
 > ctrl x (p :: ps) = (p x :: ctrl (step x (p x)) ps)
 
-> modifyPolicySeq : (DecEq.DecEq State) => 
->                   PolicySeq n -> 
->                   CtrlSeq x n -> 
+> modifyPolicySeq : (DecEq.DecEq State) =>
+>                   {x : State} -> {n : Nat} ->
+>                   PolicySeq n ->
+>                   CtrlSeq x n ->
 >                   PolicySeq n
 
-> modifyPolicySeq {n = Z} Nil Nil = Nil
+> modifyPolicySeq         {n = Z}   Nil       Nil       = Nil
 
-> modifyPolicySeq {n = S m} {x = x} (p :: ps) (y :: ys) = 
+> modifyPolicySeq {x = x} {n = S m} (p :: ps) (y :: ys) =
 >    let ps' = modifyPolicySeq ps ys in
 >      modifyDepFun p (x ** y) :: ps'
 
 > modifyPolicySeqLemma : (ReflDecEq State) =>
->                        (ps : PolicySeq n) -> 
+>                        {x : State} -> {n : Nat} ->
+>                        (ps : PolicySeq n) ->
 >                        (ys : CtrlSeq x n) ->
 >                        ctrl x (modifyPolicySeq ps ys) = ys
 
@@ -46,25 +48,25 @@
 >   ps'  =  modifyPolicySeq ps ys
 >   s1   :  ctrl (step x y) ps' = ys
 >   s1   =  modifyPolicySeqLemma ps ys
->   p'   :  Policy 
+>   p'   :  Policy
 >   p'   =  modifyDepFun p (x ** y)
 >   s2   :  p' x = y
 >   s2   =  modifyDepFunLemma p (x ** y)
->   s3   :  p' :: ps' = modifyPolicySeq (p :: ps) (y :: ys) -- = p' :: ps'
+>   s3   :  p' :: ps' = modifyPolicySeq (p :: ps) (y :: ys)
 >   s3   =  Refl
 >   s4   :  ctrl x (p' :: ps') = (p' x) :: ctrl (step x (p' x)) ps'
 >   s4   =  Refl
 >   s5   :  (p' x) :: ctrl (step x (p' x)) ps' = y :: ctrl (step x y) ps'
 >   s5   =  replace  {a = Ctrl x}
 >                    {x = p' x}
->                    {P = \ z => (p' x) :: ctrl (step x (p' x)) ps'  = 
+>                    {P = \ z => (p' x) :: ctrl (step x (p' x)) ps'  =
 >                                z      :: ctrl (step x z) ps'} s2 Refl
 >   s6   :  y :: ctrl (step x y) ps' = y :: ys
 >   -- s6   =  replace {a = CtrlSeq (step x y) m}
 >   --                 {x = ctrl (step x y) ps'}
 >   --                 {P = \ z => y :: ctrl (step x y) ps' = y :: z} s1 Refl
 >   s6   =  rewrite s1 in Refl
->   s7   :  ctrl x (p' :: ps') = y :: ys   
+>   s7   :  ctrl x (p' :: ps') = y :: ys
 >   s7   =  trans (trans s4 s5) s6
 >   foo  :  ctrl x (modifyPolicySeq (p :: ps) (y :: ys)) = y :: ys
 >   foo  =  replace  {a = PolicySeq (S m)}
@@ -72,15 +74,15 @@
 >                    {y = modifyPolicySeq (p :: ps) (y :: ys)}
 >                    {P = \ z => ctrl x z = y :: ys} s3 s7
 
-> val : (x : State) -> PolicySeq n -> Float
-> val {n = Z}    _  _          =  0
-> val {n = S m}  x  (p :: ps)  =  reward x (p x) x' + val x' ps where
->   x'  :  State  
+> val : (x : State) -> {n : Nat} -> PolicySeq n -> Float
+> val _  {n = Z}    _          =  0
+> val x  {n = S m}  (p :: ps)  =  reward x (p x) x' + val x' ps where
+>   x'  :  State
 >   x'  =  step x (p x)
 
-> valueValLemma : (x : State) ->
->               (ps : PolicySeq n) -> 
->               val x ps = value (ctrl x ps)
+> valueValLemma : (x : State) -> {n : Nat} ->
+>                 (ps : PolicySeq n) ->
+>                 val x ps = value (ctrl x ps)
 
 > valueValLemma _ Nil = Refl
 
@@ -101,11 +103,12 @@
 >   step4 : val x (p :: ps) = value (ctrl x (p :: ps))
 >   step4 = trans step2 step3
 
-> valueValLemma' : (ps' : PolicySeq n) -> 
->                (ps : PolicySeq n) -> 
->                (x : State) ->
->                So (val x ps' <= val x ps) -> 
->                So (value (ctrl x ps') <= value (ctrl x ps))
+> valueValLemma' : {n : Nat} ->
+>                  (ps' : PolicySeq n) ->
+>                  (ps  : PolicySeq n) ->
+>                  (x : State) ->
+>                  So (val x ps' <= val x ps) ->
+>                  So (value (ctrl x ps') <= value (ctrl x ps))
 
 > valueValLemma' ps' ps x o = l2 where
 >    l1  : So (value (ctrl x ps') <= val x ps)
@@ -122,8 +125,8 @@ The notion of optimal sequence of policies:
 > nilIsOptPolicySeq x ps' = reflexive_Float_lte 0
 
 > OptLemma : (ReflDecEq State) =>
->            (n : Nat) -> 
->            (ps : PolicySeq n) -> 
+>            (n : Nat) ->
+>            (ps : PolicySeq n) ->
 >            OptPolicySeq n ps ->
 >            (x : State) ->
 >            OptCtrlSeq (ctrl x ps)
@@ -144,5 +147,3 @@ The notion of optimal sequence of policies:
 >                   {P = \z => value (ctrl x ps') = value z} m Refl
 >    r   : So (value ys' <= value (ctrl x ps))
 >    r   = replace {P = \ z => So (z <= value (ctrl x ps))} l3 l2
-
-

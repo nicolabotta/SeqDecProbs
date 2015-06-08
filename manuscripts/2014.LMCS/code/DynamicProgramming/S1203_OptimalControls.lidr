@@ -46,4 +46,3 @@ Sanity check: |Nil| is optimal control sequence
 
 > nilIsOptCtrlSeq        :  (x : State t) -> OptCtrlSeq x Z Nil
 > nilIsOptCtrlSeq x Nil  =  reflexive_Float_lte 0
-

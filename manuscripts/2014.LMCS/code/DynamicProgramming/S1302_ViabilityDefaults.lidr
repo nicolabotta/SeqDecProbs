@@ -69,14 +69,14 @@ If |succs| fulfill the above specifications a default definitions of
 
 With the above definition we have:
 
-> -- Viability.viableSpec0 : 
-> --   (x : State t) -> 
+> -- Viability.viableSpec0 :
+> --   (x : State t) ->
 > --   So (viable Z x)
 > Viability.viableSpec0 x = Oh
 
-> -- Viability.viableSpec1 : 
-> --   (x : State t) -> 
-> --   So (viable (S n) x) -> 
+> -- Viability.viableSpec1 :
+> --   (x : State t) ->
+> --   So (viable (S n) x) ->
 > --   -- (y : Ctrl t x ** So (x' `MisIn` (step t x y)) -> So (viable {t = S t} n x'))
 > --   (y : Ctrl t x ** So (MareAllTrue (Mmap (viable {t = S t} n) (step t x y))))
 > Viability.viableSpec1 {t} {n} x v = s11 where
@@ -102,13 +102,13 @@ With the above definition we have:
 >   s8 = outr s5
 >   s9 : So (MareAllTrue (Mmap (viable {t = S t} n) (step t x s6)))
 >   s9 = leibniz (\ xSt => So (MareAllTrue (Mmap (viable {t = S t} n) xSt))) s8 s7
->   s11 : (yy : Ctrl t x ** 
+>   s11 : (yy : Ctrl t x **
 >          So (MareAllTrue (Mmap (viable {t = S t} n) (step t x yy))))
 >   s11 = (s6 ** s9)
 
-> -- Viability.viableSpec2 : 
-> --   (x : State t) -> 
-> --   -- (y : Ctrl t x ** So (x' `MisIn` (step t x y)) -> So (viable {t = S t} n x')) -> 
+> -- Viability.viableSpec2 :
+> --   (x : State t) ->
+> --   -- (y : Ctrl t x ** So (x' `MisIn` (step t x y)) -> So (viable {t = S t} n x')) ->
 > --   (y : Ctrl t x ** So (MareAllTrue (Mmap (viable {t = S t} n) (step t x y)))) ->
 > --   So (viable (S n) x)
 > Viability.viableSpec2 {t} {n} x yv = step5 where

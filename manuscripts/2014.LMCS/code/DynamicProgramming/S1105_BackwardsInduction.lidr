@@ -14,7 +14,7 @@
 > %default total
 
 
-> valCtrl : (x : State) -> (ps : PolicySeq n) -> Ctrl x -> Float  
+> valCtrl : {n : Nat} -> (x : State) -> (ps : PolicySeq n) -> Ctrl x -> Float
 > valCtrl x ps y = reward x y x' + val x' ps where
 >   x' : State
 >   x' = step x y
@@ -28,27 +28,27 @@ This, in turns, follows from Bellman's optimality principle.
 To express this principle, one needs the notion of optimal extension of
 sequences of policies:
 
-> OptExt : PolicySeq n -> Policy -> Type
+> OptExt : {n : Nat} -> PolicySeq n -> Policy -> Type
 > OptExt ps p = (p' : Policy) -> (x : State) -> So (val x (p' :: ps) <= val x (p :: ps))
 
 Under the assumptions put forward in section MaxArgmax, it is easy to
 compute optimal extensions for arbitrary sequences of policies:
 
-> optExt : PolicySeq n -> Policy
+> optExt : {n : Nat} -> PolicySeq n -> Policy
 > optExt ps x = argmax x (valCtrl x ps)-- where
 > {-
->   f : Ctrl x -> Float  
+>   f : Ctrl x -> Float
 >   f y = reward x y x' + val x' ps where
 >     x' : State
 >     x' = step x y
 > -}
 
-> OptExtLemma : (ps : PolicySeq n) -> OptExt ps (optExt ps)
+> OptExtLemma : {n : Nat} -> (ps : PolicySeq n) -> OptExt ps (optExt ps)
 
 To prove that |optExt ps| is indeed an optimal extension of |ps|
 it is useful to recall:
 
-val x (p' :: ps) 
+val x (p' :: ps)
   = {def. val, x' = step x (p' x)}
 reward x (p' x) x' + val x' ps
   = {def. f}
@@ -69,21 +69,21 @@ which can also be formulated as
 MaxSpec
   =>
 f (p' x) <= max x f
-  => {ArgmaxSpec}  
+  => {ArgmaxSpec}
 f (p' x) <= f (argmax f x)
   => {def. optExt ps}
 f (p' x) <= f (optExt ps x)
   => {def. f, let x' = step x (p' x), x'' = step x (optExt ps x)}
-reward x (p' x) x' + val x' ps 
-<= 
+reward x (p' x) x' + val x' ps
+<=
 reward x (optExt ps x) x'' + val x'' ps
   => {def. val}
 val x (p' :: ps) <= val x ((optExt ps) :: ps)
 
 > OptExtLemma ps p' x = step6 where
->   f : Ctrl x -> Float  
+>   f : Ctrl x -> Float
 >   f = valCtrl x ps
->   step1 : So (f (p' x) <= max x f)  
+>   step1 : So (f (p' x) <= max x f)
 >   step1 = maxSpec x f (p' x)
 >   step2 : So (max x f == f (argmax x f))
 >   step2 = symmetric_Float_eqeq (argmaxSpec x f)
@@ -99,21 +99,22 @@ val x (p' :: ps) <= val x ((optExt ps) :: ps)
 Now Bellman's principle of optimality states that optimal policy
 sequences  extended with optimal extensions are themselves optimal:
 
-> Bellman  :  (ps : PolicySeq n) -> OptPolicySeq n ps ->
->             (p : Policy) -> OptExt ps p ->
+> Bellman  :  {n : Nat} ->
+>             (ps : PolicySeq n) -> OptPolicySeq n ps ->
+>             (p : Policy) ->       OptExt ps p ->
 >             OptPolicySeq (S n) (p :: ps)
 
 The principle can be easily proved. One has
 
 val x (p' :: ps')
-  = {def. of val, let x' = step x (p' x)}  
+  = {def. of val, let x' = step x (p' x)}
 reward x (p' x) x' + val x' ps'
   <= {OptPolicySeq ps, monotonicity of +}
 reward x (p' x) x' + val x' ps
-  = {def. of val}  
+  = {def. of val}
 val x (p' :: ps)
   <= {OptExt ps p}
-val x (p :: ps) 
+val x (p :: ps)
 
 or, equivalently:
 
@@ -123,9 +124,9 @@ val x (p' :: ps)
   and
 val x (p' :: ps)
   <= {OptExt ps p}
-val x (p :: ps) 
+val x (p :: ps)
   -> {transitivity of <=}
-val x (p' :: ps') <= val x (p :: ps) 
+val x (p' :: ps') <= val x (p :: ps)
 
 and a proof of Bellman's principle can be constructed as follows:
 
@@ -154,7 +155,7 @@ and lemma shows that this is in fact the case:
 
 > BackwardsInductionLemma : (n : Nat) -> OptPolicySeq n (backwardsInduction n)
 > BackwardsInductionLemma Z = nilIsOptPolicySeq
-> BackwardsInductionLemma (S m) = 
+> BackwardsInductionLemma (S m) =
 >   Bellman ps ops p oep where
 >     ps : PolicySeq m
 >     ps = backwardsInduction m
@@ -164,4 +165,3 @@ and lemma shows that this is in fact the case:
 >     p = optExt ps
 >     oep : OptExt ps p
 >     oep = OptExtLemma ps
-

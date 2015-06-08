@@ -22,4 +22,3 @@ type |MaxSpec|, |ArgmaxSpec|, respectively:
 
 > maxSpec : MaxSpec
 > argmaxSpec : ArgmaxSpec
-
