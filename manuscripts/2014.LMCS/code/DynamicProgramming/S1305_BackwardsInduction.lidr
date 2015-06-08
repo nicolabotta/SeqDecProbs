@@ -7,7 +7,6 @@
 > import DynamicProgramming.S1301_Context
 > import DynamicProgramming.S1302_Reachability
 > import DynamicProgramming.S1302_Viability
-> import DynamicProgramming.S1302_Feasibility
 > import DynamicProgramming.S1303_OptimalPolicies
 > import DynamicProgramming.S1304_MaxArgmax
 
@@ -21,13 +20,13 @@ follows from Bellman's optimality principle.
 To express this principle, one needs the notion of optimal extension of
 sequences of policies:
 
-> OptExtension : (t : Nat) -> 
->                (n : Nat) -> 
->                PolicySeq (S t) n -> 
->                Policy t (S n) -> 
+> OptExtension : (t : Nat) ->
+>                (n : Nat) ->
+>                PolicySeq (S t) n ->
+>                Policy t (S n) ->
 >                Type
 
-> OptExtension t n ps p =  
+> OptExtension t n ps p =
 >   (p' : Policy t (S n)) ->
 >   (x : X t) ->
 >   (r : So (reachable x)) -> 
@@ -38,17 +37,17 @@ sequences of policies:
 Under the assumptions put forward in S1304_MaxArgmax.lidr, it is easy to
 compute optimal extensions for arbitrary sequences of policies:
 
-> optExtension : (t : Nat) -> 
->                (n : Nat) -> 
->                PolicySeq (S t) n -> 
+> optExtension : (t : Nat) ->
+>                (n : Nat) ->
+>                PolicySeq (S t) n ->
 >                Policy t (S n)
 
 > optExtension t n ps = p where
 >   p : Policy t (S n)
 >   p x r v = yq where 
->     yq : (y : Y t x ** So (feasible n x y))
+>     yq : (y : Y t x ** So (Mfeasible n x y))
 >     yq = argmax n x r v f where
->       f' : (y : Y t x ** So (feasible n x y)) -> X (S t) -> Float
+>       f' : (y : Y t x ** So (Mfeasible n x y)) -> X (S t) -> Float
 >       f' ycy x' = reward t x y x' + MVal (S t) n x' r' v' ps where
 >         y : Y t x
 >         y = getWitness ycy
@@ -57,12 +56,12 @@ compute optimal extensions for arbitrary sequences of policies:
 >         r' = reachableSpec1 x r y x' x'ins
 >         v' : So (viable {t = S t} n x')
 >         v' = Mspec2 (step t x y) (viable n) (getProof ycy) x' x'ins
->       f : (y : Y t x ** So (feasible n x y)) -> Float
+>       f : (y : Y t x ** So (Mfeasible n x y)) -> Float
 >       f ycy = Mmeas (Mmap (f' ycy) (step t x (getWitness ycy)))
 
-> postulate OptExtensionLemma : 
->   (t : Nat) -> 
->   (n : Nat) -> 
+> postulate OptExtensionLemma :
+>   (t : Nat) ->
+>   (n : Nat) ->
 >   (ps : PolicySeq (S t) n) ->
 >   OptExtension t n ps (optExtension t n ps)
 
@@ -86,7 +85,7 @@ max n x r v f
 f (argmax n x r v f)
   = {def. optExtension}
 f ((optExtension t n ps) x r v)
-  = {def. f, 
+  = {def. f,
      oy  = getWitness (optExtension t n ps x r v),
      ox' = step t x oy,
      or' = reachability1 x r oy,
@@ -101,19 +100,19 @@ which can also be formulated as
 MaxSpec
   =>
 f (p' x r v) <= max n x r v f
-  => {ArgmaxSpec}  
+  => {ArgmaxSpec}
 f (p' x r v) <= f (argmax n x r v f)
   => {def. optExtension ps}
 f (p' x r v) <= f (optExtension t n ps x r v)
-  => {def. f, 
+  => {def. f,
       y  = getWitness (p' x r v),
       x' = step t x y,
       r' = reachability1 x r y,
-      v' = getProof (p' x r v), 
+      v' = getProof (p' x r v),
       oy  = getWitness (optExtension t n ps x r v),
       ox' = step t x oy,
       or' = reachability1 x r oy,
-      ov' = getProof (optExtension t n ps x r v)  
+      ov' = getProof (optExtension t n ps x r v)
      }
 reward t x y x' + MVal (S t) n x' r' v' ps 
 <= 
@@ -191,7 +190,7 @@ MVal t (S n) x r v (p' :: ps')
      y  = getWitness (p' x r v),
      x' = step t x y,
      r' = reachability1 x r y,
-     v' = getProof (p' x r v), 
+     v' = getProof (p' x r v),
      x' = step x (p' x)
     }  
 reward t x y x' + MVal (S t) n x' r' v' ps'
@@ -227,11 +226,11 @@ and a proof of Bellman's principle can be constructed as follows:
 > Bellman t n ps ops p oep = opps where
 >   opps : OptPolicySeq t (S n) (p :: ps)
 >   opps (p' :: ps') x r v = transitive_Float_lte step4 step5 where
->     ycy : (lala : Y t x ** So (feasible n x lala))
+>     ycy : (lala : Y t x ** So (Mfeasible n x lala))
 >     ycy = p' x r v
 >     y : Y t x
 >     y = getWitness ycy
->     cy : So (feasible n x y)
+>     cy : So (Mfeasible n x y)
 >     cy = getProof ycy 
 >     postulate x'ins : (x' : X (S t)) -> So (x' `MisIn` (step t x y))
 >     r' : (x' : X (S t)) -> So (reachable {t = S t} x')
@@ -267,11 +266,11 @@ Trying to define |f| and |g| in terms of the same global |val| function
 -- > Bellman t n ps ops p oep = opps where
 -- >   opps : OptPolicySeq t (S n) (p :: ps)
 -- >   opps (p' :: ps') x r v = transitive_Float_lte step4 step5 where
--- >     ycy : (lala : Y t x ** So (feasible n x lala))
+-- >     ycy : (lala : Y t x ** So (Mfeasible n x lala))
 -- >     ycy = p' x r v
 -- >     y : Y t x
 -- >     y = getWitness ycy
--- >     cy : So (feasible n x y)
+-- >     cy : So (Mfeasible n x y)
 -- >     cy = getProof ycy 
 -- >     postulate x'ins : (x' : X (S t)) -> So (x' `MisIn` (step t x y))
 -- >     r' : (x' : X (S t)) -> So (reachable x')
@@ -283,7 +282,7 @@ Trying to define |f| and |g| in terms of the same global |val| function
 -- >                                   MVal (S t) n x' (r' x') (v' x') ps)
 -- >     step1 x' = ops ps' x' (r' x') (v' x') 
 -- >     f : X (S t) -> Float
--- >     f = val t n x r v p' ps' 
+-- >     f = val t n x r v p' ps'
 -- >     g : X (S t) -> Float
 -- >     g = val t n x r v p' ps
 -- >     step2 : (x' : X (S t)) -> So (f x' <= g x')
@@ -314,13 +313,13 @@ and lemma shows that this is in fact the case:
 >   ps = backwardsInduction (S t) n
 
 
-> BackwardsInductionLemma : (t : Nat) -> 
->                           (n : Nat) -> 
+> BackwardsInductionLemma : (t : Nat) ->
+>                           (n : Nat) ->
 >                           OptPolicySeq t n (backwardsInduction t n)
 
 > BackwardsInductionLemma _ Z = nilIsOptPolicySeq
 
-> BackwardsInductionLemma t (S n) = 
+> BackwardsInductionLemma t (S n) =
 >   Bellman t n ps ops p oep where
 >     ps : PolicySeq (S t) n
 >     ps = backwardsInduction (S t) n

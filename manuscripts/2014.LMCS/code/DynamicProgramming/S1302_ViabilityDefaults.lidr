@@ -15,7 +15,7 @@
 We provide a default implementation for |viable| that fulfill the
 specifications required by "S1302_Viability" on the basis of the
 notion of successor. This can be formalized in terms of
-  
+
 > succs : X t -> (n : Nat ** Vect n (M (X (S t))))
 
 Clients of this module are supposed to define |succs| as to be
@@ -64,7 +64,7 @@ If |succs| fulfill the above specifications a default definitions of
 > -- Viability.viable : (n : Nat) -> X t -> Bool
 > Viability.viable Z _ = True
 > Viability.viable (S n) x = isAnyBy (\ mx => MareAllTrue (Mmap (viable n) mx)) (succs x)
-> -- Viability.viable {t = t} (S n) x = 
+> -- Viability.viable {t = t} (S n) x =
 >   -- isAnyBy (\ mx => MareAllTrue (Mmap (viable {t = S t} n) mx)) (succs x)
 
 With the above definition we have:
