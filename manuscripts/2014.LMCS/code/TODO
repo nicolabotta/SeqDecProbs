@@ -1,3 +1,12 @@
+2015-06-08: make shoud work now:
+
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ idris --version
+0.9.18.1-git:84bca25
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ make
+find . -name '*.lidr' | xargs -n 1 idris -i .. -p contrib -p effects --check
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$
+
+
 2015-06-06: There are still a few things to fix:
 
 patrikj@etyd:~/src/ext/SeqDecProbs/manuscripts/2014.LMCS/code$ make
