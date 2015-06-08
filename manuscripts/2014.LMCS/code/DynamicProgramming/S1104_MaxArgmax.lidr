@@ -7,31 +7,14 @@
 > %default total
 
 
-OptLemma shows that, given an optimal sequence of policies, an optimal
-sequence of controls can be easily computed for any initial value by
-means of |ctrl|.
+> max     :  (x : State) -> (Ctrl x -> Float) -> Float
+> argmax  :  (x : State) -> (Ctrl x -> Float) -> Ctrl x
 
-Thus, the problem of computing optimal sequences of controls is reduced
-to the problem of computing optimal sequences of policies. This can be
-done if we assume that, for all |x : X| and for all |f : Y x -> Float|,
-we are able to select a control |y : Y x| which maximises |f|. More
-precisely, we assume to have at our disposal
-
-> max : (x : X) -> (Y x -> Float) -> Float
-
-> argmax : (x : X) -> (Y x -> Float) -> Y x
-
-which fulfill the specifications
-
-> MaxSpec  :  Type
-> MaxSpec  =  (x : X) ->
->             (f : Y x -> Float) ->
->             (y : Y x) ->
->             So (f y <= max x f)
-
+> MaxSpec     :  Type
+> MaxSpec     =  (x : State) -> (f : Ctrl x -> Float) -> (y : Ctrl x) ->
+>                So (f y <= max x f)
 > ArgmaxSpec  :  Type
-> ArgmaxSpec  =  (x : X) ->
->                (f : Y x -> Float) ->
+> ArgmaxSpec  =  (x : State) -> (f : Ctrl x -> Float) ->
 >                So (f (argmax x f) == max x f)
 
 Thas is, we assume to be able to define |maxSpec| and |argmaxSpec| of

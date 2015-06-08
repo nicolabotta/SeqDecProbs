@@ -4,8 +4,8 @@
 > %default total
 
 
-> outl : {a : Type} -> {P : a -> Type} -> Sigma a P -> a
-> outl = getWitness
+> outl  :  {A : Type} -> {P : A -> Type} -> (a : A ** P a) -> A
+> outl  =  getWitness
 
-> outr : {a : Type} -> {P : a -> Type} -> (s : Sigma a P) -> P (getWitness s)
-> outr = getProof
+> outr  :  {A : Type} -> {P : A -> Type} -> (p : (a : A ** P a)) -> P (outl p)
+> outr  =  getProof

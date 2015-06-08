@@ -16,12 +16,12 @@
 > %default total
 
 
-> depPairId : {X : Type, P : X -> Type} ->
->             (dep_pair : (x : X ** P x)) -> 
+> depPairId : {State : Type, P : State -> Type} ->
+>             (dep_pair : (x : State ** P x)) -> 
 >             dep_pair = (outl dep_pair ** getProof dep_pair)
 > depPairId (x ** y) = Refl
 
-If, for all reachable and viable |x : X t| and for all |f : (y : Y t x
+If, for all reachable and viable |x : State t| and for all |f : (y : Ctrl t x
 ** So (viable n (step t x y))) -> Float|, we are able to select a
 control which maximises |f|, optimal sequences of policies can be
 computed with Bellman's backwards induction algorithm. This, in turn,
@@ -38,7 +38,7 @@ sequences of policies:
 
 > OptExtension t n ps p =  
 >   (p' : Policy t (S n)) ->
->   (x : X t) ->
+>   (x : State t) ->
 >   (r : So (reachable x)) -> 
 >   (v : So (viable (S n) x)) -> 
 >   So (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
@@ -55,11 +55,11 @@ compute optimal extensions for arbitrary sequences of policies:
 > optExtension t n ps = p where
 >   p : Policy t (S n)
 >   p x r v = yq where 
->     yq : (y : Y t x ** So (viable {t = S t} n (step t x y)))
+>     yq : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 >     yq = argmax n x r v f where
->       f : (y : Y t x ** So (viable {t = S t} n (step t x y))) -> Float  
+>       f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float  
 >       f (y ** v') = reward t x y x' + Val (S t) n x' r' v' ps where
->         x' : X (S t)
+>         x' : State (S t)
 >         x' = step t x y
 >         r' : So (reachable {t = S t} x')
 >         r' = reachableSpec1 x r y
@@ -127,9 +127,9 @@ reward t x oy ox' + Val (S t) n ox' or' ov' ps
 Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
 
 > OptExtensionLemma t n ps p' x r v = step6 where
->   f : (y : Y t x ** So (viable {t = S t} n (step t x y))) -> Float  
+>   f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float  
 >   f (y ** v') = reward t x y x' + Val (S t) n x' r' v' ps where
->     x' : X (S t)
+>     x' : State (S t)
 >     x' = step t x y
 >     r' : So (reachable {t = S t} x')
 >     r' = reachableSpec1 x r y
@@ -147,17 +147,17 @@ Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
 >   step4' = believe_me step4''
 >   step5 : So (f (p' x r v) <= f ((optExtension t n ps) x r v))
 >   step5 = leibniz (\ a => So (f (p' x r v) <= f a)) step4' step4
->   y1 : Y t x
+>   y1 : Ctrl t x
 >   y1 = outl (p' x r v)
->   x1' : X (S t)
+>   x1' : State (S t)
 >   x1' = step t x y1
 >   r1' : So (reachable {t = S t} x1')
 >   r1' = reachableSpec1 x r y1
 >   v1' : So (viable {t = S t} n x1')
 >   v1' = outr (p' x r v)
->   oy : Y t x
+>   oy : Ctrl t x
 >   oy = outl ((optExtension t n ps) x r v)
->   ox' : X (S t)
+>   ox' : State (S t)
 >   ox' = step t x oy
 >   or' : So (reachable {t = S t} ox')
 >   or' = reachableSpec1 x r oy
@@ -263,9 +263,9 @@ and a proof of Bellman's principle can be constructed as follows:
 >     opps Nil x r v impossible
 >     opps (p' :: ps') x r v =
 >       transitive_Float_lte step2 step3 where
->         y      :  Y t x
+>         y      :  Ctrl t x
 >         y      =  outl (p' x r v)
->         x'     :  X (S t)
+>         x'     :  State (S t)
 >         x'     =  step t x y 
 >         r'     :  Reachable x'
 >         r'     =  reachableSpec1 x r y

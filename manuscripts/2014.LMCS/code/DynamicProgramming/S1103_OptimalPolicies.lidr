@@ -4,7 +4,6 @@
 > import Data.So
 
 > import Logic.Properties
-> -- import Logic.Ops
 > import Fun.Ops
 > import Rel.DecEq
 > import Rel.ReflDecEq
@@ -14,32 +13,17 @@
 
 > %default total
 
-It is easy to compute sequences of feasible controls if one has a rule
-that tells one which (feasible) control to select when in a given
-state. Such rules are called policies
-
 > Policy : Type
-> Policy = (x : X) -> Y x
-
-Sequences of policies of length n can be represented by values of
-type |Vect Policy n|: 
+> Policy = (x : State) -> Ctrl x
 
 > PolicySeq : Nat -> Type
 > PolicySeq n = Vect n Policy
 
-Given one such sequences, the corresponding sequence of controls is
-
-> ctrl : (x : X) -> PolicySeq n -> CtrlSeq x n
+> ctrl : (x : State) -> PolicySeq n -> CtrlSeq x n
 > ctrl x Nil = Nil
 > ctrl x (p :: ps) = (p x :: ctrl (step x (p x)) ps)
 
-If |X| is in |ReflDecEq|, given a sequence of policies |ps| and a
-sequence of controls |ys| of the same length, one can construct a new
-policy sequence |ps'| whose corresponding controls are |ys|. This
-construction is crucial for proving that sequences of controls obtained
-from optimal policy sequences are optimal, see below.
-
-> modifyPolicySeq : (DecEq.DecEq X) => 
+> modifyPolicySeq : (DecEq.DecEq State) => 
 >                   PolicySeq n -> 
 >                   CtrlSeq x n -> 
 >                   PolicySeq n
@@ -50,7 +34,7 @@ from optimal policy sequences are optimal, see below.
 >    let ps' = modifyPolicySeq ps ys in
 >      modifyDepFun p (x ** y) :: ps'
 
-> modifyPolicySeqLemma : (ReflDecEq X) =>
+> modifyPolicySeqLemma : (ReflDecEq State) =>
 >                        (ps : PolicySeq n) -> 
 >                        (ys : CtrlSeq x n) ->
 >                        ctrl x (modifyPolicySeq ps ys) = ys
@@ -71,7 +55,7 @@ from optimal policy sequences are optimal, see below.
 >   s4   :  ctrl x (p' :: ps') = (p' x) :: ctrl (step x (p' x)) ps'
 >   s4   =  Refl
 >   s5   :  (p' x) :: ctrl (step x (p' x)) ps' = y :: ctrl (step x y) ps'
->   s5   =  replace  {a = Y x}
+>   s5   =  replace  {a = Ctrl x}
 >                    {x = p' x}
 >                    {P = \ z => (p' x) :: ctrl (step x (p' x)) ps'  = 
 >                                z      :: ctrl (step x z) ps'} s2 Refl
@@ -88,131 +72,77 @@ from optimal policy sequences are optimal, see below.
 >                    {y = modifyPolicySeq (p :: ps) (y :: ys)}
 >                    {P = \ z => ctrl x z = y :: ys} s3 s7
 
-The value (in terms of cumulated rewards) of a sequence of policies is
-given by: 
+> val : (x : State) -> PolicySeq n -> Float
+> val {n = Z}    _  _          =  0
+> val {n = S m}  x  (p :: ps)  =  reward x (p x) x' + val x' ps where
+>   x'  :  State  
+>   x'  =  step x (p x)
 
-> Val : (x : X) -> PolicySeq n -> Float
-> Val {n = Z} _ _ = 0
-> Val {n = S m} x (p :: ps) = reward x (p x) x' + Val x' ps where
->   x' : X  
->   x' = step x (p x)
-
-It is easy to prove 
-
-Val x ps = val (ctrl x ps)
-
-Base case: 
-  Val x Nil = val (ctrl x Nil)
-
-  Val x Nil
-    = {- def. of Val -}
-  0
-    = {- def. of val -}
-  val Nil
-    = {- def. of ctrl -}
-  val (ctrl x Nil)
-
-Induction step: 
-  Val x ps = val (ctrl x ps) 
-    => 
-  Val x (p :: ps) = val (ctrl x (p :: ps))
-
-  Val x (p :: ps)
-    = {- def. of Val with y = p x, x' = step x y -}
-  reward x y x' + Val x' ps
-    = {- induction hypothesis -}
-  reward x y x' + val (ctrl x' ps)
-    = {- def. of val -}
-  val (y :: (ctrl x' ps))
-    = {- def. of y, x', ctrl -}
-  val (ctrl x (p :: ps))
-
-We can implement the proof in Idris and (type) check its correctness:
-
-> valValLemma : (x : X) ->
+> valueValLemma : (x : State) ->
 >               (ps : PolicySeq n) -> 
->               Val x ps = val (ctrl x ps)
+>               val x ps = value (ctrl x ps)
 
-> valValLemma _ Nil = Refl
+> valueValLemma _ Nil = Refl
 
-> valValLemma x (p :: ps) = step4 where
->   y : Y x
+> valueValLemma x (p :: ps) = step4 where
+>   y : Ctrl x
 >   y = p x
->   x' : X
+>   x' : State
 >   x' = step x y
->   ih : Val x' ps = val (ctrl x' ps)
->   ih = valValLemma x' ps
->   step1 : Val x (p :: ps) = reward x y x' + Val x' ps
+>   ih : val x' ps = value (ctrl x' ps)
+>   ih = valueValLemma x' ps
+>   step1 : val x (p :: ps) = reward x y x' + val x' ps
 >   step1 = Refl
->   step2 : Val x (p :: ps) = reward x y x' + val (ctrl x' ps)
->   step2 = replace {P = \ z => Val x (p :: ps) = reward x y x' + z} ih step1
+>   step2 : val x (p :: ps) = reward x y x' + value (ctrl x' ps)
+>   step2 = replace {P = \ z => val x (p :: ps) = reward x y x' + z} ih step1
 >   -- a = b && x = y + a => x = y + b
->   step3 : reward x y x' + val (ctrl x' ps) = val (ctrl x (p :: ps))
+>   step3 : reward x y x' + value (ctrl x' ps) = value (ctrl x (p :: ps))
 >   step3 = Refl
->   step4 : Val x (p :: ps) = val (ctrl x (p :: ps))
+>   step4 : val x (p :: ps) = value (ctrl x (p :: ps))
 >   step4 = trans step2 step3
 
-> valValLemma' : (ps' : PolicySeq n) -> 
+> valueValLemma' : (ps' : PolicySeq n) -> 
 >                (ps : PolicySeq n) -> 
->                (x : X) ->
->                So (Val x ps' <= Val x ps) -> 
->                So (val (ctrl x ps') <= val (ctrl x ps))
+>                (x : State) ->
+>                So (val x ps' <= val x ps) -> 
+>                So (value (ctrl x ps') <= value (ctrl x ps))
 
-> valValLemma' ps' ps x o = l2 where
->    l1  : So (val (ctrl x ps') <= Val x ps)
->    l1  = replace {P = \ z => So (z <= Val x ps)} (valValLemma x ps') o
->    l2  : So (val (ctrl x ps') <= val (ctrl x ps))
->    l2  = replace {P = \ z => So (val (ctrl x ps') <= z)} (valValLemma x ps) l1
+> valueValLemma' ps' ps x o = l2 where
+>    l1  : So (value (ctrl x ps') <= val x ps)
+>    l1  = replace {P = \ z => So (z <= val x ps)} (valueValLemma x ps') o
+>    l2  : So (value (ctrl x ps') <= value (ctrl x ps))
+>    l2  = replace {P = \ z => So (value (ctrl x ps') <= z)} (valueValLemma x ps) l1
 
 The notion of optimal sequence of policies:
 
 > OptPolicySeq : (n : Nat) -> PolicySeq n -> Type
-> OptPolicySeq n ps = (x : X) -> 
->                     (ps' : PolicySeq n) -> 
->                     So (Val x ps' <= Val x ps)
-
-(Sanity check: Nil is optimal
+> OptPolicySeq n ps = (x : State) -> (ps' : PolicySeq n) -> So (val x ps' <= val x ps)
 
 > nilIsOptPolicySeq : OptPolicySeq Z Nil
 > nilIsOptPolicySeq x ps' = reflexive_Float_lte 0
 
-) is interesting because of the following lemma:
-
-> OptLemma : (ReflDecEq X) =>
+> OptLemma : (ReflDecEq State) =>
 >            (n : Nat) -> 
 >            (ps : PolicySeq n) -> 
 >            OptPolicySeq n ps ->
->            (x : X) ->
+>            (x : State) ->
 >            OptCtrlSeq (ctrl x ps)
 
 > OptLemma n ps o x ys' = r  where
-  
-1. construct ps' s.t. ctrl x ps' = ys'
-
 >    ps' : PolicySeq n
 >    ps' = modifyPolicySeq ps ys'
 >    m   : ctrl x ps' = ys'
 >    m   = modifyPolicySeqLemma ps ys'
-
-2. apply o to deduce Val x ps' <= Val x ps
-
->    o'  : So (Val x ps' <= Val x ps)
+>    o'  : So (val x ps' <= val x ps)
 >    o'  = o x ps'
->    l2  : So (val (ctrl x ps') <= val (ctrl x ps))
->    l2  = valValLemma' ps' ps x o'
-
-3. conclude by applying valVal that val ys' <= val (ctrl x ps)
-
->    l3  : val (ctrl x ps') = val ys'
+>    l2  : So (value (ctrl x ps') <= value (ctrl x ps))
+>    l2  = valueValLemma' ps' ps x o'
+>    l3  : value (ctrl x ps') = value ys'
 >    l3  = replace  {a = CtrlSeq x n}
 >                   {x = ctrl x ps'}
 >                   {y = ys'}
->                   {P = \z => val (ctrl x ps') = val z} m Refl
->    r   : So (val ys' <= val (ctrl x ps))
->    r   = replace {P = \ z => So (z <= val (ctrl x ps))} l3 l2
+>                   {P = \z => value (ctrl x ps') = value z} m Refl
+>    r   : So (value ys' <= value (ctrl x ps))
+>    r   = replace {P = \ z => So (z <= value (ctrl x ps))} l3 l2
 
-|OptLemma| ensures that optimal control sequences can be computed from
-optimal sequences of policies. This is particularly useful because, as
-we will see in 'S1105', optimal sequences of policies can be computed
-efficiently via Bellman's backwards induction algorithm.
 

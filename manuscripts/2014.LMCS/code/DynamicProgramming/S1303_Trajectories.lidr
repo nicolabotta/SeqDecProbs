@@ -12,23 +12,23 @@
 
 
 > data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
->   Nil   :  (x : X t) -> StateCtrlSeq t Z
->   (::)  :  (x : X t ** Y t x) ->
+>   Nil   :  (x : State t) -> StateCtrlSeq t Z
+>   (::)  :  (x : State t ** Ctrl t x) ->
 >            StateCtrlSeq (S t) n ->
 >            StateCtrlSeq t (S n)
 
 > stateCtrlTrj  :  (t : Nat) -> (n : Nat) ->
->                  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
+>                  (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                  (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
 > stateCtrlTrj _  Z      x  _  _  _           = Mret (Nil x)
 > stateCtrlTrj t  (S n)  x  r  v  (p :: ps')  = Mmap prepend (toSub mx' `Mbind` f) where
->   y : Y t x
+>   y : Ctrl t x
 >   y = getWitness (p x r v)
 >   prepend : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 >   prepend xys = (x ** y) :: xys
->   mx' : M (X (S t))
+>   mx' : M (State (S t))
 >   mx' = step t x y
->   f : (x' : X (S t) ** So (x' `MisIn` mx')) -> M (StateCtrlSeq (S t) n)
+>   f : (x' : State (S t) ** So (x' `MisIn` mx')) -> M (StateCtrlSeq (S t) n)
 >   f (x' ** x'inmx') = stateCtrlTrj (S t) n x' r' v' ps' where
 >     r' : Reachable x'
 >     r' = reachableSpec1 x r y x' x'inmx'
@@ -37,11 +37,11 @@
 
 > {-
 >   Mmap ((::) (x ** y)) (mx' `Mbind` f) where
->     y    :  Y t x
+>     y    :  Ctrl t x
 >     y    =  outl (p x r v)
->     mx'  :  M (X (S t))
+>     mx'  :  M (State (S t))
 >     mx'  =  step t x y
->     f     :  X (S t) -> M (StateCtrlSeq (S t) n)
+>     f     :  State (S t) -> M (StateCtrlSeq (S t) n)
 >     f x'  =  stateCtrlTrj (S t) n x' r' v' ps' where
 >       postulate x'inmx' : So (x' `MisIn` mx')
 >       r'  :  So (reachable x')
