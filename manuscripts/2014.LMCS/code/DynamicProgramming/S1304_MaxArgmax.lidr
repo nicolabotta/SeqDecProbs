@@ -6,6 +6,7 @@
 > import DynamicProgramming.S1302_Reachability
 > import DynamicProgramming.S1302_Viability
 > import DynamicProgramming.S1303_OptimalPolicies
+> import DynamicProgramming.S1302_Feasibility
 
 
 > max : (n : Nat) ->
