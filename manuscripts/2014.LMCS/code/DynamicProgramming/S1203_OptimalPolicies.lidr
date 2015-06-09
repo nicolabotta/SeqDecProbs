@@ -22,10 +22,10 @@
 >   (::)  :  Policy t (S n) -> PolicySeq (S t) n -> PolicySeq t (S n)
 
 > ctrl : (x : State t) ->
->        (n : Nat) -> 
->        (r : So (reachable x)) -> 
->        (v : So (viable n x)) -> 
->        PolicySeq t n -> 
+>        (n : Nat) ->
+>        (r : So (reachable x)) ->
+>        (v : So (viable n x)) ->
+>        PolicySeq t n ->
 >        CtrlSeq x n
 
 > ctrl _ _ _ _ Nil = Nil
@@ -55,32 +55,28 @@
 The notion of optimal sequence of policies
 
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
-> OptPolicySeq t n ps = (ps' : PolicySeq t n) -> 
+> OptPolicySeq t n ps = (ps' : PolicySeq t n) ->
 >                       (x : State t) ->
 >                       (r : So (reachable x)) -> 
 >                       (v : So (viable n x)) -> 
 >                       So (val t n x r v ps' <= val t n x r v ps)
 
-(Sanity check: Nil is optimal policy sequence                             
+(Sanity check: Nil is optimal policy sequence
 
 > nilIsOptPolicySeq : OptPolicySeq t Z Nil
 > nilIsOptPolicySeq _ _ _ _ = reflexive_Float_lte 0
 
 ) is interesting because of the following lemma
 
-> OptLemma :   (n : Nat) -> 
->              (ps : PolicySeq t n) ->                                                                   
+> OptLemma :   (n : Nat) ->
+>              (ps : PolicySeq t n) ->
 >              OptPolicySeq t n ps ->
 >              (x : State t) ->
->              (r : So (reachable x)) -> 
->              (v : So (viable n x)) -> 
+>              (r : So (reachable x)) ->
+>              (v : So (viable n x)) ->
 >              OptCtrlSeq x n (ctrl x n r v ps)
-                                                                
+
 > -- OptLemma Z Nil _ x r (viableSpec0 x) = nilIsOptCtrlSeq x
 > OptLemma Z Nil _ x _ _  = nilIsOptCtrlSeq x
 
 > OptLemma (S n) (p :: ps) opt_pps x rx vx = believe_me Oh
-
-
-
-

@@ -10,42 +10,42 @@
 
 
 > max : (n : Nat) ->
->       (x : State t) -> 
->       (r : So (reachable x)) -> 
+>       (x : State t) ->
+>       (r : So (reachable x)) ->
 >       (v : So (viable (S n) x)) ->
->       (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) -> 
+>       (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
 >       Float
 
 
 > argmax : (n : Nat) ->
->          (x : State t) -> 
->          (r : So (reachable x)) -> 
+>          (x : State t) ->
+>          (r : So (reachable x)) ->
 >          (v : So (viable (S n) x)) ->
->          (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) -> 
+>          (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
 >          (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 
 
-> maxSpec : (n : Nat) -> 
+> maxSpec : (n : Nat) ->
 >           (x : State t) ->
->           (r : So (reachable x)) -> 
+>           (r : So (reachable x)) ->
 >           (v : So (viable (S n) x)) ->
->           (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) -> 
+>           (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
 >           (yv : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))) ->
 >           So (f yv <= max n x r v f)
 
--- > maxSpec : (n : Nat) -> 
+-- > maxSpec : (n : Nat) ->
 -- >           (x : State t) ->
--- >           (r : So (reachable x)) -> 
+-- >           (r : So (reachable x)) ->
 -- >           (v : So (viable (S n) x)) ->
--- >           (f : (y : Ctrl t x ** So (viable n (step t x y)))-> Float) -> 
--- >           (y : Ctrl t x) -> 
+-- >           (f : (y : Ctrl t x ** So (viable n (step t x y)))-> Float) ->
+-- >           (y : Ctrl t x) ->
 -- >           (q : So (viable n (step t x y))) ->
 -- >           So (f (y ** q) <= max n x r v f)
 
 
-> argmaxSpec : (n : Nat) -> 
+> argmaxSpec : (n : Nat) ->
 >              (x : State t) ->
->              (r : So (reachable x)) -> 
+>              (r : So (reachable x)) ->
 >              (v : So (viable (S n) x)) ->
->              (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) -> 
+>              (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
 >              So (f (argmax n x r v f) == max n x r v f)

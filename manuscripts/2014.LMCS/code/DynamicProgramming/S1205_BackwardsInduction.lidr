@@ -17,44 +17,43 @@
 
 
 > depPairId : {State : Type, P : State -> Type} ->
->             (dep_pair : (x : State ** P x)) -> 
+>             (dep_pair : (x : State ** P x)) ->
 >             dep_pair = (outl dep_pair ** getProof dep_pair)
 > depPairId (x ** y) = Refl
 
-If, for all reachable and viable |x : State t| and for all |f : (y : Ctrl t x
-** So (viable n (step t x y))) -> Float|, we are able to select a
-control which maximises |f|, optimal sequences of policies can be
-computed with Bellman's backwards induction algorithm. This, in turn,
-follows from Bellman's optimality principle.
+If, for all reachable and viable |x : State t| and for all
+|f : (y : Ctrl t x ** So (viable n (step t x y))) -> Float|,
+we are able to select a control which maximises |f|, optimal sequences
+of policies can be computed with Bellman's backwards induction
+algorithm. This, in turn, follows from Bellman's optimality principle.
 
 To express this principle, one needs the notion of optimal extension of
 sequences of policies:
 
-> OptExtension : (t : Nat) -> 
->                (n : Nat) -> 
->                PolicySeq (S t) n -> 
->                Policy t (S n) -> 
+> OptExtension : (t : Nat) ->
+>                (n : Nat) ->
+>                PolicySeq (S t) n ->
+>                Policy t (S n) ->
 >                Type
 
-> OptExtension t n ps p =  
+> OptExtension t n ps p =
 >   (p' : Policy t (S n)) ->
 >   (x : State t) ->
 >   (r : So (reachable x)) -> 
 >   (v : So (viable (S n) x)) -> 
 >   So (val t (S n) x r v (p' :: ps) <= val t (S n) x r v (p :: ps))
 
-
 Under the assumptions put forward in S1204_MaxArgmax.lidr, it is easy to
 compute optimal extensions for arbitrary sequences of policies:
 
-> optExtension : (t : Nat) -> 
->                (n : Nat) -> 
->                PolicySeq (S t) n -> 
+> optExtension : (t : Nat) ->
+>                (n : Nat) ->
+>                PolicySeq (S t) n ->
 >                Policy t (S n)
 
 > optExtension t n ps = p where
 >   p : Policy t (S n)
->   p x r v = yq where 
+>   p x r v = yq where
 >     yq : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 >     yq = argmax n x r v f where
 >       f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float  
@@ -65,9 +64,9 @@ compute optimal extensions for arbitrary sequences of policies:
 >         r' = reachableSpec1 x r y
 
 
-> OptExtensionLemma : 
->   (t : Nat) -> 
->   (n : Nat) -> 
+> OptExtensionLemma :
+>   (t : Nat) ->
+>   (n : Nat) ->
 >   (ps : PolicySeq (S t) n) ->
 >   OptExtension t n ps (optExtension t n ps)
 
@@ -91,7 +90,7 @@ max n x r v f
 f (argmax n x r v f)
   = {def. optExtension}
 f ((optExtension t n ps) x r v)
-  = {def. f, 
+  = {def. f,
      oy  = outl (optExtension t n ps x r v),
      ox' = step t x oy,
      or' = reachability1 x r oy,
@@ -106,19 +105,19 @@ which can also be formulated as
 MaxSpec
   =>
 f (p' x r v) <= max n x r v f
-  => {ArgmaxSpec}  
+  => {ArgmaxSpec}
 f (p' x r v) <= f (argmax n x r v f)
   => {def. optExtension ps}
 f (p' x r v) <= f (optExtension t n ps x r v)
-  => {def. f, 
+  => {def. f,
       y  = outl (p' x r v),
       x' = step t x y,
       r' = reachability1 x r y,
-      v' = outr (p' x r v), 
+      v' = outr (p' x r v),
       oy  = outl (optExtension t n ps x r v),
       ox' = step t x oy,
       or' = reachability1 x r oy,
-      ov' = outr (optExtension t n ps x r v)  
+      ov' = outr (optExtension t n ps x r v)
      }
 reward t x y x' + val (S t) n x' r' v' ps 
 <= 
@@ -133,7 +132,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >     x' = step t x y
 >     r' : So (reachable {t = S t} x')
 >     r' = reachableSpec1 x r y
->   step1 : So (f (p' x r v) <= max n x r v f)  
+>   step1 : So (f (p' x r v) <= max n x r v f)
 >   step1 = maxSpec n x r v f (p' x r v)
 >   step2 : So (max n x r v f == f (argmax n x r v f))
 >   step2 = symmetric_Float_eqeq (argmaxSpec n x r v f)
@@ -141,7 +140,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >   step3 = sub_Float_eqeq_lte step2
 >   step4 : So (f (p' x r v) <= f (argmax n x r v f))
 >   step4 = transitive_Float_lte step1 step3
->   step4'' : argmax n x r v f = argmax n x r v f 
+>   step4'' : argmax n x r v f = argmax n x r v f
 >   step4'' = Refl
 >   step4' : argmax n x r v f = (optExtension t n ps) x r v
 >   step4' = believe_me step4''
@@ -163,11 +162,11 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >   or' = reachableSpec1 x r oy
 >   ov' : So (viable {t = S t} n ox')
 >   ov' = outr ((optExtension t n ps) x r v)
->   step1234 : p' x r v = 
+>   step1234 : p' x r v =
 >               MkSigma
->               {P = \ fresh_y  => 
+>               {P = \ fresh_y  =>
 >                      So (viable {t = S t} n (step t x fresh_y))}
->               y1 v1' 
+>               y1 v1'
 >   step1234 = depPairId (p' x r v)
 
 >   step122 : f (p' x r v) = reward t x y1 x1' + 
@@ -176,7 +175,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >   
 >   step120 : optExtension t n ps x r v =
 >               MkSigma
->               {P = \ fresh_y  => 
+>               {P = \ fresh_y  =>
 >                      So (viable {t = S t} n (step t x fresh_y))}
 >               oy ov'
 >   step120 = depPairId (optExtension t n ps x r v)
@@ -193,7 +192,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >               <= 
 >               reward t x oy ox' + val (S t) n ox' or' ov' ps
 >              )
->   step6 = leibniz 
+>   step6 = leibniz
 >             (\ fresh_var =>
 >                  So (fresh_var <= 
 >                  reward t x oy ox' + val (S t) n ox' or' ov' ps))
@@ -221,7 +220,7 @@ val t (S n) x r v (p' :: ps')
      y  = outl (p' x r v),
      x' = step t x y,
      r' = reachability1 x r y,
-     v' = outr (p' x r v), 
+     v' = outr (p' x r v),
      x' = step x (p' x)
     }  
 reward t x y x' + val (S t) n x' r' v' ps'
@@ -254,7 +253,7 @@ val t (S n) x r v (p' :: ps') <= val t (S n) x r v (p :: ps)
 
 and a proof of Bellman's principle can be constructed as follows:
 
-> Bellman t n ps ops p oep = 
+> Bellman t n ps ops p oep =
 >   opps where
 >     opps : OptPolicySeq t (S n) (p :: ps)
 >     opps Nil x r v impossible
@@ -286,13 +285,13 @@ and lemma shows that this is in fact the case:
 >   ps = backwardsInduction (S t) n
 
 
-> BackwardsInductionLemma : (t : Nat) -> 
->                           (n : Nat) -> 
+> BackwardsInductionLemma : (t : Nat) ->
+>                           (n : Nat) ->
 >                           OptPolicySeq t n (backwardsInduction t n)
 
 > BackwardsInductionLemma _ Z = nilIsOptPolicySeq
 
-> BackwardsInductionLemma t (S n) = 
+> BackwardsInductionLemma t (S n) =
 >   Bellman t n ps ops p oep where
 >     ps : PolicySeq (S t) n
 >     ps = backwardsInduction (S t) n
@@ -302,4 +301,3 @@ and lemma shows that this is in fact the case:
 >     p = optExtension t n ps
 >     oep : OptExtension t n ps p
 >     oep = OptExtensionLemma t n ps
-

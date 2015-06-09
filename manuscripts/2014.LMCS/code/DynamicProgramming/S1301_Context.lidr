@@ -86,7 +86,7 @@ evaluating such |M|-structure:
 and that such measure satisfies the following monotonicity condition,
 see S130...
 
-> MmeasMon  :  (f : State t -> Float) -> (g : State t -> Float) -> 
+> MmeasMon  :  (f : State t -> Float) -> (g : State t -> Float) ->
 >              ((x : State t) -> So (f x <= g x)) ->
 >              (mx : M (State t)) -> So (Mmeas (Mmap f mx) <= Mmeas (Mmap g mx))
 
@@ -94,6 +94,7 @@ see S130...
 > Mreward t x y  =  Mmap (\ x' => reward t x y x') (step t x y)
 
 
+> {-
 > x0 : State 0
 
 > y0 : Ctrl 0 x0
@@ -102,7 +103,7 @@ see S130...
 > mrs  =  Mmap f (step 0 x0 y0) where
 >   f    :  (x : State 1) -> Float
 >   f x  =  reward 0 x0 y0 x
-  
+
 
 > p0 : (x : State 0) -> Ctrl 0 x
 
@@ -123,12 +124,10 @@ see S130...
 
 > mxy : (t : Nat) -> M (x : State t ** Ctrl t x)
 > mxy Z = Mret (x0 ** p Z x0)
-> mxy (S t) = (mxy t) `Mbind` g where  
+> mxy (S t) = (mxy t) `Mbind` g where
 >   g : (x : State t ** Ctrl t x) -> M (x : State (S t) ** Ctrl (S t) x)
 >   g (xt ** yt) = Mmap f (step t xt yt) where
 >     f     :  (x : State (S t)) -> (x : State (S t) ** Ctrl (S t) x)
 >     f xt  =  (xt ** p (S t) xt)
 
-> {- 
-
-> -}
+> -- -}
