@@ -11,58 +11,30 @@
 
 > Policy : Nat -> Nat -> Type
 > Policy t Z = ()
-> Policy t (S n) = (x : State t) -> Reachable x -> Viable (S n) x -> CtrlF t n x
-
+> Policy t (S n) = (x : State t) -> Reachable x -> Viable (S n) x -> GoodCtrl t n x
 
 > data PolicySeq : Nat -> Nat -> Type where
 >   Nil   : PolicySeq t Z
 >   (::)  : Policy t (S n) -> PolicySeq (S t) n -> PolicySeq t (S n)
 
-
-> MVal  :  (t : Nat) -> (n : Nat) ->
+> Mval  :  (t : Nat) -> (n : Nat) ->
 >          (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
 >          PolicySeq t n -> Float
-> MVal _  Z      _  _  _  _          = 0
-> MVal t  (S n)  x  r  v  (p :: ps)  = Mmeas (Mmap f (toSub mx')) where
->   y     :  Ctrl t x
->   y     =  getWitness (p x r v)
->   mx'   :  M (State (S t))
->   mx'   =  step t x y
->   f     :  (x' : State (S t) ** So (x' `MisIn` mx')) -> Float
->   f (x' ** x'ins) =  reward t x y x' + MVal (S t) n x' r' v' ps where
->     r'  :  Reachable x'
->     r'  =  reachableSpec1 x r y x' x'ins
->     v'  :  Viable n x'
->     v'  =  Mspec2 mx' (viable n) (getProof (p x r v)) x' x'ins
-
-> {-
-> -- MVal t (S n) x r v (p :: ps) = Mmeas (Mmap f mx') where
->   f x'  =  reward t x y x' + MVal (S t) n x' r' v' ps where
->     postulate x'ins : So (x' `MisIn` mx')
->     r'  :  So (reachable x')
->     r'  =  reachableSpec1 x r y x' x'ins
->     v'  :  So (viable n x')
->     v' = Mspec2 mx' (viable n) (getProof (p x r v)) x' x'ins
-> -}
-
-> {-
->   f x' with (soIntro (reachable x'))
->     | (Yes r') with (soIntro (viable n x'))
->         | (Yes v') = reward t x y x' + MVal (S t) n x' r' v' ps
->         | (No _)  = reward t x y x'
->     | (No _) = reward t x y x'
-> -}
-
-The notion of optimal sequence of policies
+> Mval _  Z      _  _  _  _          =  0
+> Mval t  (S n)  x  r  v  (p :: ps)  =  Mmeas (Mmap f (toSub mx')) where
+>   y    :  Ctrl t x;;          y    =  outl (p x r v)
+>   mx'  :  M (State (S t));;   mx'  =  step t x y
+>   f : (x' : State (S t) ** So (x' `MisIn` mx')) -> Float
+>   f (x' ** x'ins) =  reward t x y x' + Mval (S t) n x' r' v' ps where
+>     r'  :  Reachable x';;   r'  =  reachableSpec1 x r y x' x'ins
+>     v'  :  Viable n x';;    v'  =  Mspec2 mx' (viable n) (outr (p x r v)) x' x'ins
 
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
 > OptPolicySeq t n ps = (ps' : PolicySeq t n) ->
 >                       (x : State t) ->
 >                       (r : So (reachable x)) ->
 >                       (v : So (viable n x)) ->
->                       So (MVal t n x r v ps' <= MVal t n x r v ps)
-
-Sanity check: Nil is optimal policy sequence
+>                       So (Mval t n x r v ps' <= Mval t n x r v ps)
 
 > nilIsOptPolicySeq : OptPolicySeq t Z Nil
 > nilIsOptPolicySeq _ _ _ _ = reflexive_Float_lte 0

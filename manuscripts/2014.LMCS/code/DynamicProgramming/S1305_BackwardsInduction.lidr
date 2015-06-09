@@ -31,7 +31,7 @@ sequences of policies:
 >   (x : State t) ->
 >   (r : So (reachable x)) ->
 >   (v : So (viable (S n) x)) ->
->   So (MVal t (S n) x r v (p' :: ps) <= MVal t (S n) x r v (p :: ps))
+>   So (Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v (p :: ps))
 
 
 Under the assumptions put forward in S1304_MaxArgmax.lidr, it is easy to
@@ -48,7 +48,7 @@ compute optimal extensions for arbitrary sequences of policies:
 >     yq : (y : Ctrl t x ** So (Mfeasible n x y))
 >     yq = argmax n x r v f where
 >       f' : (y : Ctrl t x ** So (Mfeasible n x y)) -> State (S t) -> Float
->       f' ycy x' = reward t x y x' + MVal (S t) n x' r' v' ps where
+>       f' ycy x' = reward t x y x' + Mval (S t) n x' r' v' ps where
 >         y : Ctrl t x
 >         y = getWitness ycy
 >         postulate x'ins : So (x' `MisIn` (step t x y))
@@ -69,14 +69,14 @@ compute optimal extensions for arbitrary sequences of policies:
 To prove that |optExtension t n ps| is indeed an optimal extension of |ps|
 it is useful to recall:
 
-MVal t (S n) x r v (p' :: ps)
-  = {def. MVal,
+Mval t (S n) x r v (p' :: ps)
+  = {def. Mval,
      y  = getWitness (p' x r v)
      x' = step t x y
      r' = reachability1 x r y
      v' = getProof (p' x r v)
     }
-reward t x y x' + MVal (S t) n x' r' v' ps
+reward t x y x' + Mval (S t) n x' r' v' ps
   = {def. f}
 f (p' x r v)
   <= {MaxSpec}
@@ -91,9 +91,9 @@ f ((optExtension t n ps) x r v)
      or' = reachability1 x r oy,
      ov' = getProof (optExtension t n ps x r v)
     }
-reward t x oy ox' + MVal (S t) n ox' or' ov' ps
-  = {def. MVal}
-MVal t (S n) x r v ((optExtension t n ps) :: ps)
+reward t x oy ox' + Mval (S t) n ox' or' ov' ps
+  = {def. Mval}
+Mval t (S n) x r v ((optExtension t n ps) :: ps)
 
 which can also be formulated as
 
@@ -114,15 +114,15 @@ f (p' x r v) <= f (optExtension t n ps x r v)
       or' = reachability1 x r oy,
       ov' = getProof (optExtension t n ps x r v)
      }
-reward t x y x' + MVal (S t) n x' r' v' ps
+reward t x y x' + Mval (S t) n x' r' v' ps
 <=
-reward t x oy ox' + MVal (S t) n ox' or' ov' ps
-  => {def. MVal}
-MVal t (S n) x r v (p' :: ps) <= MVal t (S n) x r v ((optExtension t n ps) :: ps)
+reward t x oy ox' + Mval (S t) n ox' or' ov' ps
+  => {def. Mval}
+Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v ((optExtension t n ps) :: ps)
 
 -- > OptExtensionLemma t n ps p' x r v = step7 where
 -- >   f : (y : Ctrl t x ** So (viable n (step t x y))) -> Float
--- >   f (y ** v') = reward t x y x' + MVal (S t) n x' r' v' ps where
+-- >   f (y ** v') = reward t x y x' + Mval (S t) n x' r' v' ps where
 -- >     x' : State (S t)
 -- >     x' = step t x y
 -- >     r' : So (reachable x')
@@ -159,17 +159,17 @@ MVal t (S n) x r v (p' :: ps) <= MVal t (S n) x r v ((optExtension t n ps) :: ps
 -- >   or' = reachability1 x r oy
 -- >   ov' : So (viable n ox')
 -- >   ov' = getProof ((optExtension t n ps) x r v)
--- >   step6 : So (reward t x y1 x1' + MVal (S t) n x1' r1' v1' ps
+-- >   step6 : So (reward t x y1 x1' + Mval (S t) n x1' r1' v1' ps
 -- >               <=
--- >               reward t x oy ox' + MVal (S t) n ox' or' ov' ps
+-- >               reward t x oy ox' + Mval (S t) n ox' or' ov' ps
 -- >              )
 -- >   -- step6 = step5 -- def. of f
 -- >   step6 = ?lala6 -- Stack overflow
--- >   step7 : So (MVal t (S n) x r v (p' :: ps)
+-- >   step7 : So (Mval t (S n) x r v (p' :: ps)
 -- >               <=
--- >               MVal t (S n) x r v ((optExtension t n ps) :: ps)
+-- >               Mval t (S n) x r v ((optExtension t n ps) :: ps)
 -- >              )
--- >   step7 = step6 -- def. of MVal
+-- >   step7 = step6 -- def. of Mval
 
 
 Now Bellman's principle of optimality states that optimal policy
@@ -185,41 +185,41 @@ sequences  extended with optimal extensions are themselves optimal:
 
 The principle can be easily proved. One has
 
-MVal t (S n) x r v (p' :: ps')
-  = {def. of MVal,
+Mval t (S n) x r v (p' :: ps')
+  = {def. of Mval,
      y  = getWitness (p' x r v),
      x' = step t x y,
      r' = reachability1 x r y,
      v' = getProof (p' x r v),
      x' = step x (p' x)
     }
-reward t x y x' + MVal (S t) n x' r' v' ps'
+reward t x y x' + Mval (S t) n x' r' v' ps'
   <= {OptPolicySeq (S t) n ps,
       monotonicity of +
      }
-reward t x y x' + MVal (S t) n x' r' v' ps
-  = {def. of MVal}
-MVal t (S n) x r v (p' :: ps)
+reward t x y x' + Mval (S t) n x' r' v' ps
+  = {def. of Mval}
+Mval t (S n) x r v (p' :: ps)
   <= {OptExtension t n ps p}
-MVal t (S n) x r v (p :: ps)
+Mval t (S n) x r v (p :: ps)
 
 or, equivalently:
 
-MVal t (S n) x r v (p' :: ps')
-  <= {def. of MVal,
+Mval t (S n) x r v (p' :: ps')
+  <= {def. of Mval,
       OptPolicySeq ps,
       monotonicity of +}
-MVal t (S n) x r v (p' :: ps)
+Mval t (S n) x r v (p' :: ps)
 
   and
 
-MVal t (S n) x r v (p' :: ps)
+Mval t (S n) x r v (p' :: ps)
   <= {OptExtension t n ps p}
-MVal t (S n) x r v (p :: ps)
+Mval t (S n) x r v (p :: ps)
 
   -> {transitivity of <=}
 
-MVal t (S n) x r v (p' :: ps') <= MVal t (S n) x r v (p :: ps)
+Mval t (S n) x r v (p' :: ps') <= Mval t (S n) x r v (p :: ps)
 
 and a proof of Bellman's principle can be constructed as follows:
 
@@ -237,28 +237,28 @@ and a proof of Bellman's principle can be constructed as follows:
 >     r' x' = reachableSpec1 x r y x' (x'ins x')
 >     v' : (x' : State (S t)) -> So (viable {t = S t} n x')
 >     v' x' = Mspec2 (step t x y) (viable n) cy x' (x'ins x')
->     step1 : (x' : State (S t)) -> So (MVal (S t) n x' (r' x') (v' x') ps'
+>     step1 : (x' : State (S t)) -> So (Mval (S t) n x' (r' x') (v' x') ps'
 >                                   <=
->                                   MVal (S t) n x' (r' x') (v' x') ps)
+>                                   Mval (S t) n x' (r' x') (v' x') ps)
 >     step1 x' = ops ps' x' (r' x') (v' x')
 >     f : State (S t) -> Float
->     f x' = reward t x y x' + MVal (S t) n x' (r' x') (v' x') ps'
+>     f x' = reward t x y x' + Mval (S t) n x' (r' x') (v' x') ps'
 >     g : State (S t) -> Float
->     g x' = reward t x y x' + MVal (S t) n x' (r' x') (v' x') ps
+>     g x' = reward t x y x' + Mval (S t) n x' (r' x') (v' x') ps
 >     step2 : (x' : State (S t)) -> So (f x' <= g x')
 >     step2 x' = monotone_Float_plus_lte
->                -- {a1 = MVal (S t) n x' (r' x') (v' x') ps'}
->                -- {a2 = MVal (S t) n x' (r' x') (v' x') ps}
+>                -- {a1 = Mval (S t) n x' (r' x') (v' x') ps'}
+>                -- {a2 = Mval (S t) n x' (r' x') (v' x') ps}
 >                (reward t x y x')
 >                (step1 x')
 >     step3 : So (Mmeas (Mmap f (step t x y)) <= Mmeas (Mmap g (step t x y)))
 >     step3 = MmeasMon {t = S t} f g step2 (step t x y)
->     step4 : So (MVal t (S n) x r v (p' :: ps') <= MVal t (S n) x r v (p' :: ps))
+>     step4 : So (Mval t (S n) x r v (p' :: ps') <= Mval t (S n) x r v (p' :: ps))
 >     -- step4 = step3
->     -- the problem here is that f (g) and OptimalPolicies.MVal.f are
+>     -- the problem here is that f (g) and OptimalPolicies.Mval.f are
 >     -- different functions !
 >     step4 = believe_me Oh
->     step5 : So (MVal t (S n) x r v (p' :: ps) <= MVal t (S n) x r v (p :: ps))
+>     step5 : So (Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v (p :: ps))
 >     step5 = oep p' x r v
 
 Trying to define |f| and |g| in terms of the same global |val| function
@@ -277,9 +277,9 @@ Trying to define |f| and |g| in terms of the same global |val| function
 -- >     r' x' = reachability1 x r y x' (x'ins x')
 -- >     v' : (x' : State (S t)) -> So (viable n x')
 -- >     v' x' = Mspec2 (step t x y) (viable n) cy x' (x'ins x')
--- >     step1 : (x' : State (S t)) -> So (MVal (S t) n x' (r' x') (v' x') ps'
+-- >     step1 : (x' : State (S t)) -> So (Mval (S t) n x' (r' x') (v' x') ps'
 -- >                                   <=
--- >                                   MVal (S t) n x' (r' x') (v' x') ps)
+-- >                                   Mval (S t) n x' (r' x') (v' x') ps)
 -- >     step1 x' = ops ps' x' (r' x') (v' x')
 -- >     f : State (S t) -> Float
 -- >     f = val t n x r v p' ps'
@@ -289,12 +289,12 @@ Trying to define |f| and |g| in terms of the same global |val| function
 -- >     step2 x' = monotone_Float_plus_lte (reward t x y x') (step1 x')
 -- >     step3 : So (Mmeas (Mmap f (step t x y)) <= Mmeas (Mmap g (step t x y)))
 -- >     step3 = MmeasMon f g step2 (step t x y)
--- >     step4 : So (MVal t (S n) x r v (p' :: ps') <= MVal t (S n) x r v (p' :: ps))
+-- >     step4 : So (Mval t (S n) x r v (p' :: ps') <= Mval t (S n) x r v (p' :: ps))
 -- >     -- step4 = step3
--- >     -- the problem here is that f (g) and OptimalPolicies.MVal.f are
+-- >     -- the problem here is that f (g) and OptimalPolicies.Mval.f are
 -- >     -- different functions !
 -- >     step4 = believe_me Oh
--- >     step5 : So (MVal t (S n) x r v (p' :: ps) <= MVal t (S n) x r v (p :: ps))
+-- >     step5 : So (Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v (p :: ps))
 -- >     step5 = oep p' x r v
 
 
