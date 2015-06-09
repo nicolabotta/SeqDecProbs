@@ -50,22 +50,15 @@ in terms of
 
 These are:
 
-> succsSpec1  :  (x : State t) ->
->                (y : Ctrl t x) ->
->                So ((step t x y) `isIn` (succs x))
-> succsSpec2  :  (x : State t) ->
->                (mx' : M (State (S t))) ->
->                So (mx' `isIn` (succs x)) ->
->                (y : Ctrl t x ** mx' = step t x y)
+> succsSpec1  :  (x : State t) -> (y : Ctrl t x) -> So ((step t x y) `isIn` (succs x))
+> succsSpec2  :  (x : State t) -> (mx' : M (State (S t))) ->
+>                So (mx' `isIn` (succs x)) -> (y : Ctrl t x ** mx' = step t x y)
 
 If |succs| fulfill the above specifications a default definitions of
 |viable| can be given as follows:
 
-> -- Viability.viable : (n : Nat) -> State t -> Bool
-> Viability.viable Z _ = True
-> Viability.viable (S n) x = isAnyBy (\ mx => MareAllTrue (Mmap (viable n) mx)) (succs x)
-> -- Viability.viable {t = t} (S n) x =
->   -- isAnyBy (\ mx => MareAllTrue (Mmap (viable {t = S t} n) mx)) (succs x)
+> Viability.viable Z      _  =  True
+> Viability.viable (S n)  x  =  isAnyBy (\ mx => MareAllTrue (Mmap (viable n) mx)) (succs x)
 
 With the above definition we have:
 
