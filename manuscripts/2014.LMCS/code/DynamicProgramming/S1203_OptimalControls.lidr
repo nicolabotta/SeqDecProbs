@@ -32,8 +32,8 @@ The sum of the rewards obtained in |n| steps when starting in |x| is
 > val  :  (x : State t) -> (n : Nat) -> CtrlSeq x n -> Float
 > val      _   Z      _           =  0
 > val {t}  x   (S n)  (yv :: ys)  =  reward t x y x' + val x' n ys where
->   y   :  Ctrl t x;;      x'  :  State (S t)
->   y   =  outl yv;;       x'  =  step t x y
+>   y   :  Ctrl t x;;      y   =  outl yv
+>   x'  :  State (S t);;   x'  =  step t x y
 
 A sequence of |n| feasible controls is optimal when starting in |x| if no
 other sequence of feasible controls of the same length yield a better

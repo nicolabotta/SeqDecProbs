@@ -42,21 +42,15 @@
 
 ...
 
-> Val : (t : Nat) ->
->       (n : Nat) ->
->       (x : State t) -> 
->       (r : Reachable x) -> 
->       (v : Viable n x) -> 
->       PolicySeq t n -> 
->       Float
-> Val _ Z _ _ _ _ = 0
-> Val t (S n) x r v (p :: ps) = reward t x y x' + Val (S t) n x' r' v' ps where
->   y : Ctrl t x;;           x' : State (S t)
->   y = outl (p x r v);;  x' = step t x y
->   r' : Reachable {t = S t} x';
->   r' = reachableSpec1 x r y;
->   v' : Viable {t = S t} n x';
->   v' = outr(p x r v)
+> val  :  (t : Nat) -> (n : Nat) ->
+>         (x : State t) -> (r : Reachable x) -> (v : Viable n x) -> 
+>         PolicySeq t n -> Float
+> val _  Z      _ _ _ _          =  0
+> val t  (S n)  x r v (p :: ps)  =  reward t x y x' + val (S t) n x' r' v' ps where
+>   y   :  Ctrl t x;;       y   =  outl (p x r v)
+>   x'  :  State (S t);;    x'  =  step t x y
+>   r'  :  Reachable x';;   r'  =  reachableSpec1 x r y
+>   v'  :  Viable n x';;    v'  =  outr (p x r v)
 
 The notion of optimal sequence of policies
 
@@ -65,7 +59,7 @@ The notion of optimal sequence of policies
 >                       (x : State t) ->
 >                       (r : So (reachable x)) -> 
 >                       (v : So (viable n x)) -> 
->                       So (Val t n x r v ps' <= Val t n x r v ps)
+>                       So (val t n x r v ps' <= val t n x r v ps)
 
 (Sanity check: Nil is optimal policy sequence                             
 

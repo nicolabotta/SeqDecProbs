@@ -41,7 +41,7 @@ sequences of policies:
 >   (x : State t) ->
 >   (r : So (reachable x)) -> 
 >   (v : So (viable (S n) x)) -> 
->   So (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
+>   So (val t (S n) x r v (p' :: ps) <= val t (S n) x r v (p :: ps))
 
 
 Under the assumptions put forward in S1204_MaxArgmax.lidr, it is easy to
@@ -58,7 +58,7 @@ compute optimal extensions for arbitrary sequences of policies:
 >     yq : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 >     yq = argmax n x r v f where
 >       f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float  
->       f (y ** v') = reward t x y x' + Val (S t) n x' r' v' ps where
+>       f (y ** v') = reward t x y x' + val (S t) n x' r' v' ps where
 >         x' : State (S t)
 >         x' = step t x y
 >         r' : So (reachable {t = S t} x')
@@ -75,14 +75,14 @@ compute optimal extensions for arbitrary sequences of policies:
 To prove that |optExtension t n ps| is indeed an optimal extension of |ps|
 it is useful to recall:
 
-Val t (S n) x r v (p' :: ps) 
-  = {def. Val, 
+val t (S n) x r v (p' :: ps) 
+  = {def. val, 
      y  = outl (p' x r v)
      x' = step t x y
      r' = reachability1 x r y
      v' = outr (p' x r v)
     }
-reward t x y x' + Val (S t) n x' r' v' ps
+reward t x y x' + val (S t) n x' r' v' ps
   = {def. f}
 f (p' x r v)
   <= {MaxSpec}
@@ -97,9 +97,9 @@ f ((optExtension t n ps) x r v)
      or' = reachability1 x r oy,
      ov' = outr (optExtension t n ps x r v)
     }
-reward t x oy ox' + Val (S t) n ox' or' ov' ps
-  = {def. Val}
-Val t (S n) x r v ((optExtension t n ps) :: ps)
+reward t x oy ox' + val (S t) n ox' or' ov' ps
+  = {def. val}
+val t (S n) x r v ((optExtension t n ps) :: ps)
 
 which can also be formulated as
 
@@ -120,15 +120,15 @@ f (p' x r v) <= f (optExtension t n ps x r v)
       or' = reachability1 x r oy,
       ov' = outr (optExtension t n ps x r v)  
      }
-reward t x y x' + Val (S t) n x' r' v' ps 
+reward t x y x' + val (S t) n x' r' v' ps 
 <= 
-reward t x oy ox' + Val (S t) n ox' or' ov' ps
-  => {def. Val}
-Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
+reward t x oy ox' + val (S t) n ox' or' ov' ps
+  => {def. val}
+val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 
 > OptExtensionLemma t n ps p' x r v = step6 where
 >   f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float  
->   f (y ** v') = reward t x y x' + Val (S t) n x' r' v' ps where
+>   f (y ** v') = reward t x y x' + val (S t) n x' r' v' ps where
 >     x' : State (S t)
 >     x' = step t x y
 >     r' : So (reachable {t = S t} x')
@@ -171,7 +171,7 @@ Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
 >   step1234 = depPairId (p' x r v)
 
 >   step122 : f (p' x r v) = reward t x y1 x1' + 
->                            Val (S t) n x1' r1' v1' ps
+>                            val (S t) n x1' r1' v1' ps
 >   step122 = cong {f = f} step1234 
 >   
 >   step120 : optExtension t n ps x r v =
@@ -181,79 +181,76 @@ Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v ((optExtension t n ps) :: ps)
 >               oy ov'
 >   step120 = depPairId (optExtension t n ps x r v)
 >   step121 : f (optExtension t n ps x r v) =
->             reward t x oy ox' + Val (S t) n ox' or' ov' ps
+>             reward t x oy ox' + val (S t) n ox' or' ov' ps
 >   step121 = cong {f = f} step120
 >   step6a  : So (f (p' x r v) <= 
->               reward t x oy ox' + Val (S t) n ox' or' ov' ps)
+>               reward t x oy ox' + val (S t) n ox' or' ov' ps)
 >   step6a  = leibniz
 >               (\ fresh_var =>
 >                   So (f (p' x r v) <= fresh_var))
 >               step121 step5
->   step6 : So (reward t x y1 x1' + Val (S t) n x1' r1' v1' ps 
+>   step6 : So (reward t x y1 x1' + val (S t) n x1' r1' v1' ps 
 >               <= 
->               reward t x oy ox' + Val (S t) n ox' or' ov' ps
+>               reward t x oy ox' + val (S t) n ox' or' ov' ps
 >              )
 >   step6 = leibniz 
 >             (\ fresh_var =>
 >                  So (fresh_var <= 
->                  reward t x oy ox' + Val (S t) n ox' or' ov' ps))
+>                  reward t x oy ox' + val (S t) n ox' or' ov' ps))
 >             step122 step6a
 > {-
->   step7 : So (Val t (S n) x r v (p' :: ps) 
+>   step7 : So (val t (S n) x r v (p' :: ps) 
 >               <= 
->               Val t (S n) x r v ((optExtension t n ps) :: ps)
+>               val t (S n) x r v ((optExtension t n ps) :: ps)
 >              )
->   step7 = step6 -- def. of Val
+>   step7 = step6 -- def. of val
 > -}
 
 Now Bellman's principle of optimality states that optimal policy
 sequences  extended with optimal extensions are themselves optimal:
 
-> Bellman  :  (t : Nat) ->
->             (n : Nat) ->
->             (ps : PolicySeq (S t) n) ->
->             OptPolicySeq (S t) n ps ->
->             (p : Policy t (S n)) ->
->             OptExtension t n ps p ->
+> Bellman  :  (t : Nat) -> (n : Nat) ->
+>             (ps : PolicySeq (S t) n) -> OptPolicySeq (S t) n ps ->
+>             (p : Policy t (S n)) -> OptExtension t n ps p ->
 >             OptPolicySeq t (S n) (p :: ps)
 
 The principle can be easily proved. One has
 
-Val t (S n) x r v (p' :: ps')
-  = {def. of Val, 
+val t (S n) x r v (p' :: ps')
+  = {def. of val, 
      y  = outl (p' x r v),
      x' = step t x y,
      r' = reachability1 x r y,
      v' = outr (p' x r v), 
      x' = step x (p' x)
     }  
-reward t x y x' + Val (S t) n x' r' v' ps'
+reward t x y x' + val (S t) n x' r' v' ps'
   <= {OptPolicySeq (S t) n ps, 
       monotonicity of +
      }
-reward t x y x' + Val (S t) n x' r' v' ps
-  = {def. of Val}  
-Val t (S n) x r v (p' :: ps)
+reward t x y x' + val (S t) n x' r' v' ps
+  = {def. of val}  
+val t (S n) x r v (p' :: ps)
   <= {OptExtension t n ps p}
-Val t (S n) x r v (p :: ps) 
+val t (S n) x r v (p :: ps) 
 
 or, equivalently:
 
-Val t (S n) x r v (p' :: ps')
-  <= {def. of Val, 
+val t (S n) x r v (p' :: ps')
+  <= {def. of val, 
       OptPolicySeq ps, 
       monotonicity of +}
-Val t (S n) x r v (p' :: ps)
+val t (S n) x r v (p' :: ps)
 
   and
   
-Val t (S n) x r v (p' :: ps)
+val t (S n) x r v (p' :: ps)
   <= {OptExtension t n ps p}
-Val t (S n) x r v (p :: ps) 
+val t (S n) x r v (p :: ps) 
 
   -> {transitivity of <=}
   
-Val t (S n) x r v (p' :: ps') <= Val t (S n) x r v (p :: ps) 
+val t (S n) x r v (p' :: ps') <= val t (S n) x r v (p :: ps) 
 
 and a proof of Bellman's principle can be constructed as follows:
 
@@ -263,19 +260,15 @@ and a proof of Bellman's principle can be constructed as follows:
 >     opps Nil x r v impossible
 >     opps (p' :: ps') x r v =
 >       transitive_Float_lte step2 step3 where
->         y      :  Ctrl t x
->         y      =  outl (p' x r v)
->         x'     :  State (S t)
->         x'     =  step t x y 
->         r'     :  Reachable x'
->         r'     =  reachableSpec1 x r y
->         v'     :  Viable n x'
->         v'     =  outr (p' x r v)
->         step1  :  So (Val (S t) n x' r' v' ps' <= Val (S t) n x' r' v' ps)
+>         y      :  Ctrl t x;;      y   =  outl (p' x r v)
+>         x'     :  State (S t);;   x'  =  step t x y 
+>         r'     :  Reachable x';;  r'  =  reachableSpec1 x r y
+>         v'     :  Viable n x';;   v'  =  outr (p' x r v)
+>         step1  :  So (val (S t) n x' r' v' ps' <= val (S t) n x' r' v' ps)
 >         step1  =  ops ps' x' r' v'        
->         step2  :  So (Val t (S n) x r v (p' :: ps') <= Val t (S n) x r v (p' :: ps))
+>         step2  :  So (val t (S n) x r v (p' :: ps') <= val t (S n) x r v (p' :: ps))
 >         step2  =  monotone_Float_plus_lte (reward t x y x') step1
->         step3  :  So (Val t (S n) x r v (p' :: ps) <= Val t (S n) x r v (p :: ps))
+>         step3  :  So (val t (S n) x r v (p' :: ps) <= val t (S n) x r v (p :: ps))
 >         step3  =  oep p' x r v
 
 Bellman's principle suggests that the problem of computing an optimal

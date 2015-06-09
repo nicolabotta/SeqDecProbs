@@ -14,12 +14,10 @@
 
 > Reachable x = So (reachable x)
 
-> reachableSpec0  :  (x : State Z)         -> Reachable x
-> reachableSpec1  :  (x : State t)         -> Reachable x ->
->                    (y : Ctrl t x)       -> Reachable (step t x y)
-> reachableSpec2  :  (x' : State (S t))    -> Reachable x' ->
->                    (x : State t ** (  Reachable x , 
->                                   (y : Ctrl t x ** x' = step t x y)))
+> reachableSpec0  :  (x : State Z) -> Reachable x
+> reachableSpec1  :  (x : State t) -> Reachable x -> (y : Ctrl t x) -> Reachable (step t x y)
+> reachableSpec2  :  (x' : State (S t)) -> Reachable x' ->
+>                    (x : State t ** (Reachable x , (y : Ctrl t x ** x' = step t x y)))
 
 > viable       :  (n : Nat) -> State t -> Bool
 
