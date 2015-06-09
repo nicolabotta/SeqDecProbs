@@ -1,0 +1,25 @@
+2015-06-09: First LMCS revision round.
+
+This is the outcome of the first revision round triggered by the LMCS
+reviews. What we have done so far is some renaming
+
+- |X| to |State|
+- |Y| to |Ctrl|, |YV| to |GoodCtrl|
+- |val|, |Val|, |MVal| to |value|, |val|, |Mval|
+- ...
+
+to comply with the reccomendations of Reviewer 1 and make sure that the
+code type checks under 0.9.18.1-git:84bca25. This will allow us to refer
+to this GitHub directory in the rebuttal and hopefully provide the
+Editor with an additional argument for accepting the revised manuscript.
+
+
+2015-06-08: "make" shoud work now.
+
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ idris --version
+0.9.18.1-git:84bca25
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ make
+find . -name '*.lidr' | xargs -n 1 idris -i .. -p contrib -p effects --check
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$
+
+

@@ -1,4 +1,4 @@
-2015-06-08: make shoud work now:
+2015-06-08: "make" shoud work now.
 
 nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ idris --version
 0.9.18.1-git:84bca25
