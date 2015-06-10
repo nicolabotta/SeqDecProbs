@@ -26,8 +26,14 @@ terms of:
 > Mret   :  alpha -> M alpha
 > Mbind  :  M alpha -> (alpha -> M beta) -> M beta
 
-Todo: write specifications for |Mret| and |Mbind|
+> functorSpec1  :  Mmap . id = id
+> functorSpec2  :  Mmap (f . g) = (Mmap f) . (Mmap g)
 
+> monadSpec1  :  (Mmap f) . Mret = Mret . f
+> monadSpec2  :  Mbind (Mret a) f = f a
+> monadSpec3  :  Mbind ma Mret = ma
+> monadSpec4  :  {f : a -> M b} -> {g : b -> M c} ->
+>                Mbind (Mbind ma f) g = Mbind ma (\ a => Mbind (f a) g)
 
 # A transition function:
 
