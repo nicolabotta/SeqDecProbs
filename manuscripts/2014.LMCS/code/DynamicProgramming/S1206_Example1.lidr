@@ -81,8 +81,8 @@ We implement the case outlined in Fig. 6 of "S1200":
 > Context.step t (Z   ** q) (Left ** aL) = (maxColumn ** Oh)
 > Context.step t (S n ** q) (Left ** aL) = (n ** believe_me Oh) -- trivial
 > Context.step t (n ** q) (Ahead ** aA) = (n ** q)
-> Context.step t (n ** q) (Right ** aR) = if n == maxColumn 
->                                         then (Z ** Oh) 
+> Context.step t (n ** q) (Right ** aR) = if n == maxColumn
+>                                         then (Z ** Oh)
 >                                         else (S n ** believe_me Oh)
 
 > -- reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Float
@@ -95,7 +95,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 # Reachability, viability:
 
 > -- eqeq : State t -> State t -> Bool
-> ReachabilityViabilityDefaults.eqeq {t = t} x x' = 
+> ReachabilityViabilityDefaults.eqeq {t = t} x x' =
 >   column {t} x == column {t} x'
 
 > -- eqeqSpec1 : (x : State t) -> So (eqeq x x)
@@ -103,13 +103,13 @@ We implement the case outlined in Fig. 6 of "S1200":
 
 > pred : State t -> State (S t) -> Bool
 > pred {t} x x' =
->   (admissible {t} x Left && 
+>   (admissible {t} x Left &&
 >    eqeq {t = S t} x' (step t x (Left ** believe_me (admissible {t} x Left))))
 >   ||
->   (admissible {t} x Ahead && 
+>   (admissible {t} x Ahead &&
 >    eqeq {t = S t} x' (step t x (Ahead ** believe_me (admissible {t} x Ahead))))
->   || 
->   (admissible {t} x Right && 
+>   ||
+>   (admissible {t} x Right &&
 >    eqeq {t = S t} x' (step t x (Right ** believe_me (admissible {t} x Right))))
 
 > -- succs : State t -> (n : Nat ** Vect (State (S t)) n)
@@ -147,7 +147,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 
 > viability : (n : Nat) -> (x : State t) -> So (viable {t} n x)
 > viability {t}    Z x = viableSpec0 {t} x
-> viability {t} (S n) k = step3 where  
+> viability {t} (S n) k = step3 where
 >   step0 : So (not (isEmpty (succs {t} k)))
 >   step0 = succsTh k
 >   step1 : (x' : State (S t) ** So (isIn {t = S t} x' (succs {t} k)))
@@ -174,7 +174,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 > eqeq Right _     = False
 
 > eqeqSpec1 : reflexive Action eqeq
-> eqeqSpec1 = believe_me Oh 
+> eqeqSpec1 = believe_me Oh
 
 > isIn : Action -> (n : Nat ** Vect n Action) -> Bool
 > isIn = VectExtensions1.isIn Action eqeq eqeqSpec1
@@ -187,34 +187,34 @@ We implement the case outlined in Fig. 6 of "S1200":
 >          So (isAnyBy p as)
 > lemma3 = VectExtensions1.lemma3 Action eqeq eqeqSpec1
 
-> admissiblesP : (x : State t) -> 
->                (v : So (viable {t} (S n) x)) -> 
+> admissiblesP : (x : State t) ->
+>                (v : So (viable {t} (S n) x)) ->
 >                (k : Nat ** Vect (S k) (Ctrl t x))
 > admissiblesP {t = t} {n = n} x v = filterTagP (admissible x) (outr s1) s6 where
 >   s1 : (n : Nat ** Vect n Action)
 >   s1 = (_ ** [Left, Right, Ahead])
 >   s2 : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
->   s2 = viableSpec1 {t} {n} x v 
+>   s2 = viableSpec1 {t} {n} x v
 >   -- removing |{t}| and |{n}| from the definition of |s2| makes the
 >   -- type checker eat-up the whole memory and stall
 >   s3 : Action
 >   s3 = outl (outl s2)
 >   s4 : So (s3 `isIn` s1)
->   s4 = believe_me Oh 
+>   s4 = believe_me Oh
 >   -- |Action| should be in |Enum| and |s1| should be set to |[toEnum 0
 >   -- ..]|. Then |s4| would follow from a lemma of the kind:
 >   -- (Enum alpha) => (a : alpha) -> So (a `isIn` toVect [toEnum 0 ..])
 >   s5 : So (admissible {t} x s3)
 >   s5 = outr (outl s2)
 >   s6 : So (isAnyBy (admissible {t} x) s1)
->   s6 = lemma3 s3 (admissible x) s1 s5 s4 
+>   s6 = lemma3 s3 (admissible x) s1 s5 s4
 
 > yfysP : (n : Nat) ->
->         (x : State t) -> 
+>         (x : State t) ->
 >         (v : So (viable {t} (S n) x)) ->
->         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) -> 
->         (k : Nat 
->          ** 
+>         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
+>         (k : Nat
+>          **
 >          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Float)
 >         )
 > yfysP {t} n x v f = fmapP (pair (id,f)) s5 where
@@ -240,19 +240,19 @@ We implement the case outlined in Fig. 6 of "S1200":
 >                                                -- granted by |maxP|
 
 
-> controls : (t : Nat) -> 
->            (n : Nat) -> 
->            (x : State t) -> 
->            (r : So (reachable {t} x)) -> 
+> controls : (t : Nat) ->
+>            (n : Nat) ->
+>            (x : State t) ->
+>            (r : So (reachable {t} x)) ->
 >            (v : So (viable {t} n x)) ->
->            PolicySeq t n -> 
+>            PolicySeq t n ->
 >            Vect n Action
 > controls _ Z _ _ _ _ = Nil
 > controls t (S n) x r v (p :: ps) =
 >   ((outl y) :: (controls (S t) n x' r' v' ps)) where
 >     yq : (a : Ctrl t x ** So (viable {t = S t} n (step t x a)))
 >     yq = p x r v
->     y : Ctrl t x    
+>     y : Ctrl t x
 >     y = outl yq
 >     x' : State (S t)
 >     x' = step t x y
@@ -282,7 +282,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 > v0 : So (viable {t = Z} nSteps x0)
 > v0 = viability {t = Z} nSteps x0
 
-> as : Vect nSteps Action 
+> as : Vect nSteps Action
 > as = controls Z nSteps x0 r0 v0 ps
 
 > main : IO ()
@@ -307,8 +307,3 @@ We implement the case outlined in Fig. 6 of "S1200":
 
 > main : IO ()
 > main = run computation
-
-
-
-
-
