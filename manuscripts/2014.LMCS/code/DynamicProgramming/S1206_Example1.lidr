@@ -1,6 +1,5 @@
 > module Main
 
-> import Control.Monad.Identity
 > import Data.So
 > import Data.Vect
 > import Effects
