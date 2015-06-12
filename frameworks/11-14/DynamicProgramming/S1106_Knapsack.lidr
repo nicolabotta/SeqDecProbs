@@ -1,5 +1,6 @@
 > module Main
 
+> import Data.So
 
 > import BoundedNat.Blt
 > import Vect.Ops
@@ -9,6 +10,7 @@
 > import DynamicProgramming.S1103_OptimalPolicies
 > import DynamicProgramming.S1104_MaxArgmax
 > import DynamicProgramming.S1105_BackwardsInduction
+
 
 > %default total
 
@@ -35,7 +37,7 @@
 > capacity : Float
 > capacity = 2.0
 
-> Context.X = ((load  : Float ** so (load <= capacity)), 
+> Context.X = ((load  : Float ** So (load <= capacity)), 
 >              Blt nItems
 >             )
 
@@ -55,13 +57,13 @@
 > admissible Take x = load x + weight (item x) <= capacity
 > admissible Drop x = True
           
-> Context.Y x = (a : Action ** so (admissible a x))
+> Context.Y x = (a : Action ** So (admissible a x))
 
 > max' : (x : X) -> (Y x -> Float) -> (Y x , Float)
 > max' x f with (admissible Take x)
->   | True  = max2' ((Take ** believe_me oh), f (Take ** believe_me oh)) 
->                   ((Drop ** oh), f (Drop ** oh))
->   | False = ((Drop ** oh), f (Drop ** oh))
+>   | True  = max2' ((Take ** believe_me Oh), f (Take ** believe_me Oh)) 
+>                   ((Drop ** Oh), f (Drop ** Oh))
+>   | False = ((Drop ** Oh), f (Drop ** Oh))
 
 > MaxArgmax.max x f = snd (max' x f)
 
@@ -72,13 +74,13 @@
 > MaxArgmax.argmaxSpec x f = believe_me True
 
 > partial
-> step' : (x : X) -> Y x -> so (toNat (item x) < lastItem) -> X
-> step' x (Take ** at) q = (x', incBlt {b = S lastItem} (snd x) (believe_me oh)) where
->   x' : (load : Float ** so (load <= capacity))
+> step' : (x : X) -> Y x -> So (Blt.toNat (item x) < lastItem) -> X
+> step' x (Take ** at) q = (x', incBlt {b = S lastItem} (snd x) (believe_me Oh)) where
+>   x' : (load : Float ** So (load <= capacity))
 >   x' = (load x + weight (item x) ** at)
-> step' x (Drop ** ad) q = (fst x, incBlt {b = S lastItem} (snd x) (believe_me oh))
+> step' x (Drop ** ad) q = (fst x, incBlt {b = S lastItem} (snd x) (believe_me Oh))
 
-> Context.step x y = step' x y (believe_me oh)
+> Context.step x y = step' x y (believe_me Oh)
 
 > Context.reward x (Take ** _) _ = value (item x)
 > Context.reward x (Drop ** _) _ = 0.0
@@ -101,7 +103,7 @@
 >   ((getWitness (p x)) :: (controls m (step x (p x)) ps))
 
 > x0 : X
-> x0 = ((0.0 ** oh), (Z ** oh))
+> x0 = ((0.0 ** Oh), (Z ** Oh))
 
 > as : Vect nItems Action
 > as = controls nItems x0 ps

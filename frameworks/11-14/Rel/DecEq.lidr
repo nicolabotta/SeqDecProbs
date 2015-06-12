@@ -1,6 +1,7 @@
 > module DecEq
 
-> -- import Logic.Ops
+
+> %default total
 
 
 > class DecEq alpha where

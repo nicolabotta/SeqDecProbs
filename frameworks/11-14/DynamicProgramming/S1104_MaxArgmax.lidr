@@ -1,7 +1,9 @@
 > module MaxArgmax
 
+> import Data.So
 
 > import DynamicProgramming.S1101_Context
+
 
 > %default total
 
@@ -26,12 +28,12 @@ which fulfill the specifications
 > MaxSpec = (x : X) ->
 >           (f : Y x -> Float) ->
 >           (y : Y x) ->
->           so (f y <= max x f)
+>           So (f y <= max x f)
 
 > ArgmaxSpec : Type
 > ArgmaxSpec = (x : X) ->
 >              (f : Y x -> Float) ->
->              so (f (argmax x f) == max x f)
+>              So (f (argmax x f) == max x f)
 
 Thas is, we assume to be able to define |maxSpec| and |argmaxSpec| of
 type |MaxSpec|, |ArgmaxSpec|, respectively:

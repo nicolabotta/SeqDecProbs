@@ -1,5 +1,7 @@
 > module Main
 
+> import Data.Vect
+
 > import Util.VectExtensions1
 
 -- test:
@@ -13,16 +15,16 @@
 > lnats : List Nat
 > lnats = [1..n]
 
-> vnats : Vect Nat n
+> vnats : Vect n Nat
 > vnats = fromList lnats
 
 > lmats : List Nat
 > lmats = [1..m]
 
-> vmats : Vect Nat m
+> vmats : Vect m Nat
 > vmats = fromList lmats
 
--- > fvmats : Vect Nat m
+-- > fvmats : Vect m Nat
 -- > fvmats = map f vmats where
 -- >   f : Nat -> Nat
 -- >   f i = getWitness (filterP (\ k => mod k i == O) nats (believe_me oh))
@@ -46,10 +48,10 @@
 > flmats : List Nat
 > flmats = map f lmats where
 >   f : Nat -> Nat
->   f i = g (reverseFilter'' (\ k => mod k i == O) lnats) where
+>   f i = g (reverseFilter'' (\ k => mod k i == Z) lnats) where
 >     g : List Nat -> Nat
->     g [] = O
->     g (n :: ns) = S O
+>     g [] = Z
+>     g (n :: ns) = S Z
 
 > main : IO ()
 > -- main = putStrLn (show (map cast fvmats))
