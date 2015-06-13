@@ -133,16 +133,16 @@ definitions of
 \begin{frame}[fragile]
 \frametitle{Why formalizing what?}
 %
-\begin{figure}[h]                                                                                                         
-  \includegraphics[scale=0.4]{schellnhuber.pdf}                                                                           
-\end{figure}                                                                                                              
-\begin{tabular}{p{0.9\textwidth}}                                                                                         
-``Die Rolle der Klimaforschung bleibt weiterhin, die Problemfakten auf                                                    
-den Tisch zu knallen und Optionen f\"ur geeignete L\"osungswege zu                                                        
-identifizieren.'' \\                                                                                                      
-\end{tabular}                                                                                                             
-                                                                                                                          
-\hfill H.-J. Schellnhuber in \emph{Frankfurter Allgemeine} from 2012-06-19 \\  
+\begin{figure}[h]
+  \includegraphics[scale=0.4]{schellnhuber.pdf}
+\end{figure}
+\begin{tabular}{p{0.9\textwidth}}
+``Die Rolle der Klimaforschung bleibt weiterhin, die Problemfakten auf
+den Tisch zu knallen und Optionen f\"ur geeignete L\"osungswege zu
+identifizieren.'' \\
+\end{tabular}
+
+\hfill H.-J. Schellnhuber in \emph{Frankfurter Allgemeine} from 2012-06-19 \\
 %
 \end{frame}
 
@@ -221,7 +221,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -250,7 +250,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -307,7 +307,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -340,7 +340,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -398,7 +398,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -431,7 +431,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -490,7 +490,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -523,7 +523,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -579,7 +579,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -612,7 +612,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -670,7 +670,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -703,7 +703,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -765,7 +765,7 @@ Further questions, goals
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -798,7 +798,7 @@ Further questions, goals
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -864,7 +864,7 @@ This intuition is a bit too simplistic \dots
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -897,7 +897,7 @@ This intuition is a bit too simplistic \dots
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -990,7 +990,7 @@ This intuition is a bit too simplistic \dots
     x = i * (l + o);
     midxs1.push(x + l/2);
     midys1.push(0);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -1023,7 +1023,7 @@ This intuition is a bit too simplistic \dots
     x = i * (l + o);
     midxs2.push(x + l/2);
     midys2.push(y+h);
-    if (i == 3) 
+    if (i == 3)
     {
       real a = (l+2*o)/3;
       for (int j = 1; j < 4; ++j)
@@ -1079,7 +1079,7 @@ A transition function
 
 \pause
 \vfill
-What are |M| and |S|? 
+What are |M| and |S|?
 
 \vfill
 \end{frame}
@@ -1392,7 +1392,7 @@ these notions
  \end{asy}
 \caption{\small Possible evolution starting from $b$ (left), states with
  limited viability (middle) and unreachable states (right). \label{figure:one}}
-\end{figure}  
+\end{figure}
 
 \vfill
 \end{frame}
@@ -1471,7 +1471,7 @@ some given state:
 > ReachableFrom : X t'' -> X t -> Type
 > ReachableFrom {t'' = Z}    {t} x'' x  =  (t = Z , x = x'')
 > ReachableFrom {t'' = S t'} {t} x'' x  =
->   Either  (t = S t' , x = x'') 
+>   Either  (t = S t' , x = x'')
 >           (x' : X t' ** (x' `ReachableFrom` x , x' `Pred` x''))
 
 where
@@ -1482,7 +1482,7 @@ where
 \vfill
 \textcolor{gray}{Proof of concept: show that}
 %include gray.lhs
-> reachableFromLemma  :  (x'' : X t'') -> (x : X t) -> 
+> reachableFromLemma  :  (x'' : X t'') -> (x : X t) ->
 >                        x'' `ReachableFrom` x -> t'' `GTE` t
 %include black.lhs
 
@@ -1525,8 +1525,8 @@ viability and avoidability decidable?
 For every type (predicate) |P : Type|, |Not P| is just a synonym for
 |P -> Void|:
 
-> Not : Type -> Type                                                                                                        
-> Not P = P -> Void 
+> Not : Type -> Type
+> Not P = P -> Void
 
 \pause
 \vfill
@@ -1552,9 +1552,9 @@ Thus, the question is under which conditions one can implement
 
 < decViable : (n : Nat) -> (x : X t) -> Decidable (Viable n x)
 
-> decAvoidableFrom  :  {t' : Nat} -> {t : Nat} -> 
+> decAvoidableFrom  :  {t' : Nat} -> {t : Nat} ->
 >                      (x' : X t') -> (x : X t) ->
->                      (r : x' `ReachableFrom` x) -> (n : Nat) -> 
+>                      (r : x' `ReachableFrom` x) -> (n : Nat) ->
 >                      Decidable (AvoidableFrom {t'} {t} x' x r n)
 
 \vfill
@@ -1568,7 +1568,7 @@ Thus, the question is under which conditions one can implement
 \vfill
 As one would expect, the conditions
 
-> fX : (t : Nat) -> Finite (X t) 
+> fX : (t : Nat) -> Finite (X t)
 
 > fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
 
@@ -1594,7 +1594,7 @@ The key lemma for implementing decision procedures for |Reachable|,
 |Viable| and |AvoidableFrom| is intuitively obvious
 
 > finiteDecidableLemma  :  {A : Type} ->
->                          {P : A -> Type} -> 
+>                          {P : A -> Type} ->
 >                          Finite A ->
 >                          ((a : A) -> Decidable (P a)) ->
 >                          Decidable (a : A ** P a)
@@ -1662,7 +1662,7 @@ decidability of |Reachable|:
 \frametitle{Decision procedures}
 
 \vfill
-Similarly, one implement (prove) decidability of |Viable|:
+Similarly, one can implement (prove) decidability of |Viable|:
 
 > decViable  :  {t : Nat} -> (n : Nat) -> (x : X t) ->
 >               Decidable (Viable n x)
@@ -1691,7 +1691,7 @@ complicated but conceptually equivalent.
 
 %% -------------------------------------------------------------------
 
-\begin{frame}                                                                                                             
+\begin{frame}
 \frametitle{Wrap-up}
 \vfill
 \begin{itemize}
@@ -1722,7 +1722,7 @@ complicated but conceptually equivalent.
 
 %% -------------------------------------------------------------------
 
-\begin{frame}                                                                                                             
+\begin{frame}
 \frametitle{Acknowledgments}
 \vfill
 Contributors:
@@ -1749,7 +1749,3 @@ The code shown in these slides:
 %% -------------------------------------------------------------------
 
 \end{document}
-
-
-
-
