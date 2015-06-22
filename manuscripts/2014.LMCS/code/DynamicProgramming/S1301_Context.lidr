@@ -23,17 +23,17 @@ terms of:
 > M : Type -> Type
 
 > Mmap   :  (alpha -> beta) -> M alpha -> M beta
-> Mret   :  alpha -> M alpha
-> Mbind  :  M alpha -> (alpha -> M beta) -> M beta
+> -- unused Mret   :  alpha -> M alpha
+> -- unused Mbind  :  M alpha -> (alpha -> M beta) -> M beta
 
-> functorSpec1  :  Mmap . id = id
-> functorSpec2  :  Mmap (f . g) = (Mmap f) . (Mmap g)
+> -- unused functorSpec1  :  Mmap . id = id
+> -- unused functorSpec2  :  Mmap (f . g) = (Mmap f) . (Mmap g)
 
-> monadSpec1  :  (Mmap f) . Mret = Mret . f
-> monadSpec2  :  Mbind (Mret a) f = f a
-> monadSpec3  :  Mbind ma Mret = ma
-> monadSpec4  :  {f : a -> M b} -> {g : b -> M c} ->
->                Mbind (Mbind ma f) g = Mbind ma (\ a => Mbind (f a) g)
+> -- unused monadSpec1  :  (Mmap f) . Mret = Mret . f
+> -- unused monadSpec2  :  Mbind (Mret a) f = f a
+> -- unused monadSpec3  :  Mbind ma Mret = ma
+> -- unused monadSpec4  :  {f : a -> M b} -> {g : b -> M c} ->
+> --                       Mbind (Mbind ma f) g = Mbind ma (\ a => Mbind (f a) g)
 
 # A transition function:
 
@@ -56,13 +56,13 @@ state is contained in |M|-structure (on states):
 
 > MareAllTrue : M Bool -> Bool
 
-> Mspec1  :  (b : Bool) -> So (MareAllTrue (Mret b) == b)
+> -- unused Mspec1  :  (b : Bool) -> So (MareAllTrue (Mret b) == b)
 > Mspec2  :  (mx : M alpha) -> (p : alpha -> Bool) ->
 >            So (MareAllTrue (Mmap p mx)) ->
 >            (x : alpha) -> So (x `MisIn` mx) -> So (p x)
 
 > toSub      :  (ma : M alpha) -> M (a : alpha ** So (a `MisIn` ma))
-> toSubSpec  :  (ma : M alpha) -> Mmap outl (toSub ma) = ma
+> -- unused toSubSpec  :  (ma : M alpha) -> Mmap outl (toSub ma) = ma
 
 > Mmeas     :  M Float -> Float
 > MmeasMon  :  (f : State t -> Float) -> (g : State t -> Float) ->
