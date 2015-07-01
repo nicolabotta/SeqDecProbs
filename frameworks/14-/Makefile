@@ -1,8 +1,15 @@
-example:
-	idris -p contrib -p effects SeqDecProbMonadicSmallTheoryExample2.lidr -o example
+IDRIS = idris
+IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects
+
+all:
+	find . -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check
+
+example: SeqDecProbMonadicSmallTheoryExample2.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryExample2.lidr -o example
 
 run: example
 	echo "3\n1" | ./example
 
-all:
-	find . -name '*.lidr' | xargs -n 1 idris -p contrib -p effects --check
+clean:
+	-rm example
+	-find . -name '*.ibc' -delete

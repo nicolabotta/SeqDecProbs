@@ -1,5 +1,6 @@
 > module Main
 
+> import Decidable.Order
 
 > import Data.Fin
 > import Data.Vect
@@ -87,7 +88,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 2
+> maxColumnO2 = 10
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
@@ -102,6 +103,13 @@ is the identity monad:
 
 > column : X t -> Nat
 > column = outl
+
+> data Pos = L | R
+
+> pos : (t : Nat) -> X t -> Pos
+> pos t x with (decLTE (column {t} x) maxColumnO2)
+>   | (Yes _) = L
+>   | (No  _) = R
 
 > SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fX t = finiteLTB _
 
@@ -155,6 +163,7 @@ is the identity monad:
 
 *** Admissibility:
 
+> {-
 > admissible : .(t : Nat) -> X t -> Action -> Bool
 > admissible t x Ahead = column {t} x == Z || column {t} x == maxColumn
 > admissible t x Left  = column {t} x <= maxColumnO2
@@ -162,6 +171,30 @@ is the identity monad:
 
 > Admissible : .(t : Nat) -> X t -> Action -> Type
 > Admissible t x a = So (admissible t x a)
+> -}
+
+> Admissible : (t : Nat) -> X t -> Action -> Type
+> Admissible t x Ahead with (decEq (column {t} x) Z)
+>   | (Yes _) = Unit
+>   | (No  _) with (decEq (column {t} x) maxColumn)
+>     | (Yes _) = Unit
+>     | (No  _) = Void
+> Admissible t x Left with (pos t x) 
+>   | L = Unit
+>   | R = Void
+> Admissible t x Right with (pos t x) 
+>   | L = Void
+>   | R = Unit
+
+> admissibleLemma : (t : Nat) -> (x : X t) -> Either (Admissible t x Left) (Admissible t x Right)
+> admissibleLemma t x with (pos t x) 
+>   | L = Left ()
+>   | R = Right ()
+
+> existsAdmissible : (t : Nat) -> (x : X t) -> Sigma Action (Admissible t x)
+> existsAdmissible t x with (admissibleLemma t x)
+>   | (Left al)  = MkSigma Left al
+>   | (Right ar) = MkSigma Right ar
 
 If starting in the middle (with x = maxColumnO2) there is a genuine
 choice between Left and Right. For Z < x < maxColumnO2 only Left is
@@ -174,11 +207,41 @@ for each step.
 
 *** Admissible is decidable and unique:
 
+> {-
 > d1Admissible : .(t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
 > d1Admissible t x = dec1So {A = Action} (admissible t x)
 
 > u1Admissible : .(t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
 > u1Admissible t x = unique1So {A = Action} (admissible t x)
+> -}
+
+> d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
+> d1Admissible t x Ahead with (decEq (column {t} x) Z)
+>   | (Yes _) = Yes ()
+>   | (No  _) with (decEq (column {t} x) maxColumn)
+>     | (Yes _) = Yes ()
+>     | (No  _) = No void 
+> d1Admissible t x Left with (pos t x) 
+>   | L = Yes ()
+>   | R = No void
+> d1Admissible t x Right with (pos t x) 
+>   | L = No void
+>   | R = Yes ()
+
+> u1Admissible : (t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
+> u1Admissible t x Ahead p q with (decEq (column {t} x) Z)
+>   u1Admissible t x Ahead () () | (Yes _) = Refl
+>   u1Admissible t x Ahead p q   | (No  _) with (decEq (column {t} x) maxColumn)
+>     u1Admissible t x Ahead () ()   | (No  _) | (Yes _) = Refl
+>     u1Admissible t x Ahead p q     | (No  _) | (No  _) = void p
+> u1Admissible t x Left p q with (pos t x) 
+>   u1Admissible t x Left () () | L = Refl
+>   u1Admissible t x Left p q   | R = void p
+> u1Admissible t x Right p q with (pos t x) 
+>   u1Admissible t x Right p q   | L = void p
+>   u1Admissible t x Right () () | R = Refl
+
+
 
 *** Controls proper:
 
@@ -191,14 +254,10 @@ for each step.
 
 *** Controls are not empty:
 
-> %assert_total
-> nefY : .(t : Nat) -> .(x : X t) -> NonEmpty (fY t x)
-> nefY t (Z               ** prf) = nonEmptyLemma (fY t (Z               ** prf)) (Ahead ** Oh)
-> nefY t (S Z             ** prf) = nonEmptyLemma (fY t (S Z             ** prf)) (Left  ** Oh)
-> nefY t (S (S Z)         ** prf) = nonEmptyLemma (fY t (S (S Z)         ** prf)) (Left  ** Oh)
-> nefY t (S (S (S Z))     ** prf) = nonEmptyLemma (fY t (S (S (S Z))     ** prf)) (Right ** Oh)
-> nefY t (S (S (S (S Z))) ** prf) = nonEmptyLemma (fY t (S (S (S (S Z))) ** prf)) (Ahead ** Oh)
-> -- nefY t (S (S (S (S (S Z)))) ** prf) = -- suitable proof using that LTE 6 5 is uninhabited
+> nefY : (t : Nat) -> (x : X t) -> NonEmpty (fY t x)
+> nefY t x = nonEmptyLemma (fY t x) (existsAdmissible t x)
+
+
 
 ** Transition function:
 

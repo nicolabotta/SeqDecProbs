@@ -27,6 +27,9 @@
 
 > ---}
 
+> -- eitherLemma : (m : Nat) -> (n : Nat) -> Either (m = n) (Either (m `LT` n) (n `LT` m))
+> -- eitherLemma Z  Z    = Left Refl
+
 
 EQ properties
 
@@ -236,6 +239,13 @@ Decidability
 > ||| LTE is decidable
 > decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)
 > decLTE = lte
+> {-
+> decLTE Z _     = Yes LTEZero
+> decLTE (S m) Z = No succNotLTEzero 
+> decLTE (S m) (S n) with (decLTE m n)
+>   | (Yes p) = Yes (LTESucc p)
+>   | (No contra) = No (\ p => contra (fromLteSucc p))
+> -}
 
 
 > ||| LT is decidable

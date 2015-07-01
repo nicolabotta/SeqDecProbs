@@ -23,8 +23,8 @@ terms of:
 > M : Type -> Type
 
 > Mmap   :  (alpha -> beta) -> M alpha -> M beta
-> -- unused Mret   :  alpha -> M alpha
-> -- unused Mbind  :  M alpha -> (alpha -> M beta) -> M beta
+> Mret   :  alpha -> M alpha
+> Mbind  :  M alpha -> (alpha -> M beta) -> M beta
 
 > -- unused functorSpec1  :  Mmap . id = id
 > -- unused functorSpec2  :  Mmap (f . g) = (Mmap f) . (Mmap g)

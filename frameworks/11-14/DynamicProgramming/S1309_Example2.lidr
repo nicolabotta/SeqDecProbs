@@ -58,7 +58,7 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 # The context:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 2
+> maxColumnO2 = 10
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
@@ -408,33 +408,6 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 
 
 # The computation:
-
-> {-
-
-> nSteps : Nat
-> nSteps = 4
-           
-> x0 : X Z
-> x0 = (2 ** Oh)
-
-> r0 : So (reachable {t = Z} x0)
-> r0 = Oh
-
-> v0 : So (viable {t = Z} nSteps x0)
-> v0 = viability Z nSteps x0
-
-> as : Vect nSteps Action 
-> as = controls Z nSteps x0 r0 v0 ps
-
-
-> ps : PolicySeq Z nSteps
-> -- ps = backwardsInduction Z nSteps
-> ps = tabulatedBackwardsInduction Z nSteps
-
-> main : IO ()
-> main = putStrLn (show (toList as))
-
-> -}   
 
 > computation : { [STDIO] } Eff ()
 > computation =

@@ -1,6 +1,20 @@
-all:
-	find . -name '*.lidr' | xargs -n 1 idris +RTS -K32000000 -RTS -i .. -p contrib -p effects --check
+IDRIS = idris
+IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects
 
-examples:
-	idris +RTS -K32000000 -RTS -p contrib -p effects DynamicProgramming/S1106_Knapsack.lidr -o S1206_Knapsack.exe
-	idris +RTS -K32000000 -RTS -p contrib -p effects DynamicProgramming/S1309_Example2.lidr -o S1309_Example2.exe
+all:
+	find . -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} -i .. --check
+
+example: DynamicProgramming/S1309_Example2.lidr
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1309_Example2.lidr -o example
+
+run: example
+	echo "3\n1" | ./example
+
+examples: DynamicProgramming/S1106_Knapsack.lidr \
+          DynamicProgramming/S1206_Example2.lidr
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1106_Knapsack.lidr -o S1106_Knapsack.exe
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_Example2.lidr -o S1206_Example2.exe
+
+clean:
+	-rm example S1106_Knapsack.exe S1206_Example2.exe 
+	-find . -name '*.ibc' -delete
