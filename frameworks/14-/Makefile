@@ -7,6 +7,9 @@ all:
 example: SeqDecProbMonadicSmallTheoryExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryExample2.lidr -o example
 
+profexample: SeqDecProbMonadicSmallTheoryExample2.lidr
+	IDRIS_CFLAGS="-pg" ${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryExample2.lidr -o profexample
+
 run: example
 	echo "3\n1" | ./example
 

@@ -7,6 +7,9 @@ all:
 example: DynamicProgramming/S1309_Example2.lidr
 	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1309_Example2.lidr -o example
 
+profexample: DynamicProgramming/S1309_Example2.lidr
+	IDRIS_CFLAGS="-pg" ${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1309_Example2.lidr -o profexample
+
 run: example
 	echo "3\n1" | ./example
 

@@ -58,7 +58,7 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 # The context:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 10
+> maxColumnO2 = 5
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2

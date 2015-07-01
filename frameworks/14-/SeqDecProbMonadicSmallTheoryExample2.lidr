@@ -88,7 +88,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 10
+> maxColumnO2 = 5
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
