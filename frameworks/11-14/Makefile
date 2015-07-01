@@ -13,6 +13,10 @@ profexample: DynamicProgramming/S1309_Example2.lidr
 run: example
 	echo "3\n1" | ./example
 
+profile: profexample
+	echo "3\n1" | ./profexample
+	gprof profexample gmon.out > profile.txt
+
 examples: DynamicProgramming/S1106_Knapsack.lidr \
           DynamicProgramming/S1206_Example2.lidr
 	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1106_Knapsack.lidr -o S1106_Knapsack.exe

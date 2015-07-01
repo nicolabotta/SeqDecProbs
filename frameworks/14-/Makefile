@@ -13,6 +13,10 @@ profexample: SeqDecProbMonadicSmallTheoryExample2.lidr
 run: example
 	echo "3\n1" | ./example
 
+profile: profexample
+	echo "3\n1" | ./profexample
+	gprof profexample gmon.out > profile.txt
+
 clean:
 	-rm example
 	-find . -name '*.ibc' -delete
