@@ -12,7 +12,7 @@
 > import Effect.StdIO
 > import Syntax.PreorderReasoning
 
-> import SeqDecProbMonadicSmallTheory
+> import SeqDecProbMonadicSmallTheoryRV
 > import IdentityOperations
 > import IdentityProperties
 > import BoundedNat
@@ -56,32 +56,34 @@ is the identity monad:
 
 ** M is a monad:
 
-> SeqDecProbMonadicSmallTheory.M = Identity
+> SeqDecProbMonadicSmallTheoryRV.M = Identity
 
-> SeqDecProbMonadicSmallTheory.fmap = map
+> SeqDecProbMonadicSmallTheoryRV.fmap = map
 
-> SeqDecProbMonadicSmallTheory.ret = return
+> SeqDecProbMonadicSmallTheoryRV.ret = return
 
-> SeqDecProbMonadicSmallTheory.bind = (>>=)
+> SeqDecProbMonadicSmallTheoryRV.bind = (>>=)
 
 
 ** M is a container monad:
 
-> SeqDecProbMonadicSmallTheory.Elem = IdentityOperations.Elem
+> SeqDecProbMonadicSmallTheoryRV.Elem = IdentityOperations.Elem
 
-> SeqDecProbMonadicSmallTheory.All P (Id a) = P a
+> -- SeqDecProbMonadicSmallTheoryRV.All P (Id a) = P a
+> -- SeqDecProbMonadicSmallTheoryRV.All P (Id a) = P (unwrap (Id a))
+> SeqDecProbMonadicSmallTheoryRV.All P = P . unwrap
 
-> SeqDecProbMonadicSmallTheory.tagElem = IdentityOperations.tagElem
+> SeqDecProbMonadicSmallTheoryRV.tagElem = IdentityOperations.tagElem
 
-> SeqDecProbMonadicSmallTheory.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
+> SeqDecProbMonadicSmallTheoryRV.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
 >   replace (sym a1eqa2) pa2
 
-> -- SeqDecProbMonadicSmallTheory.containerMonadSpec3 {ma = Id a} pa Refl = pa
+> -- SeqDecProbMonadicSmallTheoryRV.containerMonadSpec3 {ma = Id a} pa Refl = pa
 
 
 ** M is measurable:
 
-> SeqDecProbMonadicSmallTheory.meas (Id x) = x
+> SeqDecProbMonadicSmallTheoryRV.meas (Id x) = x
 
 
 
@@ -99,7 +101,7 @@ is the identity monad:
 
 ** States:
 
-> SeqDecProbMonadicSmallTheory.X t = LTB nColumns
+> SeqDecProbMonadicSmallTheoryRV.X t = LTB nColumns
 
 > column : X t -> Nat
 > column = outl
@@ -111,7 +113,7 @@ is the identity monad:
 >   | (Yes _) = L
 >   | (No  _) = R
 
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fX t = finiteLTB _
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.fX t = finiteLTB _
 
 
 ** Actions:
@@ -207,14 +209,6 @@ for each step.
 
 *** Admissible is decidable and unique:
 
-> {-
-> d1Admissible : .(t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
-> d1Admissible t x = dec1So {A = Action} (admissible t x)
-
-> u1Admissible : .(t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
-> u1Admissible t x = unique1So {A = Action} (admissible t x)
-> -}
-
 > d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
 > d1Admissible t x Ahead with (decEq (column {t} x) Z)
 >   | (Yes _) = Yes ()
@@ -245,12 +239,12 @@ for each step.
 
 *** Controls proper:
 
-> SeqDecProbMonadicSmallTheory.Y t x = SubType Action (Admissible t x) (u1Admissible t x)
+> SeqDecProbMonadicSmallTheoryRV.Y t x = SubType Action (Admissible t x) (u1Admissible t x)
 
 *** Controls are finite:
 
-> -- fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
+> fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
+> fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
 
 *** Controls are not empty:
 
@@ -261,13 +255,13 @@ for each step.
 
 ** Transition function:
 
-> SeqDecProbMonadicSmallTheory.step t (Z   ** prf) (Left  ** aL) =
+> SeqDecProbMonadicSmallTheoryRV.step t (Z   ** prf) (Left  ** aL) =
 >   Id (maxColumn ** ltIdS maxColumn)
-> SeqDecProbMonadicSmallTheory.step t (S n ** prf) (Left  ** aL) =
+> SeqDecProbMonadicSmallTheoryRV.step t (S n ** prf) (Left  ** aL) =
 >   Id (n ** ltLemma1 n nColumns prf)
-> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Ahead ** aA) =
+> SeqDecProbMonadicSmallTheoryRV.step t (n   ** prf) (Ahead ** aA) =
 >   Id (n ** prf)
-> SeqDecProbMonadicSmallTheory.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn)
+> SeqDecProbMonadicSmallTheoryRV.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn)
 >   | (Yes p)     = Id (S n ** LTESucc p)
 >   | (No contra) = Id (Z   ** LTESucc LTEZero)
 
@@ -275,12 +269,43 @@ for each step.
 
 ** Reward function:
 
-> SeqDecProbMonadicSmallTheory.reward t x y x' =
+> SeqDecProbMonadicSmallTheoryRV.reward t x y x' =
 >   if column {t = S t} x' == Z
 >   then (S Z)
 >   else if S (column {t = S t} x') == nColumns
 >        then (S (S Z))
 >        else Z
+
+
+
+** Predecessor, Viable and Reachable
+
+> Pred : {t : Nat} -> X t -> X (S t) -> Prop
+> Pred {t} x x'  =  Exists (\ y => x' `SeqDecProbMonadicSmallTheoryRV.Elem` step t x y)
+
+> -- Viable : (n : Nat) -> X t -> Prop
+> SeqDecProbMonadicSmallTheoryRV.Viable {t}  Z    _  =  Unit
+> SeqDecProbMonadicSmallTheoryRV.Viable {t} (S m) x  =  Exists (\ y => All (Viable {t = S t} m) (step t x y))
+
+> -- viableSpec1 : (x : X t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
+> SeqDecProbMonadicSmallTheoryRV.viableSpec1 x v = v
+
+
+> -- Reachable : X t' -> Prop
+> SeqDecProbMonadicSmallTheoryRV.Reachable {t' =   Z} _   =  Unit
+> SeqDecProbMonadicSmallTheoryRV.Reachable {t' = S t} x'  = 
+>   Exists (\ x => (Reachable {t' = t} x, Pred {t = t} x x'))
+
+> -- reachableSpec1 : (x : X t) -> Reachable {t' = t} x -> (y : Y t x) -> All (Reachable {t' = S t}) (step t x y)
+> SeqDecProbMonadicSmallTheoryRV.reachableSpec1 {t} x r y = s2 where
+>   mx' : M (X (S t))
+>   mx' = step t x y 
+>   x'  : X (S t)
+>   x'  = unwrap mx'
+>   s1  : x' `SeqDecProbMonadicSmallTheoryRV.Elem` mx'
+>   s1  = unwrapElemLemma mx'
+>   s2  : Reachable {t' = S t} x'
+>   s2  = Evidence x (r , (Evidence y s1))
 
 
 
@@ -346,21 +371,13 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadicSmallTheory.max     {t} {n} x v  =
+> SeqDecProbMonadicSmallTheoryRV.max     {t} {n} x v  =
 >   Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
-> SeqDecProbMonadicSmallTheory.argmax  {t} {n} x v  =
+> SeqDecProbMonadicSmallTheoryRV.argmax  {t} {n} x v  =
 >   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
 
-
-* |Elem| and |All| are decidable:
-
-> -- dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dElem x (Id x') = decEqLTB x x'
-
-> -- dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
-> SeqDecProbMonadicSmallTheory.TabulatedBackwardsInduction.dAll P dP (Id x) = dP x
 
 
 
@@ -396,9 +413,9 @@ and |max|, |argmax|:
 >     av     :  All (Viable {t = S t} n) mx'
 >     av     =  getProof (p x r v)
 >     x'     :  X (S t)
->     x'     =  getWitness (unwrap (SeqDecProbMonadicSmallTheory.tagElem mx'))
->     x'emx' :  SeqDecProbMonadicSmallTheory.Elem x' (step t x y)
->     x'emx' =  getProof (unwrap (SeqDecProbMonadicSmallTheory.tagElem mx'))
+>     x'     =  getWitness (unwrap (SeqDecProbMonadicSmallTheoryRV.tagElem mx'))
+>     x'emx' :  SeqDecProbMonadicSmallTheoryRV.Elem x' (step t x y)
+>     x'emx' =  getProof (unwrap (SeqDecProbMonadicSmallTheoryRV.tagElem mx'))
 >     xpx'   :  Pred {t = t} x x'
 >     xpx'   =  Evidence y x'emx'
 >     r'     :  Reachable {t' = S t} x'

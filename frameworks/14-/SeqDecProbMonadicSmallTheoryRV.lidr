@@ -1,4 +1,4 @@
-> module SeqDecProbMonadicSmallTheory
+> module SeqDecProbMonadicSmallTheoryRV
 
 > import Data.Fin
 > import Data.Vect
@@ -103,17 +103,16 @@ For every SDP, we can build the following notions:
 
   Viability and reachability:
 
-> Pred : {t : Nat} -> X t -> X (S t) -> Prop
-> Pred {t} x x'  =  Exists (\ y => x' `Elem` step t x y)
-
 > Viable : (n : Nat) -> X t -> Prop
-> -- Viable {t}  n    x  =  Unit
-> Viable {t}  Z    _  =  Unit
-> Viable {t} (S m) x  =  Exists (\ y => All (Viable m) (step t x y))
+> -- unused viableSpec0 : (x : X t) -> Viable Z x
+> viableSpec1 : (x : X t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
+> -- unused viableSpec2 : (x : X t) -> Exists (\ y => All (Viable n) (step t x y)) -> Viable (S n) x
 
 > Reachable : X t' -> Prop
-> Reachable {t' =   Z} _   =  Unit
-> Reachable {t' = S t} x'  =  Exists (\ x => (Reachable x, x `Pred` x'))
+> -- unused reachableSpec0 : (x : X Z) -> Reachable x
+> reachableSpec1 : (x : X t) -> Reachable {t' = t} x -> (y : Y t x) -> All (Reachable {t' = S t}) (step t x y)
+> -- unused reachableSpec2 : (x' : X (S t)) -> Reachable x' -> 
+> --                         Exists (\ x => (Reachable x , Exists (\ y => x' `Elem` (step t x y)))) 
 
 
   Refined policies:
@@ -138,10 +137,10 @@ For every SDP, we can build the following notions:
 >         (ps : PolicySeq (S t) m) ->
 >         (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
 >   mkf {t} {m} x r v y av ps (x' ** x'estep) = reward t x y x' + val x' r' v' ps where
->     xpx' : x `Pred` x'
->     xpx' = Evidence y x'estep
+>     ar : All Reachable (step t x y)
+>     ar = reachableSpec1 x r y
 >     r' : Reachable x'
->     r' = Evidence x (r , xpx')
+>     r' = containerMonadSpec3 x' (step t x y) ar x'estep
 >     v' : Viable m x'
 >     v' = containerMonadSpec3 x' (step t x y) av x'estep
 
@@ -267,6 +266,7 @@ extensions for arbitrary policy sequences:
 >     g : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >     g = mkg x r v ps
 
+
 -- > optExtLemma : (ps : PolicySeq (S t) n) -> OptExt ps (optExt ps)
 -- > optExtLemma {t} {n} ps p' x r v = s2 where
 -- >   p     :  Policy t (S n)
@@ -354,13 +354,12 @@ possible future evolutions from a (viable) initial state:
 >       g = ((x ** y) ::)
 >       f : (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
 >       f (x' ** x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
->         xpx' : x `Pred` x'
->         xpx' = Evidence y x'estep
+>         ar : All Reachable (step t x y)
+>         ar = reachableSpec1 x r y
 >         r' : Reachable x'
->         r' = Evidence x (r , xpx')
+>         r' = containerMonadSpec3 x' (step t x y) ar x'estep
 >         v' : Viable m x'
->         v' = containerMonadSpec3 x' mx' av x'estep
-
+>         v' = containerMonadSpec3 x' (step t x y) av x'estep
 
 
 The major disadvantage of |bi|
@@ -457,38 +456,10 @@ vector
 >   rX : (t : Nat) -> Vect (cX t) (X t)
 >   rX t = toVect (fX t)
 
-If the control space is finite and |Elem| and |All| for the container
-monad |M| is decidable
-
->   fY : (t : Nat) -> (x : X t) -> Finite (Y t x)  -- Assumption
->   dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `Elem` mx)  -- Assumption
->   dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)  -- Assumption
-
-then |Pred| is decidable
-
->   dPred : {t : Nat} -> (x : X t) -> (x' : X (S t)) -> Dec (x `Pred` x')
->   dPred {t} x x' = finiteDecLemma (fY t x) d1Elem where
->     d1Elem : Dec1 (\ y => x' `Elem` (step t x y))
->     d1Elem y = dElem x' (step t x y)
-
-and |Reachable| and |Viable n| are also decidable
+If |Reachable| and |Viable n| are also decidable
 
 >   dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
->   dReachable {t' = Z}   x' = Yes ()
->   dReachable {t' = S t} x' = s1 where
->     s1 : Dec (Exists (\ x => (Reachable x, Pred x x')))
->     s1 = finiteDecLemma (fX t) (\x => decPair (dReachable x) (dPred x x'))
-
 >   dViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Dec (Viable n x)
->   -- dViable {t}  n    x = Yes ()
->   dViable {t}  Z    x = Yes ()
->   dViable {t} (S m) x = s3 where
->     s1    :  Dec1 (\ y => All (Viable m) (step t x y))
->     s1 y  =  dAll (Viable m) (dViable m) (step t x y)
->     s2    :  Dec (Exists {a = Y t x} (\ y => All (Viable m) (step t x y)))
->     s2    =  finiteDecLemma (fY t x) s1
->     s3    :  Dec (Viable (S m) x)
->     s3    =  s2
 
 then their conjunction
 
@@ -512,47 +483,6 @@ TODO: Check if we can use Subset to erase the ReachableViable component during c
 
 >   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (Subset (X t) (ReachableViable n))
 >   rRVX t n = getProof (crRVX t n)
-
-> {-
-
-and if |Reachable| and |Viable n| are finite
-
->   fReachable : (t : Nat) -> (x : X t) -> Finite (Reachable x)
->   fViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Viable {t} n x)
-
-then
-
->   ReachableAndViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Prop
->   ReachableAndViable t n x = (Reachable x , Viable {t} n x)
-
-is also finite
-
->   fReachableAndViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (ReachableAndViable t n x)
->   fReachableAndViable t n x = finitePair (fReachable t x) (fViable t n x)
-
-and, for a given |n : Nat|, the subset of reachable and |n|-viable
-states
-
->   RVX : (t : Nat) -> (n : Nat) -> Type
->   RVX t n = Sigma (X t) (ReachableAndViable t n)   -- perhaps replace Sigma with Subset
-
-is finite:
-
->   fRVX : (t : Nat) -> (n : Nat) -> Finite (RVX t n)
->   fRVX t n = finiteSigmaLemma0 (fX t) (fReachableAndViable t n)
-
-Moreover, one can compute a complete vector-based representation of |RVX t n|:
-
->   cRVX : (t : Nat) -> (n : Nat) -> Nat
->   cRVX t n = card (fRVX t n)
-
->   rRVX : (t : Nat) -> (n : Nat) -> Vect (cRVX t n) (RVX t n)
->   rRVX t n = toVect (fRVX t n)
-
->   rRVXcomplete : (t : Nat) -> (n : Nat) -> (s : RVX t n) -> Elem s (rRVX t n)
->   rRVXcomplete t n s = toVectComplete (fRVX t n) s
-
-> -}
 
 In this case one can implement a "tabulated" versions of |bi| which is
 linear in the number of steps. The starting point is an implementation
@@ -597,12 +527,12 @@ Nat|:
 >   mkf' {t} {n} x r v y av vt (x' ** x'estep) = reward t x y x' + index k vt where
 >     rvxs : Vect (cRVX (S t) n) (X (S t))
 >     rvxs = map getWitness (rRVX (S t) n)
->     xpx' : x `Pred` x'
->     xpx' = Evidence y x'estep
->     r'   : Reachable x'
->     r'   = Evidence x (r , xpx')
->     v'   : Viable {t = S t} n x'
->     v'   = containerMonadSpec3 x' (step t x y) av x'estep
+>     ar : All Reachable (step t x y)
+>     ar = reachableSpec1 x r y
+>     r' : Reachable x'
+>     r' = containerMonadSpec3 x' (step t x y) ar x'estep
+>     v' : Viable n x'
+>     v' = containerMonadSpec3 x' (step t x y) av x'estep
 >     k    : Fin (cRVX (S t) n)
 >     k    = lookup x' rvxs prf' where
 >       dRV : Dec1 (ReachableViable n)
@@ -716,3 +646,5 @@ of |trbi|:
 > tabtrbi t n = tabibi t n n (reflexiveLTE n) zps (zeroVec _) where
 >   zps : PolicySeq (n + t) (n - n)
 >   zps = replace {P = \ z => PolicySeq (n + t) z} (minusZeroN n) Nil
+
+> ---}

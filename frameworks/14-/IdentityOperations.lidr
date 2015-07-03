@@ -7,6 +7,12 @@
 > %default total
 
 
+> |||
+> unwrap : Identity a -> a
+> unwrap (Id x) = x
+
+
+
 |Identity| is a container monad:
 
 > ||| Membership
@@ -17,3 +23,7 @@
 > ||| Tagging
 > tagElem  :  {A : Type} -> (ma : Identity A) -> Identity (a : A ** a `Elem` ma)
 > tagElem (Id a) = Id (a ** Refl)
+
+
+> unwrapElemLemma : (ma : Identity a) -> Elem (unwrap ma) ma
+> unwrapElemLemma (Id a) = Refl
