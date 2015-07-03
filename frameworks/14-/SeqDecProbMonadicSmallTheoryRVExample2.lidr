@@ -165,16 +165,6 @@ is the identity monad:
 
 *** Admissibility:
 
-> {-
-> admissible : .(t : Nat) -> X t -> Action -> Bool
-> admissible t x Ahead = column {t} x == Z || column {t} x == maxColumn
-> admissible t x Left  = column {t} x <= maxColumnO2
-> admissible t x Right = column {t} x >= maxColumnO2
-
-> Admissible : .(t : Nat) -> X t -> Action -> Type
-> Admissible t x a = So (admissible t x a)
-> -}
-
 > Admissible : (t : Nat) -> X t -> Action -> Type
 > Admissible t x Ahead with (decEq (column {t} x) Z)
 >   | (Yes _) = Unit
@@ -278,18 +268,39 @@ for each step.
 
 
 
-** Predecessor, Viable and Reachable
+* Predecessor, Viable and Reachable
 
 > Pred : {t : Nat} -> X t -> X (S t) -> Prop
 > Pred {t} x x'  =  Exists (\ y => x' `SeqDecProbMonadicSmallTheoryRV.Elem` step t x y)
 
 > -- Viable : (n : Nat) -> X t -> Prop
+> {-
 > SeqDecProbMonadicSmallTheoryRV.Viable {t}  Z    _  =  Unit
 > SeqDecProbMonadicSmallTheoryRV.Viable {t} (S m) x  =  Exists (\ y => All (Viable {t = S t} m) (step t x y))
+> ---}
+> --{-
+> SeqDecProbMonadicSmallTheoryRV.Viable {t}  n    _  =  Unit
+> ---}
 
 > -- viableSpec1 : (x : X t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
-> SeqDecProbMonadicSmallTheoryRV.viableSpec1 x v = v
-
+> {-
+> SeqDecProbMonadicSmallTheoryRV.viableSpec1 {t} x v = v
+> ---}
+> --{-
+> SeqDecProbMonadicSmallTheoryRV.viableSpec1 {t} {n} x _ = s3 where
+>   y : Y t x
+>   y = existsAdmissible t x
+>   mx' : M (X (S t))
+>   mx' = step t x y 
+>   x'  : X (S t)
+>   x'  = unwrap mx'
+>   s1  : Viable {t = S t} n x'
+>   s1  = ()
+>   s2  : All (Viable {t = S t} n) mx'
+>   s2  = s1
+>   s3  : Exists {a = Y t x} (\ y => All (Viable {t = S t} n) mx')
+>   s3  = Evidence y s2
+> ---}
 
 > -- Reachable : X t' -> Prop
 > SeqDecProbMonadicSmallTheoryRV.Reachable {t' =   Z} _   =  Unit
@@ -329,17 +340,30 @@ that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))| is finite and
 non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
 we have finiteness
 
-> fYAV : .(t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
+> fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
 >        Finite (Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 
 non-emptiness is straightforward:
 
-> neYAV : .(t : Nat) -> .(n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
+> neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
+> {- 
 > neYAV t n x (Evidence y v) =
 >   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
 >                 (fYAV t n x (Evidence y v))
 >                 (Element y v)
+> ---}
+> --{-
+> neYAV t n x v = 
+>   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>                 (fYAV t n x v) (Element y av) where
+>     yav : Exists {a = Y t x} (\ y => All (Viable {t = S t} n) (step t x y))
+>     yav = viableSpec1 {t = t} {n = n} x v            
+>     y   : Y t x
+>     y   = getWitness yav
+>     av  : All (Viable {t = S t} n) (step t x y)
+>     av  = getProof yav
+> ---}
 
 Thus, the problem is that of implementing |fYAV|. We already know that
 |Y t x| is finite. If we manage to show that for every |y|, |All (Viable
@@ -354,14 +378,18 @@ and
 
 > mutual
 
->   fViable : .(t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Viable {t} n x)
->   -- fViable t  n    x  = finiteSingleton
+>   fViable : (t : Nat) -> (n : Nat) -> (x : X t) -> Finite (Viable {t} n x)
+>   {-
 >   fViable t  Z    x  = finiteSingleton
 >   fViable t (S m) x  = s3 where
 >     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
 >     s3 = SubsetProperties.finiteExistsLemma (fY t x) (f1AllViable t m x)
+>   ---}
+>   --{
+>   fViable t  n    x  = finiteSingleton
+>   ---}
 
->   f1AllViable : .(t : Nat) -> (n : Nat) -> (x : X t) ->
+>   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
 >                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
 >   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (fViable (S t) n) (step t x y)
 
@@ -372,12 +400,54 @@ With |f1AllViable| we can finally implement |fYAV|
 and |max|, |argmax|:
 
 > SeqDecProbMonadicSmallTheoryRV.max     {t} {n} x v  =
->   Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
+>   Opt.max {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>           {B = Nat} 
+>           totalPreorderNatLTE 
+>           (fYAV t n x v) 
+>           (neYAV t n x v)
 
 > SeqDecProbMonadicSmallTheoryRV.argmax  {t} {n} x v  =
->   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
+>   Opt.argmax {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>              {B = Nat}
+>              totalPreorderNatLTE 
+>              (fYAV t n x v) 
+>              (neYAV t n x v)
 
 
+
+* Decidability of Viable and Reachable
+
+> dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `SeqDecProbMonadicSmallTheoryRV.Elem` mx)
+> dElem x (Id x') = decEqLTB x x'
+
+> dPred : {t : Nat} -> (x : X t) -> (x' : X (S t)) -> Dec (Pred {t = t} x x')
+> dPred {t} x x' = finiteDecLemma (fY t x) d1Elem where
+>   d1Elem : Dec1 (\ y => x' `SeqDecProbMonadicSmallTheoryRV.Elem` (step t x y))
+>   d1Elem y = dElem {t = S t} x' (step t x y)
+
+> -- dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dReachable {t' = Z}   x' = Yes ()
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dReachable {t' = S t} x' = s1 where
+>   s1 : Dec (Exists (\ x => (Reachable x, Pred x x')))
+>   s1 = finiteDecLemma (fX t) (\x => decPair (dReachable x) (dPred x x'))
+
+> dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
+> dAll P dP (Id x) = dP x
+
+> -- dViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Dec (Viable n x)
+> {-
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dViable {t}  Z    x = Yes ()
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dViable {t} (S m) x = s3 where
+>     s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
+>     s1 y  =  dAll {t = S t} (Viable {t = S t} m) (dViable {t = S t} m) (step t x y)
+>     s2    :  Dec (Exists (\ y => All (Viable {t = S t} m) (step t x y)))
+>     s2    =  finiteDecLemma (fY t x) s1
+>     s3    :  Dec (Viable {t = t} (S m) x)
+>     s3    =  s2
+> ---}
+> --{
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dViable {t}  n    x = Yes ()
+> ---}
 
 
 

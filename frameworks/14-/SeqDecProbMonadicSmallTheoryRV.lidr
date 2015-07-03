@@ -105,7 +105,7 @@ For every SDP, we can build the following notions:
 
 > Viable : (n : Nat) -> X t -> Prop
 > -- unused viableSpec0 : (x : X t) -> Viable Z x
-> viableSpec1 : (x : X t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
+> viableSpec1 : (x : X t) -> Viable (S n) x -> Exists {a = Y t x} (\ y => All (Viable n) (step t x y))
 > -- unused viableSpec2 : (x : X t) -> Exists (\ y => All (Viable n) (step t x y)) -> Viable (S n) x
 
 > Reachable : X t' -> Prop
@@ -223,12 +223,12 @@ The idea is that, if clients can implement max and argmax
 
 > max    : {t : Nat} -> {n : Nat} -> 
 >          (x : X t) -> 
->          .(Viable (S n) x) ->
+>          (Viable (S n) x) ->
 >          (f : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Nat
 > argmax : {t : Nat} -> {n : Nat} -> 
 >          (x : X t) -> 
->          .(Viable (S n) x) ->
+>          (Viable (S n) x) ->
 >          (f : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Subset (Y t x) (\ y => All (Viable n) (step t x y))
 

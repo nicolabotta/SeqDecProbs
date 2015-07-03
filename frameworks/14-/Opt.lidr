@@ -41,7 +41,7 @@
 > max : {A, B : Type} ->
 >       TotalPreorder B -> 
 >       (fA : Finite A) -> 
->       .(ne : NonEmpty fA) -> 
+>       (ne : NonEmpty fA) -> 
 >       (f : A -> B) -> B
 > max tp fA nefA f = snd (argmaxMax tp fA nefA f)
 
@@ -49,7 +49,7 @@
 > argmax : {A, B : Type} ->
 >          TotalPreorder B -> 
 >          (fA : Finite A) -> 
->          .(ne : NonEmpty fA) -> 
+>          (ne : NonEmpty fA) -> 
 >          (f : A -> B) -> A
 > argmax tp fA nefA f = fst (argmaxMax tp fA nefA f)
 

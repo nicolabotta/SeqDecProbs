@@ -4,8 +4,8 @@ IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects
 all:
 	find . -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check
 
-example: SeqDecProbMonadicSmallTheoryExample2.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryExample2.lidr -o example
+example: SeqDecProbMonadicSmallTheoryRVExample2.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryRVExample2.lidr -o example
 
 profexample: SeqDecProbMonadicSmallTheoryExample2.lidr
 	IDRIS_CFLAGS="-pg" ${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryExample2.lidr -o profexample
