@@ -7,6 +7,9 @@ all:
 example: DynamicProgramming/S1309_Example2.lidr
 	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1309_Example2.lidr -o example
 
+small_example: DynamicProgrammingSmall/S1309_Example2.lidr
+	${IDRIS} ${IDRISFLAGS} DynamicProgrammingSmall/S1309_Example2.lidr -o small_example
+
 profexample: DynamicProgramming/S1309_Example2.lidr
 	IDRIS_CFLAGS="-pg" ${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1309_Example2.lidr -o profexample
 
@@ -23,5 +26,8 @@ examples: DynamicProgramming/S1106_Knapsack.lidr \
 	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_Example2.lidr -o S1206_Example2.exe
 
 clean:
-	-rm example S1106_Knapsack.exe S1206_Example2.exe 
+	-rm example
+	-rm small_example
+	-rm S1106_Knapsack.exe
+	-rm S1206_Example2.exe
 	-find . -name '*.ibc' -delete

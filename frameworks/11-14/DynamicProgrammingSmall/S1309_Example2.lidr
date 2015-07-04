@@ -21,17 +21,17 @@
 > import EffectException
 > import EffectStdIO
 
-> import DynamicProgramming.S1301_Context
-> import DynamicProgramming.S1302_Reachability
-> import DynamicProgramming.S1302_Viability
-> import DynamicProgramming.S1302_Feasibility
-> import DynamicProgramming.S1303_Controls
-> import DynamicProgramming.S1303_OptimalPolicies
-> import DynamicProgramming.S1303_Trajectories
-> import DynamicProgramming.S1304_MaxArgmax
-> import DynamicProgramming.S1305_BackwardsInduction 
-> import DynamicProgramming.S1307_FiniteState
-> import DynamicProgramming.S1308_TabulatedBackwardsInduction
+> import DynamicProgrammingSmall.S1301_Context
+> import DynamicProgrammingSmall.S1302_Reachability
+> import DynamicProgrammingSmall.S1302_Viability
+> import DynamicProgrammingSmall.S1302_Feasibility
+> import DynamicProgrammingSmall.S1303_Controls
+> import DynamicProgrammingSmall.S1303_OptimalPolicies
+> import DynamicProgrammingSmall.S1303_Trajectories
+> import DynamicProgrammingSmall.S1304_MaxArgmax
+> import DynamicProgrammingSmall.S1305_BackwardsInduction 
+> import DynamicProgrammingSmall.S1307_FiniteState
+> import DynamicProgrammingSmall.S1308_TabulatedBackwardsInduction
 
 > %assert_total
 
@@ -58,7 +58,7 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 # The context:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 2
+> maxColumnO2 = 5
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
@@ -321,23 +321,6 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 > --          (y : Y t x ** So (feasible n x y))
 > MaxArgmax.argmax {t} n x r v f = fst (maxP (getProof (yfysP t n x v f)))
 
-> -- maxSpec : (n : Nat) -> 
-> --           (x : X t) ->
-> --           (r : So (reachable x)) -> 
-> --           (v : So (viable (S n) x)) ->
-> --           (f : (y : Y t x ** So (feasible n x y))-> Float) -> 
-> --           (yv : (y : Y t x ** So (feasible n x y))) ->
-> --           So (f yv <= max n x r v f)
-> MaxArgmax.maxSpec n x r v f yv = believe_me Oh -- ?
-
-> -- argmaxSpec : (n : Nat) -> 
-> --              (x : X t) ->
-> --              (r : So (reachable x)) -> 
-> --              (v : So (viable (S n) x)) ->
-> --              (f : (y : Y t x ** So (feasible n x y))-> Float) -> 
-> --              So (f (argmax n x r v f) == max n x r v f)
-> MaxArgmax.argmaxSpec n x r v f = believe_me Oh -- ?
-
 
 # Finite state
 
@@ -369,18 +352,6 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 >   -- v : So (viable n x)  
 >   -- v = believe_me Oh
 
-> -- IndexSpec : (n' : Nat) ->
-> --             (xrv : (x : X t ** (So (reachable x), So (viable n' x)))) -> 
-> --             xrv = xedni n' (index n' xrv)
-> FiniteState.IndexSpec n' xrv = believe_me Oh
-
-> -- XedniSpec : (n : Nat) ->
-> --             (i : Blt (nX t n)) -> 
-> --             i = index n (xedni n i)
-> FiniteState.XedniSpec n i =
->   let res : (i = index n (xedni n i)) = believe_me Oh in res
-
-  
 > controls : (t : Nat) -> 
 >            (n : Nat) -> 
 >            (x : X t) -> 
@@ -419,8 +390,8 @@ The difference in runtime is probably a result of some more handwaved proofs in 
 >      v0 <- pure (viable {t = Z} nSteps x0)
 >      case (r0 && v0) of
 >        True  => do putStr ("computing optimal policies ...\n")
->                    ps <- pure (backwardsInduction Z nSteps)
->                    -- ps <- pure (tabulatedBackwardsInduction Z nSteps)
+>                    -- ps <- pure (backwardsInduction Z nSteps)
+>                    ps <- pure (tabulatedBackwardsInduction Z nSteps)
 >                    putStr ("computing optimal controls ...\n")
 >                    as <- pure (controls Z nSteps x0 (believe_me Oh) (believe_me Oh) ps)
 >                    putStrLn (show as)
