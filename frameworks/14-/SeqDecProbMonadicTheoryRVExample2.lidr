@@ -91,6 +91,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
+> maxColumnO2 = 5
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
@@ -562,8 +563,6 @@ and |max|, |argmax|:
 >                       putStrLn (show as)
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
-
-> maxColumnO2 = 50
 
 > main : IO ()
 > main = run computation

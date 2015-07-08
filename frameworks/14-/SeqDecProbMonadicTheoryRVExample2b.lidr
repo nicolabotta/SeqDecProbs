@@ -563,7 +563,7 @@ and |max|, |argmax|:
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 
-> maxColumnO2 = 50
+> maxColumnO2 = 160
 
 > main : IO ()
 > main = run computation

@@ -10,6 +10,9 @@ example: SeqDecProbMonadicTheoryExample2.lidr
 rv_example: SeqDecProbMonadicTheoryRVExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample2.lidr -o rv_example
 
+rv_example_b: SeqDecProbMonadicTheoryRVExample2b.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample2b.lidr -o rv_example_b
+
 small_example: SeqDecProbMonadicSmallTheoryExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicSmallTheoryExample2.lidr -o small_example
 
