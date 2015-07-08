@@ -303,11 +303,28 @@ for each step.
 > ---}
 
 > -- Reachable : X t' -> Prop
+> {-
 > SeqDecProbMonadicSmallTheoryRV.Reachable {t' =   Z} _   =  Unit
 > SeqDecProbMonadicSmallTheoryRV.Reachable {t' = S t} x'  = 
 >   Exists (\ x => (Reachable {t' = t} x, Pred {t = t} x x'))
+> ---}
+> --{-
+> SeqDecProbMonadicSmallTheoryRV.Reachable {t' = Z}   _  =  Unit
+> SeqDecProbMonadicSmallTheoryRV.Reachable {t' = S t} x' with (pos (S t) x')
+>   | L with (decEq (column {t = (S t)} x') Z)
+>     | Yes _ = Unit
+>     | No  _ with (decLTE ((S t) + column {t = (S t)} x') maxColumnO2)
+>       | Yes _ = Unit
+>       | No  _ = Void
+>   | R with (decEq (column {t = (S t)} x') maxColumn)
+>     | Yes _ = Unit
+>     | No  _ with (decLTE ((S t) + maxColumnO2) (column {t = (S t)} x'))
+>       | Yes _ = Unit
+>       | No  _ = Void
+> ---}
 
 > -- reachableSpec1 : (x : X t) -> Reachable {t' = t} x -> (y : Y t x) -> All (Reachable {t' = S t}) (step t x y)
+> {-
 > SeqDecProbMonadicSmallTheoryRV.reachableSpec1 {t} x r y = s2 where
 >   mx' : M (X (S t))
 >   mx' = step t x y 
@@ -317,7 +334,10 @@ for each step.
 >   s1  = unwrapElemLemma mx'
 >   s2  : Reachable {t' = S t} x'
 >   s2  = Evidence x (r , (Evidence y s1))
-
+> ---}
+> --{-
+> SeqDecProbMonadicSmallTheoryRV.reachableSpec1 x r y = believe_me ()
+> ---}
 
 
 * Max and argmax
@@ -426,10 +446,26 @@ and |max|, |argmax|:
 >   d1Elem y = dElem {t = S t} x' (step t x y)
 
 > -- dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
+> {-
 > SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dReachable {t' = Z}   x' = Yes ()
 > SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dReachable {t' = S t} x' = s1 where
 >   s1 : Dec (Exists (\ x => (Reachable x, Pred x x')))
 >   s1 = finiteDecLemma (fX t) (\x => decPair (dReachable x) (dPred x x'))
+> ---}
+> --{-
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dReachable {t' = Z}   x' = Yes ()
+> SeqDecProbMonadicSmallTheoryRV.TabulatedBackwardsInduction.dReachable {t' = S t} x' with (pos (S t) x')
+>   | L with (decEq (column {t = (S t)} x') Z)
+>     | Yes _ = Yes ()
+>     | No  _ with (decLTE ((S t) + column {t = (S t)} x') maxColumnO2)
+>       | Yes _ = Yes ()
+>       | No  _ = No void
+>   | R with (decEq (column {t = (S t)} x') maxColumn)
+>     | Yes _ = Yes ()
+>     | No  _ with (decLTE ((S t) + maxColumnO2) (column {t = (S t)} x'))
+>       | Yes _ = Yes ()
+>       | No  _ = No void
+> ---}
 
 > dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
 > dAll P dP (Id x) = dP x
@@ -463,36 +499,6 @@ and |max|, |argmax|:
 > actions t (S n) (Id ((x ** y) :: xys))
 >   =
 >   (outl y) :: (actions (S t) n (Id xys))
-
-> controls : (t : Nat) -> 
->            (n : Nat) -> 
->            (x : X t) -> 
->            (r : Reachable {t' = t} x) -> 
->            (v : Viable {t = t} n x) ->
->            PolicySeq t n -> 
->            Vect n Action
-> controls _ Z _ _ _ _ = Nil
-> controls t (S n) x r v (p :: ps) =
->   ((outl y) :: (controls (S t) n x' r' v' ps)) where
->     yav    :  Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))
->     yav    =  p x r v
->     y      :  Y t x    
->     y      =  getWitness yav
->     mx'    :  M (X (S t))
->     mx'    =  step t x y
->     av     :  All (Viable {t = S t} n) mx'
->     av     =  getProof (p x r v)
->     x'     :  X (S t)
->     x'     =  getWitness (unwrap (SeqDecProbMonadicSmallTheoryRV.tagElem mx'))
->     x'emx' :  SeqDecProbMonadicSmallTheoryRV.Elem x' (step t x y)
->     x'emx' =  getProof (unwrap (SeqDecProbMonadicSmallTheoryRV.tagElem mx'))
->     xpx'   :  Pred {t = t} x x'
->     xpx'   =  Evidence y x'emx'
->     r'     :  Reachable {t' = S t} x'
->     r'     =  Evidence x (r , xpx')
->     v'     :  Viable {t = S t} n x'
->     v'     =  containerMonadSpec3 x' mx' av x'emx'
-
 
 > showState : X t -> String
 > showState {t} x = show (column {t} x)
@@ -543,11 +549,10 @@ and |max|, |argmax|:
 >                       -- ps   <- pure (bi Z nSteps)
 >                       -- ps   <- pure (fst (biT Z nSteps))
 >                       ps   <- pure (tabtrbi Z nSteps)
->                       firstControl Z nSteps x0 () v0 ps
+>                       -- firstControl Z nSteps x0 () v0 ps
 >                       putStr ("computing optimal controls ...\n")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       as   <- pure (actions Z nSteps mxys)
->                       -- as   <- pure (controls Z nSteps x0 () v0 ps)
 >                       putStrLn (show as)
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")

@@ -90,7 +90,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 5
+> maxColumnO2 = 100
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
