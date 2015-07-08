@@ -8,6 +8,8 @@
 > import NatProperties
 > import SigmaOperations
 > import SigmaProperties
+> import SubsetOperations
+> import SubsetProperties
 > import Finite
 > import FiniteOperations
 > import FiniteProperties
@@ -119,7 +121,7 @@ For every SDP, we can build the following notions:
 
 > Policy : (t : Nat) -> (n : Nat) -> Type
 > Policy t Z      =  ()
-> -- Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> (y : Y t x ** All (Viable m) (step t x y))
+> -- Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> Sigma (Y t x) (\ y => All (Viable m) (step t x y))
 > Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> Subset (Y t x) (\ y => All (Viable m) (step t x y))
 
 > data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
@@ -162,7 +164,6 @@ For every SDP, we can build the following notions:
 > OptPolicySeq : PolicySeq t n -> Prop
 > OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
 >                             (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
->                             -- So (val x r v ps' <= val x r v ps)
 >                             (val x r v ps') `LTE` (val x r v ps)
 
 > nilOptPolicySeq : OptPolicySeq Nil
@@ -224,20 +225,24 @@ The idea is that, if clients can implement max and argmax
 > max    : {t : Nat} -> {n : Nat} -> 
 >          (x : X t) -> 
 >          (Viable (S n) x) ->
+>          -- (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          (f : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          Nat
 > argmax : {t : Nat} -> {n : Nat} -> 
 >          (x : X t) -> 
 >          (Viable (S n) x) ->
+>          -- (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 >          (f : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
+>          -- Sigma (Y t x) (\ y => All (Viable n) (step t x y))
 >          Subset (Y t x) (\ y => All (Viable n) (step t x y))
 
 that fulfill the specification
 
--- > typeHelper : (t : Nat) -> (x : X t) -> Viable (S n) x ->
--- >              (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
--- >              Type
--- > typeHelper t x v f = max x v f = f (argmax x v f)
+> typeHelper : (t : Nat) -> (x : X t) -> Viable {t = t} (S n) x ->
+>              -- (f : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+>              (f : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+>              Type
+> typeHelper t x v f = max x v f = f (argmax x v f)
 
 > maxSpec     :  (t : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >                -- (f : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
@@ -246,10 +251,10 @@ that fulfill the specification
 >                (s : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))) ->
 >                (f s) `LTE` (max x v f)
 
--- > argmaxSpec  :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
--- >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
--- >                typeHelper t x v f 
--- >                -- max x v f = f (argmax x v f)
+> argmaxSpec  :  (t : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
+>                -- (f : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+>                (f : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+>                typeHelper t x v f -- max x v f = f (argmax x v f)
 
 then we can implement a function that computes machine checkable optimal
 extensions for arbitrary policy sequences:
@@ -258,54 +263,61 @@ extensions for arbitrary policy sequences:
 >       (r  : Reachable x) ->
 >       (v  : Viable (S n) x) ->
 >       (ps : PolicySeq (S t) n) ->
+>       -- Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >       Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
-> mkg {t} {n} x r v ps (Element y av) = meas (fmap f (tagElem (step t x y))) where
->   f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
->   f = mkf x r v y av ps
+> -- mkg {t} x r v ps yav = meas (fmap f (tagElem (step t x (getWitness yav)))) where
+> mkg {t} x r v ps yav = meas (fmap f (tagElem (step t x (getWitness yav)))) where
+>   f : (x' : X (S t) ** x' `Elem` (step t x (getWitness yav))) -> Nat
+>   f = mkf x r v (getWitness yav) (getProof yav) ps
+
 
 > optExt : PolicySeq (S t) n -> Policy t (S n)
 > optExt {t} {n} ps = p where
 >   p : Policy t (S n)
 >   p x r v = argmax x v g where
+>     -- g : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >     g : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >     g = mkg x r v ps
 
 
--- > optExtLemma : (ps : PolicySeq (S t) n) -> OptExt ps (optExt ps)
--- > optExtLemma {t} {n} ps p' x r v = s2 where
--- >   p     :  Policy t (S n)
--- >   p     =  optExt ps
--- >   yav   :  (y : Y t x ** All (Viable n) (step t x y))
--- >   yav   =  p x r v
--- >   y     :  Y t x
--- >   y     =  outl yav
--- >   av    :  All (Viable n) (step t x y)
--- >   av    =  outr yav
--- >   yav'  :  (y : Y t x ** All (Viable n) (step t x y))
--- >   yav'  =  p' x r v
--- >   y'    :  Y t x
--- >   y'    =  outl yav'
--- >   av'   :  All (Viable n) (step t x y')
--- >   av'   =  outr yav'
--- >   g     :  (y : Y t x ** All (Viable n) (step t x y)) -> Nat
--- >   g     =  mkg x r v ps
--- >   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
--- >   f     =  mkf x r v y av ps
--- >   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Nat
--- >   f'    =  mkf x r v y' av' ps
--- >   s1    :  (g yav') `LTE` (max x v g)
--- >   s1    =  maxSpec t x v g yav'
--- >   s2    :  (g yav') `LTE` (g (argmax x v g))
--- >   s2    =  replace {P = \ z => (g yav' `LTE` z)} (argmaxSpec t x v g) s1
--- >   -- the rest of the steps are for the human reader
--- >   s3    :  (g yav') `LTE` (g yav)
--- >   s3    =  s2
--- >   s4    :  (mkg x r v ps yav') `LTE`  (mkg x r v ps yav)
--- >   s4    =  s3
--- >   s5    :  (meas (fmap f' (tagElem (step t x y')))) `LTE` (meas (fmap f (tagElem (step t x y))))
--- >   s5    =  s4
--- >   s6    :  (val x r v (p' :: ps)) `LTE` (val x r v (p :: ps))
--- >   s6    =  s5
+> optExtLemma : (ps : PolicySeq (S t) n) -> OptExt ps (optExt ps)
+> optExtLemma {t} {n} ps p' x r v = s2 where
+>   p     :  Policy t (S n)
+>   p     =  optExt ps
+>   -- yav   :  Sigma (Y t x) (\ z => All (Viable n) (step t x z))
+>   yav   :  Subset (Y t x) (\ z => All (Viable n) (step t x z))
+>   yav   =  p x r v
+>   y     :  Y t x
+>   y     =  getWitness yav
+>   av    :  All (Viable n) (step t x y)
+>   av    =  getProof yav
+>   -- yav'  :  Sigma (Y t x) (\ z => All (Viable n) (step t x z))
+>   yav'  :  Subset (Y t x) (\ z => All (Viable n) (step t x z))
+>   yav'  =  p' x r v
+>   y'    :  Y t x
+>   y'    =  getWitness yav'
+>   av'   :  All (Viable n) (step t x y')
+>   av'   =  getProof yav'
+>   -- g     :  Sigma (Y t x) (\ z => All (Viable n) (step t x z)) -> Nat
+>   g     :  Subset (Y t x) (\ z => All (Viable n) (step t x z)) -> Nat
+>   g     =  mkg x r v ps
+>   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
+>   f     =  mkf x r v y av ps
+>   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Nat
+>   f'    =  mkf x r v y' av' ps
+>   s1    :  (g yav') `LTE` (max x v g)
+>   s1    =  maxSpec t x v g yav'
+>   s2    :  (g yav') `LTE` (g (argmax x v g))
+>   s2    =  replace {P = \ z => (g yav' `LTE` z)} (argmaxSpec t x v g) s1
+>   -- the rest of the steps are for the human reader
+>   s3    :  (g yav') `LTE` (g yav)
+>   s3    =  s2
+>   s4    :  (mkg x r v ps yav') `LTE` (mkg x r v ps yav)
+>   s4    =  s3
+>   s5    :  (meas (fmap f' (tagElem (step t x y')))) `LTE` (meas (fmap f (tagElem (step t x y))))
+>   s5    =  s4
+>   s6    :  (val x r v (p' :: ps)) `LTE` (val x r v (p :: ps))
+>   s6    =  s5
 
 
 With |optExt|, it is easy to implement a generic machine checkable backwards
@@ -317,17 +329,17 @@ induction:
 >                    ps = bi (S t) n
 >                in (optExt ps :: ps)
 
--- > biLemma : (t : Nat) -> (n : Nat) -> OptPolicySeq (bi t n)
--- > biLemma t  Z     =  nilOptPolicySeq
--- > biLemma t (S n)  =  Bellman ps ops p oep where
--- >   ps   :  PolicySeq (S t) n
--- >   ps   =  bi (S t) n
--- >   ops  :  OptPolicySeq ps
--- >   ops  =  biLemma (S t) n
--- >   p    :  Policy t (S n)
--- >   p    =  optExt ps
--- >   oep  :  OptExt ps p
--- >   oep  =  optExtLemma ps
+> biLemma : (t : Nat) -> (n : Nat) -> OptPolicySeq (bi t n)
+> biLemma t  Z     =  nilOptPolicySeq
+> biLemma t (S n)  =  Bellman ps ops p oep where
+>   ps   :  PolicySeq (S t) n
+>   ps   =  bi (S t) n
+>   ops  :  OptPolicySeq ps
+>   ops  =  biLemma (S t) n
+>   p    :  Policy t (S n)
+>   p    =  optExt ps
+>   oep  :  OptExt ps p
+>   oep  =  optExtLemma ps
 
 
 that is, we can compute provably optimal sequences of policies for
@@ -551,7 +563,9 @@ Nat|:
 >         .(r  : Reachable x) ->
 >         .(v  : Viable (S n) x) ->
 >         (vt : Vect (cRVX (S t) n) Nat) -> 
+>         -- Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >         Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
+>   -- mkg {t} x r v vt (MkSigma y av) = meas (fmap f' (tagElem (step t x y))) where
 >   mkg {t} x r v vt (Element y av) = meas (fmap f' (tagElem (step t x y))) where
 >     f' : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
 >     f' = mkf' x r v y av vt
@@ -559,6 +573,7 @@ Nat|:
 >   tabOptExt {t} {n} vt = p where
 >     p : Policy t (S n)
 >     p x r v = argmax x v g where
+>       -- g : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >       g : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >       g = mkg x r v vt
 
@@ -602,8 +617,10 @@ of |trbi|:
 >           r   = fst rv
 >           v   : Viable (S n) x
 >           v   = snd rv
+>           -- g   : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >           g   : Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >           g   = mkg x r v vt
+>           -- yav : Sigma (Y t x) (\ y=> All (Viable n) (step t x y))
 >           yav : Subset (Y t x) (\ y=> All (Viable n) (step t x y))
 >           yav = p x r v
 
@@ -637,8 +654,10 @@ of |trbi|:
 >       r   = fst (getProof xrv)
 >       v   : Viable {t = c' + t} (S (n - S c')) x
 >       v   = snd (getProof xrv)
+>       -- g   : Sigma (Y (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
 >       g   : Subset (Y (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
 >       g   = mkg x r v vt
+>       -- yav : Sigma (Y (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y))
 >       yav : Subset (Y (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y))
 >       yav = p x r v
 >   vt''  : Vect (cRVX (c' + t) (n - c')) Nat

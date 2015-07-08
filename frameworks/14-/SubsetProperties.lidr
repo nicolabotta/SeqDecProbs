@@ -61,9 +61,9 @@ subsetEqLemma2 r1 r2 = Refl
 
 > ||| Elimination and formation
 > subsetEqLemma0 : {A : Type} ->
->                 {P : A -> Type} ->
->                 .(s: Subset A P) ->
->                 s = (Element (getWitness s) (getProof s))
+>                  {P : A -> Type} ->
+>                  (s : Subset A P) ->
+>                  s = (Element (getWitness s) (getProof s))
 > subsetEqLemma0 (Element a p) = Refl
 
 

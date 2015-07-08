@@ -441,6 +441,15 @@ and |max|, |argmax|:
 >               (fYAV t n x v) 
 >               (neYAV t n x v)
 
+> SeqDecProbMonadicTheoryRV.argmaxSpec {n} t x v =
+>   Opt.argmaxSpec {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>                  {B = Nat}
+>                  totalPreorderNatLTE 
+>                  (fYAV t n x v) 
+>                  (neYAV t n x v)
+
+
+
 
 * Decidability of Viable and Reachable
 
@@ -578,6 +587,7 @@ and |max|, |argmax|:
 > fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
 
 > nefY t x = nonEmptyLemma (fY t x) (existsAdmissible t x)
+
 
 > ---}
 
