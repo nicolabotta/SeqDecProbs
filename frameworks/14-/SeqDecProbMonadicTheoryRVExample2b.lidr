@@ -91,6 +91,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
+> -- maxColumnO2 = 5
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
@@ -234,12 +235,12 @@ for each step.
 *** Controls are finite:
 
 > fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
-> fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
+> -- fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
 
 *** Controls are not empty:
 
 > nefY : (t : Nat) -> (x : X t) -> NonEmpty (fY t x)
-> nefY t x = nonEmptyLemma (fY t x) (existsAdmissible t x)
+> -- nefY t x = nonEmptyLemma (fY t x) (existsAdmissible t x)
 
 
 
@@ -433,12 +434,12 @@ and |max|, |argmax|:
 >              (fYAV t n x v) 
 >              (neYAV t n x v)
 
--- > SeqDecProbMonadicTheoryRV.maxSpec {n} t x v =
--- >   Opt.maxSpec {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
--- >               {B = Nat}
--- >               totalPreorderNatLTE 
--- >               (fYAV t n x v) 
--- >               (neYAV t n x v)
+> SeqDecProbMonadicTheoryRV.maxSpec {n} t x v =
+>   Opt.maxSpec {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>               {B = Nat}
+>               totalPreorderNatLTE 
+>               (fYAV t n x v) 
+>               (neYAV t n x v)
 
 
 * Decidability of Viable and Reachable
@@ -563,10 +564,20 @@ and |max|, |argmax|:
 >                       -- putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 
-> maxColumnO2 = 160
-
 > main : IO ()
 > main = run computation
+
+
+
+
+* Deferred definitions:
+
+
+> maxColumnO2 = 5
+
+> fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
+
+> nefY t x = nonEmptyLemma (fY t x) (existsAdmissible t x)
 
 > ---}
 

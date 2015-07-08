@@ -239,12 +239,12 @@ that fulfill the specification
 -- >              Type
 -- > typeHelper t x v f = max x v f = f (argmax x v f)
 
--- > maxSpec     :  (t : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
--- >                -- (f : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
--- >                (f : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
--- >                -- (s : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))) ->
--- >                (s : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))) ->
--- >                (f s) `LTE` (max x v f)
+> maxSpec     :  (t : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
+>                -- (f : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+>                (f : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+>                -- (s : Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))) ->
+>                (s : Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))) ->
+>                (f s) `LTE` (max x v f)
 
 -- > argmaxSpec  :  (t : Nat) -> (x : X t) -> (v : Viable (S n) x) ->
 -- >                (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
