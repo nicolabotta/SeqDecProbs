@@ -1,7 +1,7 @@
 > module NonNegQ
 
 
-> %default total 
+> %default total
 
 > -- %hide gcd
 
@@ -12,16 +12,16 @@
 
 > multLemma1 : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (m * n = Z)
 
-> gcd : Nat -> Nat -> Nat 
-> gcd m  Z    = m 
+> gcd : Nat -> Nat -> Nat
+> gcd m  Z    = m
 > gcd m (S n) = assert_total (NonNegQ.gcd (S n) (modNatNZ m (S n) succNotZ))
 
 > Divisor : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Type
-> Divisor m n nmZ = modNatNZ n m nmZ = Z 
+> Divisor m n nmZ = modNatNZ n m nmZ = Z
 
-> divNatNZLemma1 : (m : Nat) -> (n : Nat) -> 
+> divNatNZLemma1 : (m : Nat) -> (n : Nat) ->
 >                  (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) -> Divisor n m nnZ ->
->                  Not (divNatNZ m n nnZ = Z)  
+>                  Not (divNatNZ m n nnZ = Z)
 
 > gcdLemma1 : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (NonNegQ.gcd m n = Z)
 
@@ -32,8 +32,8 @@
 > Coprime : Nat -> Nat -> Type
 > Coprime m n = NonNegQ.gcd m n = S Z
 
-> gcdLemma4 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) -> 
->             Coprime (divNatNZ m (gcd m n) (gcdLemma1 m n nmZ nnZ)) 
+> gcdLemma4 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) ->
+>             Coprime (divNatNZ m (gcd m n) (gcdLemma1 m n nmZ nnZ))
 >                     (divNatNZ n (gcd m n) (gcdLemma1 m n nmZ nnZ))
 
 
@@ -76,7 +76,7 @@ Non-negative rational numbers:
 >   show (MkNonNegQ m n p q) = "frac " ++ show m ++ " " ++ show n
 
 > numerator : NonNegQ -> Nat
-> numerator (MkNonNegQ m n p q) = m 
+> numerator (MkNonNegQ m n p q) = m
 
 > denominator : NonNegQ -> Nat
 > denominator (MkNonNegQ m n p q) = n

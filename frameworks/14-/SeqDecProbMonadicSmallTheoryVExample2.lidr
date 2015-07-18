@@ -140,17 +140,18 @@ is the identity monad:
 > to Ahead =     FS FZ
 > to Right = FS (FS FZ)
 
-> %assert_total
+
 > from : Fin 3 -> Action
 > from         FZ   = Left
 > from     (FS FZ)  = Ahead
 > from (FS (FS FZ)) = Right
+> from (FS (FS (FS _)))  impossible
 
-> %assert_total
 > toFrom : (k : Fin 3) -> to (from k) = k
 > toFrom         FZ   = Refl
 > toFrom     (FS FZ)  = Refl
 > toFrom (FS (FS FZ)) = Refl
+> toFrom (FS (FS (FS _)))  impossible
 
 > fromTo : (a : Action) -> from (to a) = a
 > fromTo Left  = Refl
@@ -171,15 +172,15 @@ is the identity monad:
 >   | (No  _) with (decEq (column {t} x) maxColumn)
 >     | (Yes _) = Unit
 >     | (No  _) = Void
-> Admissible t x Left with (pos t x) 
+> Admissible t x Left with (pos t x)
 >   | L = Unit
 >   | R = Void
-> Admissible t x Right with (pos t x) 
+> Admissible t x Right with (pos t x)
 >   | L = Void
 >   | R = Unit
 
 > admissibleLemma : (t : Nat) -> (x : X t) -> Either (Admissible t x Left) (Admissible t x Right)
-> admissibleLemma t x with (pos t x) 
+> admissibleLemma t x with (pos t x)
 >   | L = Left ()
 >   | R = Right ()
 
@@ -204,11 +205,11 @@ for each step.
 >   | (Yes _) = Yes ()
 >   | (No  _) with (decEq (column {t} x) maxColumn)
 >     | (Yes _) = Yes ()
->     | (No  _) = No void 
-> d1Admissible t x Left with (pos t x) 
+>     | (No  _) = No void
+> d1Admissible t x Left with (pos t x)
 >   | L = Yes ()
 >   | R = No void
-> d1Admissible t x Right with (pos t x) 
+> d1Admissible t x Right with (pos t x)
 >   | L = No void
 >   | R = Yes ()
 
@@ -218,10 +219,10 @@ for each step.
 >   u1Admissible t x Ahead p q   | (No  _) with (decEq (column {t} x) maxColumn)
 >     u1Admissible t x Ahead () ()   | (No  _) | (Yes _) = Refl
 >     u1Admissible t x Ahead p q     | (No  _) | (No  _) = void p
-> u1Admissible t x Left p q with (pos t x) 
+> u1Admissible t x Left p q with (pos t x)
 >   u1Admissible t x Left () () | L = Refl
 >   u1Admissible t x Left p q   | R = void p
-> u1Admissible t x Right p q with (pos t x) 
+> u1Admissible t x Right p q with (pos t x)
 >   u1Admissible t x Right p q   | L = void p
 >   u1Admissible t x Right () () | R = Refl
 
@@ -291,7 +292,7 @@ for each step.
 >   y : Y t x
 >   y = existsAdmissible t x
 >   mx' : M (X (S t))
->   mx' = step t x y 
+>   mx' = step t x y
 >   x'  : X (S t)
 >   x'  = unwrap mx'
 >   s1  : Viable {t = S t} n x'
@@ -308,13 +309,13 @@ for each step.
 
 We want to implement
 
-< max    : {t : Nat} -> {n : Nat} -> 
-<          (x : X t) -> 
+< max    : {t : Nat} -> {n : Nat} ->
+<          (x : X t) ->
 <          .(Viable (S n) x) ->
 <          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 <          Nat
-< argmax : {t : Nat} -> {n : Nat} -> 
-<          (x : X t) -> 
+< argmax : {t : Nat} -> {n : Nat} ->
+<          (x : X t) ->
 <          .(Viable (S n) x) ->
 <          (f : Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
 <          Sigma (Y t x) (\ y => All (Viable n) (step t x y))
@@ -331,18 +332,18 @@ non-emptiness is straightforward:
 
 > neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
-> {- 
+> {-
 > neYAV t n x (Evidence y v) =
 >   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
 >                 (fYAV t n x (Evidence y v))
 >                 (Element y v)
 > ---}
 > --{-
-> neYAV t n x v = 
+> neYAV t n x v =
 >   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
 >                 (fYAV t n x v) (Element y av) where
 >     yav : Exists {a = Y t x} (\ y => All (Viable {t = S t} n) (step t x y))
->     yav = viableSpec1 {t = t} {n = n} x v            
+>     yav = viableSpec1 {t = t} {n = n} x v
 >     y   : Y t x
 >     y   = getWitness yav
 >     av  : All (Viable {t = S t} n) (step t x y)
@@ -384,17 +385,17 @@ With |f1AllViable| we can finally implement |fYAV|
 and |max|, |argmax|:
 
 > SeqDecProbMonadicSmallTheoryV.max  {t} {n} x v =
->   Opt.max {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->           {B = Nat} 
->           totalPreorderNatLTE 
->           (fYAV t n x v) 
+>   Opt.max {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>           {B = Nat}
+>           totalPreorderNatLTE
+>           (fYAV t n x v)
 >           (neYAV t n x v)
 
 > SeqDecProbMonadicSmallTheoryV.argmax  {t} {n} x v  =
->   Opt.argmax {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>   Opt.argmax {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
 >              {B = Nat}
->              totalPreorderNatLTE 
->              (fYAV t n x v) 
+>              totalPreorderNatLTE
+>              (fYAV t n x v)
 >              (neYAV t n x v)
 
 
@@ -442,18 +443,18 @@ and |max|, |argmax|:
 >   =
 >   (outl y) :: (actions (S t) n (Id xys))
 
-> controls : (t : Nat) -> 
->            (n : Nat) -> 
->            (x : X t) -> 
+> controls : (t : Nat) ->
+>            (n : Nat) ->
+>            (x : X t) ->
 >            (v : Viable {t = t} n x) ->
->            PolicySeq t n -> 
+>            PolicySeq t n ->
 >            Vect n Action
 > controls _ Z _ _  _ = Nil
 > controls t (S n) x v (p :: ps) =
 >   ((outl y) :: (controls (S t) n x' v' ps)) where
 >     yav    :  Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))
 >     yav    =  p x v
->     y      :  Y t x    
+>     y      :  Y t x
 >     y      =  getWitness yav
 >     mx'    :  M (X (S t))
 >     mx'    =  step t x y
@@ -497,8 +498,8 @@ and |max|, |argmax|:
 >                    pure (optExt ps :: ps)
 
 > %assert_total
-> firstControl : (t : Nat) -> (n : Nat) -> 
->                (x : X t) -> (v : Viable {t = t} n x) -> 
+> firstControl : (t : Nat) -> (n : Nat) ->
+>                (x : X t) -> (v : Viable {t = t} n x) ->
 >                PolicySeq t n -> { [STDIO] } Eff ()
 > firstControl t  Z    x v Nil       = putStr ("void policy sequence\n")
 > firstControl t (S m) x v (p :: ps) = do yav <- pure (p x v)
