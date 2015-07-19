@@ -3,7 +3,7 @@
 > -- import Data.Vect
 > import Syntax.PreorderReasoning
 
-> %default total 
+> %default total
 
 > -- %hide gcd
 
@@ -203,10 +203,9 @@
 > Divisor : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Type
 > Divisor m n nmZ = NonNegQ.modNatNZ n m nmZ = Z 
 
-> divNatNZLemma1 : (m : Nat) -> (n : Nat) -> 
+> divNatNZLemma1 : (m : Nat) -> (n : Nat) ->
 >                  (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) -> Divisor n m nnZ ->
 >                  Not (NonNegQ.divNatNZ m n nnZ = Z)  
-
 
 > gcdLemma1 : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (NonNegQ.gcd m n = Z)
 
@@ -277,7 +276,7 @@ Non-negative rational numbers:
 >   show (MkNonNegQ m n p q) = "frac " ++ show m ++ " " ++ show n
 
 > numerator : NonNegQ -> Nat
-> numerator (MkNonNegQ m n p q) = m 
+> numerator (MkNonNegQ m n p q) = m
 
 > denominator : NonNegQ -> Nat
 > denominator (MkNonNegQ m n p q) = n
