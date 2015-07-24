@@ -1,3 +1,28 @@
+2015-07-24: DivMod:
+
+  Botta:
+   "to prepare for implementing non-negative rational numbers (and show that
+    |SimpleProb| is a monad) I have played around with Melvar Chen's DivMod
+    module (in contrib) and with the implementation of |gcd| from the
+    prelude and tried to show that, if one divides two natural numbers by
+    their greatest common divisor, the resulting pair is coprime. [...]
+    any idea how to improve?"
+
+  Patrik: I have a feeling the property should be proven by (an extended
+    version of) the gcd algorithm, in much the same way as the DivMod is
+    proven. Perhaps we could use Bézout's lemma?
+
+    Bézout's Lemma: For every pair of whole numbers a and b there are
+    two integers s and t such that a*s + b*t = gcd(a, b). And gcd(a, b)
+    is the least positive integer representable in the form a*s + b*t.
+
+  let  F a b d = "Exists s, t. a*s + b*t == d"
+       Gcd a b = Least (F a b)
+       Least P = Exists n. P n && Forall m. P m -> n <= m
+  then gcd(a,b) = fst (Gcd a b)
+  (or something like that)
+
+
 2015-05-17: Looking around for %assert_total
 
   /home/patrikj/src/ext/SeqDecProbs/:

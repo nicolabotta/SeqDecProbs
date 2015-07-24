@@ -11,26 +11,26 @@
 
 * Nat lemmas (to be implemented in a separate module):
 
-> ||| 
+> |||
 > postulate plusZfstZ : (m : Nat) -> (n : Nat) -> m + n = Z -> m = Z
 
 > |||
 > postulate plusZsndZ : (m : Nat) -> (n : Nat) -> m + n = Z -> n = Z
 
-> ||| 
+> |||
 > postulate multZfstZ : (m : Nat) -> (n : Nat) -> m * n = Z -> Not (n = Z) -> m = Z
 
-> ||| 
+> |||
 > postulate multNZfst : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (m = Z)
 
-> ||| 
+> |||
 > postulate multNZsnd : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (n = Z)
 
 > ||| Multiplication times S (S m) increases
-> postulate multSSNotLTE : (m : Nat) -> (n : Nat) -> Not (n = Z) -> Not ((S (S m)) * n `LTE` n) 
+> postulate multSSNotLTE : (m : Nat) -> (n : Nat) -> Not (n = Z) -> Not ((S (S m)) * n `LTE` n)
 
 > |||
-> postulate eqMultRight : (m1 : Nat) -> (m2 : Nat) -> (n : Nat) -> m1 = m2 -> m1 * n = m2 * n 
+> postulate eqMultRight : (m1 : Nat) -> (m2 : Nat) -> (n : Nat) -> m1 = m2 -> m1 * n = m2 * n
 
 > |||
 > -- postulate multNZNZNZ : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (m * n = Z)
@@ -45,7 +45,7 @@
 > postulate lteAntisymmetric : (m : Nat) -> (n : Nat) -> m `LTE` n -> n `LTE` m -> m = n
 
 
-* Quotient and remainder 
+* Quotient and remainder
 
 ** Specification:
 
@@ -56,11 +56,11 @@
 > modNatNZ : (m : Nat) -> (n : Nat) -> Not (n = Z) -> Nat
 
 > ||| The sum of remainder of m / n and quotient of m / n times n is m
-> divmodNatNZSpec0 : (m : Nat) -> (n : Nat) -> (p : Not (n = Z)) -> 
+> divmodNatNZSpec0 : (m : Nat) -> (n : Nat) -> (p : Not (n = Z)) ->
 >                    modNatNZ m n p + (divNatNZ m n p) * n = m
 
 > ||| The remainder of m / n is smaller than n
-> divmodNatNZSpec1 : (m : Nat) -> (n : Nat) -> (p : Not (n = Z)) -> 
+> divmodNatNZSpec1 : (m : Nat) -> (n : Nat) -> (p : Not (n = Z)) ->
 >                    modNatNZ m n p `LT` n
 
 ** Implementation (after Melvar Chen):
@@ -93,9 +93,9 @@
 >   s1 : modNatNZ m n p + (divNatNZ m n p) * n = m
 >   s1 = divmodNatNZSpec0 m n p
 >   s2 : Z + (divNatNZ m n p) * n = m
->   s2 = replace {x = modNatNZ m n p} 
->                {y = Z} 
->                {P = \ ZUZU => ZUZU + (divNatNZ m n p) * n = m} 
+>   s2 = replace {x = modNatNZ m n p}
+>                {y = Z}
+>                {P = \ ZUZU => ZUZU + (divNatNZ m n p) * n = m}
 >                modZ s1
 >   s3 : (divNatNZ m n p) * n = m
 >   s3 = replace {x = Z + (divNatNZ m n p) * n}
@@ -116,11 +116,11 @@
 
 > ||| The remainder of Z / n is Z
 > modNatNZLemma0 : (n : Nat) -> (p : Not (n = Z)) -> modNatNZ Z n p = Z
-> modNatNZLemma0 n p = plusZfstZ (modNatNZ Z n p) 
->                                ((divNatNZ Z n p) * n) 
+> modNatNZLemma0 n p = plusZfstZ (modNatNZ Z n p)
+>                                ((divNatNZ Z n p) * n)
 >                                (divmodNatNZSpec0 Z n p)
 
-> ||| 
+> |||
 > modNatNZLemma1 : (m : Nat) -> (p : Not (S Z = Z)) -> modNatNZ m (S Z) p = Z
 > modNatNZLemma1 m p = s2 where
 >   s1 : modNatNZ m (S Z) p `LT` (S Z)
@@ -128,7 +128,7 @@
 >   s2 : modNatNZ m (S Z) p = Z
 >   s2 = ltOneIsZ (modNatNZ m (S Z) p) s1
 
-> ||| 
+> |||
 > divNatNZLemma1 : (m : Nat) -> (p : Not (S Z = Z)) -> divNatNZ m (S Z) p = m
 > divNatNZLemma1 m p = s2 where
 >   s1 : (divNatNZ m (S Z) p) * (S Z) = m
@@ -139,13 +139,13 @@
 >                {P = \ ZUZU => ZUZU = m}
 >                (multOneRightNeutral (divNatNZ m (S Z) p)) s1
 
-> ||| 
+> |||
 > -- divNatNZLemma2 : (m : Nat) -> Not (m = Z) -> divNatNZ m m p = S Z
 
-> ||| 
-> divNatNZLemma3 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> 
+> |||
+> divNatNZLemma3 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) ->
 >                  (divNatNZ n m nmZ) * m = n ->
->                  (q : Nat) -> (nmqZ : Not (m * q = Z)) -> 
+>                  (q : Nat) -> (nmqZ : Not (m * q = Z)) ->
 >                  (divNatNZ (n * q) (m * q) nmqZ) * m = n
 
 
@@ -155,10 +155,10 @@
 
 > Divisor : (m : Nat) -> (n : Nat) -> Type
 
-> divisorSpec1 : (m : Nat) -> (n : Nat) -> m `Divisor` n -> 
+> divisorSpec1 : (m : Nat) -> (n : Nat) -> m `Divisor` n ->
 >                (p : Not (m = Z)) -> (divNatNZ n m p) * m = n
 
-** Implementation: 
+** Implementation:
 
 > Divisor m n = (p : Not (m = Z)) -> (divNatNZ n m p) * m = n
 
@@ -166,7 +166,7 @@
 
 ** Properties (implementation dependent)
 
-> divisorLemma2 : (m : Nat) -> (n : Nat) -> m `Divisor` n -> 
+> divisorLemma2 : (m : Nat) -> (n : Nat) -> m `Divisor` n ->
 >                 (q : Nat) -> (m * q) `Divisor` (n * q)
 > divisorLemma2 m n mdn q nmqZ = s4 where
 >   nmZ : Not (m = Z)
@@ -185,12 +185,12 @@
 >                {P = \ ZUZU => ZUZU = n * q}
 >                (sym (multAssociative (divNatNZ (n * q) (m * q) nmqZ) m q)) s3
 
-> divisorLemma3 : (m : Nat) -> (S Z) `Divisor` m 
+> divisorLemma3 : (m : Nat) -> (S Z) `Divisor` m
 > divisorLemma3 m p = divmodNatNZLemma0 m (S Z) p (modNatNZLemma1 m p)
 
 ** Properties (implementation independent)
 
-> divisorLemma1 : (m : Nat) -> (n : Nat) -> m `Divisor` n -> 
+> divisorLemma1 : (m : Nat) -> (n : Nat) -> m `Divisor` n ->
 >                 (p : Not (m = Z)) -> modNatNZ n m p = Z
 > divisorLemma1 m n mdn p = s4 where
 >   s1 : modNatNZ n m p + (divNatNZ n m p) * m = n
@@ -216,7 +216,7 @@
 ** Specification:
 
 > ||| The greatest common divisor of m and n
-> gcd : (m : Nat) -> (n : Nat) -> Nat 
+> gcd : (m : Nat) -> (n : Nat) -> Nat
 
 > ||| gcd id commutative
 > %assert_total
@@ -230,36 +230,36 @@
 
 > ||| gcd m n is the greatest divisor of m n
 > gcdSpec3 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
->             d `Divisor` m -> d `Divisor` n -> Not (m = Z) -> Not (n = Z) -> 
+>             d `Divisor` m -> d `Divisor` n -> Not (m = Z) -> Not (n = Z) ->
 >             d `LTE` gcd m n
 
 ** Implementation:
 
-> gcd m  Z    = m 
+> gcd m  Z    = m
 > gcd m (S n) = assert_total (gcd (S n) (modNatNZ m (S n) SIsNotZ))
 
 > mutual
 
 >   gcdSpec0  Z     Z    = Refl
 >
->   gcdSpec0  Z    (S n) = 
+>   gcdSpec0  Z    (S n) =
 >       ( gcd (S n) (modNatNZ Z (S n) SIsNotZ) )
 >     ={ replace {x = modNatNZ Z (S n) SIsNotZ}
 >                {y = Z}
 >                {P = \ ZUZU => gcd (S n) (modNatNZ Z (S n) SIsNotZ) = gcd (S n) ZUZU}
->                (modNatNZLemma0 (S n) SIsNotZ) 
+>                (modNatNZLemma0 (S n) SIsNotZ)
 >                Refl }=
 >       ( gcd (S n) Z )
 >     QED
 >
->   gcdSpec0 (S m)  Z    = 
+>   gcdSpec0 (S m)  Z    =
 >       ( gcd (S m) Z )
 >     ={ replace {x = Z}
 >                {y = modNatNZ Z (S m) SIsNotZ}
 >                {P = \ ZUZU => gcd (S m) Z = gcd (S m) ZUZU}
 >                (sym (modNatNZLemma0 (S m) SIsNotZ))
 >                Refl }=
->       ( gcd (S m) (modNatNZ Z (S m) SIsNotZ) ) 
+>       ( gcd (S m) (modNatNZ Z (S m) SIsNotZ) )
 >     ={ Refl }=
 >       ( gcd Z (S m) )
 >     QED
@@ -284,7 +284,7 @@
 >     s1 : (gcd n m) `Divisor` m
 >     s1 = gcdSpec2 n m
 >     s2 : (gcd m n) `Divisor` m
->     s2 = replace {x = gcd n m} {y = gcd m n} {P = \ ZUZU => ZUZU `Divisor` m} (gcdSpec0 n m) s1 
+>     s2 = replace {x = gcd n m} {y = gcd m n} {P = \ ZUZU => ZUZU `Divisor` m} (gcdSpec0 n m) s1
 
 >   gcdSpec2 m  Z    = s4 where
 >     s1 : (p : Not (m = Z)) -> modNatNZ Z m p + (divNatNZ Z m p) * m = Z
@@ -295,14 +295,14 @@
 >                    {P = \ ZUZU => ZUZU + (divNatNZ Z m p) * m = Z}
 >                    (modNatNZLemma0 m p)
 >                    (s1 p)
->     s3 : (p : Not (m = Z)) -> (divNatNZ Z m p) * m = Z               
+>     s3 : (p : Not (m = Z)) -> (divNatNZ Z m p) * m = Z
 >     s3 p = replace {x = Z + (divNatNZ Z m p) * m}
 >                    {y = (divNatNZ Z m p) * m}
 >                    {P = \ ZUZU => ZUZU = Z}
 >                    (plusZeroLeftNeutral ((divNatNZ Z m p) * m))
 >                    (s2 p)
 >     s4 : m `Divisor` Z
->     s4 = s3 
+>     s4 = s3
 >   gcdSpec2 m (S n) = s1 where
 >     s1 : (gcd (S n) (modNatNZ m (S n) SIsNotZ)) `Divisor` (S n)
 >     s1 = assert_total (gcdSpec1 (S n) (modNatNZ m (S n) SIsNotZ))
@@ -310,7 +310,7 @@
 ** Properties (implementation dependent)
 
 > gcdOneRightOne : (n : Nat) -> gcd (S Z) n = S Z
-> gcdOneRightOne n = 
+> gcdOneRightOne n =
 >     ( gcd (S Z) n )
 >   ={ gcdSpec0 (S Z) n }=
 >     ( gcd n (S Z) )
@@ -339,7 +339,7 @@
 >   s4 : Not (gcd m n = Z)
 >   s4 = oneLTNotZ (gcd m n) s3
 
-> gcdLemma2 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) -> 
+> gcdLemma2 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) ->
 >             Not (divNatNZ m (gcd m n) (gcdLemma1 m n nmZ nnZ) = Z)
 > gcdLemma2 m n nmZ nnZ = s3 where
 >   s1 : (divNatNZ m (gcd m n) (gcdLemma1 m n nmZ nnZ)) * (gcd m n) = m
@@ -353,7 +353,7 @@
 >   s3 : Not (divNatNZ m (gcd m n) (gcdLemma1 m n nmZ nnZ) = Z)
 >   s3 = multNZfst (divNatNZ m (gcd m n) (gcdLemma1 m n nmZ nnZ)) (gcd m n) s2
 
-> gcdLemma3 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) -> 
+> gcdLemma3 : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) ->
 >             Not (divNatNZ n (gcd m n) (gcdLemma1 m n nmZ nnZ) = Z)
 > gcdLemma3 m n nmZ nnZ = s3 where
 >   s1 : (divNatNZ n (gcd m n) (gcdLemma1 m n nmZ nnZ)) * (gcd m n) = n
@@ -394,8 +394,8 @@
 > oneCoprime : (m : Nat) -> Coprime (S Z) m
 > oneCoprime = gcdOneRightOne
 
-> coprimeReduce : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) -> 
->                 Coprime (reduceFst m n nmZ nnZ) (reduceSnd m n nmZ nnZ) 
+> coprimeReduce : (m : Nat) -> (n : Nat) -> (nmZ : Not (m = Z)) -> (nnZ : Not (n = Z)) ->
+>                 Coprime (reduceFst m n nmZ nnZ) (reduceSnd m n nmZ nnZ)
 > coprimeReduce m n nmZ nnZ with (gcd (reduceFst m n nmZ nnZ) (reduceSnd m n nmZ nnZ)) proof prf
 >   | Z       = void (contra p) where
 >     m' : Nat
@@ -419,34 +419,32 @@
 >     p : gcd m' n' = S (S d)
 >     p = sym prf
 >     s01 : S (S d) `Divisor` m'
->     s01 = replace {x = gcd m' n'} 
->                   {y = S (S d)} 
->                   {P = \ ZUZU => ZUZU `Divisor` m'} 
->                   p (gcdSpec1 m' n')  
+>     s01 = replace {x = gcd m' n'}
+>                   {y = S (S d)}
+>                   {P = \ ZUZU => ZUZU `Divisor` m'}
+>                   p (gcdSpec1 m' n')
 >     s02 : S (S d) `Divisor` n'
->     s02 = replace {x = gcd m' n'} 
->                   {y = S (S d)} 
->                   {P = \ ZUZU => ZUZU `Divisor` n'} 
+>     s02 = replace {x = gcd m' n'}
+>                   {y = S (S d)}
+>                   {P = \ ZUZU => ZUZU `Divisor` n'}
 >                   p (gcdSpec2 m' n')
 >     s03  : m' * (gcd m n) = m
->     s03  = gcdSpec1 m n (gcdLemma1 m n nmZ nnZ) 
+>     s03  = gcdSpec1 m n (gcdLemma1 m n nmZ nnZ)
 >     s04  : n' * (gcd m n) = n
->     s04  = gcdSpec2 m n (gcdLemma1 m n nmZ nnZ) 
+>     s04  = gcdSpec2 m n (gcdLemma1 m n nmZ nnZ)
 >     d' : Nat
 >     d' = S (S d) * (gcd m n)
 >     d'divm : d' `Divisor` m
->     d'divm = replace {x = m' * (gcd m n)} 
->                      {y = m} 
->                      {P = \ ZUZU => d' `Divisor` ZUZU} 
+>     d'divm = replace {x = m' * (gcd m n)}
+>                      {y = m}
+>                      {P = \ ZUZU => d' `Divisor` ZUZU}
 >                      s03 (divisorLemma2 (S (S d)) m' s01 (gcd m n))
->     d'divn : d' `Divisor` n 
+>     d'divn : d' `Divisor` n
 >     d'divn = replace {x = n' * (gcd m n)}
->                      {y = n} 
+>                      {y = n}
 >                      {P = \ ZUZU => d' `Divisor` ZUZU}
 >                      s04 (divisorLemma2 (S (S d)) n' s02 (gcd m n))
 >     d'LTEgcd : d' `LTE` (gcd m n)
 >     d'LTEgcd = gcdSpec3 m n d' d'divm d'divn nmZ nnZ
 >     contra : Not (d' `LTE` (gcd m n))
 >     contra = multSSNotLTE d (gcd m n) (gcdLemma1 m n nmZ nnZ)
-
-
