@@ -100,8 +100,8 @@ Now Bellman's principle of optimality states that optimal policy
 sequences  extended with optimal extensions are themselves optimal:
 
 > Bellman  :  {n : Nat} ->
->             (ps : PolicySeq n) -> OptPolicySeq n ps ->
->             (p : Policy) ->       OptExt ps p ->
+>             (ps : PolicySeq n)  -> OptPolicySeq n ps  ->
+>             (p : Policy)        -> OptExt ps p        ->
 >             OptPolicySeq (S n) (p :: ps)
 
 The principle can be easily proved. One has
@@ -147,9 +147,9 @@ sequences of controls of the same length) can be solved by computing n
 optimal extensions by backwards induction. The following implementation
 and lemma shows that this is in fact the case:
 
-> backwardsInduction        :  (n : Nat) -> PolicySeq n
-> backwardsInduction Z      =  Nil
-> backwardsInduction (S n)  =  (optExt ps) :: ps where
+> backwardsInduction : (n : Nat)  ->  PolicySeq n
+> backwardsInduction Z            =   Nil
+> backwardsInduction (S n)        =   (optExt ps) :: ps where
 >   ps : PolicySeq n
 >   ps = backwardsInduction n
 
