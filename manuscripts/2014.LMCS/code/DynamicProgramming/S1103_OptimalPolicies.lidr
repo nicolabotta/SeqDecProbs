@@ -19,6 +19,12 @@
 > PolicySeq : Nat -> Type
 > PolicySeq n = Vect n Policy
 
+> val : (x : State) -> {n : Nat} -> PolicySeq n -> Float
+> val _  {n = Z}    _          =  0
+> val x  {n = S m}  (p :: ps)  =  reward x (p x) x' + val x' ps where
+>   x'  :  State
+>   x'  =  step x (p x)
+
 > ctrl : {n : Nat} -> (x : State) -> PolicySeq n -> CtrlSeq x n
 > ctrl x Nil = Nil
 > ctrl x (p :: ps) = (p x :: ctrl (step x (p x)) ps)
@@ -73,12 +79,6 @@
 >                    {x = p' :: ps'}
 >                    {y = modifyPolicySeq (p :: ps) (y :: ys)}
 >                    {P = \ z => ctrl x z = y :: ys} s3 s7
-
-> val : (x : State) -> {n : Nat} -> PolicySeq n -> Float
-> val _  {n = Z}    _          =  0
-> val x  {n = S m}  (p :: ps)  =  reward x (p x) x' + val x' ps where
->   x'  :  State
->   x'  =  step x (p x)
 
 > valueValLemma : (x : State) -> {n : Nat} ->
 >                 (ps : PolicySeq n) ->
