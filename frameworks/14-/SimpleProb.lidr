@@ -4,15 +4,15 @@
 > import Data.Fin
 > import Data.Vect
 
-> %default total 
+> %default total
 
 
 > data SimpleProb : Type -> Type where
->   MkSimpleProb : (as : Vect n alpha) -> 
+>   MkSimpleProb : (as : Vect n alpha) ->
 >                  (ps : Vect n Float) ->
 >                  ((k : Fin n) -> So (index k ps >= 0.0)) ->
->                  sum ps = 1.0 -> 
->                  SimpleProb alpha 
+>                  sum ps = 1.0 ->
+>                  SimpleProb alpha
 
 
 Vect operations
@@ -24,8 +24,8 @@ Vect operations
 > sum' Nil = Z
 > sum' (n :: ns) = n + sum' ns
 
-> concat' : {A : Type} -> 
->           (nass : Vect m (n : Nat ** Vect n A)) -> 
+> concat' : {A : Type} ->
+>           (nass : Vect m (n : Nat ** Vect n A)) ->
 >           Vect (sum' (map getWitness nass)) A
 > concat' Nil = Nil
 > concat' ((n ** as) :: nass) = as ++ concat' nass
@@ -40,14 +40,23 @@ Vect operations
 >   show (MkNonNegQ m n p q) = "frac " ++ show m ++ " " ++ show n
 
 > numerator : NonNegQ -> Nat
-> numerator (MkNonNegQ m n p q) = m 
+> numerator (MkNonNegQ m n p q) = m
 
 > denominator : NonNegQ -> Nat
 > denominator (MkNonNegQ m n p q) = n
 
-> succNotZ : Not (S n = Z)
+> succNotZ : {n : Nat} -> Not (S n = Z)
+> succNotZ Refl impossible
 
-> lcmLemma1 : Not (m = Z) -> Not (n = Z) -> Not (lcm m n = Z)
+> gcdLemma1 : {m : Nat} -> {n : Nat} -> Not (gcd (S m) (S n) = 0)
+
+> lcm' : Nat -> Nat -> Nat
+> lcm' _ Z = Z
+> lcm' Z _ = Z
+> lcm' (S x) (S y) = divNatNZ (S x * S y) (gcd (S x) (S y)) gcdLemma1
+
+> lcmLemma1 : {m : Nat} -> {n : Nat} ->
+>             Not (m = Z) -> Not (n = Z) -> Not (lcm m n = Z)
 
 > -- gcdLemma1 : gcd () () = S Z
 
