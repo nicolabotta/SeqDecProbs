@@ -26,7 +26,7 @@ terms of:
 > Mret   :  alpha -> M alpha
 > Mbind  :  M alpha -> (alpha -> M beta) -> M beta
 
-> -- unused functorSpec1  :  Mmap . id = id
+> -- unused functorSpec1  :  Mmap id = id
 > -- unused functorSpec2  :  Mmap (f . g) = (Mmap f) . (Mmap g)
 
 > -- unused monadSpec1  :  (Mmap f) . Mret = Mret . f
