@@ -2,21 +2,21 @@
 
 This repository contains Idris code supporting the computation of
 Sequential Decision Problems (SDPs). The ongoing research is also
-resulting in some research papers (see below).
+documented in some research papers (see below).
 
 Some related Agda code is available in
 [patrikja/SeqDecProb_Agda](https://github.com/patrikja/SeqDecProb_Agda).
 
 ## Idris source code
 
-* [manuscripts](manuscripts/)
+* [manuscripts/](manuscripts/)
     * 2014.LMCS: code from the paper "SDPs, dependent types and generic solutions". [The simple "cylinder" example](manuscripts/2014.LMCS/code/DynamicProgramming/S1206_CylinderExample1.lidr).
     * 2015.MSS: code from the paper "A computational theory of policy advice and avoidability". [A fairly self-contained file](manuscripts/2015.MSS/code/monadic.lidr) and [the support framework](frameworks/14-/).
-* [frameworks](frameworks/)
+* [frameworks/](frameworks/)
     Supporting code for the papers - Years [2011-2014](frameworks/11-14/) and a reworked structure from [2014-](frameworks/14-/).
-* [issue_reports](issue_reports/)
+* [issue_reports/](issue_reports/)
     The development of this code base has resulted in quite a few issue reports for the Idris implementation.
-* Some other directories: [talks](talks/), [idris-lang](idris-lang/), [notes](notes/), [prototypes](prototypes/), ...
+* Some other directories: [talks/](talks/), [idris-lang/](idris-lang/), [notes/](notes/), [prototypes/](prototypes/), ...
 
 ## Research papers
 
