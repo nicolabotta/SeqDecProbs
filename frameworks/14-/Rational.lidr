@@ -22,7 +22,7 @@
 > public numerator : Q -> Nat
 
 > |||
-> public denominator : Q -> Nat 
+> public denominator : Q -> Nat
 
 > |||
 > public denNotZero : (q : Q) -> Not (denominator q = Z)
@@ -48,13 +48,15 @@
 
 * Properties
 
-> public plusSign1 : (q1 : Q) -> (q2 : Q) -> 
->                    Not (sign q1 = Minus) -> Not (sign q2 = Minus) ->
->                    Not (sign (plus q1 q2) = Minus)
+> public NonNeg : Q -> Type
+> NonNeg q = Not (sign q = Minus)
 
-> public multSign1 : (q1 : Q) -> (q2 : Q) -> 
->                    Not (sign q1 = Minus) -> Not (sign q2 = Minus) ->
->                    Not (sign (mult q1 q2) = Minus)
+Patrik: TODO: Here (as in NonNegRational.lidr) it feels a bit
+backwards to use |Not| when a positive formulation would be possible.
 
+For example, with the natural ordering on Sign (TODO: define it - probably in Data.Sign in contrib).
 
+NonNeg q = sign q > Minus
 
+> public plusSign1 : (q1 : Q) -> (q2 : Q) -> NonNeg q1 -> NonNeg q2 -> NonNeg (plus q1 q2)
+> public multSign1 : (q1 : Q) -> (q2 : Q) -> NonNeg q1 -> NonNeg q2 -> NonNeg (mult q1 q2)
