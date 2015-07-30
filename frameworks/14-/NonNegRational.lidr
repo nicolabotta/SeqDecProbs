@@ -3,7 +3,7 @@
 > import Data.Sign
 
 > import Rational
-
+> import SignProperties
 
 > %default total
 
@@ -27,7 +27,20 @@ conceptually) contain a function.
 > toQSpec : (q : NonNegQ) -> NonNeg (toQ q)
 
 
+* Constants
+
+> zeroNonNegQ : NonNegQ
+> zeroNonNegQ = fromQ zeroQ nonNegZeroQ
+
+
 * Operations
+
+> |||
+> fromIntegerNonNegQ : Integer -> NonNegQ
+> fromIntegerNonNegQ i with (fromIntegerQ i)
+>   | q with (decEq (sign q) Minus)
+>       | Yes _ = zeroNonNegQ
+>       | No contra = fromQ q contra
 
 > plus : NonNegQ -> NonNegQ -> NonNegQ
 > plus q1 q2 = fromQ q nnq where
@@ -36,6 +49,12 @@ conceptually) contain a function.
 >   nnq : NonNeg q
 >   nnq = plusSign1 (toQ q1) (toQ q2) (toQSpec q1) (toQSpec q2)
 
+> minus : NonNegQ -> NonNegQ -> NonNegQ
+> minus q1 q2 with (Rational.minus (toQ q1) (toQ q2))
+>   | q with (decEq (sign q) Minus)
+>       | Yes _ = zeroNonNegQ
+>       | No contra = fromQ q contra
+
 > mult : NonNegQ -> NonNegQ -> NonNegQ
 > mult q1 q2 = fromQ q nnq where
 >   q   : Q
@@ -43,4 +62,14 @@ conceptually) contain a function.
 >   nnq : NonNeg q
 >   nnq = multSign1 (toQ q1) (toQ q2) (toQSpec q1) (toQSpec q2)
 
-These operations
+
+* Properties
+
+> instance Num NonNegQ where
+>   (+) = plus
+>   (-) = minus
+>   (*) = mult
+>   
+>   abs q = q
+>   
+>   fromInteger = fromIntegerNonNegQ
