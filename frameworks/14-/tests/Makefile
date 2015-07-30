@@ -10,7 +10,11 @@ standardDivMod: standardDivMod.lidr
 nicolaDivMod: nicolaDivMod.lidr
 	${IDRIS} ${IDRISFLAGS} nicolaDivMod.lidr -o nicolaDivMod
 
+melvarDivMod: melvarDivMod.lidr
+	${IDRIS} ${IDRISFLAGS} melvarDivMod.lidr -o melvarDivMod
+
 clean:
 	-rm -f standardDivMod
 	-rm -f nicolaDivMod
+	-rm -f melvarDivMod
 	-find . -name '*.ibc' -delete

@@ -15,7 +15,7 @@
 > divmodNatNZ : (m : Nat) -> (n : Nat) -> Not (n = Z) -> (Nat, Nat)
 > divmodNatNZ m  Z    p = void (p Refl)
 > divmodNatNZ m (S n) p with (divMod m n)
->   | MkDivMod k r rLTm = (k, r)
+>   divmodNatNZ (r + q * (S n)) (S n) p | MkDivMod q r rLTm = (q, r)
 
 > divNatNZ : (m : Nat) -> (n : Nat) -> Not (n = Z) -> Nat
 > divNatNZ m n nnZ = fst (divmodNatNZ m n nnZ)
@@ -30,7 +30,7 @@
 >      putStr ("enter n:\n")
 >      n <- getNat
 >      case (decEq n Z) of
->        (No contra) => do k <- pure (divNatNZ m n contra)
+>        (No contra) => do k <- pure (Main.divNatNZ m n contra)
 >                          putStr ("divNatNZ = " ++ show k ++ "\n")
 >        (Yes p)     => putStr ("Error: n = Z\n")
 > %freeze computation
