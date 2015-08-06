@@ -81,8 +81,7 @@ Now we can continue with the proof:
 >               QED
 
 > |||
-> -- multSumLemma : (NumMultZeroPlus t, NumMultDistributesOverPlus t) =>
-> multSumLemma : (NumMultZeroPlus t) =>
+> multSumLemma : (NumMultDistributesOverPlus t) =>
 >                (x : t) -> (xs : Vect m t) ->
 >                x * sum xs = sum (multSV x xs)
 > multSumLemma x  Nil      = ( x * (fromInteger 0) )
@@ -92,23 +91,14 @@ Now we can continue with the proof:
 >                            ( sum Data.VectType.Vect.Nil )
 >                          QED
 > multSumLemma x (y :: ys) = ( x * (sum (y :: ys)) )
->                          ={ replace {x = sum (y :: ys)}
->                                     {y = y + sum ys}
->                                     {P = \ ZUZU => x * (sum (y :: ys)) = x * ZUZU}
->                                     (sumLemma y ys)
->                                     Refl }=
+>                          ={ cong (sumLemma y ys) }=
 >                            ( x * (y + sum ys) )
->                          ={ ?loki }=
->                          -- ={ multDistributesOverPlusRight x y (sum ys) }=
->                            ( x * y + x * sum ys )
->                          ={ replace {x = x * sum ys}
->                                     {y = sum (multSV x ys)}
->                                     {P = \ ZUZU => x * y + x * sum ys = x * y + ZUZU}
->                                     (multSumLemma x ys)
->                                     Refl }=
+>                          ={ NumRefinements.multDistributesOverPlusRight x y (sum ys) }=
+>                            ( (x * y) + (x * sum ys) )
+>                          ={ cong (multSumLemma x ys) }=
 >                            ( x * y + sum (multSV x ys) )
 >                          ={ sym (sumLemma (x * y) (multSV x ys)) }=
->                            ( sum (x * y :: (multSV x ys)) )
+>                            ( sum (x * y :: multSV x ys) )
 >                          ={ Refl }=
 >                            ( sum (multSV x (y :: ys)) )
 >                          QED

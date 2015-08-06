@@ -5,8 +5,8 @@
 
 
 > class (Num t) => NumPlusZeroPlus t where
->   plusZeroPlusRight : (x : t) -> x + (fromInteger 0) = x 
->   plusZeroPlusLeft  : (x : t) -> (fromInteger 0) + x = x 
+>   plusZeroPlusRight : (x : t) -> x + (fromInteger 0) = x
+>   plusZeroPlusLeft  : (x : t) -> (fromInteger 0) + x = x
 
 
 > class (Num t) => NumMultZeroPlus t where
@@ -14,9 +14,8 @@
 >   multZeroPlusLeft  : (x : t) -> (fromInteger 0) * x = fromInteger 0
 
 
-> class (Num t) => NumMultDistributesOverPlus t where
+> class (NumMultZeroPlus t) => NumMultDistributesOverPlus t where
 >   multDistributesOverPlusRight : (x : t) -> (y : t) -> (z : t) ->
 >                                  x * (y + z) = (x * y) + (x * z)
 >   multDistributesOverPlusLeft  : (x : t) -> (y : t) -> (z : t) ->
 >                                  (x + y) * z = (x * z) + (y * z)
-
