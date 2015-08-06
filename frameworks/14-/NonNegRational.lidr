@@ -9,7 +9,6 @@
 > import Basics
 
 
-
 > %default total
 
 
@@ -158,4 +157,6 @@ should be a consequence of |Q| being a monoid and of something like
 
 But due to #2489 we have to write ad-hoc implementations at the instance
 level.
+
+
 

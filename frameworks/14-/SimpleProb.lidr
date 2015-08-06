@@ -48,4 +48,13 @@
 >   p  : sum ps = oneNonNegQ
 >   p  = sumLemma0 oneNonNegQ
 
+> {-
+> bind : {A, B : Type} -> SimpleProb A -> (A -> SimpleProb B) -> SimpleProb B
+> bind {A} {B} (MkSimpleProb as ps p) f = MkSimpleProb bs ps' p' where
+>   n  : Nat
+>   n  = length as
+>   bs : Vect n B
+> -}
+
+
 > ---}
