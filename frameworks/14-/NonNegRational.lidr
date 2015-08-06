@@ -69,7 +69,7 @@ conceptually) contain a function.
 * Constants
 
 > zeroNonNegQ : NonNegQ
-> zeroNonNegQ = fromIntegerNonNegQ 0 
+> zeroNonNegQ = fromIntegerNonNegQ 0
 
 > zeroNonNegQLemma : zeroNonNegQ = fromQ zeroQ nonNegZeroQ
 
@@ -106,25 +106,25 @@ conceptually) contain a function.
 >   (+) = plus
 >   (-) = minus
 >   (*) = mult
->   
+>
 >   abs q = q
->   
+>
 >   fromInteger = fromIntegerNonNegQ
 
 > |||
 > plusZeroRightNeutral : (left : NonNegQ) -> left + zeroNonNegQ = left
-> plusZeroRightNeutral (MkNonNegQ q nnq) = 
->     ( MkNonNegQ q nnq + fromIntegerNonNegQ 0 )  
+> plusZeroRightNeutral (MkNonNegQ q nnq) =
+>     ( MkNonNegQ q nnq + fromIntegerNonNegQ 0 )
 >   ={ replace {x = fromIntegerNonNegQ 0}
 >              {y = fromQ zeroQ nonNegZeroQ}
 >              {P = \ ZUZU => MkNonNegQ q nnq + fromIntegerNonNegQ 0 = MkNonNegQ q nnq + ZUZU}
 >              zeroNonNegQLemma
 >              Refl }=
->     ( MkNonNegQ q nnq + fromQ zeroQ nonNegZeroQ )  
+>     ( MkNonNegQ q nnq + fromQ zeroQ nonNegZeroQ )
 >   ={ Refl }=
 >     ( fromQ (Rational.plus q zeroQ) (plusSign1 q zeroQ nnq nonNegZeroQ) )
 >   ={ depCong2 {alpha = Q}
->               {P = \ x => NonNeg x} 
+>               {P = \ x => NonNeg x}
 >               {gamma = NonNegQ}
 >               {a1 = Rational.plus q zeroQ}
 >               {a2 = q}
@@ -142,7 +142,7 @@ conceptually) contain a function.
 This lemma
 
 > sumLemma0 : (q : NonNegQ) -> sum (q :: Nil) = q
-> sumLemma0 q = ( plus q zeroNonNegQ )          
+> sumLemma0 q = ( plus q zeroNonNegQ )
 >             ={ NonNegRational.plusZeroRightNeutral q }=
 >               ( q )
 >             QED
@@ -157,6 +157,3 @@ should be a consequence of |Q| being a monoid and of something like
 
 But due to #2489 we have to write ad-hoc implementations at the instance
 level.
-
-
-
