@@ -80,6 +80,15 @@ Now we can continue with the proof:
 >                 ( x + sum xs )
 >               QED
 
+> ||| This follows from the definition of append (because it is not defined in terms of foldr)
+> appendLemma : (x : t) -> (xs : Vect m t) -> (ys : Vect n t) ->
+>               ((x :: xs) ++ ys) = (x :: (xs ++ ys))
+> appendLemma x xs ys =
+>     ( (x :: xs) ++ ys )
+>   ={ Refl }=
+>     ( x :: (xs ++ ys) )
+>   QED
+
 > |||
 > multSumLemma : (NumMultDistributesOverPlus t) =>
 >                (x : t) -> (xs : Vect m t) ->
@@ -103,9 +112,73 @@ Now we can continue with the proof:
 >                            ( sum (multSV x (y :: ys)) )
 >                          QED
 
+> sumsTo : Num t => (s : t) -> (xs : Vect m t) -> Type
+> sumsTo s xs = (sum xs = s)
+
+> sumOne : Num t => (xs : Vect m t) -> Type
+> sumOne = sumsTo (fromInteger 1)
+
+> lemma1 :  {t : Type} -> NumMultDistributesOverPlus t =>
+>           (x : t) -> (xs : Vect n t) ->
+>           sumOne xs -> sumsTo x (multSV x xs)
+> lemma1 x xs pxs =
+>     ( sum (multSV x xs) )
+>   ={ sym (multSumLemma x xs) }=
+>     ( x * sum xs )
+>   ={ cong pxs }=
+>     ( x * fromInteger 1 )
+>   ={ multOneRight x }=
+>     x
+>   QED
+
+> sumPlusAppendLemma :  NumAssocPlus t =>
+>                       (xs : Vect n t) -> (ys : Vect m t) ->
+>                       (sum xs + sum ys) = sum (xs ++ ys)
+> sumPlusAppendLemma Nil ys = plusZeroPlusLeft (sum ys)
+> sumPlusAppendLemma (x :: xs) ys =
+>     ( sum (x :: xs) + sum ys )
+>   ={ cong {f = \a => a + sum ys} (sumLemma x xs) }=
+>     ( (x + sum xs) + sum ys )
+>   ={ sym (plusAssoc x (sum xs) (sum ys)) }=
+>     ( x + (sum xs + sum ys) )
+>   ={ cong (sumPlusAppendLemma xs ys) }=
+>     ( x + sum (xs ++ ys) )
+>   ={ sym (sumLemma x (xs ++ ys)) }=
+>     ( sum (x :: (xs ++ ys)) )
+>   ={ Refl }=
+>     ( sum ((x :: xs) ++ ys) )
+>   QED
+>
+> sumMapConcat :  NumAssocPlus t => (xss : Matrix m n t) ->
+>           sum (map sum xss) = sum (Vect.concat xss)
+> sumMapConcat Nil = Refl
+> sumMapConcat (row :: rows) =
+>     ( sum (map sum (row :: rows)) )
+>   ={ Refl }=
+>     ( sum (sum row :: map sum rows) )
+>   ={ sumLemma (sum row) (map sum rows) }=
+>     ( sum row + sum (map sum rows) )
+>   ={ cong (sumMapConcat rows) }=
+>     ( sum row + sum (Vect.concat rows) )
+>   ={ sumPlusAppendLemma row (Vect.concat rows) }=
+>     ( sum (row ++ Vect.concat rows) )
+>   ={ Refl }=
+>     ( sum (Vect.concat (row :: rows)) )
+>   QED
+
+
 > |||
 > multVMLemma : (Num t) =>
->               (xs : Vect m t) -> (xss : Matrix m n t) ->
->               sum xs = (fromInteger 1) ->
->               (k : Fin m -> sum (row k xss) = fromInteger 1) ->
->               sum (toVect (multVM xs xss)) = fromInteger 1
+>               (m : Nat) ->
+>               (xs : Vect m t) -> sumOne xs ->
+>               (n : Nat) ->
+>               (xss : Matrix m n t) ->
+>               (k : Fin m -> sumOne (row k xss)) ->
+>               sumOne (toVect (multVM xs xss))
+> multVMLemma m xs pxs n xss pxss = ?mult
+
+Use lemma1, sumMapConcat, etc.
+
+Requires both NumAssocPlus and NumMultDistributesOverPlus. (And
+currently there is some problem with "multiple constraints" so the
+NumRefinements class may need to change to a chain instead of a tree.)
