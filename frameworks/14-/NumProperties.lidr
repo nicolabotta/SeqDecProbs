@@ -9,6 +9,7 @@
 > import MatrixOperations
 > import NumRefinements
 > import NumOperations
+> -- import FinOperations
 
 > %default total
 
@@ -118,7 +119,8 @@ Now we can continue with the proof:
 > sumOne : Num t => (xs : Vect m t) -> Type
 > sumOne = sumsTo (fromInteger 1)
 
-> lemma1 :  {t : Type} -> NumMultDistributesOverPlus t =>
+> -- lemma1 :  {t : Type} -> NumMultDistributesOverPlus t =>
+> lemma1 :  (NumMultDistributesOverPlus t) =>
 >           (x : t) -> (xs : Vect n t) ->
 >           sumOne xs -> sumsTo x (multSV x xs)
 > lemma1 x xs pxs =
@@ -149,8 +151,8 @@ Now we can continue with the proof:
 >     ( sum ((x :: xs) ++ ys) )
 >   QED
 >
-> sumMapConcat :  NumAssocPlus t => (xss : Matrix m n t) ->
->           sum (map sum xss) = sum (Vect.concat xss)
+> sumMapConcat : (NumAssocPlus t) => (xss : Matrix m n t) ->
+>                sum (map sum xss) = sum (Vect.concat xss)
 > sumMapConcat Nil = Refl
 > sumMapConcat (row :: rows) =
 >     ( sum (map sum (row :: rows)) )
@@ -167,18 +169,68 @@ Now we can continue with the proof:
 >   QED
 
 
-> |||
-> multVMLemma : (Num t) =>
->               (m : Nat) ->
->               (xs : Vect m t) -> sumOne xs ->
->               (n : Nat) ->
->               (xss : Matrix m n t) ->
->               (k : Fin m -> sumOne (row k xss)) ->
->               sumOne (toVect (multVM xs xss))
-> multVMLemma m xs pxs n xss pxss = ?mult
-
 Use lemma1, sumMapConcat, etc.
 
 Requires both NumAssocPlus and NumMultDistributesOverPlus. (And
 currently there is some problem with "multiple constraints" so the
 NumRefinements class may need to change to a chain instead of a tree.)
+
+> ||| 'Tail' of a finite dependently typed function
+> depTail : {n : Nat} -> {P : Fin (S n) -> Type} -> 
+>           ((k : Fin (S n)) -> P k) -> ((j : Fin n) -> P (FS j))
+> depTail {P} f k = f (FS k)
+
+> |||
+> multVMLemma0 : (NumAssocPlus t) => 
+>                (xs : Vect m t) -> (xss : Matrix m n t) ->
+>                ((k : Fin m) -> sumOne (row k xss)) -> 
+>                sum (Vect.concat (multVM xs xss)) = sum xs 
+> multVMLemma0 {m = Z}    {n}  Nil       Nil        _  = Refl
+> multVMLemma0 {m = S m'} {n} (x :: xs) (ys :: yss) ps =
+>     ( sum (Vect.concat (multVM (x :: xs) (ys :: yss))) )
+>   ={ Refl }=
+>     ( sum (Vect.concat ((multSV x ys) :: (multVM xs yss))) )
+>   ={ sym (sumMapConcat ((multSV x ys) :: (multVM xs yss))) }=
+>     ( sum (map sum ((multSV x ys) :: (multVM xs yss))) )
+>   ={ Refl }=
+>     ( sum (sum (multSV x ys) :: (map sum (multVM xs yss))) )
+>   ={ ?lala }=
+>   {-
+>   ={ cong (lemma1 x ys (ps FZ)) }=
+>   ={ replace {x = sum (multSV x ys)}
+>              {y = x}
+>              {P = \ ZUZU => sum (sum (multSV x ys) :: (map sum (multVM xs yss)))
+>                             =
+>                             sum (ZUZU :: (map sum (multVM xs yss)))}
+>              (lemma1 x ys (ps FZ))
+>              Refl }=
+>   ---}
+>     ( sum (x :: (map sum (multVM xs yss))) )
+>   ={ sumLemma x (map sum (multVM xs yss)) }=
+>     ( x + sum (map sum (multVM xs yss)) )
+>   ={ cong (sumMapConcat (multVM xs yss)) }=
+>     ( x + sum (Vect.concat (multVM xs yss)) )
+>   ={ cong (multVMLemma0 xs yss (depTail ps)) }=
+>     ( x + sum xs )
+>   ={ sym (sumLemma x xs) }=           
+>     ( sum (x :: xs) )
+>   QED
+
+
+> |||
+> multVMLemma : (NumAssocPlus t) =>
+>               (m : Nat) ->
+>               (xs : Vect m t) -> sumOne xs ->
+>               (n : Nat) ->
+>               (xss : Matrix m n t) ->
+>               ((k : Fin m) -> sumOne (row k xss)) ->
+>               sumOne (Vect.concat (multVM xs xss))
+> multVMLemma m xs pxs n xss pxss = 
+>     ( sum (Vect.concat (multVM xs xss)) )
+>   ={ multVMLemma0 xs xss pxss }=
+>     ( sum xs )
+>   ={ pxs }=
+>     ( fromInteger 1 )
+>   QED
+>     
+

@@ -22,3 +22,4 @@
 >                                  x * (y + z) = (x * y) + (x * z)
 >   multDistributesOverPlusLeft  : (x : t) -> (y : t) -> (z : t) ->
 >                                  (x + y) * z = (x * z) + (y * z)
+
