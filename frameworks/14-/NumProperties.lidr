@@ -21,21 +21,24 @@ The following
 >                  (a : A) -> (as : Vect n A) ->
 >                  foldr f e (a :: as) = f a (foldr f e as)
 
-should hold by definition and should be replaceable by just |Refl|. But
-since |Data.VectType.foldr| is implemented in terms of an accumulator
-(is there a particular reason for doing so ?) we in fact need a
-(possibly non-trivial?) proof.
+should hold by definition and should be replaceable by just
+|Refl|. But since |Data.VectType.foldr| is implemented in terms of an
+accumulator (for efficiency?) we in fact need a proof.
 
+First the "classical" (traditional) definition of |foldr| for vectors:
 
 > total foldrClassic : (t -> acc -> acc) -> acc -> Vect n t -> acc
-> foldrClassic f e [] = e
+> foldrClassic f e []      = e
 > foldrClassic f e (x::xs) = f x (foldrClassic f e xs)
+
+In the Idris libraries |foldrImpl| is used instead, but we can prove
+the following specification:
 
 > foldrImplLemma : {A, B : Type} -> {n : Nat} ->
 >                  (f : A -> B -> B) -> (e : B) -> (go : B -> B) ->
 >                  (as : Vect n A) ->
 >                  foldrImpl f e go as = go (foldrClassic f e as)
-> foldrImplLemma f e go [] = Refl
+> foldrImplLemma f e go []        = Refl
 > foldrImplLemma f e go (a :: as) =
 >     ( foldrImpl f e go (a :: as) )
 >   ={ Refl }=
@@ -48,6 +51,9 @@ since |Data.VectType.foldr| is implemented in terms of an accumulator
 >     ( go (foldrClassic f e (a :: as) ) )
 >   QED
 
+Then we can specialise to when |go| is |id| as in the definition of
+|foldr|:
+
 > foldrImplCorr :  {A, B : Type} -> {n : Nat} ->
 >                  (f : A -> B -> B) -> (e : B) ->
 >                  (as : Vect n A) ->
@@ -56,21 +62,22 @@ since |Data.VectType.foldr| is implemented in terms of an accumulator
 
 Now we can continue with the proof:
 
-> foldrVectLemma f e a as =
->     ( foldr f e (a :: as) )
+> foldrVectLemma g e a as =
+>     ( foldr g e (a :: as) )
 >   ={ Refl }=
->     ( foldrImpl f e id (a :: as) )
->   ={ foldrImplCorr f e (a :: as) }=
->     ( foldrClassic f e (a :: as) )
+>     ( foldrImpl g e id (a :: as) )
+>   ={ foldrImplCorr g e (a :: as) }=
+>     ( foldrClassic g e (a :: as) )
 >   ={ Refl }=
->     ( f a (foldrClassic f e as) )
->   ={ cong {f = f a} (sym (foldrImplCorr f e as)) }=
->     ( f a (foldrImpl f e id as) )
+>     ( g a (foldrClassic g e as) )
+>   ={ cong {f = g a} (sym (foldrImplCorr g e as)) }=
+>     ( g a (foldrImpl g e id as) )
 >   ={ Refl }=
->     ( f a (foldr f e as) )
+>     ( g a (foldr g e as) )
 >   QED
 
-> |||
+Finally we get to the one-step unfolding of |sum|:
+
 > sumLemma : (Num t) => (x : t) -> (xs : Vect m t) -> sum (x :: xs) = x + sum xs
 > sumLemma x xs = ( sum (x :: xs) )
 >               ={ Refl }=
@@ -81,7 +88,9 @@ Now we can continue with the proof:
 >                 ( x + sum xs )
 >               QED
 
-> ||| This follows from the definition of append (because it is not defined in terms of foldr)
+The corresponding lemma for append (|++|) follows from the definition
+of append (because it is not defined in terms of |foldrImpl|)
+
 > appendLemma : (x : t) -> (xs : Vect m t) -> (ys : Vect n t) ->
 >               ((x :: xs) ++ ys) = (x :: (xs ++ ys))
 > appendLemma x xs ys =
@@ -119,7 +128,6 @@ Now we can continue with the proof:
 > sumOne : Num t => (xs : Vect m t) -> Type
 > sumOne = sumsTo (fromInteger 1)
 
-> -- lemma1 :  {t : Type} -> NumMultDistributesOverPlus t =>
 > lemma1 :  (NumMultDistributesOverPlus t) =>
 >           (x : t) -> (xs : Vect n t) ->
 >           sumOne xs -> sumsTo x (multSV x xs)
@@ -136,10 +144,10 @@ Now we can continue with the proof:
 > sumPlusAppendLemma :  NumAssocPlus t =>
 >                       (xs : Vect n t) -> (ys : Vect m t) ->
 >                       (sum xs + sum ys) = sum (xs ++ ys)
-> sumPlusAppendLemma Nil ys = plusZeroPlusLeft (sum ys)
+> sumPlusAppendLemma Nil       ys = plusZeroPlusLeft (sum ys)
 > sumPlusAppendLemma (x :: xs) ys =
 >     ( sum (x :: xs) + sum ys )
->   ={ cong {f = \a => a + sum ys} (sumLemma x xs) }=
+>   ={ cong {f = (+ sum ys)} (sumLemma x xs) }=
 >     ( (x + sum xs) + sum ys )
 >   ={ sym (plusAssoc x (sum xs) (sum ys)) }=
 >     ( x + (sum xs + sum ys) )
@@ -153,7 +161,7 @@ Now we can continue with the proof:
 >
 > sumMapConcat : (NumAssocPlus t) => (xss : Matrix m n t) ->
 >                sum (map sum xss) = sum (Vect.concat xss)
-> sumMapConcat Nil = Refl
+> sumMapConcat Nil           = Refl
 > sumMapConcat (row :: rows) =
 >     ( sum (map sum (row :: rows)) )
 >   ={ Refl }=
@@ -169,11 +177,10 @@ Now we can continue with the proof:
 >   QED
 
 
-Use lemma1, sumMapConcat, etc.
-
-Requires both NumAssocPlus and NumMultDistributesOverPlus. (And
-currently there is some problem with "multiple constraints" so the
-NumRefinements class may need to change to a chain instead of a tree.)
+The |multVMLemma| requires both NumAssocPlus and
+NumMultDistributesOverPlus and currently there is some problem with
+"multiple constraints" so we changed the NumRefinements classes to a
+chain instead of a tree.
 
 > ||| 'Tail' of a finite dependently typed function
 > depTail : {n : Nat} -> {P : Fin (S n) -> Type} ->
@@ -208,7 +215,7 @@ NumRefinements class may need to change to a chain instead of a tree.)
 >   QED
 
 
-> |||
+
 > multVMLemma : (NumMultDistributesOverPlus t) =>
 >               (m : Nat) ->
 >               (xs : Vect m t) -> sumOne xs ->
@@ -223,3 +230,25 @@ NumRefinements class may need to change to a chain instead of a tree.)
 >   ={ pxs }=
 >     ( fromInteger 1 )
 >   QED
+
+
+> {-
+> ||| Alternative - no case analysis, but would need a few lemmas.
+> multVMLemma m xs pxs n xss pxss =
+>     ( sum (Vect.concat (multVM xs xss)) )
+>   ={ sym (sumMapConcat (multVM xs xss)) }=
+>     ( sum (map sum     (multVM xs xss)) )
+>   ={ Refl }=
+>     ( sum (map sum (map (uncurry multSV)  (zip xs xss))) )
+>   ={ ?mapFunctorLemma }=
+>     ( sum (map (sum .    uncurry multSV ) (zip xs xss)) )
+>   ={ ?mapZipLemma }=
+>     ( sum (zipWith (\x, xs => sum (multSV x xs)) xs xss) )
+>   ={ ?roughlyLemma1UnderLambdas }=
+>     ( sum (zipWith (\x, xs => x         ) xs xss) )
+>   ={ ?lala4 }=
+>     ( sum xs )
+>   ={ pxs }=
+>     ( fromInteger 1 )
+>   QED
+> -}
