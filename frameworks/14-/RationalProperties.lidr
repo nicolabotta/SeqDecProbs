@@ -15,12 +15,12 @@
 > %default total
 
 
-Instances:
-
+> ||| Rationals are signed
 > instance Signed Q where
 >   sign = sign
 
 
+> ||| Rationals are in |Num|
 > instance Num Q where
 >   (+) = plus
 >   (-) = minus

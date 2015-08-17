@@ -12,9 +12,21 @@
 > import SignedPredicates
 > import SignProperties
 > import Basics
+> import NumRefinements
 
 
 > %default total
+
+
+> ||| Non-negative rationals are in |Num|
+> instance Num NonNegQ where
+>   (+) = plus
+>   (-) = minus
+>   (*) = mult
+>
+>   abs q = q
+>
+>   fromInteger = fromIntegerNonNegQ
 
 
 Properties of numerator, denominator:
@@ -31,18 +43,6 @@ Properties of numerator, denominator:
 Properties of |zeroNonNegQ|:
 
 > zeroNonNegQLemma : zeroNonNegQ = fromQ zeroQ nonNegZeroQ
-
-
-|NonNegQ| is a |Num|:
-
-> instance Num NonNegQ where
->   (+) = plus
->   (-) = minus
->   (*) = mult
->
->   abs q = q
->
->   fromInteger = fromIntegerNonNegQ
 
 
 Properties of |plus|:
@@ -73,6 +73,16 @@ Properties of |plus|:
 >   ={ Refl }=
 >     ( MkNonNegQ q nnq )
 >   QED
+
+
+...
+
+> ||| Non-negative rationals are in ||
+> instance NumMultDistributesOverPlus NonNegQ where
+
+
+
+
 
 
 This lemma
