@@ -4,7 +4,8 @@
 > import Decidable.Order
 > import Syntax.PreorderReasoning
 
-
+> import NatPredicates
+> import NatOperations
 > import Preorder
 > import TotalPreorder
 
@@ -41,6 +42,14 @@ EQ properties
 
 
 LT, LTE properties
+
+> notLTELemma0 : Not (S m `LTE` S n) -> Not (m `LTE` n)
+> notLTELemma0 contra = contra . LTESucc
+
+> notLTELemma1 : (m : Nat) -> (n : Nat) -> Not (m `LTE` n) -> n `LTE` m 
+> notLTELemma1  m     Z    p = LTEZero
+> notLTELemma1  Z    (S n) p = void (p LTEZero)
+> notLTELemma1 (S m) (S n) p = LTESucc (notLTELemma1 m n (notLTELemma0 p))
 
 > |||
 > lteLemma1 : (m : Nat) -> (n : Nat) -> LTE (S m) n -> LTE m n
@@ -234,7 +243,13 @@ Properties of |minus|:
 >   QED
 
 
-Decidability
+Properties of |plus| and |minus|:
+
+> plusRightInverseMinus : (m : Nat) -> (n : Nat) -> m `LTE` n -> (n - m) + m = n 
+
+
+
+Decidability:
 
 > ||| LTE is decidable
 > decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)
@@ -265,3 +280,69 @@ Uniqueness
 > ||| LT is unique
 > uniqueLT : (p1 : LT m n) -> (p2 : LT m n) -> p1 = p2
 > uniqueLT {m} {n} = uniqueLTE {m = S m} {n = n}
+
+
+Divisor properties:
+
+> anyDivisorZ : (m : Nat) -> m `Divisor` Z
+
+> oneDivisorAny : (m : Nat) -> (S Z) `Divisor` m
+
+> anyDivisorAny : (m : Nat) -> m `Divisor` m
+
+> divisorPlusLemma1 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                      d `Divisor` m -> d `Divisor` n -> d `Divisor` (n + m)
+
+> divisorPlusLemma2 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (m + n)
+
+> divisorMinusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                     m `LTE` n ->
+>                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (n - m)
+
+> divisorOneLemma : (d : Nat) -> (d' : Nat) -> (S d) * d' `Divisor` (S d) -> d' `Divisor` S Z
+
+> divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) -> 
+>                    (dDm : d `Divisor` m) -> d' `Divisor` (divBy d m dDm) -> d * d' `Divisor` m
+
+
+Greatest common divisor properties:
+
+> gcdLemma : (v : GCD (S d) m n) -> 
+>            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) -> d' `Divisor` (divBy (S d) n (gcdDivisorSnd v)) -> 
+>            d' `Divisor` S Z
+> gcdLemma {d} {d'} {m} {n} v d'DmoSd d'DnoSd = divisorOneLemma d d' Sdd'DSd where
+>   SdDm    : (S d) `Divisor` m
+>   SdDm    = gcdDivisorFst v
+>   SdDn    : (S d) `Divisor` n
+>   SdDn    = gcdDivisorSnd v
+>   SdG     : (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` (S d)
+>   SdG     = gcdDivisorGreatest v
+>   Sdd'Dm  : (S d) * d' `Divisor` m
+>   Sdd'Dm  = divisorTowerLemma (S d) d' m SdDm d'DmoSd
+>   Sdd'Dn  : (S d) * d' `Divisor` n
+>   Sdd'Dn  = divisorTowerLemma (S d) d' n SdDn d'DnoSd
+>   Sdd'DSd : (S d) * d' `Divisor` (S d)
+>   Sdd'DSd = SdG ((S d) * d') Sdd'Dm Sdd'Dn
+
+
+Coprime properties:
+
+> gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v)) (divBy (S d) n (gcdDivisorSnd v))
+> gcdCoprimeLemma {d} {m} {n} v = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
+>   dDm     : (S d) `Divisor` m
+>   dDm     = gcdDivisorFst v
+>   dDn     : (S d) `Divisor` n
+>   dDn     = gcdDivisorSnd v
+>   m'      : Nat
+>   m'      = divBy (S d) m dDm
+>   n'      : Nat
+>   n'      = divBy (S d) n dDn
+>   d'Dm'   : S Z `Divisor` m'
+>   d'Dm'   = oneDivisorAny m'
+>   d'Dn'   : S Z `Divisor` n'
+>   d'Dn'   = oneDivisorAny n'
+>   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
+>   d'G d'' = gcdLemma v
+
+

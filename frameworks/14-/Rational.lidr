@@ -5,6 +5,8 @@
 
 > import SignProperties
 > import NatPredicates
+> import NatOperations
+> import NatProperties
 
 
 > %default total
