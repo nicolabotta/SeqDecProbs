@@ -1,16 +1,10 @@
 > module NonNegRationalProperties
 
-> import Data.Sign
 > import Syntax.PreorderReasoning
 
 > import NonNegRational
 > import NonNegRationalOperations
-> import RationalSpecification
-> import RationalOperations
-> import RationalProperties
 > import NatPredicates
-> import SignedPredicates
-> import SignProperties
 > import Basics
 > import NumRefinements
 
@@ -18,27 +12,24 @@
 > %default total
 
 
+> ||| Non-negative rationals are in |Show|
+> instance Show NonNegQ where
+>   show q = show (num q) ++ "/" ++ show (den q)
+
+
 > ||| Non-negative rationals are in |Num|
 > instance Num NonNegQ where
 >   (+) = plus
 >   (-) = minus
 >   (*) = mult
->
 >   abs q = q
->
 >   fromInteger = fromIntegerNonNegQ
 
 
-Properties of numerator, denominator:
 
-> |||
-> denNotZero : (q : NonNegQ) -> Not (denominator q = Z)
-> denNotZero (MkNonNegQ q nnq) = denNotZero q
 
-> |||
-> numDenCoprime : (q : NonNegQ) -> Coprime (numerator q) (denominator q)
-> numDenCoprime (MkNonNegQ q nnq) = numDenCoprime q
 
+> {-
 
 Properties of |zeroNonNegQ|:
 
@@ -103,3 +94,6 @@ should be a consequence of |Q| being a monoid and of something like
 
 But due to #2489 we have to write ad-hoc implementations at the instance
 level.
+
+
+> ---}

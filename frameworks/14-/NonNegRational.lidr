@@ -1,10 +1,7 @@
 > module NonNegRational
 
-> import Data.Sign
 
-> import RationalSpecification
-> import RationalProperties
-> import SignedPredicates
+> import NatPredicates
 
 
 > %default total
@@ -12,15 +9,16 @@
 
 > ||| Non negative rationals
 > data NonNegQ : Type where
->   MkNonNegQ : (q : Q) -> NonNeg q -> NonNegQ
+>   MkNonNegQ : (n : Nat) -> (d : Nat) -> Not (d = Z) -> Coprime n d -> NonNegQ
+
+> {-
 
 > |||
-> fromQ : (q : Q) -> Not (sign q = Minus) -> NonNegQ
-> fromQ = MkNonNegQ
+> fromNat : (n : Nat) -> NonNegQ
+> fromNat = MkNonNegQ n (S Z) SIsNotZ anyCoprimeOne
 
-> |||
-> toQ : NonNegQ -> Q
-> toQ (MkNonNegQ q nnq) = q
+> toNat : NonNegQ -> 
+> toNat (MkNonNegQ q nnq) = q
 
 > |||
 > toQLemma : (q : NonNegQ) -> NonNeg (toQ q)
@@ -30,4 +28,4 @@
 > toQfromQLemma : (q : Q) -> (nnq : Not (sign q = Minus)) -> toQ (fromQ q nnq) = q
 > toQfromQLemma q nnq = Refl
 
-
+> ---}

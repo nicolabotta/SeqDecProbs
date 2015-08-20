@@ -29,7 +29,7 @@ Euclid's greatest common divisor algorithm
 >   q' : (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d
 >   q' d' d'Dm d'Dn = q d' d'Dm d'Dnmm where
 >     d'Dnmm : d' `Divisor` (n - m)
->     d'Dnmm = divisorMinusLemma m n d' p d'Dm d'Dn 
+>     d'Dnmm = divisorMinusLemma m n d' d'Dm d'Dn 
 
 > euclidGCD4 : Not (m `LTE` n) -> GCD d (m - n) n -> GCD d m n
 > euclidGCD4 {m} {n} {d} p (mkGCD dDmmn dDn q) = mkGCD dDm dDn q' where
@@ -44,7 +44,7 @@ Euclid's greatest common divisor algorithm
 >   q' : (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d
 >   q' d' d'Dm d'Dn = q d' d'Dmmn d'Dn where
 >     d'Dmmn : d' `Divisor` (m - n)
->     d'Dmmn = divisorMinusLemma n m d' (notLTELemma1 m n p) d'Dn d'Dm 
+>     d'Dmmn = divisorMinusLemma n m d' d'Dn d'Dm 
 
 > %assert_total
 > euclidGCD : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)

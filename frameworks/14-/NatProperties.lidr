@@ -315,6 +315,18 @@ Properties of |mult|
 > multSuccNotZero : (m : Nat) -> (n : Nat) -> Not ((S m) * (S n) = Z)
 > multSuccNotZero m  n  p = absurd p  
 
+> multNotZeroNotZero : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (m * n = Z)
+> multNotZeroNotZero  Z     n    p q = void (p Refl)
+> multNotZeroNotZero (S m)  Z    p q = void (q Refl)
+> multNotZeroNotZero (S m) (S n) p q = multSuccNotZero m n
+
+> multNotZeroNotZeroLeft : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (m = Z)
+> multNotZeroNotZeroLeft  Z     n    p = void (p (multZeroLeftZero n))
+> multNotZeroNotZeroLeft (S m)  _    _ = SIsNotZ
+
+> multNotZeroNotZeroRight : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (n = Z)
+> multNotZeroNotZeroRight m  Z     p = void (p (multZeroRightZero m))
+> multNotZeroNotZeroRight _ (S n)  _ = SIsNotZ
 
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
@@ -407,12 +419,10 @@ Divisor properties:
 >     p : d * (q1 + q2) = m + n
 >     p = replace {x = d * q2} {y = n} {P = \ ZUZU => d * (q1 + q2) = m + ZUZU} p2 s2
 
-> {- Not used
-
 > ||| If a number divides two numbers, it also divides their difference
 > divisorMinusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (n - m)
-> divisorMinusLemma m n d mLTEn (mkDivisor d m (Evidence q1 p1)) (mkDivisor d n (Evidence q2 p2)) = 
+> divisorMinusLemma m n d (mkDivisor d m (Evidence q1 p1)) (mkDivisor d n (Evidence q2 p2)) = 
 >   mkDivisor d (n - m) (Evidence q p) where
 >     q : Nat
 >     q = q2 - q1
@@ -427,10 +437,19 @@ Divisor properties:
 >                    (sym (multDistributesOverMinusRight d q2 q1))
 >                    s1
 
-> -}
-
 > divisorOneLemma : (d : Nat) -> (d' : Nat) -> (S d) * d' `Divisor` (S d) -> d' `Divisor` S Z
 > divisorOneLemma d d' (mkDivisor ((S d) * d') (S d) (Evidence q p)) =
+>   mkDivisor d' (S Z) (Evidence q p') where
+>     s1 : ((S d) * d') * q = S d
+>     s1 = p
+>     s2 : (S d) * (d' * q) = S d
+>     s2 = replace {x = ((S d) * d') * q} {y = (S d) * (d' * q)} {P = \ ZUZU => ZUZU = S d} (sym (multAssociative (S d) d' q)) s1
+>     p' : d' * q = S Z
+>     p' = multElim1 d (d' * q) s2
+
+> divisorOneLemma' : (d : Nat) -> (d' : Nat) -> Not (d = Z) -> d * d' `Divisor` d -> d' `Divisor` S Z
+> divisorOneLemma'  Z    _  dNotZ _  = void (dNotZ Refl)
+> divisorOneLemma' (S d) d' dNotZ (mkDivisor ((S d) * d') (S d) (Evidence q p)) =
 >   mkDivisor d' (S Z) (Evidence q p') where
 >     s1 : ((S d) * d') * q = S d
 >     s1 = p
@@ -474,9 +493,43 @@ Greatest common divisor properties:
 >   Sdd'DSd : (S d) * d' `Divisor` (S d)
 >   Sdd'DSd = SdG ((S d) * d') Sdd'Dm Sdd'Dn
 
+> gcdLemma' : (v : GCD d m n) -> Not (d = Z) ->
+>             d' `Divisor` (divBy d m (gcdDivisorFst v)) -> d' `Divisor` (divBy d n (gcdDivisorSnd v)) -> 
+>             d' `Divisor` S Z
+> gcdLemma' {d} {d'} {m} {n} v dNotZ d'DmoSd d'DnoSd = divisorOneLemma' d d' dNotZ Sdd'DSd where
+>   SdDm    : d `Divisor` m
+>   SdDm    = gcdDivisorFst v
+>   SdDn    : d `Divisor` n
+>   SdDn    = gcdDivisorSnd v
+>   SdG     : (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d
+>   SdG     = gcdDivisorGreatest v
+>   Sdd'Dm  : d * d' `Divisor` m
+>   Sdd'Dm  = divisorTowerLemma d d' m SdDm d'DmoSd
+>   Sdd'Dn  : d * d' `Divisor` n
+>   Sdd'Dn  = divisorTowerLemma d d' n SdDn d'DnoSd
+>   Sdd'DSd : d * d' `Divisor` d
+>   Sdd'DSd = SdG (d * d') Sdd'Dm Sdd'Dn
 
 Coprime properties:
 
+> ||| Coprime is symmetric
+> symmetricCoprime : Coprime m n -> Coprime n m
+> symmetricCoprime {m} {n} (mkCoprime (mkGCD {d} {m} {n} dDm dDn dG) dEQone) = 
+>   (mkCoprime (mkGCD dDn dDm dG') dEQone) where
+>     dG' : (d' : Nat) -> Divisor d' n -> Divisor d' m -> Divisor d' d
+>     dG' d' d'Dn d'Dm = dG d' d'Dm d'Dn
+
+> ||| Any number is coprime with one
+> anyCoprimeOne : Coprime m (S Z)
+> anyCoprimeOne {m} = mkCoprime (mkGCD oDm oDo oG) Refl where
+>   oDm : (S Z) `Divisor` m
+>   oDm = oneDivisorAny m
+>   oDo : (S Z) `Divisor` (S Z)
+>   oDo = anyDivisorAny (S Z)
+>   oG  : (d : Nat) -> d `Divisor` m -> d `Divisor` (S Z) -> d `Divisor` (S Z)
+>   oG d dDm dDo = dDo 
+
+> ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v)) (divBy (S d) n (gcdDivisorSnd v))
 > gcdCoprimeLemma {d} {m} {n} v = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : (S d) `Divisor` m
@@ -494,3 +547,20 @@ Coprime properties:
 >   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
 >   d'G d'' = gcdLemma v
 
+> ||| Division by gcd yields coprime numbers
+> gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (divBy d m (gcdDivisorFst v)) (divBy d n (gcdDivisorSnd v))
+> gcdCoprimeLemma' {d} {m} {n} v dNotZ = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
+>   dDm     : d `Divisor` m
+>   dDm     = gcdDivisorFst v
+>   dDn     : d `Divisor` n
+>   dDn     = gcdDivisorSnd v
+>   m'      : Nat
+>   m'      = divBy d m dDm
+>   n'      : Nat
+>   n'      = divBy d n dDn
+>   d'Dm'   : S Z `Divisor` m'
+>   d'Dm'   = oneDivisorAny m'
+>   d'Dn'   : S Z `Divisor` n'
+>   d'Dn'   = oneDivisorAny n'
+>   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
+>   d'G d'' = gcdLemma' v dNotZ
