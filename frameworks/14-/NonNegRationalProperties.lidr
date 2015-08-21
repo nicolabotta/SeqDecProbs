@@ -5,6 +5,8 @@
 > import NonNegRational
 > import NonNegRationalOperations
 > import NatPredicates
+> import NatOperations
+> import NatProperties
 > import Basics
 > import NumRefinements
 
@@ -26,74 +28,66 @@
 >   fromInteger = fromIntegerNonNegQ
 
 
+Properties of |num|, |den|:
+
+> numZeroZero : num (fromInteger 0) = Z
+> numZeroZero = ( num (fromInteger 0) )
+>             ={ Refl }=
+>               ( num (fromNatNonNegQ (fromIntegerNat 0)) )
+>             ={ ?lala }=
+>               ( num (fromNatNonNegQ Z) )
+>             ={ Refl }=
+>               ( num (MkNonNegQ Z (S Z) SIsNotZ anyCoprimeOne) )
+>             ={ Refl }=
+>               ( Z )
+>             QED
+
+> denZeroOne : den (fromInteger 0) = S Z
 
 
+Properties of casts:
+
+> fromFractionLemma : (n : Nat) -> (d : Nat) -> (ndCoprime : Coprime n d) -> (dNotZ : Not (d = Z)) -> 
+>                     fromFraction n d dNotZ = MkNonNegQ n d dNotZ ndCoprime
+
+
+In order to implement simple probability distributions based on
+non-negative rational numbers, we need these to fulfill
 
 > {-
 
-Properties of |zeroNonNegQ|:
+> plusZeroPlusRight : (x : NonNegQ) -> x + (fromInteger 0) = x
+> plusZeroPlusRight x = s11 where
+>   s01 : x + (fromInteger 0) = x + MkNonNegQ Z (S Z) SIsNotZ anyCoprimeOne
+>   s01 = Refl
+>   s02 : x + MkNonNegQ Z (S Z) SIsNotZ anyCoprimeOne 
+>         =
+>         fromFraction ((num x) * (S Z) + Z * (den x)) 
+>                      ((den x) * (S Z)) 
+>                      (multNotZeroNotZero (den x) (S Z) (denNotZero x) SIsNotZ)
+>   s02 = Refl   
+>   s11 : x + (fromInteger 0) = x
+>   s11 = ?lala
 
-> zeroNonNegQLemma : zeroNonNegQ = fromQ zeroQ nonNegZeroQ
-
-
-Properties of |plus|:
-
-> |||
-> plusZeroRightNeutral : (left : NonNegQ) -> left + zeroNonNegQ = left
-> plusZeroRightNeutral (MkNonNegQ q nnq) =
->     ( MkNonNegQ q nnq + fromIntegerNonNegQ 0 )
->   ={ replace {x = fromIntegerNonNegQ 0}
->              {y = fromQ zeroQ nonNegZeroQ}
->              {P = \ ZUZU => MkNonNegQ q nnq + fromIntegerNonNegQ 0 = MkNonNegQ q nnq + ZUZU}
->              zeroNonNegQLemma
->              Refl }=
->     ( MkNonNegQ q nnq + fromQ zeroQ nonNegZeroQ )
->   ={ Refl }=
->     ( fromQ (RationalOperations.plus q zeroQ) (plusSign1 q zeroQ nnq nonNegZeroQ) )
->   ={ depCong2 {alpha = Q}
->               {P = \ x => NonNeg x}
->               {gamma = NonNegQ}
->               {a1 = RationalOperations.plus q zeroQ}
->               {a2 = q}
->               {Pa1 = plusSign1 q zeroQ nnq nonNegZeroQ}
->               {Pa2 = nnq}
->               (\ x => \ nnx => fromQ x nnx)
->               (plusZeroRightNeutral q)
->               (plusSign1Spec q nnq) }=
->     ( fromQ q nnq )
->   ={ Refl }=
->     ( MkNonNegQ q nnq )
->   QED
+> plusZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) + x = x
 
 
-...
-
-> ||| Non-negative rationals are in ||
-> instance NumMultDistributesOverPlus NonNegQ where
+> plusAssoc : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
 
 
+> multZeroPlusRight : (x : NonNegQ) -> x * (fromInteger 0) = fromInteger 0
+
+> multZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) * x = fromInteger 0
+
+> multOneRight      : (x : NonNegQ) -> x * (fromInteger 1) = x
+
+> multOneLeft       : (x : NonNegQ) -> (fromInteger 1) * x = x
 
 
-
-
-This lemma
-
-> sumLemma0 : (q : NonNegQ) -> sum (q :: Nil) = q
-> sumLemma0 q = ( plus q zeroNonNegQ )
->             ={ plusZeroRightNeutral q }=
->               ( q )
->             QED
-
-should be a consequence of |Q| being a monoid and of something like
-
-< sumLemma1 : (Monoid alpha) => (a : alpha) -> sum (a :: Nil) = a
-< sumLemma1 a = ( a + neutral )
-<             ={ plusNeutralRightId }=
-<               ( a )
-<             QED
-
-But due to #2489 we have to write ad-hoc implementations at the instance
-level.
-
+> multDistributesOverPlusRight : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
+>                                x * (y + z) = (x * y) + (x * z)
+                                  
+> multDistributesOverPlusLeft  : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
+>                                (x + y) * z = (x * z) + (y * z)
 
 > ---}
