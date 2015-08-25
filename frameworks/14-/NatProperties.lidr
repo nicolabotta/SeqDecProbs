@@ -284,6 +284,22 @@ Properties of |minus|:
 
 Properties of |plus| and |minus|:
 
+> |||
+> plusZeroLeftZero : (m : Nat) -> (n : Nat) -> m + n = Z -> m = Z
+> plusZeroLeftZero  Z     Z    _   = Refl
+> plusZeroLeftZero  Z    (S n) prf = absurd prf
+> plusZeroLeftZero (S m)  Z    prf = absurd prf
+> plusZeroLeftZero (S m) (S n) prf = absurd prf
+
+> |||
+> plusZeroRightZero : (m : Nat) -> (n : Nat) -> m + n = Z -> n = Z
+> plusZeroRightZero  Z     Z    _   = Refl
+> plusZeroRightZero  Z    (S n) prf = absurd prf
+> plusZeroRightZero (S m)  Z    prf = absurd prf
+> plusZeroRightZero (S m) (S n) prf = absurd prf
+
+> -- plusOneEither : (m : Nat) -> (n : Nat) -> m + n = S Z -> Either (m = Z) (n = Z)
+
 > plusRightInverseMinus : (m : Nat) -> (n : Nat) -> m `LTE` n -> (n - m) + m = n 
 > plusRightInverseMinus  Z    n _ = 
 >     ( (n - Z) + Z )
@@ -327,6 +343,72 @@ Properties of |mult|
 > multNotZeroNotZeroRight : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (n = Z)
 > multNotZeroNotZeroRight m  Z     p = void (p (multZeroRightZero m))
 > multNotZeroNotZeroRight _ (S n)  _ = SIsNotZ
+
+> multZeroLTZeroLT : (m : Nat) -> (n : Nat) -> Z `LT` m -> Z `LT` n -> Z `LT` (m * n)
+> multZeroLTZeroLT  Z     n    p _ = absurd p
+> multZeroLTZeroLT (S m)  Z    _ q = absurd q
+> multZeroLTZeroLT (S m) (S n) _ _ = ltZS (n + m * (S n))
+
+> |||
+> multLTZeroLeftLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` m
+> multLTZeroLeftLTZero Z n p = absurd p' where
+>   p' : Z `LT` Z
+>   p' = replace {x = Z * n}
+>                {y = Z}
+>                {P = \ ZUZU => Z `LT` ZUZU}
+>                (multZeroLeftZero n) p
+> multLTZeroLeftLTZero (S m) n _ = ltZS m
+
+> |||
+> multLTZeroRightLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` n
+> multLTZeroRightLTZero m Z p = absurd p' where
+>   p' : Z `LT` Z
+>   p' = replace {x = m * Z}
+>                {y = Z}
+>                {P = \ ZUZU => Z `LT` ZUZU}
+>                (multZeroRightZero m) p
+> multLTZeroRightLTZero m (S n) _ = ltZS n
+
+> |||
+> multZeroRightOneLeftZero : (m : Nat) -> (n : Nat) -> m * (S n) = Z -> m = Z
+> multZeroRightOneLeftZero m n prf = plusZeroLeftZero m (n * m) prf' where
+>   prf' : (S n) * m = Z
+>   prf' = replace {x = m * (S n)} {y = (S n) * m} {P = \ ZUZU => ZUZU = Z} (multCommutative m (S n)) prf
+
+> ||| 
+> multZeroLeftOneRightZero : (m : Nat) -> (n : Nat) -> (S m) * n = Z -> n = Z
+> multZeroLeftOneRightZero m n prf = plusZeroLeftZero n (m * n) prf
+
+> ||| 
+> multOneLeftOne : (m : Nat) -> (n : Nat) -> m * n = S Z -> m = S Z
+> multOneLeftOne  Z     n    prf = absurd prf
+> multOneLeftOne (S m)  Z    prf = absurd prf' where
+>   prf' : Z = S Z
+>   prf' = replace {x = (S m) * Z}
+>                  {y = Z}
+>                  {P = \ ZUZU => ZUZU = S Z}
+>                  (multZeroRightZero (S m)) prf
+> multOneLeftOne (S m) (S n) prf = eqSucc m Z s5 where
+>   s1 : S (n + m * (S n)) = S Z
+>   s1 = prf
+>   s2 : n + m * (S n) = Z
+>   s2 = succInjective (n + m * (S n)) Z s1
+>   s3 : n = Z
+>   s3 = plusZeroLeftZero n (m * (S n)) s2
+>   s4 : m * (S n) = Z
+>   s4 = plusZeroRightZero n (m * (S n)) s2
+>   s5 : m = Z
+>   s5 = multZeroRightOneLeftZero m n s4
+
+> |||
+> multOneRightOne : (m : Nat) -> (n : Nat) -> m * n = S Z -> n = S Z
+> multOneRightOne m n prf = multOneLeftOne n m prf' where
+>   prf' : n * m = S Z
+>   prf' = replace {x = m * n} {y = n * m} {P = \ ZUZU => ZUZU = S Z} (multCommutative m n) prf
+
+> multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) -> 
+>                   m1 = m2 -> n1 = n2 -> m1 * n1 = m2 * n2
+> multPreservesEq m m n n Refl Refl = Refl                        
 
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
@@ -384,21 +466,73 @@ Uniqueness
 Divisor properties:
 
 > divByLemma : (d : Nat) -> (m : Nat) -> (dDm : d `Divisor` m) -> d * (divBy d m dDm) = m
-> divByLemma d m (mkDivisor d m (Evidence q prf)) = prf
+> divByLemma d m (Evidence q prf) = prf
 
 > anyDivisorZ : (m : Nat) -> m `Divisor` Z
-> anyDivisorZ m = mkDivisor m Z (Evidence Z (multZeroRightZero m))
+> anyDivisorZ m = Evidence Z (multZeroRightZero m)
 
 > oneDivisorAny : (m : Nat) -> (S Z) `Divisor` m
-> oneDivisorAny m = mkDivisor (S Z) m (Evidence m (multOneLeftNeutral m))
+> oneDivisorAny m = Evidence m (multOneLeftNeutral m)
 
 > anyDivisorAny : (m : Nat) -> m `Divisor` m
-> anyDivisorAny m = mkDivisor m m (Evidence (S Z) (multOneRightNeutral m))
+> anyDivisorAny m = Evidence (S Z) (multOneRightNeutral m)
+
+Divisor is a pre-order:
+
+> divisorReflexive : (m : Nat) -> m `Divisor` m
+> divisorReflexive = anyDivisorAny
+
+> divisorTransitive : l `Divisor` m -> m `Divisor` n -> l `Divisor` n
+> divisorTransitive {l} {m} {n} (Evidence q1 p1) (Evidence q2 p2) = Evidence (q1 * q2) p where
+>   s1 : (l * q1) * q2 = m * q2
+>   s1 = multPreservesEq (l * q1) m q2 q2 p1 Refl
+>   s2 : (l * q1) * q2 = n
+>   s2 = trans s1 p2
+>   p : l * (q1 * q2) = n
+>   p = replace {x = (l * q1) * q2}
+>               {y = l * (q1 * q2)}
+>               {P = \ ZUZU => ZUZU = n}
+>               (sym (multAssociative l q1 q2)) s2
+
+> divisorAntisymmetric : (m : Nat) -> (n : Nat) -> m `Divisor` n -> n `Divisor` m -> m = n
+> divisorAntisymmetric  Z     Z     _                _               = Refl
+> divisorAntisymmetric  Z    (S n) (Evidence q1 p1)  _               = absurd p1
+> divisorAntisymmetric (S m)  Z     _               (Evidence q2 p2) = absurd p2
+> divisorAntisymmetric (S m) (S n) (Evidence q1 p1) (Evidence q2 p2) = s8 where
+>   s1 : (S m) * q1 = S n
+>   s1 = p1
+>   s2 : (S n) * q2 = S m
+>   s2 = p2
+>   s3 : ((S n) * q2) * q1 = S n
+>   s3 = replace {x = S m}
+>                {y = (S n) * q2}
+>                {P = \ZUZU => ZUZU * q1 = S n}
+>                (sym s2)
+>                s1
+>   s4 : (S n) * (q2 * q1) = S n
+>   s4 = replace {x = ((S n) * q2) * q1}
+>                {y = (S n) * (q2 * q1)}
+>                {P = \ ZUZU => ZUZU = S n}
+>                (sym (multAssociative (S n) q2 q1) ) s3
+>   s5 : q2 * q1 = S Z
+>   s5 = multElim1 n (q2 * q1) s4
+>   s6 : q1 = S Z
+>   s6 = multOneRightOne q2 q1 s5
+>   s7 : (S m) * (S Z) = S n
+>   s7 = replace {x = q1}
+>                {y = S Z}
+>                {P = \ ZUZU => (S m) * ZUZU = S n}
+>                s6 s1
+>   s8 : S m  = S n
+>   s8 = replace {x = (S m) * (S Z)}
+>                {y = S m}
+>                {P = \ ZUZU => ZUZU = S n}
+>                (multOneRightNeutral (S m)) s7                
 
 > divisorPlusLemma1 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                      d `Divisor` m -> d `Divisor` n -> d `Divisor` (n + m)
-> divisorPlusLemma1 m n d (mkDivisor d m (Evidence q1 p1)) (mkDivisor d n (Evidence q2 p2)) = 
->   mkDivisor d (n + m) (Evidence (q1 + q2) p) where
+> divisorPlusLemma1 m n d (Evidence q1 p1) (Evidence q2 p2) = 
+>   Evidence (q1 + q2) p where
 >     s1 : d * (q1 + q2) = d * q1 + d * q2
 >     s1 = multDistributesOverPlusRight d q1 q2
 >     s2 : d * (q1 + q2) = m + d * q2
@@ -410,8 +544,8 @@ Divisor properties:
 
 > divisorPlusLemma2 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (m + n)
-> divisorPlusLemma2 m n d (mkDivisor d m (Evidence q1 p1)) (mkDivisor d n (Evidence q2 p2)) =
->   mkDivisor d (m + n) (Evidence (q1 + q2) p) where
+> divisorPlusLemma2 m n d (Evidence q1 p1) (Evidence q2 p2) =
+>   Evidence (q1 + q2) p where
 >     s1 : d * (q1 + q2) = d * q1 + d * q2
 >     s1 = multDistributesOverPlusRight d q1 q2
 >     s2 : d * (q1 + q2) = m + d * q2
@@ -422,8 +556,8 @@ Divisor properties:
 > ||| If a number divides two numbers, it also divides their difference
 > divisorMinusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (n - m)
-> divisorMinusLemma m n d (mkDivisor d m (Evidence q1 p1)) (mkDivisor d n (Evidence q2 p2)) = 
->   mkDivisor d (n - m) (Evidence q p) where
+> divisorMinusLemma m n d (Evidence q1 p1) (Evidence q2 p2) = 
+>   Evidence q p where
 >     q : Nat
 >     q = q2 - q1
 >     p : d * q = n - m
@@ -438,8 +572,8 @@ Divisor properties:
 >                    s1
 
 > divisorOneLemma : (d : Nat) -> (d' : Nat) -> (S d) * d' `Divisor` (S d) -> d' `Divisor` S Z
-> divisorOneLemma d d' (mkDivisor ((S d) * d') (S d) (Evidence q p)) =
->   mkDivisor d' (S Z) (Evidence q p') where
+> divisorOneLemma d d' (Evidence q p) =
+>   Evidence q p' where
 >     s1 : ((S d) * d') * q = S d
 >     s1 = p
 >     s2 : (S d) * (d' * q) = S d
@@ -449,8 +583,8 @@ Divisor properties:
 
 > divisorOneLemma' : (d : Nat) -> (d' : Nat) -> Not (d = Z) -> d * d' `Divisor` d -> d' `Divisor` S Z
 > divisorOneLemma'  Z    _  dNotZ _  = void (dNotZ Refl)
-> divisorOneLemma' (S d) d' dNotZ (mkDivisor ((S d) * d') (S d) (Evidence q p)) =
->   mkDivisor d' (S Z) (Evidence q p') where
+> divisorOneLemma' (S d) d' dNotZ (Evidence q p) =
+>   Evidence q p' where
 >     s1 : ((S d) * d') * q = S d
 >     s1 = p
 >     s2 : (S d) * (d' * q) = S d
@@ -461,7 +595,7 @@ Divisor properties:
 > ||| 
 > divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) -> 
 >                    (dDm : d `Divisor` m) -> d' `Divisor` (divBy d m dDm) -> d * d' `Divisor` m
-> divisorTowerLemma d d' m dDm d'DmOd = mkDivisor (d * d') m (Evidence q' p) where
+> divisorTowerLemma d d' m dDm d'DmOd = Evidence q' p where
 >   q' : Nat
 >   q' = divBy d' (divBy d m dDm) d'DmOd
 >   s1 : d' * q' = divBy d m dDm
@@ -475,6 +609,15 @@ Divisor properties:
 
 
 Greatest common divisor properties:
+
+> gcdUnique : (d1 : Nat) -> (d2 : Nat) -> GCD d1 m n -> GCD d2 m n -> d1 = d2
+> gcdUnique d1 d2 (mkGCD d1Dm d1Dn d1G) (mkGCD d2Dm d2Dn d2G) = s3 where
+>   s1 : d1 `Divisor` d2
+>   s1 = d2G d1 d1Dm d1Dn
+>   s2 : d2 `Divisor` d1
+>   s2 = d1G d2 d2Dm d2Dn
+>   s3 : d1 = d2
+>   s3 = divisorAntisymmetric d1 d2 s1 s2 
 
 > gcdLemma : (v : GCD (S d) m n) -> 
 >            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) -> d' `Divisor` (divBy (S d) n (gcdDivisorSnd v)) -> 
@@ -509,6 +652,7 @@ Greatest common divisor properties:
 >   Sdd'Dn  = divisorTowerLemma d d' n SdDn d'DnoSd
 >   Sdd'DSd : d * d' `Divisor` d
 >   Sdd'DSd = SdG (d * d') Sdd'Dm Sdd'Dn
+
 
 Coprime properties:
 
@@ -562,5 +706,25 @@ Coprime properties:
 >   d'Dm'   = oneDivisorAny m'
 >   d'Dn'   : S Z `Divisor` n'
 >   d'Dn'   = oneDivisorAny n'
+>   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
+>   d'G d'' = gcdLemma' v dNotZ
+
+> ||| Division by gcd yields coprime numbers
+> gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (divBy d m (gcdDivisorFst v)) (divBy d n (gcdDivisorSnd v))
+> gcdCoprimeLemma'' {d} {m} {n} v zLTd = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
+>   dDm     : d `Divisor` m
+>   dDm     = gcdDivisorFst v
+>   dDn     : d `Divisor` n
+>   dDn     = gcdDivisorSnd v
+>   m'      : Nat
+>   m'      = divBy d m dDm
+>   n'      : Nat
+>   n'      = divBy d n dDn
+>   d'Dm'   : S Z `Divisor` m'
+>   d'Dm'   = oneDivisorAny m'
+>   d'Dn'   : S Z `Divisor` n'
+>   d'Dn'   = oneDivisorAny n'
+>   dNotZ   : Not (d = Z)
+>   dNotZ   = gtZisnotZ zLTd
 >   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
 >   d'G d'' = gcdLemma' v dNotZ

@@ -5,8 +5,13 @@
 
 Divisor (following an idea from Tim Richter):
 
+> {-
 > data Divisor : (m : Nat) -> (n : Nat) -> Type where
 >   mkDivisor : (m : Nat) -> (n : Nat) -> Exists (\ q => m * q = n) -> Divisor m n
+> -}
+
+> Divisor : (m : Nat) -> (n : Nat) -> Type
+> Divisor m n = Exists (\ q => m * q = n)
 
 
 Greatest common divisor (following an idea from Tim Richter):

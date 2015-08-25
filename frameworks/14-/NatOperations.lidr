@@ -10,6 +10,6 @@
 Divisor operations:
 
 > divBy : (d : Nat) -> (m : Nat) -> d `Divisor` m -> Nat
-> divBy d m (mkDivisor d m (Evidence q prf)) = q 
+> divBy d m (Evidence q prf) = q 
 
 
