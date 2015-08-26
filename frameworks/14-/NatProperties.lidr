@@ -462,6 +462,11 @@ Uniqueness
 > uniqueLT : (p1 : LT m n) -> (p2 : LT m n) -> p1 = p2
 > uniqueLT {m} {n} = uniqueLTE {m = S m} {n = n}
 
+> |||
+> uniqueLT' : m1 = m2 -> n1 = n2 -> (p1 : LT m1 n1) -> (p2 : LT m2 n2) -> p1 = p2
+> uniqueLT' Refl Refl p1 p2 = uniqueLT p1 p2
+
+
 
 Divisor properties:
 
@@ -656,6 +661,22 @@ Greatest common divisor properties:
 
 Coprime properties:
 
+> ||| Coprime is decidable
+> decCoprime : ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) -> 
+>              (m : Nat) -> (n : Nat) -> 
+>              Dec (Coprime m n)
+> decCoprime alg m n with (alg m n) 
+>   | (d ** v) with (decEq d (S Z))
+>     | (Yes p) = Yes (mkCoprime {d = d} v p)
+>     | (No contra) = No contra' where
+>         contra' : Coprime m n -> Void
+>         contra' (mkCoprime {d = d'} v' p') = contra p where
+>           p : d = S Z
+>           p = replace {x = d'} 
+>                       {y = d} 
+>                       {P = \ ZUZU => ZUZU = S Z} 
+>                       (gcdUnique d' d v' v) p'
+
 > ||| Coprime is symmetric
 > symmetricCoprime : Coprime m n -> Coprime n m
 > symmetricCoprime {m} {n} (mkCoprime (mkGCD {d} {m} {n} dDm dDn dG) dEQone) = 
@@ -728,3 +749,31 @@ Coprime properties:
 >   dNotZ   = gtZisnotZ zLTd
 >   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
 >   d'G d'' = gcdLemma' v dNotZ
+
+
+GCD / Coprime properties:
+
+> ||| 
+> gcdOneCoprimeLemma1 : (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
+>                       (m : Nat) -> (n : Nat) ->
+>                       gcd (alg m n) = S Z -> Coprime m n
+> gcdOneCoprimeLemma1 alg m n prf = mkCoprime (getProof (alg m n)) prf
+
+> |||
+> gcdOneCoprimeLemma2 : (m : Nat) -> (n : Nat) ->
+>                       (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
+>                       Coprime m n -> gcd (alg m n) = S Z
+> gcdOneCoprimeLemma2 m n alg (mkCoprime {d} v prf) = s3 where
+>   s1 : d = S Z
+>   s1 = prf
+>   s2 : gcd (alg m n) = d
+>   s2 = gcdUnique (gcd (alg m n)) d (getProof (alg m n)) v
+>   s3 : gcd (alg m n) = S Z
+>   s3 = trans s2 s1
+
+> |||
+> gcdAnyOneOne : (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
+>                (m : Nat) ->
+>                gcd (alg m (S Z)) = S Z
+> gcdAnyOneOne alg m = gcdOneCoprimeLemma2 m (S Z) alg anyCoprimeOne
+

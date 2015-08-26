@@ -22,8 +22,8 @@ Greatest common divisor (following an idea from Tim Richter):
 >           ((d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d) -> 
 >           GCD d m n 
 
-> gcd : GCD d m n -> Nat
-> gcd {d} (mkGCD dDm dDn dG) = d
+> gcd : (d : Nat ** GCD d m n) -> Nat
+> gcd = getWitness
 
 > gcdDivisorFst : GCD d m n -> d `Divisor` m
 > gcdDivisorFst {d} (mkGCD dDm dDn dG) = dDm

@@ -13,3 +13,6 @@ Divisor operations:
 > divBy d m (Evidence q prf) = q 
 
 
+
+
+

@@ -68,27 +68,5 @@ Euclid's greatest common divisor algorithm
 >     P    = getProof gcdP
  
 
-> ||| Coprime is decidable
-> decCoprime : (m : Nat) -> (n : Nat) -> Dec (Coprime m n)
-> decCoprime m n with (euclidGCD m n) 
->   | (d ** v) with (decEq d (S Z))
->     | (Yes p) = Yes (mkCoprime {d = d} v p)
->     | (No contra) = No contra' where
->         contra' : Coprime m n -> Void
->         contra' (mkCoprime {d = d'} v' p') = contra p where
->           p : d = S Z
->           p = replace {x = d'} 
->                       {y = d} 
->                       {P = \ ZUZU => ZUZU = S Z} 
->                       (gcdUnique d' d v' v) p'
 
 
-> ||| Coprime is unique
-> uniqueCoprime : (m : Nat) -> (n : Nat) -> Unique (Coprime m n)
-> {-
-> uniqueCoprime m n (mkCoprime v1 p1) (mkCoprime v2 p2) = cong2 mkCoprime eqv eqp where
->   eqv : v1 = v2
->   eqv = ?kikz
->   eqp : p1 = p2
->   eqp = ?loji
-> -}
