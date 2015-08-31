@@ -49,7 +49,7 @@ Properties of |num|, |den|:
 
 Properties of casts:
 
-> fromFractionLemma1 : (n : Nat) -> (d : Nat) ->  
+> fromFractionLemma1 : (n : Nat) -> (d : Nat) ->
 >                      (zLTd : Z `LT` d) -> (gcdOne : gcd (alg n d) = S Z) ->
 >                      fromFraction n d zLTd = MkNonNegQ n d zLTd gcdOne
 > fromFractionLemma1 n d zLTd gcdOne with (decEq (gcd (alg n d)) (S Z))
@@ -57,14 +57,14 @@ Properties of casts:
 >                 ={ replace {x = prf}
 >                            {y = gcdOne}
 >                            {P = \ ZUZU => MkNonNegQ n d zLTd prf = MkNonNegQ n d zLTd ZUZU}
->                            (uniqueEq (gcd (alg n d)) (S Z) prf gcdOne) 
+>                            (uniqueEq (gcd (alg n d)) (S Z) prf gcdOne)
 >                            Refl }=
 >                   ( MkNonNegQ n d zLTd gcdOne )
->                 QED  
+>                 QED
 >   | (No contra) = void (contra gcdOne)
 
 > fromFractionLemma2 : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) ->
->                      (n' : Nat) -> (d' : Nat) -> (zLTd' : Z `LT` d') ->  
+>                      (n' : Nat) -> (d' : Nat) -> (zLTd' : Z `LT` d') ->
 >                      n = n' -> d = d' ->
 >                      fromFraction n d zLTd = fromFraction n' d' zLTd'
 > fromFractionLemma2 n d zLTd n' d' zLTd' nEQn' dEQd' = trans s2 s3 where
@@ -82,8 +82,8 @@ Properties of casts:
 >                  {a1 = d}
 >                  {a2 = d'}
 >                  {Pa1 = zLTd}
->                  {Pa2 = zLTd'} 
->                  (\ ZUZU => \ zLTZUZU => fromFraction n' ZUZU zLTZUZU) 
+>                  {Pa2 = zLTd'}
+>                  (\ ZUZU => \ zLTZUZU => fromFraction n' ZUZU zLTZUZU)
 >                  dEQd' s1
 
 In order to implement simple probability distributions based on
@@ -91,40 +91,41 @@ non-negative rational numbers, we need these to fulfill
 
 > plusZeroPlusRight : (x : NonNegQ) -> x + (fromInteger 0) = x
 > plusZeroPlusRight (MkNonNegQ n d zLTd gcdOne) = s7 where
->   s1 : (MkNonNegQ n d zLTd gcdOne) + (fromInteger 0) 
->        = 
+>   s1 : (MkNonNegQ n d zLTd gcdOne) + (fromInteger 0)
+>        =
 >        (MkNonNegQ n d zLTd gcdOne) + MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)
 >   s1 = Refl
 >   s2 : (MkNonNegQ n d zLTd gcdOne) + MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)
 >        =
->        fromFraction (n * (S Z) + Z * d) 
->                     (d * (S Z)) 
+>        fromFraction (n * (S Z) + Z * d)
+>                     (d * (S Z))
 >                     (multZeroLTZeroLT d (S Z) zLTd (ltZS Z))
 >   s2 = Refl
 >   s3 : n * (S Z) + Z * d = n
 >   s3 = ( n * (S Z) + Z * d )
->      ={ replace {x = n * (S Z)} 
->                 {y = n} 
->                 {P = \ ZUZU => n * (S Z) + Z * d = ZUZU + Z * d} 
+>      ={ replace {x = n * (S Z)}
+>                 {y = n}
+>                 {P = \ ZUZU => n * (S Z) + Z * d = ZUZU + Z * d}
 >                 (multOneRightNeutral n) Refl}=
 >        ( n + Z * d )
->      ={ replace {x = Z * d} 
+>      ={ replace {x = Z * d}
 >                 {y = Z}
 >                 {P = \ ZUZU => n + Z * d = n + ZUZU}
 >                 (multZeroLeftZero d) Refl }=
 >        ( n + Z )
 >      ={ plusZeroRightNeutral n }=
 >        ( n )
->      QED    
+>      QED
 >   s4 : d * (S Z) = d
 >   s4 = multOneRightNeutral d
->   s5 : fromFraction (n * (S Z) + Z * d) 
->                     (d * (S Z)) 
+>   s5 : fromFraction (n * (S Z) + Z * d)
+>                     (d * (S Z))
 >                     (multZeroLTZeroLT d (S Z) zLTd (ltZS Z))
 >        =
->        fromFraction n d zLTd     
->   s5 = fromFractionLemma2 (n * (S Z) + Z * d) (d * (S Z)) (multZeroLTZeroLT d (S Z) zLTd (ltZS Z))
->                           n d zLTd s3 s4 
+>        fromFraction n d zLTd
+>   s5 = fromFractionLemma2 (n * (S Z) + Z * d) (d * (S Z))
+>                           (multZeroLTZeroLT d (S Z) zLTd (ltZS Z))
+>                           n d zLTd s3 s4
 >   s6 : fromFraction n d zLTd = MkNonNegQ n d zLTd gcdOne
 >   s6 = fromFractionLemma1 n d zLTd gcdOne
 >   s7 : (MkNonNegQ n d zLTd gcdOne) + (fromInteger 0) = (MkNonNegQ n d zLTd gcdOne)
@@ -149,9 +150,8 @@ non-negative rational numbers, we need these to fulfill
 
 > multDistributesOverPlusRight : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
 >                                x * (y + z) = (x * y) + (x * z)
-                                  
+
 > multDistributesOverPlusLeft  : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
 >                                (x + y) * z = (x * z) + (y * z)
 
 > ---}
- 

@@ -57,19 +57,19 @@ Casts:
 >       d : Nat
 >       d = divBy gcd' d' (gcdDivisorSnd v')
 >       zLTgcdd : Z `LT` gcd' * d
->       zLTgcdd = replace {x = d'} 
->                         {y = gcd' * d} 
->                         {P = \ ZUZU => Z `LT` ZUZU} 
+>       zLTgcdd = replace {x = d'}
+>                         {y = gcd' * d}
+>                         {P = \ ZUZU => Z `LT` ZUZU}
 >                         (sym (divByLemma gcd' d' (gcdDivisorSnd v'))) zLTd'
 >       zLTgcd : Z `LT` gcd'
->       zLTgcd = multLTZeroLeftLTZero gcd' d zLTgcdd 
+>       zLTgcd = multLTZeroLeftLTZero gcd' d zLTgcdd
 >       zLTd : Z `LT` d
->       zLTd = multLTZeroRightLTZero gcd' d zLTgcdd 
+>       zLTd = multLTZeroRightLTZero gcd' d zLTgcdd
 >       ndCoprime : Coprime n d
 >       ndCoprime = gcdCoprimeLemma'' v' zLTgcd
 >       gcdndOne : gcd (alg n d) = S Z
 >       gcdndOne = gcdOneCoprimeLemma2 n d alg ndCoprime
->   
+>
 > {-
 > fromFraction n' d' zLTd' with (decCoprime n' d')
 >   | (Yes prf) = MkNonNegQ n' d' zLTd' prf
@@ -85,14 +85,14 @@ Casts:
 >       d : Nat
 >       d = divBy gcd d' (gcdDivisorSnd v)
 >       zLTgcdd : Z `LT` gcd * d
->       zLTgcdd = replace {x = d'} 
->                         {y = gcd * d} 
->                         {P = \ ZUZU => Z `LT` ZUZU} 
+>       zLTgcdd = replace {x = d'}
+>                         {y = gcd * d}
+>                         {P = \ ZUZU => Z `LT` ZUZU}
 >                         (sym (divByLemma gcd d' (gcdDivisorSnd v))) zLTd'
 >       zLTgcd : Z `LT` gcd
->       zLTgcd = multLTZeroLeftLTZero gcd d zLTgcdd 
+>       zLTgcd = multLTZeroLeftLTZero gcd d zLTgcdd
 >       zLTd : Z `LT` d
->       zLTd = multLTZeroRightLTZero gcd d zLTgcdd 
+>       zLTd = multLTZeroRightLTZero gcd d zLTgcdd
 >       ndCoprime : Coprime n d
 >       ndCoprime = gcdCoprimeLemma'' v zLTgcd
 > -}
@@ -139,7 +139,3 @@ Constants:
 > {-
 
 > ---}
-
-
-
-
