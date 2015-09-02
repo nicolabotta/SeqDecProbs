@@ -131,10 +131,37 @@ non-negative rational numbers, we need these to fulfill
 >   s7 : (MkNonNegQ n d zLTd gcdOne) + (fromInteger 0) = (MkNonNegQ n d zLTd gcdOne)
 >   s7 = trans s1 (trans s2 (trans s5 s6))
 
+TODO
+
+- + Errors (1)
+ `-- NonNegRationalProperties.lidr line 146 col 17:
+     When checking deferred type of NonNegRationalProperties.pZPL:
+     Type mismatch between
+             LTE 1 (den x)
+     and
+             LTE 1 d
+
+> {-
+> plusZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) + x = x
+> plusZeroPlusLeft x@(MkNonNegQ n d zLTd gcdOne) =
+>     (  (fromInteger 0) + x  )
+>   ={ Refl }=
+>     (  MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)   +   MkNonNegQ n d zLTd gcdOne  )
+>   ={ Refl }=
+>     ( let n' = Z * d + n * (S Z)
+>           d' = (S Z) * d
+>           -- zLTd' : Z `LT` d'
+>           zLTd' = multZeroLTZeroLT (S Z) d (zeroLTden (fromInteger 0)) (zeroLTden x)
+>       in  fromFraction n' d' zLTd' )
+>   ={ ?pZPL }=
+>     x
+>   QED
+> -}
+
+
 > {-
 
-> plusZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) + x = x
-
+TODO
 
 > plusAssoc : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
 
