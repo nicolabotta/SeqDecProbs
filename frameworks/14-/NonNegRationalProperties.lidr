@@ -141,9 +141,13 @@ TODO
      and
              LTE 1 d
 
+Some more (failed) attempts to convince idris that den x = d.
+
 > {-
 > plusZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) + x = x
-> plusZeroPlusLeft x@(MkNonNegQ n d zLTd gcdOne) =
+> -- plusZeroPlusLeft x with (den x) proof itsEqual
+> --   | d = -- @(MkNonNegQ _ n zLTd gcdOne)
+> plusZeroPlusLeft x@(MkNonNegQ d n zLTd gcdOne) =
 >     (  (fromInteger 0) + x  )
 >   ={ Refl }=
 >     (  MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)   +   MkNonNegQ n d zLTd gcdOne  )
@@ -151,7 +155,7 @@ TODO
 >     ( let n' = Z * d + n * (S Z)
 >           d' = (S Z) * d
 >           -- zLTd' : Z `LT` d'
->           zLTd' = multZeroLTZeroLT (S Z) d (zeroLTden (fromInteger 0)) (zeroLTden x)
+>           zLTd' = multZeroLTZeroLT (S Z) d (zeroLTden (fromInteger 0)) (zeroLTden x)--zLTd --
 >       in  fromFraction n' d' zLTd' )
 >   ={ ?pZPL }=
 >     x
