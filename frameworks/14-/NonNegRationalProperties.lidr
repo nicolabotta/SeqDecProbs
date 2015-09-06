@@ -131,23 +131,11 @@ non-negative rational numbers, we need these to fulfill
 >   s7 : (MkNonNegQ n d zLTd gcdOne) + (fromInteger 0) = (MkNonNegQ n d zLTd gcdOne)
 >   s7 = trans s1 (trans s2 (trans s5 s6))
 
-TODO
-
-- + Errors (1)
- `-- NonNegRationalProperties.lidr line 146 col 17:
-     When checking deferred type of NonNegRationalProperties.pZPL:
-     Type mismatch between
-             LTE 1 (den x)
-     and
-             LTE 1 d
-
-Some more (failed) attempts to convince idris that den x = d.
+TODO: complete
 
 > {-
 > plusZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) + x = x
-> -- plusZeroPlusLeft x with (den x) proof itsEqual
-> --   | d = -- @(MkNonNegQ _ n zLTd gcdOne)
-> plusZeroPlusLeft x@(MkNonNegQ d n zLTd gcdOne) =
+> plusZeroPlusLeft x@(MkNonNegQ n d zLTd gcdOne) =
 >     (  (fromInteger 0) + x  )
 >   ={ Refl }=
 >     (  MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)   +   MkNonNegQ n d zLTd gcdOne  )
@@ -155,13 +143,14 @@ Some more (failed) attempts to convince idris that den x = d.
 >     ( let n' = Z * d + n * (S Z)
 >           d' = (S Z) * d
 >           -- zLTd' : Z `LT` d'
->           zLTd' = multZeroLTZeroLT (S Z) d (zeroLTden (fromInteger 0)) (zeroLTden x)--zLTd --
+>           zLTd' = multZeroLTZeroLT (S Z) d (zeroLTden (fromInteger 0)) zLTd
 >       in  fromFraction n' d' zLTd' )
 >   ={ ?pZPL }=
->     x
+>     ( MkNonNegQ n d zLTd gcdOne )
+>   ={ Refl }=
+>      x
 >   QED
 > -}
-
 
 > {-
 
@@ -169,8 +158,23 @@ TODO
 
 > plusAssoc : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
 
+> -}
 
+
+> {- TODO: complete
 > multZeroPlusRight : (x : NonNegQ) -> x * (fromInteger 0) = fromInteger 0
+> multZeroPlusRight x@(MkNonNegQ n d zLTd gcdOne) =
+>     (  x * (fromInteger 0)  )
+>   ={ Refl }=
+>     (  (MkNonNegQ n d zLTd gcdOne) * (MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z))  )
+>   ={ Refl }=
+>     (  fromFraction (n * Z) (d * (S Z)) (multZeroLTZeroLT d (S Z) zLTd (zeroLTden (fromInteger 0))))
+>   ={ ?foo }=
+>     (  fromInteger 0  )
+>   QED
+> -}
+
+> {-
 
 > multZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) * x = fromInteger 0
 
