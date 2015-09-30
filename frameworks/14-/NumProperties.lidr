@@ -59,6 +59,12 @@ Then we can specialise to when |go| is |id| as in the definition of
 >                  (as : Vect n A) ->
 >                  foldrImpl f e id as = foldrClassic f e as
 > foldrImplCorr f e as = foldrImplLemma f e id as
+> {-
+> foldrImplCorr f e as = replace {x = id (foldrClassic f e as)}
+>                                {y = foldrClassic f e as}
+>                                {P = \ ZUZU => foldrImpl f e id as = ZUZU}
+>                                Refl (foldrImplLemma f e id as)
+> -}
 
 Now we can continue with the proof:
 
@@ -107,7 +113,7 @@ of append (because it is not defined in terms of |foldrImpl|)
 >                          ={ multZeroPlusRight x }=
 >                            ( fromInteger 0 )
 >                          ={ Refl }=
->                            ( sum Data.VectType.Vect.Nil )
+>                            ( sum Data.Vect.Nil )
 >                          QED
 > multSumLemma x (y :: ys) = ( x * (sum (y :: ys)) )
 >                          ={ cong (sumLemma y ys) }=
@@ -252,3 +258,8 @@ chain instead of a tree.
 >     ( fromInteger 1 )
 >   QED
 > -}
+
+
+> {-
+
+> ---}

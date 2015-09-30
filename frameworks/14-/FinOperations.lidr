@@ -2,7 +2,6 @@
 
 > import Data.Fin
 > import Data.Vect
-> import Data.VectType
 
 
 > %default total

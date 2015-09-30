@@ -7,9 +7,18 @@
 > %default total
 
 
+> %hide (-)
+
+
+Infix minus
+
+> public (-) : Nat -> Nat -> Nat
+> (-) = minus
+
+
 Divisor operations:
 
-> divBy : (d : Nat) -> (m : Nat) -> d `Divisor` m -> Nat
+> public divBy : (d : Nat) -> (m : Nat) -> d `Divisor` m -> Nat
 > divBy d m (Evidence q prf) = q 
 
 

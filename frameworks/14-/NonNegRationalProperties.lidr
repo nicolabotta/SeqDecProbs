@@ -86,6 +86,12 @@ Properties of casts:
 >                  (\ ZUZU => \ zLTZUZU => fromFraction n' ZUZU zLTZUZU) 
 >                  dEQd' s1
 
+> fromFractionNumLemma : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) -> 
+>                        num (fromFraction n d zLTd) * (gcd (alg n d)) = n
+
+> fromFractionDenLemma : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) -> 
+>                        den (fromFraction n d zLTd) * (gcd (alg n d)) = d
+
 In order to implement simple probability distributions based on
 non-negative rational numbers, we need these to fulfill
 
@@ -130,13 +136,61 @@ non-negative rational numbers, we need these to fulfill
 >   s7 : (MkNonNegQ n d zLTd gcdOne) + (fromInteger 0) = (MkNonNegQ n d zLTd gcdOne)
 >   s7 = trans s1 (trans s2 (trans s5 s6))
 
-> {-
 
 > plusZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) + x = x
 
 
 > plusAssoc : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
+> plusAssoc x y z = s11 where
+>   nyz' : Nat
+>   nyz' = (num y) * (den z) + (num z) * (den y)
+>   dyz' : Nat
+>   dyz' = (den y) * (den z)
+>   zLTdyz' : Z `LT` dyz'
+>   zLTdyz' = multZeroLTZeroLT (den y) (den z) (zeroLTden y) (zeroLTden z)
+>   s1 : y + z = fromFraction nyz' dyz' zLTdyz'
+>   s1 = Refl
+>   nyz : Nat
+>   nyz = num (fromFraction nyz' dyz' zLTdyz')
+>   dyz : Nat
+>   dyz = den (fromFraction nyz' dyz' zLTdyz')
+>   nxyz1' : Nat
+>   nxyz1' = (num x) * dyz + nyz * (den x)
+>   dxyz1' : Nat
+>   dxyz1' = (den x) * dyz
+>   zLTdxyz1' : Z `LT` dxyz1'
+>   zLTdxyz1' = multZeroLTZeroLT (den x) dyz (zeroLTden x) (zeroLTden (fromFraction nyz' dyz' zLTdyz'))
+>   s2 : x + (y + z) = fromFraction nxyz1' dxyz1' zLTdxyz1'
+>   s2 = Refl
+>   
+>   nxy' : Nat
+>   nxy' = (num x) * (den y) + (num y) * (den x)
+>   dxy' : Nat
+>   dxy' = (den x) * (den y)
+>   zLTdxy' : Z `LT` dxy'
+>   zLTdxy' = multZeroLTZeroLT (den x) (den y) (zeroLTden x) (zeroLTden y)
+>   s3 : x + y = fromFraction nxy' dxy' zLTdxy'
+>   s3 = Refl
+>   nxy : Nat
+>   nxy = num (fromFraction nxy' dxy' zLTdxy')
+>   dxy : Nat
+>   dxy = den (fromFraction nxy' dxy' zLTdxy')
+>   nxyz2' : Nat
+>   nxyz2' = nxy * (den z) + (num z) * dxy
+>   dxyz2' : Nat
+>   dxyz2' = dxy * (den z)
+>   zLTdxyz2' : Z `LT` dxyz2'
+>   zLTdxyz2' = multZeroLTZeroLT dxy (den z) (zeroLTden (fromFraction nxy' dxy' zLTdxy')) (zeroLTden z) 
+>   s2 : x + (y + z) = fromFraction nxyz2' dxyz2' zLTdxyz2'
+>   s2 = Refl
+>   
+>   s11 : x + (y + z) = (x + y) + z
+>   s11 = ?lulu
+>   
 
+
+
+> {-
 
 > multZeroPlusRight : (x : NonNegQ) -> x * (fromInteger 0) = fromInteger 0
 
