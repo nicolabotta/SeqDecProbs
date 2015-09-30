@@ -51,7 +51,7 @@ LT, LTE properties
 > notLTELemma0 : Not (S m `LTE` S n) -> Not (m `LTE` n)
 > notLTELemma0 contra = contra . LTESucc
 
-> notLTELemma1 : (m : Nat) -> (n : Nat) -> Not (m `LTE` n) -> n `LTE` m 
+> notLTELemma1 : (m : Nat) -> (n : Nat) -> Not (m `LTE` n) -> n `LTE` m
 > notLTELemma1  m     Z    p = LTEZero
 > notLTELemma1  Z    (S n) p = void (p LTEZero)
 > notLTELemma1 (S m) (S n) p = LTESucc (notLTELemma1 m n (notLTELemma0 p))
@@ -174,7 +174,7 @@ Properties of |plus|:
 > plusPlusElimLeft : {m1, n1, m2, n2 : Nat} -> m1 + n1 = m2 + n2 -> m1 = m2 -> n1 = n2
 > plusPlusElimLeft {m1 = Z} {n1} {m2 = Z} {n2} p1 Refl = s2 where
 >   s1 : n1 = Z + n2
->   s1 = replace {x = Z + n1} 
+>   s1 = replace {x = Z + n1}
 >                {y = n1}
 >                {P = \ ZUZU => ZUZU = Z + n2}
 >                (plusZeroLeftNeutral n1)
@@ -265,9 +265,9 @@ Properties of |minus|:
 >     ( S (S n' - S Z) )
 >   ={ Refl }=
 >     ( S (n' - Z)     )
->   ={ cong (minusZeroRight n') }=              
+>   ={ cong (minusZeroRight n') }=
 >     ( S n'           )
->   ={ Refl }=                
+>   ={ Refl }=
 >     ( S n' - Z       )
 >   QED
 > minusLemma4 {m = S m'} {n = Z} p = absurd p
@@ -300,8 +300,8 @@ Properties of |plus| and |minus|:
 
 > -- plusOneEither : (m : Nat) -> (n : Nat) -> m + n = S Z -> Either (m = Z) (n = Z)
 
-> plusRightInverseMinus : (m : Nat) -> (n : Nat) -> m `LTE` n -> (n - m) + m = n 
-> plusRightInverseMinus  Z    n _ = 
+> plusRightInverseMinus : (m : Nat) -> (n : Nat) -> m `LTE` n -> (n - m) + m = n
+> plusRightInverseMinus  Z    n _ =
 >     ( (n - Z) + Z )
 >   ={ plusZeroRightNeutral (n - Z) }=
 >     ( n - Z )
@@ -314,9 +314,9 @@ Properties of |plus| and |minus|:
 >     ( S m + (n - S m) )
 >   ={ plusSuccRightSucc m (n - S m) }=
 >     ( m + S (n - S m) )
->   ={ replace {x = S (n - S m)} 
->              {y = n - m} 
->              {P = \ ZUZU => m + S (n - S m) = m + ZUZU } 
+>   ={ replace {x = S (n - S m)}
+>              {y = n - m}
+>              {P = \ ZUZU => m + S (n - S m) = m + ZUZU }
 >              (minusLemma4 p) Refl}=
 >     ( m + (n - m) )
 >   ={ plusCommutative m (n - m) }=
@@ -329,7 +329,7 @@ Properties of |plus| and |minus|:
 Properties of |mult|
 
 > multSuccNotZero : (m : Nat) -> (n : Nat) -> Not ((S m) * (S n) = Z)
-> multSuccNotZero m  n  p = absurd p  
+> multSuccNotZero m  n  p = absurd p
 
 > multNotZeroNotZero : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (m * n = Z)
 > multNotZeroNotZero  Z     n    p q = void (p Refl)
@@ -375,11 +375,11 @@ Properties of |mult|
 >   prf' : (S n) * m = Z
 >   prf' = replace {x = m * (S n)} {y = (S n) * m} {P = \ ZUZU => ZUZU = Z} (multCommutative m (S n)) prf
 
-> ||| 
+> |||
 > multZeroLeftOneRightZero : (m : Nat) -> (n : Nat) -> (S m) * n = Z -> n = Z
 > multZeroLeftOneRightZero m n prf = plusZeroLeftZero n (m * n) prf
 
-> ||| 
+> |||
 > multOneLeftOne : (m : Nat) -> (n : Nat) -> m * n = S Z -> m = S Z
 > multOneLeftOne  Z     n    prf = absurd prf
 > multOneLeftOne (S m)  Z    prf = absurd prf' where
@@ -406,9 +406,9 @@ Properties of |mult|
 >   prf' : n * m = S Z
 >   prf' = replace {x = m * n} {y = n * m} {P = \ ZUZU => ZUZU = S Z} (multCommutative m n) prf
 
-> multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) -> 
+> multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
 >                   m1 = m2 -> n1 = n2 -> m1 * n1 = m2 * n2
-> multPreservesEq m m n n Refl Refl = Refl                        
+> multPreservesEq m m n n Refl Refl = Refl
 
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
@@ -417,9 +417,9 @@ Properties of |mult|
 > multElim1 m (S Z) _ = Refl
 > multElim1 m (S (S n)) p = void (multSuccNotZero n m s5) where
 >   s1 : (S (S n)) * (S m) = S m
->   s1 = replace {x = (S m) * (S (S n))} 
->                {y = (S (S n)) * (S m)} 
->                {P = \ ZUZU => ZUZU = S m} 
+>   s1 = replace {x = (S m) * (S (S n))}
+>                {y = (S (S n)) * (S m)}
+>                {P = \ ZUZU => ZUZU = S m}
 >                (multCommutative (S m) (S (S n))) p
 >   s2 : S m + (S n) * (S m) = S m
 >   s2 = replace {x = (S (S n)) * (S m)}
@@ -437,7 +437,7 @@ Decidability:
 > decLTE = lte
 > {-
 > decLTE Z _     = Yes LTEZero
-> decLTE (S m) Z = No succNotLTEzero 
+> decLTE (S m) Z = No succNotLTEzero
 > decLTE (S m) (S n) with (decLTE m n)
 >   | (Yes p) = Yes (LTESucc p)
 >   | (No contra) = No (\ p => contra (fromLteSucc p))
@@ -532,11 +532,11 @@ Divisor is a pre-order:
 >   s8 = replace {x = (S m) * (S Z)}
 >                {y = S m}
 >                {P = \ ZUZU => ZUZU = S n}
->                (multOneRightNeutral (S m)) s7                
+>                (multOneRightNeutral (S m)) s7
 
 > divisorPlusLemma1 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                      d `Divisor` m -> d `Divisor` n -> d `Divisor` (n + m)
-> divisorPlusLemma1 m n d (Evidence q1 p1) (Evidence q2 p2) = 
+> divisorPlusLemma1 m n d (Evidence q1 p1) (Evidence q2 p2) =
 >   Evidence (q1 + q2) p where
 >     s1 : d * (q1 + q2) = d * q1 + d * q2
 >     s1 = multDistributesOverPlusRight d q1 q2
@@ -561,7 +561,7 @@ Divisor is a pre-order:
 > ||| If a number divides two numbers, it also divides their difference
 > divisorMinusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (n - m)
-> divisorMinusLemma m n d (Evidence q1 p1) (Evidence q2 p2) = 
+> divisorMinusLemma m n d (Evidence q1 p1) (Evidence q2 p2) =
 >   Evidence q p where
 >     q : Nat
 >     q = q2 - q1
@@ -597,8 +597,8 @@ Divisor is a pre-order:
 >     p' : d' * q = S Z
 >     p' = multElim1 d (d' * q) s2
 
-> ||| 
-> divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) -> 
+> |||
+> divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) ->
 >                    (dDm : d `Divisor` m) -> d' `Divisor` (divBy d m dDm) -> d * d' `Divisor` m
 > divisorTowerLemma d d' m dDm d'DmOd = Evidence q' p where
 >   q' : Nat
@@ -622,10 +622,11 @@ Greatest common divisor properties:
 >   s2 : d2 `Divisor` d1
 >   s2 = d1G d2 d2Dm d2Dn
 >   s3 : d1 = d2
->   s3 = divisorAntisymmetric d1 d2 s1 s2 
+>   s3 = divisorAntisymmetric d1 d2 s1 s2
 
-> gcdLemma : (v : GCD (S d) m n) -> 
->            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) -> d' `Divisor` (divBy (S d) n (gcdDivisorSnd v)) -> 
+> gcdLemma : (v : GCD (S d) m n) ->
+>            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) ->
+>            d' `Divisor` (divBy (S d) n (gcdDivisorSnd v)) ->
 >            d' `Divisor` S Z
 > gcdLemma {d} {d'} {m} {n} v d'DmoSd d'DnoSd = divisorOneLemma d d' Sdd'DSd where
 >   SdDm    : (S d) `Divisor` m
@@ -642,7 +643,8 @@ Greatest common divisor properties:
 >   Sdd'DSd = SdG ((S d) * d') Sdd'Dm Sdd'Dn
 
 > gcdLemma' : (v : GCD d m n) -> Not (d = Z) ->
->             d' `Divisor` (divBy d m (gcdDivisorFst v)) -> d' `Divisor` (divBy d n (gcdDivisorSnd v)) -> 
+>             d' `Divisor` (divBy d m (gcdDivisorFst v)) ->
+>             d' `Divisor` (divBy d n (gcdDivisorSnd v)) ->
 >             d' `Divisor` S Z
 > gcdLemma' {d} {d'} {m} {n} v dNotZ d'DmoSd d'DnoSd = divisorOneLemma' d d' dNotZ Sdd'DSd where
 >   SdDm    : d `Divisor` m
@@ -662,25 +664,25 @@ Greatest common divisor properties:
 Coprime properties:
 
 > ||| Coprime is decidable
-> decCoprime : ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) -> 
->              (m : Nat) -> (n : Nat) -> 
+> decCoprime : ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
+>              (m : Nat) -> (n : Nat) ->
 >              Dec (Coprime m n)
-> decCoprime alg m n with (alg m n) 
+> decCoprime alg m n with (alg m n)
 >   | (d ** v) with (decEq d (S Z))
 >     | (Yes p) = Yes (mkCoprime {d = d} v p)
 >     | (No contra) = No contra' where
 >         contra' : Coprime m n -> Void
 >         contra' (mkCoprime {d = d'} v' p') = contra p where
 >           p : d = S Z
->           p = replace {x = d'} 
->                       {y = d} 
->                       {P = \ ZUZU => ZUZU = S Z} 
+>           p = replace {x = d'}
+>                       {y = d}
+>                       {P = \ ZUZU => ZUZU = S Z}
 >                       (gcdUnique d' d v' v) p'
 
 > ||| Coprime is symmetric
 > symmetricCoprime : Coprime m n -> Coprime n m
-> symmetricCoprime {m} {n} (mkCoprime (mkGCD {d} {m} {n} dDm dDn dG) dEQone) = 
->   (mkCoprime (mkGCD dDn dDm dG') dEQone) where
+> symmetricCoprime {m} {n} (mkCoprime (mkGCD {d} {m} {n} dDm dDn dG)  dEQone) =
+>                          (mkCoprime (mkGCD             dDn dDm dG') dEQone) where
 >     dG' : (d' : Nat) -> Divisor d' n -> Divisor d' m -> Divisor d' d
 >     dG' d' d'Dn d'Dm = dG d' d'Dm d'Dn
 
@@ -692,10 +694,11 @@ Coprime properties:
 >   oDo : (S Z) `Divisor` (S Z)
 >   oDo = anyDivisorAny (S Z)
 >   oG  : (d : Nat) -> d `Divisor` m -> d `Divisor` (S Z) -> d `Divisor` (S Z)
->   oG d dDm dDo = dDo 
+>   oG d dDm dDo = dDo
 
 > ||| Division by gcd yields coprime numbers
-> gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v)) (divBy (S d) n (gcdDivisorSnd v))
+> gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v))
+>                                                  (divBy (S d) n (gcdDivisorSnd v))
 > gcdCoprimeLemma {d} {m} {n} v = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : (S d) `Divisor` m
 >   dDm     = gcdDivisorFst v
@@ -713,7 +716,8 @@ Coprime properties:
 >   d'G d'' = gcdLemma v
 
 > ||| Division by gcd yields coprime numbers
-> gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (divBy d m (gcdDivisorFst v)) (divBy d n (gcdDivisorSnd v))
+> gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (divBy d m (gcdDivisorFst v))
+>                                                              (divBy d n (gcdDivisorSnd v))
 > gcdCoprimeLemma' {d} {m} {n} v dNotZ = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : d `Divisor` m
 >   dDm     = gcdDivisorFst v
@@ -731,7 +735,8 @@ Coprime properties:
 >   d'G d'' = gcdLemma' v dNotZ
 
 > ||| Division by gcd yields coprime numbers
-> gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (divBy d m (gcdDivisorFst v)) (divBy d n (gcdDivisorSnd v))
+> gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (divBy d m (gcdDivisorFst v))
+>                                                            (divBy d n (gcdDivisorSnd v))
 > gcdCoprimeLemma'' {d} {m} {n} v zLTd = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : d `Divisor` m
 >   dDm     = gcdDivisorFst v
@@ -753,7 +758,7 @@ Coprime properties:
 
 GCD / Coprime properties:
 
-> ||| 
+> |||
 > gcdOneCoprimeLemma1 : (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
 >                       (m : Nat) -> (n : Nat) ->
 >                       gcd (alg m n) = S Z -> Coprime m n
@@ -776,4 +781,3 @@ GCD / Coprime properties:
 >                (m : Nat) ->
 >                gcd (alg m (S Z)) = S Z
 > gcdAnyOneOne alg m = gcdOneCoprimeLemma2 m (S Z) alg anyCoprimeOne
-

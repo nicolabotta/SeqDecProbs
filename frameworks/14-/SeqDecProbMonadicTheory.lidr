@@ -353,7 +353,7 @@ possible future evolutions from a (viable) initial state:
 > namespace TailRecursiveBackwardsInduction
 
 
-The major disadvantage of |bi| 
+The major disadvantage of |bi|
 
 < bi : (t : Nat) -> (n : Nat) -> PolicySeq t n
 < bi t  Z     =  Nil
@@ -366,20 +366,20 @@ steps. Consider, for example, |bi 0 3|. One has
 
 < bi 0 3
 <   = {def. |bi|}
-< (optExt (bi 1 2)) 
-< :: 
+< (optExt (bi 1 2))
+< ::
 < (bi 1 2)
 <   = {def. |bi|}
-< (optExt ((optExt (bi 2 1)) :: (bi 2 1))) 
-< :: 
+< (optExt ((optExt (bi 2 1)) :: (bi 2 1)))
+< ::
 < (optExt (bi 2 1)) :: (bi 2 1)
 <   = {def. |bi|}
-< (optExt ((optExt ((optExt (bi 3 0)) :: (bi 3 0))) :: ((optExt (bi 3 0)) :: (bi 3 0)))) 
-< :: 
+< (optExt ((optExt ((optExt (bi 3 0)) :: (bi 3 0))) :: ((optExt (bi 3 0)) :: (bi 3 0))))
+< ::
 < (optExt ((optExt (bi 3 0)) :: (bi 3 0))) :: (optExt (bi 3 0)) :: (bi 3 0)
 <   = {def. |bi|}
 < (optExt ((optExt ((optExt Nil) :: Nil)) :: ((optExt Nil) :: Nil)))
-< :: 
+< ::
 < (optExt ((optExt Nil) :: Nil)) :: (optExt Nil) :: Nil
 
 resulting in
@@ -413,59 +413,11 @@ Instead of pattern matching on the number of steps, we delegate the
 computation of the policy sequence to an auxiliary function |ibi|
 which implements backwards induction iteratively:
 
->   minusLemma0 : m = n -> m - n = Z
->   minusLemma0 {m = Z}    {n = Z}    Refl = Refl
->   minusLemma0 {m = Z}    {n = S n'} prf  = absurd prf
->   minusLemma0 {m = S m'} {n = Z}    prf  = absurd prf
->   minusLemma0 {m = S m'} {n = S n'} prf  = trans s1 s2 where
->     s1 : S m' - S n' = m' - n'
->     s1 = Refl
->     s2 : m' - n' = Z
->     s2 = minusLemma0 (succInjective m' n' prf) 
-
->   minusLemma3 : LTE m n -> Z = n - m -> m = n
->   minusLemma3 {m = Z}    {n = Z}    p q = Refl
->   minusLemma3 {m = Z}    {n = S n'} p q = absurd q
->   minusLemma3 {m = S m'} {n = Z}    p q = absurd p
->   minusLemma3 {m = S m'} {n = S n'} (LTESucc p') q = 
->     eqSucc m' n' (minusLemma3 {m = m'} {n = n'} p' q') where
->       q' : Z = n' - m'
->       q' = trans q Refl
-
->   minusLemma1 : n - m = S l -> l = n - (S m)
->   minusLemma1 {l} {m = Z}    {n = Z}    p = absurd p
->   minusLemma1 {l} {m = Z}    {n = S n'} p = s5 where
->     s1 : S n' = S l
->     s1 = p
->     s2 : l = n'
->     s2 = sym (succInjective n' l s1)
->     s3 : n' = n' - Z
->     s3 = sym (minusZeroRight n')
->     s4 : n' - Z = S n' - S Z
->     s4 = Refl
->     s5 : l = S n' - S Z
->     s5 = trans s2 (trans s3 s4)
->   minusLemma1 {l} {m = S m'} {n = Z}    p = absurd p
->   minusLemma1 {l} {m = S m'} {n = S n'} p = s3 where
->     s1 : n' - m' = S l
->     s1 = p
->     s2 : l = n' - (S m')
->     s2 = minusLemma1 s1
->     s3 : l = S n' - S (S m')
->     s3 = trans s2 Refl
-
-
->   minusLemma2 : LTE m n -> n - m = S l -> LTE (S m) n
->   minusLemma2 {m = Z}    {n = Z}    p q = absurd q
->   minusLemma2 {m = Z}    {n = S n'} p q = LTESucc LTEZero
->   minusLemma2 {m = S m'} {n = Z}    p q = absurd p
->   minusLemma2 {m = S m'} {n = S n'} (LTESucc p') q = LTESucc (minusLemma2 p' q)
-
 >   %assert_total
->   ibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n -> 
+>   ibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n ->
 >         PolicySeq (n - c + t) c -> PolicySeq t n
 >   ibi t n c prf ps with (n - c) proof itsEqual
->     |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn 
+>     |  Z    = replace {P = \ x => PolicySeq (Z + t) x} ceqn
 >               ps where
 >         ceqn : c = n
 >         ceqn = minusLemma3 prf itsEqual
@@ -473,9 +425,9 @@ which implements backwards induction iteratively:
 >         prf' : LTE (S c) n
 >         prf' = minusLemma2 prf (sym itsEqual)
 >         ps'  : PolicySeq (n - (S c) + t) (S c)
->         ps'  = replace {P = \ x => PolicySeq (x + t) (S c)} (minusLemma1 (sym itsEqual)) 
+>         ps'  = replace {P = \ x => PolicySeq (x + t) (S c)} (minusLemma1 (sym itsEqual))
 >                ((optExt ps) :: ps)
-    
+
 >   trbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
 >   trbi t n = ibi t n Z LTEZero Nil
 
@@ -533,18 +485,18 @@ steps:
 The idea is to equip |optExt| with an additional argument |vt : Vect
 (cRVX t n) Nat|, the so-called "value table"
 
->   tabOptExt : (t : Nat) -> (n : Nat) -> 
+>   tabOptExt : (t : Nat) -> (n : Nat) ->
 >               (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) -> Policy t (S n)
 
 storing the value, for a given |ps : PolicySeq (S t) n| and for every
 state in |RVX t (S n)|, of taking |n| decision steps with |ps| starting
 from that state:
 
->   vtLemma : (t : Nat) -> (n : Nat) -> 
->             (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) -> 
->             (x : X (S t)) -> (r : Reachable x) -> (v : Viable n x) -> 
->             index (lookup (x ** (r , v)) (rRVX (S t) n) (rRVXcomplete (S t) n (x ** (r , v)))) vt 
->             = 
+>   vtLemma : (t : Nat) -> (n : Nat) ->
+>             (ps : PolicySeq (S t) n) -> (vt : Vect (cRVX (S t) n) Nat) ->
+>             (x : X (S t)) -> (r : Reachable x) -> (v : Viable n x) ->
+>             index (lookup (x ** (r , v)) (rRVX (S t) n) (rRVXcomplete (S t) n (x ** (r , v)))) vt
+>             =
 >             val x r v ps
 
 Under these assumption, one can implement |tabOptExt| from |optExt| by

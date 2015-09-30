@@ -63,8 +63,9 @@ This suggests the following definition of non-negative rational numbers:
 
 > {-
 
-> ||| 
-> normalizeFrac : ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) -> (Nat, Nat) -> (Nat, Nat)
+> |||
+> normalizeFrac :  ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
+>                  (Nat, Nat) -> (Nat, Nat)
 > normalizeFrac alg (m, n) with (decCoprime alg m n)
 >   | (Yes _) = (m, n)
 >   | (No  _) = (m', n') where

@@ -1,3 +1,13 @@
+2015-09-02: Patrik: Duplicate definitions
+
+    minusLemma0, minusLemma1, minusLemma2, minusLemma3
+  were in
+    SeqDecProbMonadicTheory.lidr
+  but also in
+    NatProperties.lidr
+
+  That led to ambiguity errors from idris so I cleaned it up.
+
 2015-07-24: DivMod:
 
   Botta:
