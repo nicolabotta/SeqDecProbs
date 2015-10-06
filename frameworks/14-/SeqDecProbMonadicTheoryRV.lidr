@@ -5,6 +5,7 @@
 > import Control.Isomorphism
 
 > import Prop
+> import NatOperations
 > import NatProperties
 > import SigmaOperations
 > import SigmaProperties

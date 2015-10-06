@@ -152,8 +152,8 @@ The second result is
 >                     .(Unique1 {t0 = A} P) ->
 >                     .(a : A) ->
 >                     .(p : P a) ->
->                     .(ss : Vect n (Sigma A P)) ->
->                     .(Elem a (map getWitness ss)) ->
+>                     (ss : Vect n (Sigma A P)) ->
+>                     (Elem a (map Prelude.Pairs.Sigma.getWitness ss)) ->
 >                     Elem (a ** p) ss
 > sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
 > sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) (Here {x = a}) with (u1P a p q)
@@ -350,7 +350,9 @@ Sigma Fin properties:
 >     ( Sigma (Fin (S n)) (Fin . f)                                     )
 >   ={ sigmaEitherLemma {n = n} {P = Fin . f} }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (tail (Fin . f)))            )
->   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
+>   -- ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
+>   -- ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} Refl }=
+>   ={ isoRefl }= 
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (tail (Fin . f)) k)) )
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . f) (FS k)))   )
@@ -360,7 +362,8 @@ Sigma Fin properties:
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => Fin ((tail f) k)))   )
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (\ k => (Fin . (tail f)) k)) )
->   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
+>   -- ={ isoCong {P = \ X => Either (Fin (f FZ)) (Sigma (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
+>   ={ isoRefl }= 
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f)))            )
 >   QED
 

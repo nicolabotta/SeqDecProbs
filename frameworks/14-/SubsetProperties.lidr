@@ -153,8 +153,8 @@ The second result is
 >                     .(Unique1 {t0 = A} P) ->
 >                     .(a : A) ->
 >                     .(p : P a) ->
->                     .(ss : Vect n (Subset A P)) ->
->                     .(Elem a (map getWitness ss)) ->
+>                     (ss : Vect n (Subset A P)) ->
+>                     (Elem a (map Prelude.Pairs.Subset.getWitness ss)) ->
 >                     Elem (Element a p) ss
 > subsetUniqueLemma1 u1P a p Nil prf = absurd prf
 > subsetUniqueLemma1 u1P a p ((Element a q) :: ss) (Here {x = a}) with (u1P a p q)
@@ -162,9 +162,6 @@ The second result is
 >     Here {x = (Element a p)} {xs = ss}
 > subsetUniqueLemma1 u1P a1 p1 ((Element a2 p2) :: ss) (There prf) =
 >   There (subsetUniqueLemma1 u1P a1 p1 ss prf)
-
-ODO: The above does not seem to make sense: the irrelevant arguments ss (a vector) and the next (a Elem proof ~= an index into the vector) can hardly be completely iorrelevnatn to the computation!
-
 
 With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 |toVect| is complete:
@@ -174,7 +171,7 @@ With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 >                       .(fA  : Finite A) ->
 >                       .(d1P : Dec1 P) ->
 >                       .(Unique1 {t0 = A} P) ->
->                       .(s   : Subset A P) ->
+>                       (s   : Subset A P) ->
 >                       Elem s (getProof (toVectSubset fA d1P))
 > toVectSubsetComplete fA d1P u1P (Element a p) = s1 where
 >   s0 : Elem a (map Subset.getWitness (getProof (toVectSubset fA d1P)))
@@ -343,7 +340,8 @@ Subset Fin properties:
 >     ( Subset (Fin (S n)) (Fin . f)                                     )
 >   ={ subsetEitherLemma {n = n} {P = Fin . f} }=
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (tail (Fin . f)))            )
->   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Subset (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
+>   -- ={ isoCong {P = \ X => Either (Fin (f FZ)) (Subset (Fin n) X)} (sym (lambdaLemma1 (tail (Fin . f)))) }=
+>   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (\ k => (tail (Fin . f)) k)) )
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (\ k => (Fin . f) (FS k)))   )
@@ -353,7 +351,8 @@ Subset Fin properties:
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (\ k => Fin ((tail f) k)))   )
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (\ k => (Fin . (tail f)) k)) )
->   ={ isoCong {P = \ X => Either (Fin (f FZ)) (Subset (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
+>   -- ={ isoCong {P = \ X => Either (Fin (f FZ)) (Subset (Fin n) X)} (lambdaLemma1 (Fin . (tail f))) }=
+>   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (Fin . (tail f)))            )
 >   QED
 

@@ -120,6 +120,7 @@ implement |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 > SeqDecProbMonadicTheory.argmax  {n} t x v  =  
 >   Opt.argmax totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v)
 
+> {-
 > SeqDecProbMonadicTheory.maxSpec {n} t x v f s = s5 where
 >   {-
 >   s1 : (R totalPreorderNatLTE) (f s) (Opt.max totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v) f)
@@ -128,12 +129,14 @@ implement |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 >                    totalPreorderNatLTE (fYAV t n x v) (neYAV t n x v) f s
 >   -}
 >   s5 : LTE (f s) (max {n} t x v f)
->   s5 = ?kika
+>   s5 = ?guga
+> -}
 
+> SeqDecProbMonadicTheory.maxSpec {n} t x v  =  
+>   Opt.maxSpec totalPreorderNatLTE (fYAV t n  x v) (neYAV t n x v)
 
-> -- SeqDecProbMonadicTheory.argmaxSpec {n} t x v  =  
-> --   Opt.argmaxSpec totalPreorderNatLTE (fYAV t n  x v) (neYAV t n x v)
-
+> SeqDecProbMonadicTheory.argmaxSpec {n} t x v  =  
+>   Opt.argmaxSpec totalPreorderNatLTE (fYAV t n  x v) (neYAV t n x v)
 
 
 * The decision process:

@@ -2,7 +2,7 @@
 
 > import Data.Fin
 > import Data.Vect
-> import Data.VectType
+> -- import Data.VectType
 > import Syntax.PreorderReasoning
 
 > import Matrix
@@ -57,14 +57,8 @@ Then we can specialise to when |go| is |id| as in the definition of
 > foldrImplCorr :  {A, B : Type} -> {n : Nat} ->
 >                  (f : A -> B -> B) -> (e : B) ->
 >                  (as : Vect n A) ->
->                  foldrImpl f e id as = foldrClassic f e as
-> foldrImplCorr f e as = foldrImplLemma f e id as
-> {-
-> foldrImplCorr f e as = replace {x = id (foldrClassic f e as)}
->                                {y = foldrClassic f e as}
->                                {P = \ ZUZU => foldrImpl f e id as = ZUZU}
->                                Refl (foldrImplLemma f e id as)
-> -}
+>                  foldrImpl f e Prelude.Basics.id as = foldrClassic f e as
+> foldrImplCorr f e as = foldrImplLemma f e Prelude.Basics.id as
 
 Now we can continue with the proof:
 
@@ -191,7 +185,7 @@ chain instead of a tree.
 > ||| 'Tail' of a finite dependently typed function
 > depTail : {n : Nat} -> {P : Fin (S n) -> Type} ->
 >           ((k : Fin (S n)) -> P k) -> ((j : Fin n) -> P (FS j))
-> depTail {P} f k = f (FS k)
+> depTail f k = f (FS k)
 
 > |||
 > multVMLemma0 : (NumMultDistributesOverPlus t) =>
@@ -214,14 +208,13 @@ chain instead of a tree.
 >     ( x + sum (map sum (multVM xs yss)) )
 >   ={ cong (sumMapConcat (multVM xs yss)) }=
 >     ( x + sum (Vect.concat (multVM xs yss)) )
->   ={ cong (multVMLemma0 xs yss (depTail ps)) }=
+>   ={ cong (multVMLemma0 xs yss (depTail {P = \ k => sumOne (row k (ys :: yss))} ps)) }=
 >     ( x + sum xs )
 >   ={ sym (sumLemma x xs) }=
 >     ( sum (x :: xs) )
 >   QED
 
-
-
+ 
 > multVMLemma : (NumMultDistributesOverPlus t) =>
 >               (m : Nat) ->
 >               (xs : Vect m t) -> sumOne xs ->

@@ -86,7 +86,7 @@
 > argmaxSpec {A} {B} tp fA nefA f = s3 where
 >   ab : (A,B)
 >   ab = argmaxMax tp fA nefA f
->   s1 : Elem ab (map (pair (id, f)) (toVect fA))
+>   s1 : Elem ab (map (pair (Prelude.Basics.id, f)) (toVect fA))
 >   s1 = maxElemLemma (fromTotalPreorder2 tp) (map (pair (id, f)) (toVect fA)) (notZisgtZ nefA)
 >   s2 : f (fst ab) = snd ab
 >   s2 = mapIdfLemma (toVect fA) f ab s1

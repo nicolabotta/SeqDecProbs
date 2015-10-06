@@ -159,7 +159,7 @@ Container monad properties
 
 
 > mapIdfLemma : {A, B : Type} -> (as : Vect n A) -> (f : A -> B) ->
->               (ab : (A,B)) -> Elem ab (map (pair (id,f)) as) ->
+>               (ab : (A,B)) -> Elem ab (map (pair (Prelude.Basics.id,f)) as) ->
 >               f (fst ab) = snd ab
 > mapIdfLemma  Nil      f  ab     p        = absurd p
 > mapIdfLemma (a :: as) f (a, _)  Here     = Refl
@@ -356,7 +356,7 @@ Max and argmax
 > argmaxLemma {n = S Z}     tp (a :: Nil)        p = Refl
 > argmaxLemma {n = S (S m)} tp (a' :: (a'' :: as)) p with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
 >   | (k, max') with (totalPre tp a' max')
->     | (Left   _) = replace {P = \rec => Data.VectType.Vect.index (fst rec) (a'' :: as) = snd rec}
+>     | (Left   _) = replace {P = \rec => Data.Vect.index (fst rec) (a'' :: as) = snd rec}
 >                            (sym itsEqual)
 >                            (argmaxLemma tp (a'' :: as) (ltZS m))
 >     | (Right  _) = Refl
