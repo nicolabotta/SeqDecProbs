@@ -61,23 +61,4 @@ This suggests the following definition of non-negative rational numbers:
 > data NonNegQ : Type where
 >   MkNonNegQ : (n : Nat) -> (d : Nat) -> Z `LT` d -> gcd (alg n d) = S Z -> NonNegQ
 
-> {-
 
-> |||
-> normalizeFrac :  ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
->                  (Nat, Nat) -> (Nat, Nat)
-> normalizeFrac alg (m, n) with (decCoprime alg m n)
->   | (Yes _) = (m, n)
->   | (No  _) = (m', n') where
->       gcdv : (gcd : Nat ** GCD gcd m n)
->       gcdv = alg m n
->       gcd : Nat
->       gcd = getWitness gcdv
->       v : GCD gcd m n
->       v = getProof gcdv
->       m' : Nat
->       m' = divBy gcd m (gcdDivisorFst v)
->       n' : Nat
->       n' = divBy gcd n (gcdDivisorSnd v)
-
-> ---}

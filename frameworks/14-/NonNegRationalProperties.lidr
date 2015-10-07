@@ -11,6 +11,7 @@
 > import NumRefinements
 > import GCD
 > import EqualityProperties
+> import Fraction
 
 
 > %default total
@@ -20,26 +21,23 @@
 > instance Show NonNegQ where
 >   show q = show (num q) ++ "/" ++ show (den q)
 
-
 > ||| Non-negative rationals are in |Num|
 > instance Num NonNegQ where
 >   (+) = plus
->   (-) = minus
 >   (*) = mult
->   abs q = q
->   fromInteger = fromIntegerNonNegQ
+>   fromInteger = NonNegRationalOperations.fromNat . fromIntegerNat
 
 
 Properties of |num|, |den|:
 
-> numZeroZero : num (fromInteger 0) = Z
-> numZeroZero = ( num (fromInteger 0) )
+> numZeroZero : NonNegRationalOperations.num (fromInteger 0) = Z
+> numZeroZero = ( NonNegRationalOperations.num (fromInteger 0) )
 >             ={ Refl }=
->               ( num (fromNatNonNegQ (fromIntegerNat 0)) )
+>               ( NonNegRationalOperations.num (fromNat (fromIntegerNat 0)) )
 >             ={ Refl }=
->               ( num (fromNatNonNegQ Z) )
+>               ( NonNegRationalOperations.num (fromNat Z) )
 >             ={ Refl }=
->               ( num (MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)) )
+>               ( NonNegRationalOperations.num (MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z)) )
 >             ={ Refl }=
 >               ( Z )
 >             QED
@@ -49,10 +47,24 @@ Properties of |num|, |den|:
 
 Properties of casts:
 
-> fromFractionLemma1 : (n : Nat) -> (d : Nat) ->
->                      (zLTd : Z `LT` d) -> (gcdOne : gcd (alg n d) = S Z) ->
->                      fromFraction n d zLTd = MkNonNegQ n d zLTd gcdOne
-> fromFractionLemma1 n d zLTd gcdOne with (decEq (gcd (alg n d)) (S Z))
+> fromFractionLemma1 : (x : Fraction) -> 
+>                      (zLTden : Z `LT` den x) ->
+>                      (gcdOne : gcd (alg (num x) (den x)) = S Z) ->
+>                      fromFraction x zLTden = MkNonNegQ (num x) (den x) zLTden gcdOne
+> fromFractionLemma1 x zLTden gcdOne = 
+>    ( fromFraction x zLTden )
+>  ={ Refl }=
+>    ( MkNonNegQ (num (reduce alg x)) 
+>                (den (reduce alg x)) 
+>                (reducePreservesPositivity alg x zLTden) 
+>                (reduceYieldsCoprimes alg x zLTden) )
+>  ={ ?gugu }=
+>    ( MkNonNegQ (num x) (den x) zLTden gcdOne )
+>  QED
+
+> 
+> {-
+> with (decEq (gcd (alg n d)) (S Z))
 >   | (Yes prf)   = ( MkNonNegQ n d zLTd prf )
 >                 ={ replace {x = prf}
 >                            {y = gcdOne}
@@ -62,6 +74,130 @@ Properties of casts:
 >                   ( MkNonNegQ n d zLTd gcdOne )
 >                 QED
 >   | (No contra) = void (contra gcdOne)
+> -}
+
+
+> fromFractionToFractionLemma : 
+>   (q : NonNegQ) -> 
+>   fromFraction (toFraction q) (toFractionPreservesDenominatorPositivity q) = q
+> -- fromFractionToFractionLemma q 
+
+> fromFractionLemma2 : 
+>   (x : Fraction) -> 
+>   (zLTdx : Z `LT` den x) ->
+>   (y : Fraction) -> 
+>   (zLTdy : Z `LT` den y) ->
+>   x = y -> 
+>   fromFraction x zLTdx = fromFraction y zLTdy
+
+> fromFractionLinear : 
+>   (x : Fraction) -> 
+>   (zLTdx : Z `LT` den x) ->
+>   (y : Fraction) -> 
+>   (zLTdy : Z `LT` den y) ->
+>   fromFraction (x + y) (plusPreservesPositivity x y zLTdx zLTdy)
+>   =
+>   fromFraction x zLTdx + fromFraction y zLTdy
+
+
+> ||| Addition is commutative
+> plusCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x + y = y + x
+> plusCommutative x y = 
+>   let x' = toFraction x in
+>   let y' = toFraction y in
+>   let zLTdx' = toFractionPreservesDenominatorPositivity x in
+>   let zLTdy' = toFractionPreservesDenominatorPositivity y in
+>   let zLTdx'y' = plusPreservesPositivity x' y' zLTdx' zLTdy' in
+>   let zLTdy'x' = plusPreservesPositivity y' x' zLTdy' zLTdx' in
+>     ( x + y )
+>   ={ Refl }=
+>     ( fromFraction (x' + y') zLTdx'y' )
+>   ={ fromFractionLemma2 (x' + y') zLTdx'y' (y' + x') zLTdy'x' (plusCommutative x' y') }=
+>     ( fromFraction (y' + x') (plusPreservesPositivity y' x' zLTdy' zLTdx') )    
+>   ={ Refl }=
+>     ( y + x )
+>   QED
+
+
+> ||| Addition is associative
+> plusAssociative : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
+> plusAssociative x y z = 
+>   let x' = toFraction x in
+>   let y' = toFraction y in
+>   let z' = toFraction z in
+>   let zLTdx' = toFractionPreservesDenominatorPositivity x in
+>   let zLTdy' = toFractionPreservesDenominatorPositivity y in
+>   let zLTdz' = toFractionPreservesDenominatorPositivity z in
+>   let zLTdyz' = toFractionPreservesDenominatorPositivity (y + z) in
+>   let zLTdx'yz' = plusPreservesPositivity (toFraction x) (toFraction (y + z)) zLTdx' zLTdyz' in
+>   
+>   let zLTdy'z' = plusPreservesPositivity (toFraction y) (toFraction z) zLTdy' zLTdz' in
+>   let zLTdx'py'z' = plusPreservesPositivity (toFraction x) (toFraction y + toFraction z) zLTdx' zLTdy'z' in
+>   let zLTdx'y' = plusPreservesPositivity (toFraction x) (toFraction y) zLTdx' zLTdy' in
+>   let zLTdx'y'pz' = plusPreservesPositivity (toFraction x + toFraction y) (toFraction z) zLTdx'y' zLTdz' in
+>   
+>     ( x + (y + z) )
+>   ={ Refl }=
+>     ( fromFraction (toFraction x + toFraction (y + z)) zLTdx'yz' )
+>   ={ fromFractionLinear (toFraction x) zLTdx' (toFraction (y + z)) zLTdyz' }=
+>     ( fromFraction (toFraction x) zLTdx' + fromFraction (toFraction (y + z)) zLTdyz' )  
+>   ={ ?fromFractionToFractionId }=
+>     ( fromFraction (toFraction x) zLTdx' + (y + z) )  
+>   ={ Refl }=
+>     ( fromFraction (toFraction x) zLTdx' + fromFraction (toFraction y + toFraction z) zLTdy'z' )
+>   ={ sym (fromFractionLinear (toFraction x) zLTdx' (toFraction y + toFraction z) zLTdy'z') }=
+>     ( fromFraction (toFraction x + (toFraction y + toFraction z)) zLTdx'py'z' )  
+>   ={ fromFractionLemma2 (toFraction x + (toFraction y + toFraction z)) 
+>                         zLTdx'py'z' 
+>                         ((toFraction x + toFraction y) + toFraction z) 
+>                         zLTdx'y'pz' 
+>                         (plusAssociative (toFraction x) (toFraction y) (toFraction z)) }=
+>     ( fromFraction ((toFraction x + toFraction y) + toFraction z) zLTdx'y'pz' )    
+>   ={ ?alal }=
+>     ( (x + y) + z )
+>   QED
+
+> {-
+> plusAssociative x y z = 
+>   let x' = toFraction x in
+>   let y' = toFraction y in
+>   let z' = toFraction z in
+>   let zLTdx' = toFractionPreservesDenominatorPositivity x in
+>   let zLTdy' = toFractionPreservesDenominatorPositivity y in
+>   let zLTdz' = toFractionPreservesDenominatorPositivity z in
+>   
+>   let zLTdy'z' = plusPreservesPositivity y' z' zLTdy' zLTdz' in
+>   let zLTdx'py'z' = plusPreservesPositivity x' (y' + z') zLTdx' zLTdy'z' in
+>   let zLTdx'y' = plusPreservesPositivity x' y' zLTdx' zLTdy' in
+>   let zLTdx'y'pz' = plusPreservesPositivity (x' + y') z' zLTdx'y' zLTdz' in
+>   let yz = fromFraction (y' + z') zLTdy'z' in
+>   let y'z' = toFraction yz in
+>   let zLTdy'z'lala = toFractionPreservesDenominatorPositivity yz in
+>   let zLTdx'py'z'lala = plusPreservesPositivity x' y'z' zLTdx' zLTdy'z'lala in
+>   let xy = fromFraction (x' + y') zLTdx'y' in
+>   let x'y' = toFraction xy in
+>   let zLTdx'y'lala = toFractionPreservesDenominatorPositivity xy in
+>   let zLTdx'y'pz'lala = plusPreservesPositivity x'y' z' zLTdx'y'lala zLTdz' in
+
+>     ( x + (y + z) )
+>   ={ Refl }=
+>     ( x + fromFraction (y' + z') zLTdy'z' )
+>   ={ Refl }=
+>     ( fromFraction (x' + y'z') zLTdx'py'z'lala ) 
+>   ={ fromFractionLemma2 (x' + y'z') zLTdx'py'z'lala (x' + (y' + z')) zLTdx'py'z' ?kika }=
+>     ( fromFraction (x' + (y' + z')) zLTdx'py'z' )
+>   ={ fromFractionLemma2 (x' + (y' + z')) zLTdx'py'z' ((x' + y') + z') zLTdx'y'pz' (plusAssociative x' y' z') }=
+>     ( fromFraction ((x' + y') + z') zLTdx'y'pz' )    
+>   ={ fromFractionLemma2 ((x' + y') + z') zLTdx'y'pz' (x'y' + z') zLTdx'y'pz'lala ?kuka }=
+>     ( fromFraction (x'y' + z') zLTdx'y'pz'lala ) 
+>   ={ Refl }=
+>     ( fromFraction (x' + y') zLTdx'y' + z)
+>   ={ Refl }=
+>     ( (x + y) + z )
+>   QED
+> -}                       
+
+> {-
 
 > fromFractionLemma2 : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) ->
 >                      (n' : Nat) -> (d' : Nat) -> (zLTd' : Z `LT` d') ->
@@ -209,6 +345,7 @@ TODO
 >   s11 = ?lulu
 >   
 
+> -}
 
 > {- TODO: complete
 > multZeroPlusRight : (x : NonNegQ) -> x * (fromInteger 0) = fromInteger 0
@@ -238,4 +375,7 @@ TODO
 > multDistributesOverPlusLeft  : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
 >                                (x + y) * z = (x * z) + (y * z)
 
+> -}
+
 > ---}
+ 

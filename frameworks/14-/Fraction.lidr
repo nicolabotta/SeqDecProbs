@@ -2,6 +2,8 @@
 
 > import Syntax.PreorderReasoning
 
+> import NatPredicates
+> import NatOperations
 > import NatProperties
 
 
@@ -14,29 +16,42 @@
 
 Operations
 
+> ||| The numerator of a fraction
 > num : Fraction -> Nat
 > num = fst
 
+> ||| The denominator of a fraction
 > den : Fraction -> Nat
 > den = snd
 
-> plus : Fraction -> Fraction -> Fraction
-> plus (n1, d1) (n2, d2) = (n1 * d2 + n2 * d1, d1 * d2)
-
-> mult : Fraction -> Fraction -> Fraction
-> mult (n1, d1) (n2, d2) = (n1 * n2, d1 * d2)
-
-> -- minus : Fraction -> Fraction -> Fraction
-> -- minus (n1, d1) (n2, d2) = (n1 * d2 - n2 * d1, d1 * d2)
-
+> ||| Every natural number is a fraction
 > fromNat : Nat -> Fraction
 > fromNat n = (n, S Z)
 
-> fromInteger : Integer -> Fraction
-> fromInteger = Fraction.fromNat . fromIntegerNat
+> ||| Reduction to normal form (coprime numbers)
+> reduce : ((m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>          Fraction -> Fraction
+> reduce alg (m, n) with (decCoprime alg m n)
+>   | (Yes _) = (m, n)
+>   | (No  _) = (m', n') where
+>       gcdv : (gcd : Nat ** GCD gcd m n)
+>       gcdv = alg m n
+>       gcd : Nat
+>       gcd = getWitness gcdv
+>       v : GCD gcd m n
+>       v = getProof gcdv
+>       m' : Nat
+>       m' = divBy gcd m (gcdDivisorFst v)
+>       n' : Nat
+>       n' = divBy gcd n (gcdDivisorSnd v)
 
-> -- abs : Fraction -> Fraction
-> -- abs = id
+> ||| Fraction addition
+> plus : Fraction -> Fraction -> Fraction
+> plus (n1, d1) (n2, d2) = (n1 * d2 + n2 * d1, d1 * d2)
+
+> ||| Fraction multiplication
+> mult : Fraction -> Fraction -> Fraction
+> mult (n1, d1) (n2, d2) = (n1 * n2, d1 * d2)
 
 
 Properties
@@ -44,30 +59,42 @@ Properties
 > instance Num Fraction where
 >   (+) = plus
 >   (*) = mult
->   fromInteger = Fraction.fromInteger
+>   fromInteger = Fraction.fromNat . fromIntegerNat
+
+> reducePreservesPositivity : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                             (x : Fraction) -> Z `LT` den x -> 
+>                             Z `LT` den (reduce alg x)
+
+> reduceYieldsCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                        (x : Fraction) -> Z `LT` den x -> 
+>                        gcd (alg (num (reduce alg x)) (den (reduce alg x))) = S Z
+
+> reduceIdempotent : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                    (x : Fraction) ->
+>                    reduce alg (reduce alg x) = reduce alg x
 
 
-> plusPreservesPositiveDen : (x : Fraction) -> (y : Fraction) -> 
->                            Z `LT` den x -> Z `LT` den y -> Z `LT` den (x + y)
-> plusPreservesPositiveDen (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
+
+> plusPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
+>                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x + y)
+> plusPreservesPositivity (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
 
 
-> multPreservesPositiveDen : (x : Fraction) -> (y : Fraction) -> 
->                            Z `LT` den x -> Z `LT` den y -> Z `LT` den (x * y)
+> multPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
+>                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x * y)
+> multPreservesPositivity (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
 
 
+> ||| Addition is commutative
 > plusCommutative : (x : Fraction) -> (y : Fraction) -> x + y = y + x
 > plusCommutative (n1, d1) (n2, d2) = 
 >     ( (n1, d1) + (n2, d2) )
 >   ={ Refl }=
 >     ( (n1 * d2 + n2 * d1, d1 * d2) )
->   --={ rewrite (Nat.plusCommutative (n1 * d2) (n2 * d1)) in Refl }=
->   --{-
 >   ={ replace {x = n1 * d2 + n2 * d1}
 >              {y = n2 * d1 + n1 * d2}
 >              {P = \ ZUZU => (n1 * d2 + n2 * d1, d1 * d2) = (ZUZU, d1 * d2)}
 >              (Nat.plusCommutative (n1 * d2) (n2 * d1)) Refl }=
->   ---}
 >     ( (n2 * d1 + n1 * d2, d1 * d2) )
 >   ={ replace {x = d1 * d2}
 >              {y = d2 * d1}
@@ -79,6 +106,44 @@ Properties
 >   QED
 
 
+> plusZeroPlusRight : (x : Fraction) -> x + (fromInteger 0) = x
+> plusZeroPlusRight (n, d) =
+>     ( (n, d) + (fromInteger 0) )
+>   ={ Refl }=
+>     ( (n, d) + (Z, S Z) )
+>   ={ Refl }=
+>     ( (n * (S Z) + Z * d, d * (S Z)) )
+>   ={ replace {x = n * (S Z)}
+>              {y = n}
+>              {P = \ ZUZU => (n * (S Z) + Z * d, d * (S Z)) = (ZUZU + Z * d, d * (S Z))}
+>              (multOneRightNeutral n) Refl }=
+>     ( (n + Z * d, d * (S Z)) )
+>   ={ Refl }=
+>     ( (n + Z, d * (S Z)) )
+>   ={ replace {x = n + Z}
+>              {y = n}
+>              {P = \ ZUZU => (n + Z, d * (S Z)) = (ZUZU, d * (S Z))}
+>              (plusZeroRightNeutral n) Refl }=
+>     ( (n, d * (S Z)) )
+>   ={ replace {x = d * (S Z)}
+>              {y = d}
+>              {P = \ ZUZU => (n, d * (S Z)) = (n, ZUZU)}
+>              (multOneRightNeutral d) Refl }=
+>     ( (n, d) )
+>   QED
+
+
+> plusZeroPlusLeft  : (x : Fraction) -> (fromInteger 0) + x = x
+> plusZeroPlusLeft x = 
+>     ( (fromInteger 0) + x )
+>   ={ plusCommutative (fromInteger 0) x }=
+>     ( x + (fromInteger 0) )
+>   ={ plusZeroPlusRight x }=
+>     ( x )
+>   QED
+
+
+> ||| Addition is associative
 > plusAssociative : (x : Fraction) -> (y : Fraction) -> (z : Fraction) -> x + (y + z) = (x + y) + z
 > plusAssociative (n1, d1) (n2, d2) (n3, d3) =
 >     ( (n1, d1) + ((n2, d2) + (n3, d3)) )
@@ -163,43 +228,21 @@ Properties
 >   QED
 
 
-> plusZeroPlusRight : (x : Fraction) -> x + (fromInteger 0) = x
-> plusZeroPlusRight (n, d) =
->     ( (n, d) + (fromInteger 0) )
->   ={ Refl }=
->     ( (n, d) + (Z, S Z) )
->   ={ Refl }=
->     ( (n * (S Z) + Z * d, d * (S Z)) )
->   ={ replace {x = n * (S Z)}
->              {y = n}
->              {P = \ ZUZU => (n * (S Z) + Z * d, d * (S Z)) = (ZUZU + Z * d, d * (S Z))}
->              (multOneRightNeutral n) Refl }=
->     ( (n + Z * d, d * (S Z)) )
->   ={ Refl }=
->     ( (n + Z, d * (S Z)) )
->   ={ replace {x = n + Z}
->              {y = n}
->              {P = \ ZUZU => (n + Z, d * (S Z)) = (ZUZU, d * (S Z))}
->              (plusZeroRightNeutral n) Refl }=
->     ( (n, d * (S Z)) )
->   ={ replace {x = d * (S Z)}
->              {y = d}
->              {P = \ ZUZU => (n, d * (S Z)) = (n, ZUZU)}
->              (multOneRightNeutral d) Refl }=
->     ( (n, d) )
->   QED
+> multCommutative : (x : Fraction) -> (y : Fraction) -> x * y = y * x
 
+> multZeroPlusRight : (x : Fraction) -> x * (fromInteger 0) = fromInteger 0
 
-> plusZeroPlusLeft  : (x : Fraction) -> (fromInteger 0) + x = x
-> plusZeroPlusLeft x = 
->     ( (fromInteger 0) + x )
->   ={ plusCommutative (fromInteger 0) x }=
->     ( x + (fromInteger 0) )
->   ={ plusZeroPlusRight x }=
->     ( x )
->   QED
+> multZeroPlusLeft : (x : Fraction) -> (fromInteger 0) * x = fromInteger 0
 
+> multOneRight : (x : Fraction) -> x * (fromInteger 1) = x
 
+> multOneLeft : (x : Fraction) -> (fromInteger 1) * x = x
+
+> multDistributesOverPlusRight : (x : Fraction) -> (y : Fraction) -> (z : Fraction) ->
+>                                x * (y + z) = (x * y) + (x * z)
+
+> multDistributesOverPlusLeft  : (x : Fraction) -> (y : Fraction) -> (z : Fraction) ->
+>                                (x + y) * z = (x * z) + (y * z)
 
 
 > {-
