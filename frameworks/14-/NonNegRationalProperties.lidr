@@ -30,6 +30,10 @@
 
 Properties of |num|, |den|:
 
+> -- denPreservesEquality : (q1 : NonNegQ) -> (q2 : NonNegQ) -> q1 = q2 -> den q1 = den q2
+> -- denPreservesEquality (MkNonNegQ n d p q) (MkNonNegQ n d p q) Refl = Refl
+
+> ||| The numerator of zero is zero
 > numZeroZero : NonNegRationalOperations.num (fromInteger 0) = Z
 > numZeroZero = ( NonNegRationalOperations.num (fromInteger 0) )
 >             ={ Refl }=
@@ -41,17 +45,19 @@ Properties of |num|, |den|:
 >             ={ Refl }=
 >               ( Z )
 >             QED
+> %freeze numZeroZero
 
 > -- denZeroOne : den (fromInteger 0) = S Z
 
 
 Properties of casts:
 
-> fromFractionLemma1 : (x : Fraction) -> 
->                      (zLTden : Z `LT` den x) ->
->                      (gcdOne : gcd (alg (num x) (den x)) = S Z) ->
->                      fromFraction x zLTden = MkNonNegQ (num x) (den x) zLTden gcdOne
-> fromFractionLemma1 x zLTden gcdOne = 
+> ||| 
+> fromFractionLemma : (x : Fraction) -> 
+>                     (zLTden : Z `LT` den x) ->
+>                     (gcdOne : gcd (alg (num x) (den x)) = S Z) ->
+>                     fromFraction x zLTden = MkNonNegQ (num x) (den x) zLTden gcdOne
+> fromFractionLemma x zLTden gcdOne = 
 >    ( fromFraction x zLTden )
 >  ={ Refl }=
 >    ( MkNonNegQ (num (reduce alg x)) 
@@ -81,7 +87,10 @@ Properties of casts:
 >   (q : NonNegQ) -> 
 >   fromFraction (toFraction q) (toFractionPreservesDenominatorPositivity q) = q
 > -- fromFractionToFractionLemma q 
+> %freeze fromFractionToFractionLemma
 
+
+> ||| fromFraction preserves identity
 > fromFractionLemma2 : 
 >   (x : Fraction) -> 
 >   (zLTdx : Z `LT` den x) ->
@@ -89,7 +98,23 @@ Properties of casts:
 >   (zLTdy : Z `LT` den y) ->
 >   x = y -> 
 >   fromFraction x zLTdx = fromFraction y zLTdy
+> fromFractionLemma2 x zLTdx y zLTdy xEQy =
+>     ( fromFraction x zLTdx )
+>   ={ depCong2' {alpha = Fraction}
+>                {P = \ ZUZU => Z `LT` (den ZUZU)}
+>                {Q = \ ZUZU => \ zLTdenZUZU => NonNegQ}
+>                {a1 = x}
+>                {a2 = y}
+>                {Pa1 = zLTdx}
+>                {Pa2 = zLTdy}
+>                (\ ZUZU => \ zLTdenZUZU => fromFraction ZUZU zLTdenZUZU)
+>                xEQy (uniqueLT' Refl (denPreservesEquality x y xEQy) zLTdx zLTdy) }=
+>     ( fromFraction y zLTdy )
+>   QED
+> %freeze fromFractionLemma2
 
+
+> ||| fromFraction is "linear"
 > fromFractionLinear : 
 >   (x : Fraction) -> 
 >   (zLTdx : Z `LT` den x) ->
@@ -98,6 +123,7 @@ Properties of casts:
 >   fromFraction (x + y) (plusPreservesPositivity x y zLTdx zLTdy)
 >   =
 >   fromFraction x zLTdx + fromFraction y zLTdy
+> %freeze fromFractionLinear
 
 
 > ||| Addition is commutative
@@ -117,6 +143,7 @@ Properties of casts:
 >   ={ Refl }=
 >     ( y + x )
 >   QED
+> %freeze plusCommutative
 
 
 > ||| Addition is associative
@@ -141,7 +168,12 @@ Properties of casts:
 >     ( fromFraction (toFraction x + toFraction (y + z)) zLTdx'yz' )
 >   ={ fromFractionLinear (toFraction x) zLTdx' (toFraction (y + z)) zLTdyz' }=
 >     ( fromFraction (toFraction x) zLTdx' + fromFraction (toFraction (y + z)) zLTdyz' )  
->   ={ ?fromFractionToFractionId }=
+>   ={ replace {x = fromFraction (toFraction (y + z)) zLTdyz'}
+>              {y = y + z}
+>              {P = \ ZUZU => fromFraction (toFraction x) zLTdx' + fromFraction (toFraction (y + z)) zLTdyz'
+>                             =
+>                             fromFraction (toFraction x) zLTdx' + ZUZU}
+>              (fromFractionToFractionLemma (y + z)) Refl }=
 >     ( fromFraction (toFraction x) zLTdx' + (y + z) )  
 >   ={ Refl }=
 >     ( fromFraction (toFraction x) zLTdx' + fromFraction (toFraction y + toFraction z) zLTdy'z' )
@@ -153,49 +185,10 @@ Properties of casts:
 >                         zLTdx'y'pz' 
 >                         (plusAssociative (toFraction x) (toFraction y) (toFraction z)) }=
 >     ( fromFraction ((toFraction x + toFraction y) + toFraction z) zLTdx'y'pz' )    
->   ={ ?alal }=
+>   ={ ?proof_in_reverse }=
 >     ( (x + y) + z )
 >   QED
-
-> {-
-> plusAssociative x y z = 
->   let x' = toFraction x in
->   let y' = toFraction y in
->   let z' = toFraction z in
->   let zLTdx' = toFractionPreservesDenominatorPositivity x in
->   let zLTdy' = toFractionPreservesDenominatorPositivity y in
->   let zLTdz' = toFractionPreservesDenominatorPositivity z in
->   
->   let zLTdy'z' = plusPreservesPositivity y' z' zLTdy' zLTdz' in
->   let zLTdx'py'z' = plusPreservesPositivity x' (y' + z') zLTdx' zLTdy'z' in
->   let zLTdx'y' = plusPreservesPositivity x' y' zLTdx' zLTdy' in
->   let zLTdx'y'pz' = plusPreservesPositivity (x' + y') z' zLTdx'y' zLTdz' in
->   let yz = fromFraction (y' + z') zLTdy'z' in
->   let y'z' = toFraction yz in
->   let zLTdy'z'lala = toFractionPreservesDenominatorPositivity yz in
->   let zLTdx'py'z'lala = plusPreservesPositivity x' y'z' zLTdx' zLTdy'z'lala in
->   let xy = fromFraction (x' + y') zLTdx'y' in
->   let x'y' = toFraction xy in
->   let zLTdx'y'lala = toFractionPreservesDenominatorPositivity xy in
->   let zLTdx'y'pz'lala = plusPreservesPositivity x'y' z' zLTdx'y'lala zLTdz' in
-
->     ( x + (y + z) )
->   ={ Refl }=
->     ( x + fromFraction (y' + z') zLTdy'z' )
->   ={ Refl }=
->     ( fromFraction (x' + y'z') zLTdx'py'z'lala ) 
->   ={ fromFractionLemma2 (x' + y'z') zLTdx'py'z'lala (x' + (y' + z')) zLTdx'py'z' ?kika }=
->     ( fromFraction (x' + (y' + z')) zLTdx'py'z' )
->   ={ fromFractionLemma2 (x' + (y' + z')) zLTdx'py'z' ((x' + y') + z') zLTdx'y'pz' (plusAssociative x' y' z') }=
->     ( fromFraction ((x' + y') + z') zLTdx'y'pz' )    
->   ={ fromFractionLemma2 ((x' + y') + z') zLTdx'y'pz' (x'y' + z') zLTdx'y'pz'lala ?kuka }=
->     ( fromFraction (x'y' + z') zLTdx'y'pz'lala ) 
->   ={ Refl }=
->     ( fromFraction (x' + y') zLTdx'y' + z)
->   ={ Refl }=
->     ( (x + y) + z )
->   QED
-> -}                       
+> %freeze plusAssociative
 
 > {-
 

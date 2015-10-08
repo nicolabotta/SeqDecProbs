@@ -19,70 +19,112 @@ Operations
 > ||| The numerator of a fraction
 > num : Fraction -> Nat
 > num = fst
+> -- %freeze num
 
 > ||| The denominator of a fraction
 > den : Fraction -> Nat
 > den = snd
+> -- %freeze den
 
 > ||| Every natural number is a fraction
 > fromNat : Nat -> Fraction
 > fromNat n = (n, S Z)
+> -- %freeze fromNat
 
 > ||| Reduction to normal form (coprime numbers)
 > reduce : ((m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >          Fraction -> Fraction
-> reduce alg (m, n) with (decCoprime alg m n)
->   | (Yes _) = (m, n)
->   | (No  _) = (m', n') where
->       gcdv : (gcd : Nat ** GCD gcd m n)
->       gcdv = alg m n
+> reduce alg (n, d) with (decCoprime alg n d)
+>   | (Yes _) = (n, d)
+>   | (No  _) = (n', d') where
+>       gcdv : (gcd : Nat ** GCD gcd n d)
+>       gcdv = alg n d
 >       gcd : Nat
 >       gcd = getWitness gcdv
->       v : GCD gcd m n
+>       v : GCD gcd n d
 >       v = getProof gcdv
->       m' : Nat
->       m' = divBy gcd m (gcdDivisorFst v)
 >       n' : Nat
->       n' = divBy gcd n (gcdDivisorSnd v)
+>       n' = divBy gcd n (gcdDivisorFst v)
+>       d' : Nat
+>       d' = divBy gcd d (gcdDivisorSnd v)
+> -- %freeze reduce
 
 > ||| Fraction addition
 > plus : Fraction -> Fraction -> Fraction
 > plus (n1, d1) (n2, d2) = (n1 * d2 + n2 * d1, d1 * d2)
+> -- %freeze plus
 
 > ||| Fraction multiplication
 > mult : Fraction -> Fraction -> Fraction
 > mult (n1, d1) (n2, d2) = (n1 * n2, d1 * d2)
+> -- %freeze mult
 
 
-Properties
+Properties of |num|, |den|:
+
+> ||| The denominator preserves equality
+> denPreservesEquality : (x : Fraction) -> (y : Fraction) -> x = y -> den x = den y
+> denPreservesEquality (n, d) (n, d) Refl = Refl
+
+
+Properties of |reduce|:
+
+> ||| Reduction of coprimes is id
+> reducePreservesCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                           (x : Fraction) -> 
+>                           Coprime (num x) (den x) -> 
+>                           reduce alg x = x                       
+> reducePreservesCoprimes alg (n, d) prf with (decCoprime alg n d)
+>   | (Yes _) = Refl
+>   | (No  contra) = void (contra prf)
+> %freeze reducePreservesCoprimes
+
+> |||
+> reducePreservesPositivity : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                             (x : Fraction) -> Z `LT` den x -> 
+>                             Z `LT` den (reduce alg x)
+> reducePreservesPositivity alg (n, d) zLTd with (decCoprime alg n d)
+>   | (Yes _) = zLTd
+>   | (No _) = divByPreservesPositivity gcd d gcdDd zLTd where
+>     gcd : Nat
+>     gcd = getWitness (alg n d)
+>     gcdDd : gcd `Divisor` d
+>     gcdDd = gcdDivisorSnd (getProof (alg n d))
+
+> |||
+> reduceYieldsCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                        (x : Fraction) -> Z `LT` den x -> 
+>                        Coprime (num (reduce alg x)) (den (reduce alg x))
+> reduceYieldsCoprimes alg (n, d) zLTdx with (decCoprime alg n d)
+>   | (Yes prf) = prf
+>   | (No _) = gcdCoprimeLemma'' (getProof (alg n d)) (gcdPreservesPositivity2 zLTdx (alg n d))
+> %freeze reduceYieldsCoprimes
+
+> |||
+> {-
+> reduceIdempotent : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                    (x : Fraction) ->
+>                    reduce alg (reduce alg x) = reduce alg x
+> -- %freeze reduceIdempotent
+> -}
+
 
 > instance Num Fraction where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = Fraction.fromNat . fromIntegerNat
 
-> reducePreservesPositivity : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
->                             (x : Fraction) -> Z `LT` den x -> 
->                             Z `LT` den (reduce alg x)
-
-> reduceYieldsCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
->                        (x : Fraction) -> Z `LT` den x -> 
->                        gcd (alg (num (reduce alg x)) (den (reduce alg x))) = S Z
-
-> reduceIdempotent : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
->                    (x : Fraction) ->
->                    reduce alg (reduce alg x) = reduce alg x
-
-
 
 > plusPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
 >                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x + y)
 > plusPreservesPositivity (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
+> %freeze plusPreservesPositivity
 
 
 > multPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
 >                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x * y)
 > multPreservesPositivity (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
+> %freeze multPreservesPositivity
 
 
 > ||| Addition is commutative
@@ -104,6 +146,7 @@ Properties
 >   ={ Refl }=
 >     ( (n2, d2) + (n1, d1) )
 >   QED
+> %freeze plusCommutative
 
 
 > plusZeroPlusRight : (x : Fraction) -> x + (fromInteger 0) = x
@@ -131,6 +174,7 @@ Properties
 >              (multOneRightNeutral d) Refl }=
 >     ( (n, d) )
 >   QED
+> %freeze plusZeroPlusRight
 
 
 > plusZeroPlusLeft  : (x : Fraction) -> (fromInteger 0) + x = x
@@ -141,6 +185,7 @@ Properties
 >   ={ plusZeroPlusRight x }=
 >     ( x )
 >   QED
+> %freeze plusZeroPlusLeft
 
 
 > ||| Addition is associative
@@ -226,24 +271,37 @@ Properties
 >   ={ Refl }=
 >     ( ((n1, d1) + (n2, d2)) + (n3, d3) )
 >   QED
+> %freeze plusAssociative
 
 
 > multCommutative : (x : Fraction) -> (y : Fraction) -> x * y = y * x
+> %freeze multCommutative
+
 
 > multZeroPlusRight : (x : Fraction) -> x * (fromInteger 0) = fromInteger 0
+> %freeze multZeroPlusRight
+
 
 > multZeroPlusLeft : (x : Fraction) -> (fromInteger 0) * x = fromInteger 0
+> %freeze multZeroPlusLeft
+
 
 > multOneRight : (x : Fraction) -> x * (fromInteger 1) = x
+> %freeze multOneRight
+
 
 > multOneLeft : (x : Fraction) -> (fromInteger 1) * x = x
+> %freeze multOneLeft
+
 
 > multDistributesOverPlusRight : (x : Fraction) -> (y : Fraction) -> (z : Fraction) ->
 >                                x * (y + z) = (x * y) + (x * z)
+> %freeze multDistributesOverPlusRight
+
 
 > multDistributesOverPlusLeft  : (x : Fraction) -> (y : Fraction) -> (z : Fraction) ->
 >                                (x + y) * z = (x * z) + (y * z)
-
+> %freeze multDistributesOverPlusLeft
 
 > {-
 

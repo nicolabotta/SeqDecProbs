@@ -41,20 +41,24 @@ EQ properties
 
 > predInjective : (left : Nat) -> (right : Nat) -> Not (S left = S right) -> Not (left = right)
 > predInjective left right contra = contra . (eqSucc left right)
+> %freeze predInjective
 
 > succInjective' : (left : Nat) -> (right : Nat) -> Not (left = right) -> Not (S left = S right)
 > succInjective' left right contra = contra . (succInjective left right)
+> %freeze succInjective'
 
 
 LT, LTE properties
 
 > notLTELemma0 : Not (S m `LTE` S n) -> Not (m `LTE` n)
 > notLTELemma0 contra = contra . LTESucc
+> %freeze notLTELemma0
 
 > notLTELemma1 : (m : Nat) -> (n : Nat) -> Not (m `LTE` n) -> n `LTE` m
 > notLTELemma1  m     Z    p = LTEZero
 > notLTELemma1  Z    (S n) p = void (p LTEZero)
 > notLTELemma1 (S m) (S n) p = LTESucc (notLTELemma1 m n (notLTELemma0 p))
+> %freeze notLTELemma1
 
 > |||
 > lteLemma1 : (m : Nat) -> (n : Nat) -> LTE (S m) n -> LTE m n
@@ -64,60 +68,60 @@ LT, LTE properties
 > lteLemma1 (S m)  Z             prf  = absurd prf
 > lteLemma1 (S m) (S n)  LTEZero        impossible
 > lteLemma1 (S m) (S n) (LTESucc prf) = LTESucc (lteLemma1 m n prf)
-
+> %freeze lteLemma1
 
 > |||
 > ltLemma1 : (m : Nat) -> (n : Nat) -> LT (S m) n -> LT m n
 > ltLemma1 m n prf = lteLemma1 (S m) n prf
-
+> %freeze ltLemma1
 
 > ||| LT is contained in LTE
 > ltInLTE : (m : Nat) -> (n : Nat) -> LT m n -> LTE m n
 > ltInLTE = lteLemma1
-
+> %freeze ltInLTE
 
 > ||| EQ is contained in LTE
 > eqInLTE : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
 > eqInLTE  Z     n    prf = LTEZero
 > eqInLTE (S m)  Z    prf = absurd prf
 > eqInLTE (S m) (S n) prf = LTESucc (eqInLTE m n (succInjective m n prf))
-
+> %freeze eqInLTE
 
 > |||
 > idSuccPreservesLTE : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
 > idSuccPreservesLTE  Z     n    prf = LTEZero
 > idSuccPreservesLTE (S m)  Z    prf = absurd prf
 > idSuccPreservesLTE (S m) (S n) prf = LTESucc (idSuccPreservesLTE m n (fromLteSucc prf))
-
+> %freeze idSuccPreservesLTE
 
 > ||| Zero is smaller than any successor
 > ltZS : (m : Nat) -> LT Z (S m)
 > ltZS  Z    = LTESucc LTEZero
 > ltZS (S m) = idSuccPreservesLTE (S Z) (S m) (ltZS m)
-
+> %freeze ltZS
 
 > ||| Any number is smaller than its successor
 > ltIdS : (m : Nat) -> LT m (S m)
 > ltIdS  Z    = LTESucc LTEZero
 > ltIdS (S m) = LTESucc (ltIdS m)
-
+> %freeze ltIdS
 
 > ||| Any number which is not zero is greater than zero
 > notZisgtZ : {n : Nat} -> Not (n = Z) -> LT Z n
 > notZisgtZ {n = Z}   contra = void (contra Refl)
 > notZisgtZ {n = S m} _      = ltZS m
-
+> %freeze notZisgtZ
 
 > ||| Any number which is greater than zero is not zero
 > gtZisnotZ : {n : Nat} -> LT Z n -> Not (n = Z)
 > gtZisnotZ {n = Z}   p = absurd p
 > gtZisnotZ {n = S m} p = absurd
-
+> %freeze gtZisnotZ
 
 > ||| No number is less than zero
 > notLTzero : {n : Nat} -> Not (LT n Z)
 > notLTzero = succNotLTEzero
-
+> %freeze notLTzero
 
 > |||
 > strengthenLT : (m : Nat) -> (n : Nat) -> LT m (S n) -> Not (m = n) -> LT m n
@@ -130,23 +134,23 @@ LT, LTE properties
 >   mNEQn = predInjective m n smNEQsn
 >   mLTn : LT m n
 >   mLTn = strengthenLT m n mLTsn mNEQn
+> %freeze strengthenLT
 
 > monotoneNatPlusLTE : {x : Nat} -> {y : Nat} ->
 >                      (z : Nat) -> LTE x y -> LTE (z + x) (z + y)
 > monotoneNatPlusLTE {x} {y}  Z    xLTEy = xLTEy
 > monotoneNatPlusLTE {x} {y} (S n) xLTEy = LTESucc (monotoneNatPlusLTE {x} {y} n xLTEy)
-
-
+> %freeze monotoneNatPlusLTE
 
 > reflexiveLTE : (n : Nat) -> LTE n n
 > reflexiveLTE n = lteRefl {n}
-
+> %freeze reflexiveLTE
 
 > transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
 >                 LTE m n -> LTE n o -> LTE m o
 > transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
 > transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
-
+> %freeze transitiveLTE
 
 > totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
 > totalLTE  Z    n     = Left LTEZero
@@ -154,17 +158,17 @@ LT, LTE properties
 > totalLTE (S m) (S n) with (totalLTE m n)
 >   | (Left  p) = Left  (LTESucc p)
 >   | (Right p) = Right (LTESucc p)
-
-
+> %freeze totalLTE
 
 > preorderNatLTE : Preorder Nat
 > preorderNatLTE =
 >   MkPreorder LTE reflexiveLTE transitiveLTE
-
+> %freeze preorderNatLTE
 
 > totalPreorderNatLTE : TotalPreorder Nat
 > totalPreorderNatLTE =
 >   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
+> %freeze totalPreorderNatLTE
 
 
 Properties of |plus|:
@@ -213,7 +217,7 @@ Properties of |minus|:
 >   s1 = Refl
 >   s2 : m' - n' = Z
 >   s2 = minusLemma0 (succInjective m' n' prf)
-
+> %freeze minusLemma0
 
 > |||
 > minusLemma1 : n - m = S l -> l = n - (S m)
@@ -237,7 +241,7 @@ Properties of |minus|:
 >   s2 = minusLemma1 s1
 >   s3 : l = S n' - S (S m')
 >   s3 = trans s2 Refl
-
+> %freeze minusLemma1
 
 > |||
 > minusLemma2 : LTE m n -> n - m = S l -> LTE (S m) n
@@ -245,7 +249,7 @@ Properties of |minus|:
 > minusLemma2 {m = Z}    {n = S n'} p q = LTESucc LTEZero
 > minusLemma2 {m = S m'} {n = Z}    p q = absurd p
 > minusLemma2 {m = S m'} {n = S n'} (LTESucc p') q = LTESucc (minusLemma2 p' q)
-
+> %freeze minusLemma2
 
 > |||
 > minusLemma3 : LTE m n -> Z = n - m -> m = n
@@ -256,7 +260,7 @@ Properties of |minus|:
 >   eqSucc m' n' (minusLemma3 {m = m'} {n = n'} p' q') where
 >     q' : Z = n' - m'
 >     q' = trans q Refl
-
+> %freeze minusLemma3
 
 > |||
 > minusLemma4 : LTE (S m) n -> S (n - S m) = n - m
@@ -280,6 +284,7 @@ Properties of |minus|:
 >   ={ Refl }=
 >     ( S n' - S m'         )
 >   QED
+> %freeze minusLemma4
 
 
 Properties of |plus| and |minus|:
@@ -290,6 +295,7 @@ Properties of |plus| and |minus|:
 > plusZeroLeftZero  Z    (S n) prf = absurd prf
 > plusZeroLeftZero (S m)  Z    prf = absurd prf
 > plusZeroLeftZero (S m) (S n) prf = absurd prf
+> %freeze plusZeroLeftZero
 
 > |||
 > plusZeroRightZero : (m : Nat) -> (n : Nat) -> m + n = Z -> n = Z
@@ -297,6 +303,7 @@ Properties of |plus| and |minus|:
 > plusZeroRightZero  Z    (S n) prf = absurd prf
 > plusZeroRightZero (S m)  Z    prf = absurd prf
 > plusZeroRightZero (S m) (S n) prf = absurd prf
+> %freeze plusZeroRightZero
 
 > -- plusOneEither : (m : Nat) -> (n : Nat) -> m + n = S Z -> Either (m = Z) (n = Z)
 
@@ -324,30 +331,36 @@ Properties of |plus| and |minus|:
 >   ={ plusRightInverseMinus m n (lteLemma1 m n p) }=
 >     ( n )
 >   QED
+> %freeze plusRightInverseMinus
 
 
 Properties of |mult|
 
 > multSuccNotZero : (m : Nat) -> (n : Nat) -> Not ((S m) * (S n) = Z)
 > multSuccNotZero m  n  p = absurd p
+> %freeze multSuccNotZero
 
 > multNotZeroNotZero : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (m * n = Z)
 > multNotZeroNotZero  Z     n    p q = void (p Refl)
 > multNotZeroNotZero (S m)  Z    p q = void (q Refl)
 > multNotZeroNotZero (S m) (S n) p q = multSuccNotZero m n
+> %freeze multNotZeroNotZero
 
 > multNotZeroNotZeroLeft : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (m = Z)
 > multNotZeroNotZeroLeft  Z     n    p = void (p (multZeroLeftZero n))
 > multNotZeroNotZeroLeft (S m)  _    _ = SIsNotZ
+> %freeze multNotZeroNotZeroLeft
 
 > multNotZeroNotZeroRight : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (n = Z)
 > multNotZeroNotZeroRight m  Z     p = void (p (multZeroRightZero m))
 > multNotZeroNotZeroRight _ (S n)  _ = SIsNotZ
+> %freeze multNotZeroNotZeroRight
 
 > multZeroLTZeroLT : (m : Nat) -> (n : Nat) -> Z `LT` m -> Z `LT` n -> Z `LT` (m * n)
 > multZeroLTZeroLT  Z     n    p _ = absurd p
 > multZeroLTZeroLT (S m)  Z    _ q = absurd q
 > multZeroLTZeroLT (S m) (S n) _ _ = ltZS (n + m * (S n))
+> %freeze multZeroLTZeroLT
 
 > |||
 > multLTZeroLeftLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` m
@@ -358,6 +371,7 @@ Properties of |mult|
 >                {P = \ ZUZU => Z `LT` ZUZU}
 >                (multZeroLeftZero n) p
 > multLTZeroLeftLTZero (S m) n _ = ltZS m
+> %freeze multLTZeroLeftLTZero
 
 > |||
 > multLTZeroRightLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` n
@@ -368,16 +382,19 @@ Properties of |mult|
 >                {P = \ ZUZU => Z `LT` ZUZU}
 >                (multZeroRightZero m) p
 > multLTZeroRightLTZero m (S n) _ = ltZS n
+> %freeze multLTZeroRightLTZero
 
 > |||
 > multZeroRightOneLeftZero : (m : Nat) -> (n : Nat) -> m * (S n) = Z -> m = Z
 > multZeroRightOneLeftZero m n prf = plusZeroLeftZero m (n * m) prf' where
 >   prf' : (S n) * m = Z
 >   prf' = replace {x = m * (S n)} {y = (S n) * m} {P = \ ZUZU => ZUZU = Z} (multCommutative m (S n)) prf
+> %freeze multZeroRightOneLeftZero
 
 > |||
 > multZeroLeftOneRightZero : (m : Nat) -> (n : Nat) -> (S m) * n = Z -> n = Z
 > multZeroLeftOneRightZero m n prf = plusZeroLeftZero n (m * n) prf
+> %freeze multZeroLeftOneRightZero
 
 > |||
 > multOneLeftOne : (m : Nat) -> (n : Nat) -> m * n = S Z -> m = S Z
@@ -399,16 +416,20 @@ Properties of |mult|
 >   s4 = plusZeroRightZero n (m * (S n)) s2
 >   s5 : m = Z
 >   s5 = multZeroRightOneLeftZero m n s4
+> %freeze multOneLeftOne
 
 > |||
 > multOneRightOne : (m : Nat) -> (n : Nat) -> m * n = S Z -> n = S Z
 > multOneRightOne m n prf = multOneLeftOne n m prf' where
 >   prf' : n * m = S Z
 >   prf' = replace {x = m * n} {y = n * m} {P = \ ZUZU => ZUZU = S Z} (multCommutative m n) prf
+> %freeze multOneRightOne
 
+> |||
 > multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
 >                   m1 = m2 -> n1 = n2 -> m1 * n1 = m2 * n2
 > multPreservesEq m m n n Refl Refl = Refl
+> %freeze multPreservesEq
 
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
@@ -428,6 +449,7 @@ Properties of |mult|
 >                Refl s1
 >   s5 : (S n) * (S m) = Z
 >   s5 = plusLeftLeftRightZero (S m) ((S n) * (S m)) s2
+> %freeze multElim1
 
 
 Decidability:
@@ -442,11 +464,12 @@ Decidability:
 >   | (Yes p) = Yes (LTESucc p)
 >   | (No contra) = No (\ p => contra (fromLteSucc p))
 > -}
-
+> %freeze decLTE
 
 > ||| LT is decidable
 > decLT : (m : Nat) -> (n : Nat) -> Dec (LT m n)
 > decLT m n = decLTE (S m) n
+> %freeze decLT
 
 
 Uniqueness
@@ -457,35 +480,56 @@ Uniqueness
 > uniqueLTE  LTEZero    (LTESucc p) impossible
 > uniqueLTE (LTESucc p)  LTEZero    impossible
 > uniqueLTE (LTESucc p) (LTESucc q) = cong (uniqueLTE p q)
+> %freeze uniqueLTE
 
 > ||| LT is unique
 > uniqueLT : (p1 : LT m n) -> (p2 : LT m n) -> p1 = p2
 > uniqueLT {m} {n} = uniqueLTE {m = S m} {n = n}
+> %freeze uniqueLT
 
 > |||
 > uniqueLT' : m1 = m2 -> n1 = n2 -> (p1 : LT m1 n1) -> (p2 : LT m2 n2) -> p1 = p2
 > uniqueLT' Refl Refl p1 p2 = uniqueLT p1 p2
+> %freeze uniqueLT'
 
 
-
-Divisor properties:
+Division properties:
 
 > divByLemma : (d : Nat) -> (m : Nat) -> (dDm : d `Divisor` m) -> d * (divBy d m dDm) = m
 > divByLemma d m (Evidence q prf) = prf
+> %freeze divByLemma
 
 > anyDivisorZ : (m : Nat) -> m `Divisor` Z
 > anyDivisorZ m = Evidence Z (multZeroRightZero m)
+> %freeze anyDivisorZ
 
 > oneDivisorAny : (m : Nat) -> (S Z) `Divisor` m
 > oneDivisorAny m = Evidence m (multOneLeftNeutral m)
+> %freeze oneDivisorAny
 
 > anyDivisorAny : (m : Nat) -> m `Divisor` m
 > anyDivisorAny m = Evidence (S Z) (multOneRightNeutral m)
+> %freeze anyDivisorAny
+
+> ||| Division preserves positivity
+> divByPreservesPositivity : (d : Nat) -> (m : Nat) -> (dDm : d `Divisor` m) -> 
+>                            Z `LT` m -> Z `LT` (divBy d m dDm)
+> divByPreservesPositivity d m dDm zLTm = 
+>   multLTZeroRightLTZero d q zLTdq where
+>     q : Nat
+>     q = divBy d m dDm
+>     zLTdq : Z `LT` (d * q)
+>     zLTdq = replace {x = m} 
+>                     {y = d * q} 
+>                     {P = \ ZUZU => Z `LT` ZUZU}  
+>                     (sym (divByLemma d m dDm)) zLTm
+
 
 Divisor is a pre-order:
 
 > divisorReflexive : (m : Nat) -> m `Divisor` m
 > divisorReflexive = anyDivisorAny
+> %freeze divisorReflexive
 
 > divisorTransitive : l `Divisor` m -> m `Divisor` n -> l `Divisor` n
 > divisorTransitive {l} {m} {n} (Evidence q1 p1) (Evidence q2 p2) = Evidence (q1 * q2) p where
@@ -498,6 +542,7 @@ Divisor is a pre-order:
 >               {y = l * (q1 * q2)}
 >               {P = \ ZUZU => ZUZU = n}
 >               (sym (multAssociative l q1 q2)) s2
+> %freeze divisorTransitive
 
 > divisorAntisymmetric : (m : Nat) -> (n : Nat) -> m `Divisor` n -> n `Divisor` m -> m = n
 > divisorAntisymmetric  Z     Z     _                _               = Refl
@@ -533,6 +578,7 @@ Divisor is a pre-order:
 >                {y = S m}
 >                {P = \ ZUZU => ZUZU = S n}
 >                (multOneRightNeutral (S m)) s7
+> %freeze divisorAntisymmetric
 
 > divisorPlusLemma1 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                      d `Divisor` m -> d `Divisor` n -> d `Divisor` (n + m)
@@ -546,6 +592,7 @@ Divisor is a pre-order:
 >     s3 = replace {x = d * q2} {y = n} {P = \ ZUZU => d * (q1 + q2) = m + ZUZU} p2 s2
 >     p  : d * (q1 + q2) = n + m
 >     p  = replace {x = m + n} {y = n + m} {P = \ ZUZU => d * (q1 + q2) = ZUZU} (plusCommutative m n) s3
+> %freeze divisorPlusLemma1
 
 > divisorPlusLemma2 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (m + n)
@@ -557,6 +604,7 @@ Divisor is a pre-order:
 >     s2 = replace {x = d * q1} {y = m} {P = \ ZUZU => d * (q1 + q2) = ZUZU + d * q2} p1 s1
 >     p : d * (q1 + q2) = m + n
 >     p = replace {x = d * q2} {y = n} {P = \ ZUZU => d * (q1 + q2) = m + ZUZU} p2 s2
+> %freeze divisorPlusLemma2
 
 > ||| If a number divides two numbers, it also divides their difference
 > divisorMinusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
@@ -575,6 +623,7 @@ Divisor is a pre-order:
 >                    {P = \ZUZU => ZUZU = n - m}
 >                    (sym (multDistributesOverMinusRight d q2 q1))
 >                    s1
+> %freeze divisorMinusLemma
 
 > divisorOneLemma : (d : Nat) -> (d' : Nat) -> (S d) * d' `Divisor` (S d) -> d' `Divisor` S Z
 > divisorOneLemma d d' (Evidence q p) =
@@ -585,6 +634,7 @@ Divisor is a pre-order:
 >     s2 = replace {x = ((S d) * d') * q} {y = (S d) * (d' * q)} {P = \ ZUZU => ZUZU = S d} (sym (multAssociative (S d) d' q)) s1
 >     p' : d' * q = S Z
 >     p' = multElim1 d (d' * q) s2
+> %freeze divisorOneLemma
 
 > divisorOneLemma' : (d : Nat) -> (d' : Nat) -> Not (d = Z) -> d * d' `Divisor` d -> d' `Divisor` S Z
 > divisorOneLemma'  Z    _  dNotZ _  = void (dNotZ Refl)
@@ -596,6 +646,7 @@ Divisor is a pre-order:
 >     s2 = replace {x = ((S d) * d') * q} {y = (S d) * (d' * q)} {P = \ ZUZU => ZUZU = S d} (sym (multAssociative (S d) d' q)) s1
 >     p' : d' * q = S Z
 >     p' = multElim1 d (d' * q) s2
+> %freeze divisorOneLemma'
 
 > |||
 > divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) ->
@@ -611,6 +662,7 @@ Divisor is a pre-order:
 >   s3 = replace {x = divBy d m dDm} {y = d' * q'} {P = \ ZUZU => d * ZUZU = m} (sym s1) s2
 >   p : (d * d') * q' = m
 >   p = replace {x = d * (d' * q')} {y = (d * d') * q'} {P = \ ZUZU => ZUZU = m} (multAssociative d d' q') s3
+> %freeze divisorTowerLemma
 
 
 Greatest common divisor properties:
@@ -623,6 +675,13 @@ Greatest common divisor properties:
 >   s2 = d1G d2 d2Dm d2Dn
 >   s3 : d1 = d2
 >   s3 = divisorAntisymmetric d1 d2 s1 s2
+> %freeze gcdUnique
+
+> ||| 
+> gcdPreservesPositivity1 : Z `LT` m -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
+
+> ||| 
+> gcdPreservesPositivity2 : Z `LT` n -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
 
 > gcdLemma : (v : GCD (S d) m n) ->
 >            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) ->
@@ -641,6 +700,7 @@ Greatest common divisor properties:
 >   Sdd'Dn  = divisorTowerLemma (S d) d' n SdDn d'DnoSd
 >   Sdd'DSd : (S d) * d' `Divisor` (S d)
 >   Sdd'DSd = SdG ((S d) * d') Sdd'Dm Sdd'Dn
+> %freeze gcdLemma
 
 > gcdLemma' : (v : GCD d m n) -> Not (d = Z) ->
 >             d' `Divisor` (divBy d m (gcdDivisorFst v)) ->
@@ -659,6 +719,7 @@ Greatest common divisor properties:
 >   Sdd'Dn  = divisorTowerLemma d d' n SdDn d'DnoSd
 >   Sdd'DSd : d * d' `Divisor` d
 >   Sdd'DSd = SdG (d * d') Sdd'Dm Sdd'Dn
+> %freeze gcdLemma'
 
 
 Coprime properties:
@@ -678,6 +739,7 @@ Coprime properties:
 >                       {y = d}
 >                       {P = \ ZUZU => ZUZU = S Z}
 >                       (gcdUnique d' d v' v) p'
+> %freeze decCoprime
 
 > ||| Coprime is symmetric
 > symmetricCoprime : Coprime m n -> Coprime n m
@@ -685,6 +747,7 @@ Coprime properties:
 >                          (mkCoprime (mkGCD             dDn dDm dG') dEQone) where
 >     dG' : (d' : Nat) -> Divisor d' n -> Divisor d' m -> Divisor d' d
 >     dG' d' d'Dn d'Dm = dG d' d'Dm d'Dn
+> %freeze symmetricCoprime
 
 > ||| Any number is coprime with one
 > anyCoprimeOne : Coprime m (S Z)
@@ -695,6 +758,7 @@ Coprime properties:
 >   oDo = anyDivisorAny (S Z)
 >   oG  : (d : Nat) -> d `Divisor` m -> d `Divisor` (S Z) -> d `Divisor` (S Z)
 >   oG d dDm dDo = dDo
+> %freeze anyCoprimeOne
 
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v))
@@ -714,6 +778,7 @@ Coprime properties:
 >   d'Dn'   = oneDivisorAny n'
 >   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
 >   d'G d'' = gcdLemma v
+> %freeze gcdCoprimeLemma
 
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (divBy d m (gcdDivisorFst v))
@@ -733,6 +798,7 @@ Coprime properties:
 >   d'Dn'   = oneDivisorAny n'
 >   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
 >   d'G d'' = gcdLemma' v dNotZ
+> %freeze gcdCoprimeLemma'
 
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (divBy d m (gcdDivisorFst v))
@@ -754,6 +820,7 @@ Coprime properties:
 >   dNotZ   = gtZisnotZ zLTd
 >   d'G     : (d'' : Nat) -> d'' `Divisor` m' -> d'' `Divisor` n' -> d'' `Divisor` (S Z)
 >   d'G d'' = gcdLemma' v dNotZ
+> %freeze gcdCoprimeLemma''
 
 
 GCD / Coprime properties:
@@ -763,6 +830,7 @@ GCD / Coprime properties:
 >                       (m : Nat) -> (n : Nat) ->
 >                       gcd (alg m n) = S Z -> Coprime m n
 > gcdOneCoprimeLemma1 alg m n prf = mkCoprime (getProof (alg m n)) prf
+> %freeze gcdOneCoprimeLemma1
 
 > |||
 > gcdOneCoprimeLemma2 : (m : Nat) -> (n : Nat) ->
@@ -775,9 +843,11 @@ GCD / Coprime properties:
 >   s2 = gcdUnique (gcd (alg m n)) d (getProof (alg m n)) v
 >   s3 : gcd (alg m n) = S Z
 >   s3 = trans s2 s1
+> %freeze gcdOneCoprimeLemma2
 
 > |||
 > gcdAnyOneOne : (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
 >                (m : Nat) ->
 >                gcd (alg m (S Z)) = S Z
 > gcdAnyOneOne alg m = gcdOneCoprimeLemma2 m (S Z) alg anyCoprimeOne
+> %freeze gcdAnyOneOne
