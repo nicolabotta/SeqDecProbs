@@ -28,6 +28,15 @@
 >   fromInteger = NonNegRationalOperations.fromNat . fromIntegerNat
 
 
+Propertie of NonNegQ:
+
+> |||
+> lemma : (n1 : Nat) -> (d1 : Nat) -> (zLTd1 : Z `LT` d1) -> (gcdOne1 : gcd (alg n1 d1) = S Z) -> 
+>         (n2 : Nat) -> (d2 : Nat) -> (zLTd2 : Z `LT` d2) -> (gcdOne2 : gcd (alg n2 d2) = S Z) -> 
+>         n1 = n2 -> d1 = d2 ->
+>         MkNonNegQ n1 d1 zLTd1 gcdOne1 = MkNonNegQ n2 d2 zLTd2 gcdOne2
+
+
 Properties of |num|, |den|:
 
 > -- denPreservesEquality : (q1 : NonNegQ) -> (q2 : NonNegQ) -> q1 = q2 -> den q1 = den q2
@@ -47,47 +56,43 @@ Properties of |num|, |den|:
 >             QED
 > %freeze numZeroZero
 
-> -- denZeroOne : den (fromInteger 0) = S Z
 
-
-Properties of casts:
+Properties of fromFraction:
 
 > ||| 
 > fromFractionLemma : (x : Fraction) -> 
->                     (zLTden : Z `LT` den x) ->
+>                     (zLTdx : Z `LT` den x) ->
 >                     (gcdOne : gcd (alg (num x) (den x)) = S Z) ->
->                     fromFraction x zLTden = MkNonNegQ (num x) (den x) zLTden gcdOne
-> fromFractionLemma x zLTden gcdOne = 
->    ( fromFraction x zLTden )
->  ={ Refl }=
->    ( MkNonNegQ (num (reduce alg x)) 
->                (den (reduce alg x)) 
->                (reducePreservesPositivity alg x zLTden) 
->                (reduceYieldsCoprimes alg x zLTden) )
->  ={ ?gugu }=
->    ( MkNonNegQ (num x) (den x) zLTden gcdOne )
->  QED
-
-> 
-> {-
-> with (decEq (gcd (alg n d)) (S Z))
->   | (Yes prf)   = ( MkNonNegQ n d zLTd prf )
->                 ={ replace {x = prf}
->                            {y = gcdOne}
->                            {P = \ ZUZU => MkNonNegQ n d zLTd prf = MkNonNegQ n d zLTd ZUZU}
->                            (uniqueEq (gcd (alg n d)) (S Z) prf gcdOne)
->                            Refl }=
->                   ( MkNonNegQ n d zLTd gcdOne )
->                 QED
->   | (No contra) = void (contra gcdOne)
-> -}
+>                     fromFraction x zLTdx = MkNonNegQ (num x) (den x) zLTdx gcdOne
+> fromFractionLemma x zLTdx gcdOne =
+>   let x'      : Fraction      
+>               = reduce alg x in
+>   let zLTdx'  : (Z `LT` den x')
+>               = reducePreservesPositivity alg x zLTdx in
+>   let cnx'dx' : (Coprime (num x') (den x')) 
+>               = reduceYieldsCoprimes alg x zLTdx in
+>   let gcdOne' : (gcd (alg (num x') (den x')) = S Z) 
+>               = gcdOneCoprimeLemma2 (num x') (den x') alg cnx'dx' in
+>   let x'EQx   : (x' = x)         
+>               = reducePreservesCoprimes alg x (gcdOneCoprimeLemma1 alg (num x) (den x) gcdOne) in
+>   let n'EQn   : (num x' = num x) 
+>               = cong x'EQx in
+>   let d'EQd   : (den x' = den x) 
+>               = cong x'EQx in
+>     ( fromFraction x zLTdx )
+>   ={ Refl }=
+>     ( MkNonNegQ (num x') (den x') zLTdx' gcdOne' )
+>   ={ lemma (num x') (den x') zLTdx' gcdOne' (num x) (den x) zLTdx gcdOne n'EQn d'EQd }=
+>     ( MkNonNegQ (num x) (den x) zLTdx gcdOne )
+>   QED
 
 
+> |||
 > fromFractionToFractionLemma : 
 >   (q : NonNegQ) -> 
 >   fromFraction (toFraction q) (toFractionPreservesDenominatorPositivity q) = q
 > -- fromFractionToFractionLemma q 
-> %freeze fromFractionToFractionLemma
+> -- %freeze fromFractionToFractionLemma
 
 
 > ||| fromFraction preserves identity
@@ -190,30 +195,8 @@ Properties of casts:
 >   QED
 > %freeze plusAssociative
 
-> {-
 
-> fromFractionLemma2 : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) ->
->                      (n' : Nat) -> (d' : Nat) -> (zLTd' : Z `LT` d') ->
->                      n = n' -> d = d' ->
->                      fromFraction n d zLTd = fromFraction n' d' zLTd'
-> fromFractionLemma2 n d zLTd n' d' zLTd' nEQn' dEQd' = trans s2 s3 where
->   s1 : zLTd = zLTd'
->   s1 = uniqueLT' Refl dEQd' zLTd zLTd'
->   s2 : fromFraction n d zLTd = fromFraction n' d zLTd
->   s2 = replace {x = n}
->                {y = n'}
->                {P = \ ZUZU => fromFraction n d zLTd = fromFraction ZUZU d zLTd}
->                nEQn' Refl
->   s3 : fromFraction n' d zLTd = fromFraction n' d' zLTd'
->   s3 = depCong2' {alpha = Nat}
->                  {P = \ ZUZU => Z `LT` ZUZU}
->                  {Q = \ ZUZU => \ zLTZUZU => NonNegQ}
->                  {a1 = d}
->                  {a2 = d'}
->                  {Pa1 = zLTd}
->                  {Pa2 = zLTd'}
->                  (\ ZUZU => \ zLTZUZU => fromFraction n' ZUZU zLTZUZU)
->                  dEQd' s1
+> {-
 
 > fromFractionNumLemma : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) -> 
 >                        num (fromFraction n d zLTd) * (gcd (alg n d)) = n

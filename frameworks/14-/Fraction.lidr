@@ -69,7 +69,7 @@ Properties of |num|, |den|:
 
 Properties of |reduce|:
 
-> ||| Reduction of coprimes is id
+> ||| Reduction of coprime numbers is identity
 > reducePreservesCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >                           (x : Fraction) -> 
 >                           Coprime (num x) (den x) -> 
@@ -79,7 +79,8 @@ Properties of |reduce|:
 >   | (No  contra) = void (contra prf)
 > %freeze reducePreservesCoprimes
 
-> |||
+
+> ||| Reduction preserves denominator positivity
 > reducePreservesPositivity : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >                             (x : Fraction) -> Z `LT` den x -> 
 >                             Z `LT` den (reduce alg x)
@@ -90,8 +91,10 @@ Properties of |reduce|:
 >     gcd = getWitness (alg n d)
 >     gcdDd : gcd `Divisor` d
 >     gcdDd = gcdDivisorSnd (getProof (alg n d))
+> %freeze reducePreservesPositivity
 
-> |||
+
+> ||| Reduction yields coprime numbers
 > reduceYieldsCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >                        (x : Fraction) -> Z `LT` den x -> 
 >                        Coprime (num (reduce alg x)) (den (reduce alg x))
@@ -100,27 +103,29 @@ Properties of |reduce|:
 >   | (No _) = gcdCoprimeLemma'' (getProof (alg n d)) (gcdPreservesPositivity2 zLTdx (alg n d))
 > %freeze reduceYieldsCoprimes
 
-> |||
-> {-
-> reduceIdempotent : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
->                    (x : Fraction) ->
->                    reduce alg (reduce alg x) = reduce alg x
-> -- %freeze reduceIdempotent
-> -}
+
+> ||| Reduction is idempotent (not used)
+> -- reduceIdempotent : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+> --                    (x : Fraction) ->
+> --                    reduce alg (reduce alg x) = reduce alg x
+> -- -- %freeze reduceIdempotent
 
 
+> ||| Fraction is an instance of Num
 > instance Num Fraction where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = Fraction.fromNat . fromIntegerNat
 
 
+> ||| Addition preserves denominator positivity
 > plusPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
 >                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x + y)
 > plusPreservesPositivity (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
 > %freeze plusPreservesPositivity
 
 
+> ||| Multiplication preserves denominator positivity
 > multPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
 >                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x * y)
 > multPreservesPositivity (n1, d1) (n2, d2) p q = multZeroLTZeroLT (den (n1, d1)) (den (n2, d2)) p q
@@ -149,6 +154,7 @@ Properties of |reduce|:
 > %freeze plusCommutative
 
 
+> ||| |fromInteger 0| is neutral element of addition
 > plusZeroPlusRight : (x : Fraction) -> x + (fromInteger 0) = x
 > plusZeroPlusRight (n, d) =
 >     ( (n, d) + (fromInteger 0) )
@@ -177,6 +183,7 @@ Properties of |reduce|:
 > %freeze plusZeroPlusRight
 
 
+> ||| |fromInteger 0| is neutral element of addition
 > plusZeroPlusLeft  : (x : Fraction) -> (fromInteger 0) + x = x
 > plusZeroPlusLeft x = 
 >     ( (fromInteger 0) + x )
@@ -274,35 +281,58 @@ Properties of |reduce|:
 > %freeze plusAssociative
 
 
+> ||| Multiplication is commutative
 > multCommutative : (x : Fraction) -> (y : Fraction) -> x * y = y * x
+> multCommutative (n1, d1) (n2, d2) = 
+>     ( (n1, d1) * (n2, d2) )
+>   ={ Refl }=
+>     ( (n1 * n2, d1 * d2) )
+>   ={ replace {x = n1 * n2}
+>              {y = n2 * n1}
+>              {P = \ ZUZU => (n1 * n2, d1 * d2) = (ZUZU, d1 * d2)}
+>              (Nat.multCommutative n1 n2) Refl }=
+>     ( (n2 * n1, d1 * d2) )
+>   ={ replace {x = d1 * d2}
+>              {y = d2 * d1}
+>              {P = \ ZUZU => (n2 * n1, d1 * d2) = (n2 * n1, ZUZU)}
+>              (Nat.multCommutative d1 d2) Refl }=           
+>     ( (n2 * n1, d2 * d1) )
+>   ={ Refl }=
+>     ( (n2, d2) * (n1, d1) )
+>   QED
 > %freeze multCommutative
 
 
-> multZeroPlusRight : (x : Fraction) -> x * (fromInteger 0) = fromInteger 0
-> %freeze multZeroPlusRight
-
-
-> multZeroPlusLeft : (x : Fraction) -> (fromInteger 0) * x = fromInteger 0
-> %freeze multZeroPlusLeft
-
-
+> |||
 > multOneRight : (x : Fraction) -> x * (fromInteger 1) = x
+> multOneRight (n, d) = 
+>     ( (n, d) * (S Z, S Z) )
+>   ={ Refl }=
+>     ( (n * (S Z), d * (S Z)) )
+>   ={ replace {x = n * (S Z)}
+>              {y = n}
+>              {P = \ ZUZU => (n * (S Z), d * (S Z)) = (ZUZU, d * (S Z))}
+>              (multOneRightNeutral n) Refl }=
+>     ( (n, d * (S Z)) )
+>   ={ replace {x = d * (S Z)}
+>              {y = d}
+>              {P = \ ZUZU => (n, d * (S Z)) = (n, ZUZU)}
+>              (multOneRightNeutral d) Refl }=           
+>     ( (n, d) )
+>   QED
 > %freeze multOneRight
 
 
+> |||
 > multOneLeft : (x : Fraction) -> (fromInteger 1) * x = x
+> multOneLeft x = 
+>     ( (fromInteger 1) * x )
+>   ={ multCommutative (fromInteger 1) x }=
+>     ( x * (fromInteger 1) )
+>   ={ multOneRight x }=
+>     ( x )
+>   QED
 > %freeze multOneLeft
 
 
-> multDistributesOverPlusRight : (x : Fraction) -> (y : Fraction) -> (z : Fraction) ->
->                                x * (y + z) = (x * y) + (x * z)
-> %freeze multDistributesOverPlusRight
 
-
-> multDistributesOverPlusLeft  : (x : Fraction) -> (y : Fraction) -> (z : Fraction) ->
->                                (x + y) * z = (x * z) + (y * z)
-> %freeze multDistributesOverPlusLeft
-
-> {-
-
-> ---}

@@ -71,7 +71,7 @@ Casts:
 >   zLTd : Z `LT` d
 >   zLTd = reducePreservesPositivity alg x zLTden
 >   ndCoprime : gcd (alg n d) = S Z
->   ndCoprime = reduceYieldsCoprimes alg x zLTden
+>   ndCoprime = gcdOneCoprimeLemma2 n d alg (reduceYieldsCoprimes alg x zLTden)
 
 
 Constants:

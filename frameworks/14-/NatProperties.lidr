@@ -499,18 +499,6 @@ Division properties:
 > divByLemma d m (Evidence q prf) = prf
 > %freeze divByLemma
 
-> anyDivisorZ : (m : Nat) -> m `Divisor` Z
-> anyDivisorZ m = Evidence Z (multZeroRightZero m)
-> %freeze anyDivisorZ
-
-> oneDivisorAny : (m : Nat) -> (S Z) `Divisor` m
-> oneDivisorAny m = Evidence m (multOneLeftNeutral m)
-> %freeze oneDivisorAny
-
-> anyDivisorAny : (m : Nat) -> m `Divisor` m
-> anyDivisorAny m = Evidence (S Z) (multOneRightNeutral m)
-> %freeze anyDivisorAny
-
 > ||| Division preserves positivity
 > divByPreservesPositivity : (d : Nat) -> (m : Nat) -> (dDm : d `Divisor` m) -> 
 >                            Z `LT` m -> Z `LT` (divBy d m dDm)
@@ -523,6 +511,19 @@ Division properties:
 >                     {y = d * q} 
 >                     {P = \ ZUZU => Z `LT` ZUZU}  
 >                     (sym (divByLemma d m dDm)) zLTm
+> %freeze divByPreservesPositivity
+
+> anyDivisorZ : (m : Nat) -> m `Divisor` Z
+> anyDivisorZ m = Evidence Z (multZeroRightZero m)
+> %freeze anyDivisorZ
+
+> oneDivisorAny : (m : Nat) -> (S Z) `Divisor` m
+> oneDivisorAny m = Evidence m (multOneLeftNeutral m)
+> %freeze oneDivisorAny
+
+> anyDivisorAny : (m : Nat) -> m `Divisor` m
+> anyDivisorAny m = Evidence (S Z) (multOneRightNeutral m)
+> %freeze anyDivisorAny
 
 
 Divisor is a pre-order:
@@ -677,12 +678,35 @@ Greatest common divisor properties:
 >   s3 = divisorAntisymmetric d1 d2 s1 s2
 > %freeze gcdUnique
 
-> ||| 
+> ||| If |m| is positive, the greatest common divisor of |m| and |n| is positive
 > gcdPreservesPositivity1 : Z `LT` m -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
+> gcdPreservesPositivity1 {m} zLTm (d ** prf) = multLTZeroLeftLTZero d q zLTdq where
+>   dDm : d `Divisor` m
+>   dDm = gcdDivisorFst prf
+>   q : Nat
+>   q = divBy d m dDm
+>   zLTdq : Z `LT` (d * q)
+>   zLTdq = replace {x = m} 
+>                   {y = d * q} 
+>                   {P = \ ZUZU => Z `LT` ZUZU}  
+>                   (sym (divByLemma d m dDm)) zLTm 
+> %freeze gcdPreservesPositivity1
+
+> ||| If |n| is positive, the greatest common divisor of |m| and |n| is positive
+> gcdPreservesPositivity2 : Z `LT` n -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
+> gcdPreservesPositivity2 {n} zLTn (d ** prf) = multLTZeroLeftLTZero d q zLTdq where
+>   dDn : d `Divisor` n
+>   dDn = gcdDivisorSnd prf
+>   q : Nat
+>   q = divBy d n dDn
+>   zLTdq : Z `LT` (d * q)
+>   zLTdq = replace {x = n} 
+>                   {y = d * q} 
+>                   {P = \ ZUZU => Z `LT` ZUZU}  
+>                   (sym (divByLemma d n dDn)) zLTn 
+> %freeze gcdPreservesPositivity2
 
 > ||| 
-> gcdPreservesPositivity2 : Z `LT` n -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
-
 > gcdLemma : (v : GCD (S d) m n) ->
 >            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) ->
 >            d' `Divisor` (divBy (S d) n (gcdDivisorSnd v)) ->
