@@ -35,6 +35,19 @@ Propertie of NonNegQ:
 >         (n2 : Nat) -> (d2 : Nat) -> (zLTd2 : Z `LT` d2) -> (gcdOne2 : gcd (alg n2 d2) = S Z) -> 
 >         n1 = n2 -> d1 = d2 ->
 >         MkNonNegQ n1 d1 zLTd1 gcdOne1 = MkNonNegQ n2 d2 zLTd2 gcdOne2
+> lemma n d zLTd1 gcdOne1 n d zLTd2 gcdOne2 Refl Refl =
+>     ( MkNonNegQ n d zLTd1 gcdOne1 )
+>   ={ replace {x = zLTd1} 
+>              {y = zLTd2} 
+>              {P = \ ZUZU => MkNonNegQ n d zLTd1 gcdOne1 = MkNonNegQ n d ZUZU gcdOne1} 
+>              (uniqueLT zLTd1 zLTd2) Refl }=
+>     ( MkNonNegQ n d zLTd2 gcdOne1 )
+>   ={ replace {x = gcdOne1} 
+>              {y = gcdOne2} 
+>              {P = \ ZUZU => MkNonNegQ n d zLTd2 gcdOne1 = MkNonNegQ n d zLTd2 ZUZU} 
+>              ((uniqueEq (gcd (alg n d)) (S Z)) gcdOne1 gcdOne2) Refl }=
+>     ( MkNonNegQ n d zLTd2 gcdOne2 )
+>   QED
 
 
 Properties of |num|, |den|:
