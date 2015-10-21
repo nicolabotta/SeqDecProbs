@@ -140,17 +140,17 @@ LT, LTE properties
 >                      (z : Nat) -> LTE x y -> LTE (z + x) (z + y)
 > monotoneNatPlusLTE {x} {y}  Z    xLTEy = xLTEy
 > monotoneNatPlusLTE {x} {y} (S n) xLTEy = LTESucc (monotoneNatPlusLTE {x} {y} n xLTEy)
-> %freeze monotoneNatPlusLTE
+> --%freeze monotoneNatPlusLTE
 
 > reflexiveLTE : (n : Nat) -> LTE n n
 > reflexiveLTE n = lteRefl {n}
-> %freeze reflexiveLTE
+> --%freeze reflexiveLTE
 
 > transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
 >                 LTE m n -> LTE n o -> LTE m o
 > transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
 > transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
-> %freeze transitiveLTE
+> --%freeze transitiveLTE
 
 > totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
 > totalLTE  Z    n     = Left LTEZero
@@ -158,17 +158,17 @@ LT, LTE properties
 > totalLTE (S m) (S n) with (totalLTE m n)
 >   | (Left  p) = Left  (LTESucc p)
 >   | (Right p) = Right (LTESucc p)
-> %freeze totalLTE
+> --%freeze totalLTE
 
 > preorderNatLTE : Preorder Nat
 > preorderNatLTE =
 >   MkPreorder LTE reflexiveLTE transitiveLTE
-> %freeze preorderNatLTE
+> --%freeze preorderNatLTE
 
 > totalPreorderNatLTE : TotalPreorder Nat
 > totalPreorderNatLTE =
 >   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
-> %freeze totalPreorderNatLTE
+> --%freeze totalPreorderNatLTE
 
 
 Properties of |plus|:
@@ -464,7 +464,7 @@ Decidability:
 >   | (Yes p) = Yes (LTESucc p)
 >   | (No contra) = No (\ p => contra (fromLteSucc p))
 > -}
-> %freeze decLTE
+> -- %freeze decLTE
 
 > ||| LT is decidable
 > decLT : (m : Nat) -> (n : Nat) -> Dec (LT m n)
