@@ -104,8 +104,15 @@ Properties of fromFraction:
 > fromFractionToFractionLemma : 
 >   (q : NonNegQ) -> 
 >   fromFraction (toFraction q) (toFractionPreservesDenominatorPositivity q) = q
-> -- fromFractionToFractionLemma q 
-> -- %freeze fromFractionToFractionLemma
+> fromFractionToFractionLemma (MkNonNegQ n d zLTd gcdOne) =
+>   let zLTd' = toFractionPreservesDenominatorPositivity (MkNonNegQ n d zLTd gcdOne) in
+>     ( fromFraction (toFraction (MkNonNegQ n d zLTd gcdOne)) zLTd' )
+>   ={ Refl }=
+>     ( fromFraction (n, d) zLTd )
+>   ={ fromFractionLemma (n, d) zLTd gcdOne }=
+>     ( (MkNonNegQ n d zLTd gcdOne) )
+>   QED
+> %freeze fromFractionToFractionLemma
 
 
 > ||| fromFraction preserves identity
@@ -141,6 +148,101 @@ Properties of fromFraction:
 >   fromFraction (x + y) (plusPreservesPositivity x y zLTdx zLTdy)
 >   =
 >   fromFraction x zLTdx + fromFraction y zLTdy
+> fromFractionLinear x zLTdx y zLTdy =
+>   let x'             :  Fraction
+>                      =  reduce alg x in
+>   let nx'            :  Nat
+>                      =  num x' in
+>   let dx'            :  Nat
+>                      =  den x' in
+>   let y'             :  Fraction
+>                      =  reduce alg y in
+>   let ny'            :  Nat
+>                      =  num y' in
+>   let dy'            :  Nat
+>                      =  den y' in
+>   let zLTdx'         :  (Z `LT` dx')
+>                      =  reducePreservesPositivity alg x zLTdx in
+>   let nx'dx'coprime  :  (Coprime nx' dx')
+>                      =  reduceYieldsCoprimes alg x zLTdx in
+>   let nx'dx'gcd1     :  (gcd (alg nx' dx') = S Z)
+>                      =  (gcdOneCoprimeLemma2 nx' dx' alg nx'dx'coprime) in
+>   let zLTdy'         :  (Z `LT` dy')
+>                      =  reducePreservesPositivity alg y zLTdy in
+>   let ny'dy'coprime  :  (Coprime ny' dy')
+>                      =  reduceYieldsCoprimes alg y zLTdy in
+>   let ny'dy'gcd1     :  (gcd (alg ny' dy') = S Z)
+>                      =  (gcdOneCoprimeLemma2 ny' dy' alg ny'dy'coprime) in
+>   let qx'            :  NonNegQ
+>                      =  MkNonNegQ nx' dx' zLTdx' nx'dx'gcd1 in
+>   let qy'            :  NonNegQ
+>                      =  MkNonNegQ ny' dy' zLTdy' ny'dy'gcd1 in
+>   let zLTdqx'        :  (Z `LT` den qx')
+>                      =  toFractionPreservesDenominatorPositivity qx' in
+>   let zLTdqy'        :  (Z `LT` den qy')
+>                      =  toFractionPreservesDenominatorPositivity qy' in
+>   let fqx'           :  Fraction
+>                      =  toFraction qx' in
+>   let fqy'           :  Fraction
+>                      =  toFraction qy' in
+>   let zLTdfqx'fqy'   :  (Z `LT` den (fqx' + fqy'))
+>                      =  plusPreservesPositivity fqx' fqy' zLTdqx' zLTdqy' in
+> {-
+>   let z              :  Fraction
+>                      =  x + y in
+>   let zLTdz          :  (Z `LT` den z)
+>                      =  plusPreservesPositivity x y zLTdx zLTdy in        
+>   let z'             :  Fraction
+>                      =  reduce alg z in
+>   let n'             :  Nat
+>                      =  num z' in
+>   let d'             :  Nat
+>                      =  den z' in
+>   let zLTd'          :  (Z `LT` d')
+>                      =  reducePreservesPositivity alg z zLTdz in
+>   let n'd'coprime    :  (Coprime n' d')
+>                      =  reduceYieldsCoprimes alg z zLTdz in
+>   let gcdOne'        :  (gcd (alg n' d') = S Z)
+>                      =  gcdOneCoprimeLemma2 n' d' alg n'd'coprime in 
+> -}
+>                      
+>     ( fromFraction (x + y) (plusPreservesPositivity x y zLTdx zLTdy) )
+>   ={ Refl }=
+>     ( MkNonNegQ (num (reduce alg (x + y))) 
+>                 (den (reduce alg (x + y))) 
+>                 (reducePreservesPositivity alg (x + y) (plusPreservesPositivity x y zLTdx zLTdy)) 
+>                 (gcdOneCoprimeLemma2 (num (reduce alg (x + y))) 
+>                                      (den (reduce alg (x + y)))
+>                                      alg 
+>                                      (reduceYieldsCoprimes alg (x + y) (plusPreservesPositivity x y zLTdx zLTdy))) )
+>   {-
+>   ={ ?s2 }=
+>     ( MkNonNegQ (num (reduce alg (reduce alg x + reduce alg y))) 
+>                 (den (reduce alg (reduce alg x + reduce alg y))) 
+>                 s21? s22? )
+>   ={ ?s3 }=
+>     ( fromFraction (reduce alg x + reduce alg y) 
+>                    (plusPreservesPositivity (toFraction (MkNonNegQ nx' dx' zLTdx' nx'dx'gcd1)) 
+>                                             (toFraction (MkNonNegQ ny' dy' zLTdy' ny'dy'gcd1)) 
+>                                             (toFractionPreservesDenominatorPositivity (MkNonNegQ nx' dx' zLTdx' nx'dx'gcd1)) 
+>                                             (toFractionPreservesDenominatorPositivity (MkNonNegQ ny' dy' zLTdy' ny'dy'gcd1))) )
+>   -}
+>   ={ ?s4 }=
+>     ( fromFraction ((nx', dx') + (ny', dy'))
+>                    (plusPreservesPositivity (toFraction (MkNonNegQ nx' dx' zLTdx' nx'dx'gcd1)) 
+>                                             (toFraction (MkNonNegQ ny' dy' zLTdy' ny'dy'gcd1)) 
+>                                             (toFractionPreservesDenominatorPositivity (MkNonNegQ nx' dx' zLTdx' nx'dx'gcd1)) 
+>                                             (toFractionPreservesDenominatorPositivity (MkNonNegQ ny' dy' zLTdy' ny'dy'gcd1))) )
+>   ={ Refl }=
+>     ( fromFraction (fqx' + fqy') zLTdfqx'fqy' )
+>   ={ Refl }=
+>     ( fromFraction (toFraction qx' + toFraction qy') 
+>                    (plusPreservesPositivity (toFraction qx') (toFraction qy') zLTdqx' zLTdqy') )
+>   ={ Refl }=
+>     ( MkNonNegQ nx' dx' zLTdx' nx'dx'gcd1 + MkNonNegQ ny' dy' zLTdy' ny'dy'gcd1 )
+>   ={ Refl }=
+>     ( fromFraction x zLTdx + fromFraction y zLTdy )
+>   QED
 > %freeze fromFractionLinear
 
 

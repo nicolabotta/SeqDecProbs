@@ -67,8 +67,8 @@ Equality of Sigma types:
 > ||| Equality for singleton predicates
 > sigmaEqLemma1 : {A  : Type} ->
 >                 {P  : A -> Type} ->
->                 .(s1 : Sigma A P) ->
->                 .(s2 : Sigma A P) ->
+>                 (s1 : Sigma A P) ->
+>                 (s2 : Sigma A P) ->
 >                 getWitness s1 = getWitness s2 ->
 >                 Unique0 (P (getWitness s1)) ->
 >                 s1 = s2

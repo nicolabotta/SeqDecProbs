@@ -118,6 +118,13 @@ Properties of |reduce|:
 >   fromInteger = Fraction.fromNat . fromIntegerNat
 
 
+> ||| Reduction is "linear"
+> reduceLinear : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                (x : Fraction) -> (y : Fraction) ->
+>                reduce alg (x + y) = reduce alg (reduce alg x + reduce alg y)
+> %freeze reduceLinear
+
+
 > ||| Addition preserves denominator positivity
 > plusPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 
 >                           Z `LT` den x -> Z `LT` den y -> Z `LT` den (x + y)
