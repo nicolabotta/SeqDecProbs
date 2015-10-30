@@ -669,7 +669,7 @@ Divisor is a pre-order:
 Greatest common divisor properties:
 
 > gcdUnique : (d1 : Nat) -> (d2 : Nat) -> GCD d1 m n -> GCD d2 m n -> d1 = d2
-> gcdUnique d1 d2 (mkGCD d1Dm d1Dn d1G) (mkGCD d2Dm d2Dn d2G) = s3 where
+> gcdUnique d1 d2 (MkGCD d1Dm d1Dn d1G) (MkGCD d2Dm d2Dn d2G) = s3 where
 >   s1 : d1 `Divisor` d2
 >   s1 = d2G d1 d1Dm d1Dn
 >   s2 : d2 `Divisor` d1
@@ -754,10 +754,10 @@ Coprime properties:
 >              Dec (Coprime m n)
 > decCoprime alg m n with (alg m n)
 >   | (d ** v) with (decEq d (S Z))
->     | (Yes p) = Yes (mkCoprime {d = d} v p)
+>     | (Yes p) = Yes (MkCoprime {d = d} v p)
 >     | (No contra) = No contra' where
 >         contra' : Coprime m n -> Void
->         contra' (mkCoprime {d = d'} v' p') = contra p where
+>         contra' (MkCoprime {d = d'} v' p') = contra p where
 >           p : d = S Z
 >           p = replace {x = d'}
 >                       {y = d}
@@ -767,15 +767,15 @@ Coprime properties:
 
 > ||| Coprime is symmetric
 > symmetricCoprime : Coprime m n -> Coprime n m
-> symmetricCoprime {m} {n} (mkCoprime (mkGCD {d} {m} {n} dDm dDn dG)  dEQone) =
->                          (mkCoprime (mkGCD             dDn dDm dG') dEQone) where
+> symmetricCoprime {m} {n} (MkCoprime (MkGCD {d} {m} {n} dDm dDn dG)  dEQone) =
+>                          (MkCoprime (MkGCD             dDn dDm dG') dEQone) where
 >     dG' : (d' : Nat) -> Divisor d' n -> Divisor d' m -> Divisor d' d
 >     dG' d' d'Dn d'Dm = dG d' d'Dm d'Dn
 > %freeze symmetricCoprime
 
 > ||| Any number is coprime with one
 > anyCoprimeOne : Coprime m (S Z)
-> anyCoprimeOne {m} = mkCoprime (mkGCD oDm oDo oG) Refl where
+> anyCoprimeOne {m} = MkCoprime (MkGCD oDm oDo oG) Refl where
 >   oDm : (S Z) `Divisor` m
 >   oDm = oneDivisorAny m
 >   oDo : (S Z) `Divisor` (S Z)
@@ -787,7 +787,7 @@ Coprime properties:
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v))
 >                                                  (divBy (S d) n (gcdDivisorSnd v))
-> gcdCoprimeLemma {d} {m} {n} v = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
+> gcdCoprimeLemma {d} {m} {n} v = MkCoprime (MkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : (S d) `Divisor` m
 >   dDm     = gcdDivisorFst v
 >   dDn     : (S d) `Divisor` n
@@ -807,7 +807,7 @@ Coprime properties:
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (divBy d m (gcdDivisorFst v))
 >                                                              (divBy d n (gcdDivisorSnd v))
-> gcdCoprimeLemma' {d} {m} {n} v dNotZ = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
+> gcdCoprimeLemma' {d} {m} {n} v dNotZ = MkCoprime (MkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : d `Divisor` m
 >   dDm     = gcdDivisorFst v
 >   dDn     : d `Divisor` n
@@ -827,7 +827,7 @@ Coprime properties:
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (divBy d m (gcdDivisorFst v))
 >                                                            (divBy d n (gcdDivisorSnd v))
-> gcdCoprimeLemma'' {d} {m} {n} v zLTd = mkCoprime (mkGCD d'Dm' d'Dn' d'G) Refl where
+> gcdCoprimeLemma'' {d} {m} {n} v zLTd = MkCoprime (MkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : d `Divisor` m
 >   dDm     = gcdDivisorFst v
 >   dDn     : d `Divisor` n
@@ -853,14 +853,14 @@ GCD / Coprime properties:
 > gcdOneCoprimeLemma1 : (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
 >                       (m : Nat) -> (n : Nat) ->
 >                       gcd (alg m n) = S Z -> Coprime m n
-> gcdOneCoprimeLemma1 alg m n prf = mkCoprime (getProof (alg m n)) prf
+> gcdOneCoprimeLemma1 alg m n prf = MkCoprime (getProof (alg m n)) prf
 > %freeze gcdOneCoprimeLemma1
 
 > |||
 > gcdOneCoprimeLemma2 : (m : Nat) -> (n : Nat) ->
 >                       (alg : (a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
 >                       Coprime m n -> gcd (alg m n) = S Z
-> gcdOneCoprimeLemma2 m n alg (mkCoprime {d} v prf) = s3 where
+> gcdOneCoprimeLemma2 m n alg (MkCoprime {d} v prf) = s3 where
 >   s1 : d = S Z
 >   s1 = prf
 >   s2 : gcd (alg m n) = d

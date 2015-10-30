@@ -69,6 +69,29 @@ Properties of |num|, |den|:
 
 Properties of |reduce|:
 
+> ||| First reduce lemma
+> reduceLemmaNum : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                  (x : Fraction) -> 
+>                  Sigma Nat (\ gcd => num x = (num (reduce alg x)) * gcd)
+> reduceLemmaNum alg (n, d) with (decCoprime alg n d)
+>   | (Yes _) = (1 ** sym (multOneRightNeutral n))
+>   | (No  _) = (gcd ** ?lika)  where
+>       gcdv : (gcd : Nat ** GCD gcd n d)
+>       gcdv = alg n d
+>       gcd : Nat
+>       gcd = getWitness gcdv
+>       v : GCD gcd n d
+>       v = getProof gcdv
+>       n' : Nat
+>       n' = divBy gcd n (gcdDivisorFst v)
+>       d' : Nat
+>       d' = divBy gcd d (gcdDivisorSnd v)
+
+> ||| Second reduce lemma
+> reduceLemmaDen : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                  (x : Fraction) -> 
+>                  Sigma Nat (\ gcd => den x = (den (reduce alg x)) * gcd)
+
 > ||| Reduction of coprime numbers is identity
 > reducePreservesCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >                           (x : Fraction) -> 
@@ -122,6 +145,21 @@ Properties of |reduce|:
 > reduceLinear : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >                (x : Fraction) -> (y : Fraction) ->
 >                reduce alg (x + y) = reduce alg (reduce alg x + reduce alg y)
+> reduceLinear alg (n1, d1) (n2, d2) =
+>   let gcdv1  :  (lala : Nat ** GCD lala n1 d1)
+>              =  alg n1 d1 in
+>   let gcd1   :  Nat
+>              =  getWitness gcdv1 in
+>   let gcdv2  :  (lala : Nat ** GCD lala n2 d2)
+>              =  alg n2 d2 in
+>   let gcd2   :  Nat
+>              =  getWitness gcdv2 in
+>     ( reduce alg ((n1, d1) + (n2, d2)) )
+>   ={ Refl }=
+>     ( reduce alg (n1 * d2 + n2 * d1, d1 * d2) )
+>   ={ ?s1 }=
+>     ( reduce alg (reduce alg (n1, d1) + reduce alg (n2, d2)) )
+>   QED  
 > %freeze reduceLinear
 
 

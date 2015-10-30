@@ -311,6 +311,26 @@ Properties of fromFraction:
 > %freeze plusAssociative
 
 
+> ||| Multiplication is commutative
+> multCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x * y = y * x
+> multCommutative x y = 
+>   let x' = toFraction x in
+>   let y' = toFraction y in
+>   let zLTdx' = toFractionPreservesDenominatorPositivity x in
+>   let zLTdy' = toFractionPreservesDenominatorPositivity y in
+>   let zLTdx'y' = multPreservesPositivity x' y' zLTdx' zLTdy' in
+>   let zLTdy'x' = multPreservesPositivity y' x' zLTdy' zLTdx' in
+>     ( x * y )
+>   ={ Refl }=
+>     ( fromFraction (x' * y') zLTdx'y' )
+>   ={ fromFractionLemma2 (x' * y') zLTdx'y' (y' * x') zLTdy'x' (multCommutative x' y') }=
+>     ( fromFraction (y' * x') (multPreservesPositivity y' x' zLTdy' zLTdx') )    
+>   ={ Refl }=
+>     ( y * x )
+>   QED
+> %freeze multCommutative
+
+
 > {-
 
 > fromFractionNumLemma : (n : Nat) -> (d : Nat) -> (zLTd : Z `LT` d) -> 
@@ -382,60 +402,6 @@ non-negative rational numbers, we need these to fulfill
 >   ={ Refl }=
 >      x
 >   QED
-> -}
-
-> {-
-
-TODO
-
-> plusAssoc : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
-> plusAssoc x y z = s11 where
->   nyz' : Nat
->   nyz' = (num y) * (den z) + (num z) * (den y)
->   dyz' : Nat
->   dyz' = (den y) * (den z)
->   zLTdyz' : Z `LT` dyz'
->   zLTdyz' = multZeroLTZeroLT (den y) (den z) (zeroLTden y) (zeroLTden z)
->   s1 : y + z = fromFraction nyz' dyz' zLTdyz'
->   s1 = Refl
->   nyz : Nat
->   nyz = num (fromFraction nyz' dyz' zLTdyz')
->   dyz : Nat
->   dyz = den (fromFraction nyz' dyz' zLTdyz')
->   nxyz1' : Nat
->   nxyz1' = (num x) * dyz + nyz * (den x)
->   dxyz1' : Nat
->   dxyz1' = (den x) * dyz
->   zLTdxyz1' : Z `LT` dxyz1'
->   zLTdxyz1' = multZeroLTZeroLT (den x) dyz (zeroLTden x) (zeroLTden (fromFraction nyz' dyz' zLTdyz'))
->   s2 : x + (y + z) = fromFraction nxyz1' dxyz1' zLTdxyz1'
->   s2 = Refl
->   
->   nxy' : Nat
->   nxy' = (num x) * (den y) + (num y) * (den x)
->   dxy' : Nat
->   dxy' = (den x) * (den y)
->   zLTdxy' : Z `LT` dxy'
->   zLTdxy' = multZeroLTZeroLT (den x) (den y) (zeroLTden x) (zeroLTden y)
->   s3 : x + y = fromFraction nxy' dxy' zLTdxy'
->   s3 = Refl
->   nxy : Nat
->   nxy = num (fromFraction nxy' dxy' zLTdxy')
->   dxy : Nat
->   dxy = den (fromFraction nxy' dxy' zLTdxy')
->   nxyz2' : Nat
->   nxyz2' = nxy * (den z) + (num z) * dxy
->   dxyz2' : Nat
->   dxyz2' = dxy * (den z)
->   zLTdxyz2' : Z `LT` dxyz2'
->   zLTdxyz2' = multZeroLTZeroLT dxy (den z) (zeroLTden (fromFraction nxy' dxy' zLTdxy')) (zeroLTden z) 
->   s2 : x + (y + z) = fromFraction nxyz2' dxyz2' zLTdxyz2'
->   s2 = Refl
->   
->   s11 : x + (y + z) = (x + y) + z
->   s11 = ?lulu
->   
-
 > -}
 
 > {- TODO: complete

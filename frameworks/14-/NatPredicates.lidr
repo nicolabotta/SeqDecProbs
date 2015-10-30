@@ -16,7 +16,7 @@ Divisor (following an idea from Tim Richter):
 Greatest common divisor (following an idea from Tim Richter):
 
 > data GCD : (d : Nat) -> (m : Nat) -> (n : Nat) -> Type where
->   mkGCD : d `Divisor` m ->
+>   MkGCD : d `Divisor` m ->
 >           d `Divisor` n ->
 >           ((d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d) ->
 >           GCD d m n
@@ -25,16 +25,16 @@ Greatest common divisor (following an idea from Tim Richter):
 > gcd = getWitness
 
 > gcdDivisorFst : GCD d m n -> d `Divisor` m
-> gcdDivisorFst {d} (mkGCD dDm dDn dG) = dDm
+> gcdDivisorFst {d} (MkGCD dDm dDn dG) = dDm
 
 > gcdDivisorSnd : GCD d m n -> d `Divisor` n
-> gcdDivisorSnd {d} (mkGCD dDm dDn dG) = dDn
+> gcdDivisorSnd {d} (MkGCD dDm dDn dG) = dDn
 
 > gcdDivisorGreatest : GCD d m n -> ((d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d)
-> gcdDivisorGreatest {d} (mkGCD dDm dDn dG) = dG
+> gcdDivisorGreatest {d} (MkGCD dDm dDn dG) = dG
 
 
 Coprime (following an idea from Tim Richter):
 
 > data Coprime : (m : Nat) -> (n : Nat) -> Type where
->   mkCoprime : GCD d m n -> d = S Z -> Coprime m n
+>   MkCoprime : GCD d m n -> d = S Z -> Coprime m n
