@@ -12,15 +12,15 @@
 Euclid's greatest common divisor algorithm
 
 > euclidGCD1 : GCD m m Z
-> euclidGCD1 {m} = mkGCD (anyDivisorAny m) (anyDivisorZ m) (\ d' => \ d'Dm => \ d'DZ => d'Dm)
+> euclidGCD1 {m} = MkGCD (anyDivisorAny m) (anyDivisorZ m) (\ d' => \ d'Dm => \ d'DZ => d'Dm)
 
 > euclidGCD2 : GCD m Z m
-> euclidGCD2 {m} = mkGCD (anyDivisorZ m) (anyDivisorAny m) (\ d' => \ d'DZ => \ d'Dm => d'Dm)
+> euclidGCD2 {m} = MkGCD (anyDivisorZ m) (anyDivisorAny m) (\ d' => \ d'DZ => \ d'Dm => d'Dm)
 
 > euclidGCD3 : m `LTE` n -> GCD d m (n - m) -> GCD d m n
-> euclidGCD3 {m} {n} {d} p (mkGCD dDm dDnmm q) = mkGCD dDm dDn q' where
+> euclidGCD3 {m} {n} {d} p (MkGCD dDm dDnmm q) = MkGCD dDm dDn q' where
 >   dDnmmpm : d `Divisor` ((n - m) + m)
->   dDnmmpm = divisorPlusLemma1 m (n - m) d dDm dDnmm
+>   dDnmmpm = divisorPlusLemma2 m (n - m) d dDm dDnmm
 >   dDn : d `Divisor` n
 >   dDn = replace {x = (n - m) + m}
 >                 {y = n}
@@ -33,9 +33,9 @@ Euclid's greatest common divisor algorithm
 >     d'Dnmm = divisorMinusLemma m n d' d'Dm d'Dn
 
 > euclidGCD4 : Not (m `LTE` n) -> GCD d (m - n) n -> GCD d m n
-> euclidGCD4 {m} {n} {d} p (mkGCD dDmmn dDn q) = mkGCD dDm dDn q' where
+> euclidGCD4 {m} {n} {d} p (MkGCD dDmmn dDn q) = MkGCD dDm dDn q' where
 >   dDmmnpn : d `Divisor` ((m - n) + n)
->   dDmmnpn = divisorPlusLemma2 (m - n) n d dDmmn dDn
+>   dDmmnpn = divisorPlusLemma1 (m - n) n d dDmmn dDn
 >   dDm : d `Divisor` m
 >   dDm = replace {x = (m - n) + n}
 >                 {y = m}

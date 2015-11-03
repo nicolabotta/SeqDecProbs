@@ -16,11 +16,10 @@ Infix minus
 > (-) = minus
 
 
-Divisor operations:
+Division:
 
-> public divBy : (d : Nat) -> (m : Nat) -> d `Divisor` m -> Nat
-> divBy d m (Evidence q prf) = q 
-
+> public quotient : (m : Nat) -> (d : Nat) -> d `Divisor` m -> Nat
+> quotient m d (Evidence q prf) = q 
 
 
 

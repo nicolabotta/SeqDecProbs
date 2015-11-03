@@ -451,6 +451,33 @@ Properties of |mult|
 >   s5 = plusLeftLeftRightZero (S m) ((S n) * (S m)) s2
 > %freeze multElim1
 
+> |||
+> multFlipCentre : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
+>                  (m1 * m2) * (n1 * n2) = (m1 * n1) * (m2 * n2)
+> multFlipCentre m1 m2 n1 n2 =
+>   ( (m1 * m2) * (n1 * n2) )
+> ={ multAssociative (m1 * m2) n1 n2 }=
+>   ( ((m1 * m2) * n1) * n2 )
+> ={ replace {x = (m1 * m2) * n1}
+>            {y = m1 * (m2 * n1)}
+>            {P = \ ZUZU => ((m1 * m2) * n1) * n2 = (ZUZU) * n2}
+>            (sym (multAssociative m1 m2 n1)) Refl }=
+>   ( (m1 * (m2 * n1)) * n2 )
+> ={ replace {x = m2 * n1}
+>            {y = n1 * m2}
+>            {P = \ ZUZU => (m1 * (m2 * n1)) * n2 = (m1 * (ZUZU)) * n2 }
+>            (multCommutative m2 n1) Refl }=
+>   ( (m1 * (n1 * m2)) * n2 )
+> ={ replace {x = m1 * (n1 * m2)}
+>            {y = (m1 * n1) * m2}
+>            {P = \ ZUZU => (m1 * (n1 * m2)) * n2 = (ZUZU) * n2}
+>            (multAssociative m1 n1 m2) Refl }=
+>   ( ((m1 * n1) * m2) * n2 )
+> ={ sym (multAssociative (m1 * n1) m2 n2) }=
+>   ( (m1 * n1) * (m2 * n2) )
+> QED
+> %freeze multPreservesEq
+
 
 Decidability:
 
@@ -493,25 +520,28 @@ Uniqueness
 > %freeze uniqueLT'
 
 
-Division properties:
+Properties of quotient:
 
-> divByLemma : (d : Nat) -> (m : Nat) -> (dDm : d `Divisor` m) -> d * (divBy d m dDm) = m
-> divByLemma d m (Evidence q prf) = prf
-> %freeze divByLemma
+> quotientLemma : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> d * (quotient m d dDm) = m
+> quotientLemma m d (Evidence q prf) = prf
+> %freeze quotientLemma
 
-> ||| Division preserves positivity
-> divByPreservesPositivity : (d : Nat) -> (m : Nat) -> (dDm : d `Divisor` m) -> 
->                            Z `LT` m -> Z `LT` (divBy d m dDm)
-> divByPreservesPositivity d m dDm zLTm = 
+> ||| quotient preserves positivity
+> quotientPreservesPositivity : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> 
+>                               Z `LT` m -> Z `LT` (quotient m d dDm)
+> quotientPreservesPositivity m d dDm zLTm = 
 >   multLTZeroRightLTZero d q zLTdq where
 >     q : Nat
->     q = divBy d m dDm
+>     q = quotient m d dDm
 >     zLTdq : Z `LT` (d * q)
 >     zLTdq = replace {x = m} 
 >                     {y = d * q} 
 >                     {P = \ ZUZU => Z `LT` ZUZU}  
->                     (sym (divByLemma d m dDm)) zLTm
-> %freeze divByPreservesPositivity
+>                     (sym (quotientLemma m d dDm)) zLTm
+> %freeze quotientPreservesPositivity
+
+
+Properties of Divisor:
 
 > anyDivisorZ : (m : Nat) -> m `Divisor` Z
 > anyDivisorZ m = Evidence Z (multZeroRightZero m)
@@ -524,7 +554,6 @@ Division properties:
 > anyDivisorAny : (m : Nat) -> m `Divisor` m
 > anyDivisorAny m = Evidence (S Z) (multOneRightNeutral m)
 > %freeze anyDivisorAny
-
 
 Divisor is a pre-order:
 
@@ -582,8 +611,20 @@ Divisor is a pre-order:
 > %freeze divisorAntisymmetric
 
 > divisorPlusLemma1 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
->                      d `Divisor` m -> d `Divisor` n -> d `Divisor` (n + m)
+>                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (m + n)
 > divisorPlusLemma1 m n d (Evidence q1 p1) (Evidence q2 p2) =
+>   Evidence (q1 + q2) p where
+>     s1 : d * (q1 + q2) = d * q1 + d * q2
+>     s1 = multDistributesOverPlusRight d q1 q2
+>     s2 : d * (q1 + q2) = m + d * q2
+>     s2 = replace {x = d * q1} {y = m} {P = \ ZUZU => d * (q1 + q2) = ZUZU + d * q2} p1 s1
+>     p : d * (q1 + q2) = m + n
+>     p = replace {x = d * q2} {y = n} {P = \ ZUZU => d * (q1 + q2) = m + ZUZU} p2 s2
+> --%freeze divisorPlusLemma1
+
+> divisorPlusLemma2 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                      d `Divisor` m -> d `Divisor` n -> d `Divisor` (n + m)
+> divisorPlusLemma2 m n d (Evidence q1 p1) (Evidence q2 p2) =
 >   Evidence (q1 + q2) p where
 >     s1 : d * (q1 + q2) = d * q1 + d * q2
 >     s1 = multDistributesOverPlusRight d q1 q2
@@ -593,19 +634,21 @@ Divisor is a pre-order:
 >     s3 = replace {x = d * q2} {y = n} {P = \ ZUZU => d * (q1 + q2) = m + ZUZU} p2 s2
 >     p  : d * (q1 + q2) = n + m
 >     p  = replace {x = m + n} {y = n + m} {P = \ ZUZU => d * (q1 + q2) = ZUZU} (plusCommutative m n) s3
-> %freeze divisorPlusLemma1
-
-> divisorPlusLemma2 : (m : Nat) -> (n : Nat) -> (d : Nat) ->
->                     d `Divisor` m -> d `Divisor` n -> d `Divisor` (m + n)
-> divisorPlusLemma2 m n d (Evidence q1 p1) (Evidence q2 p2) =
->   Evidence (q1 + q2) p where
->     s1 : d * (q1 + q2) = d * q1 + d * q2
->     s1 = multDistributesOverPlusRight d q1 q2
->     s2 : d * (q1 + q2) = m + d * q2
->     s2 = replace {x = d * q1} {y = m} {P = \ ZUZU => d * (q1 + q2) = ZUZU + d * q2} p1 s1
->     p : d * (q1 + q2) = m + n
->     p = replace {x = d * q2} {y = n} {P = \ ZUZU => d * (q1 + q2) = m + ZUZU} p2 s2
 > %freeze divisorPlusLemma2
+
+> divisorMultLemma1 : (m1 : Nat) -> (d1 : Nat) -> d1 `Divisor` m1 -> 
+>                     (m2 : Nat) -> (d2 : Nat) -> d2 `Divisor` m2 -> 
+>                     (d1 * d2) `Divisor` (m1 * m2)
+> divisorMultLemma1 m1 d1 (Evidence q1 p1) m2 d2 (Evidence q2 p2) = 
+>   Evidence (q1 * q2) p where
+>     s1 : (d1 * q1) * (d2 * q2) = m1 * m2
+>     s1 = multPreservesEq (d1 * q1) m1 (d2 * q2) m2 p1 p2
+>     p  : (d1 * d2) * (q1 * q2) = m1 * m2
+>     p  = replace {x = (d1 * q1) * (d2 * q2)}
+>                  {y = (d1 * d2) * (q1 * q2)}
+>                  {P = \ ZUZU => ZUZU = m1 * m2}
+>                  (multFlipCentre d1 q1 d2 q2) s1
+> -- %freeze divisorMultLemma1
 
 > ||| If a number divides two numbers, it also divides their difference
 > divisorMinusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
@@ -651,19 +694,68 @@ Divisor is a pre-order:
 
 > |||
 > divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) ->
->                    (dDm : d `Divisor` m) -> d' `Divisor` (divBy d m dDm) -> d * d' `Divisor` m
+>                    (dDm : d `Divisor` m) -> d' `Divisor` (quotient m d dDm) -> d * d' `Divisor` m
 > divisorTowerLemma d d' m dDm d'DmOd = Evidence q' p where
 >   q' : Nat
->   q' = divBy d' (divBy d m dDm) d'DmOd
->   s1 : d' * q' = divBy d m dDm
->   s1 = divByLemma d' (divBy d m dDm) d'DmOd
->   s2 : d * (divBy d m dDm) = m
->   s2 = divByLemma d m dDm
+>   q' = quotient (quotient m d dDm) d' d'DmOd
+>   s1 : d' * q' = quotient m d dDm
+>   s1 = quotientLemma (quotient m d dDm) d' d'DmOd
+>   s2 : d * (quotient m d dDm) = m
+>   s2 = quotientLemma m d dDm
 >   s3 : d * (d' * q') = m
->   s3 = replace {x = divBy d m dDm} {y = d' * q'} {P = \ ZUZU => d * ZUZU = m} (sym s1) s2
+>   s3 = replace {x = quotient m d dDm} {y = d' * q'} {P = \ ZUZU => d * ZUZU = m} (sym s1) s2
 >   p : (d * d') * q' = m
 >   p = replace {x = d * (d' * q')} {y = (d * d') * q'} {P = \ ZUZU => ZUZU = m} (multAssociative d d' q') s3
 > %freeze divisorTowerLemma
+
+
+Further quotient properties:
+
+> |||
+> quotientAnyOneAny : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> 
+>                     (d = S Z) -> quotient m d dDm = m
+> quotientAnyOneAny m d (Evidence q p) dEQ1 = 
+>     ( quotient m d (Evidence q p) )
+>   ={ Refl }=
+>     ( q )
+>   ={ sym (multOneLeftNeutral q) }=
+>     ( (S Z) * q )
+>   ={ replace {x = S Z}
+>              {y = d}
+>              {P = \ ZUZU => (S Z) * q = ZUZU * q}
+>              (sym dEQ1) Refl }=
+>     ( d * q )
+>   ={ p }=
+>     ( m )
+>   QED
+
+> |||
+> quotientPlusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) -> 
+>                     (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) ->
+>                     (quotient m d dDm) + (quotient n d dDn) 
+>                     =
+>                     quotient (m + n) d (divisorPlusLemma1 m n d dDm dDn)
+> quotientPlusLemma m n d (Evidence q1 p1) (Evidence q2 p2) =
+>     ( (quotient m d (Evidence q1 p1)) + (quotient n d (Evidence q2 p2)) )
+>   ={ Refl }=
+>     ( q1 + q2 )
+>   ={ Refl }=
+>     ( quotient (m + n) d (divisorPlusLemma1 m n d (Evidence q1 p1) (Evidence q2 p2)) )
+>   QED
+
+> |||
+> quotientMultLemma : (m1 : Nat) -> (d1 : Nat) -> (d1Dm1 : d1 `Divisor` m1) ->
+>                     (m2 : Nat) -> (d2 : Nat) -> (d2Dm2 : d2 `Divisor` m2) ->
+>                     (quotient m1 d1 d1Dm1) * (quotient m2 d2 d2Dm2) 
+>                     =
+>                     quotient (m1 * m2) (d1 * d2) (divisorMultLemma1 m1 d1 d1Dm1 m2 d2 d2Dm2)
+> quotientMultLemma m1 d1 (Evidence q1 p1) m2 d2 (Evidence q2 p2) =
+>     ( (quotient m1 d1 (Evidence q1 p1)) * (quotient m2 d2 (Evidence q2 p2))  )
+>   ={ Refl }=
+>     ( q1 * q2 )
+>   ={ Refl }=
+>     ( quotient (m1 * m2) (d1 * d2) (divisorMultLemma1 m1 d1 (Evidence q1 p1) m2 d2 (Evidence q2 p2)) )
+>   QED
 
 
 Greatest common divisor properties:
@@ -684,12 +776,12 @@ Greatest common divisor properties:
 >   dDm : d `Divisor` m
 >   dDm = gcdDivisorFst prf
 >   q : Nat
->   q = divBy d m dDm
+>   q = quotient m d dDm
 >   zLTdq : Z `LT` (d * q)
 >   zLTdq = replace {x = m} 
 >                   {y = d * q} 
 >                   {P = \ ZUZU => Z `LT` ZUZU}  
->                   (sym (divByLemma d m dDm)) zLTm 
+>                   (sym (quotientLemma m d dDm)) zLTm 
 > %freeze gcdPreservesPositivity1
 
 > ||| If |n| is positive, the greatest common divisor of |m| and |n| is positive
@@ -698,18 +790,18 @@ Greatest common divisor properties:
 >   dDn : d `Divisor` n
 >   dDn = gcdDivisorSnd prf
 >   q : Nat
->   q = divBy d n dDn
+>   q = quotient n d dDn
 >   zLTdq : Z `LT` (d * q)
 >   zLTdq = replace {x = n} 
 >                   {y = d * q} 
 >                   {P = \ ZUZU => Z `LT` ZUZU}  
->                   (sym (divByLemma d n dDn)) zLTn 
+>                   (sym (quotientLemma n d dDn)) zLTn 
 > %freeze gcdPreservesPositivity2
 
 > ||| 
 > gcdLemma : (v : GCD (S d) m n) ->
->            d' `Divisor` (divBy (S d) m (gcdDivisorFst v)) ->
->            d' `Divisor` (divBy (S d) n (gcdDivisorSnd v)) ->
+>            d' `Divisor` (quotient m (S d) (gcdDivisorFst v)) ->
+>            d' `Divisor` (quotient n (S d) (gcdDivisorSnd v)) ->
 >            d' `Divisor` S Z
 > gcdLemma {d} {d'} {m} {n} v d'DmoSd d'DnoSd = divisorOneLemma d d' Sdd'DSd where
 >   SdDm    : (S d) `Divisor` m
@@ -727,8 +819,8 @@ Greatest common divisor properties:
 > %freeze gcdLemma
 
 > gcdLemma' : (v : GCD d m n) -> Not (d = Z) ->
->             d' `Divisor` (divBy d m (gcdDivisorFst v)) ->
->             d' `Divisor` (divBy d n (gcdDivisorSnd v)) ->
+>             d' `Divisor` (quotient m d (gcdDivisorFst v)) ->
+>             d' `Divisor` (quotient n d (gcdDivisorSnd v)) ->
 >             d' `Divisor` S Z
 > gcdLemma' {d} {d'} {m} {n} v dNotZ d'DmoSd d'DnoSd = divisorOneLemma' d d' dNotZ Sdd'DSd where
 >   SdDm    : d `Divisor` m
@@ -785,17 +877,17 @@ Coprime properties:
 > %freeze anyCoprimeOne
 
 > ||| Division by gcd yields coprime numbers
-> gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (divBy (S d) m (gcdDivisorFst v))
->                                                  (divBy (S d) n (gcdDivisorSnd v))
+> gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (quotient m (S d) (gcdDivisorFst v))
+>                                                  (quotient n (S d) (gcdDivisorSnd v))
 > gcdCoprimeLemma {d} {m} {n} v = MkCoprime (MkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : (S d) `Divisor` m
 >   dDm     = gcdDivisorFst v
 >   dDn     : (S d) `Divisor` n
 >   dDn     = gcdDivisorSnd v
 >   m'      : Nat
->   m'      = divBy (S d) m dDm
+>   m'      = quotient m (S d) dDm
 >   n'      : Nat
->   n'      = divBy (S d) n dDn
+>   n'      = quotient n (S d) dDn
 >   d'Dm'   : S Z `Divisor` m'
 >   d'Dm'   = oneDivisorAny m'
 >   d'Dn'   : S Z `Divisor` n'
@@ -805,17 +897,17 @@ Coprime properties:
 > %freeze gcdCoprimeLemma
 
 > ||| Division by gcd yields coprime numbers
-> gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (divBy d m (gcdDivisorFst v))
->                                                              (divBy d n (gcdDivisorSnd v))
+> gcdCoprimeLemma' : (v : GCD d m n) -> Not (d = Z) -> Coprime (quotient m d (gcdDivisorFst v))
+>                                                              (quotient n d (gcdDivisorSnd v))
 > gcdCoprimeLemma' {d} {m} {n} v dNotZ = MkCoprime (MkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : d `Divisor` m
 >   dDm     = gcdDivisorFst v
 >   dDn     : d `Divisor` n
 >   dDn     = gcdDivisorSnd v
 >   m'      : Nat
->   m'      = divBy d m dDm
+>   m'      = quotient m d dDm
 >   n'      : Nat
->   n'      = divBy d n dDn
+>   n'      = quotient n d dDn
 >   d'Dm'   : S Z `Divisor` m'
 >   d'Dm'   = oneDivisorAny m'
 >   d'Dn'   : S Z `Divisor` n'
@@ -825,17 +917,17 @@ Coprime properties:
 > %freeze gcdCoprimeLemma'
 
 > ||| Division by gcd yields coprime numbers
-> gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (divBy d m (gcdDivisorFst v))
->                                                            (divBy d n (gcdDivisorSnd v))
+> gcdCoprimeLemma'' : (v : GCD d m n) -> Z `LT` d -> Coprime (quotient m d (gcdDivisorFst v))
+>                                                            (quotient n d (gcdDivisorSnd v))
 > gcdCoprimeLemma'' {d} {m} {n} v zLTd = MkCoprime (MkGCD d'Dm' d'Dn' d'G) Refl where
 >   dDm     : d `Divisor` m
 >   dDm     = gcdDivisorFst v
 >   dDn     : d `Divisor` n
 >   dDn     = gcdDivisorSnd v
 >   m'      : Nat
->   m'      = divBy d m dDm
+>   m'      = quotient m d dDm
 >   n'      : Nat
->   n'      = divBy d n dDn
+>   n'      = quotient n d dDn
 >   d'Dm'   : S Z `Divisor` m'
 >   d'Dm'   = oneDivisorAny m'
 >   d'Dn'   : S Z `Divisor` n'
@@ -875,3 +967,7 @@ GCD / Coprime properties:
 >                gcd (alg m (S Z)) = S Z
 > gcdAnyOneOne alg m = gcdOneCoprimeLemma2 m (S Z) alg anyCoprimeOne
 > %freeze gcdAnyOneOne
+
+> {-
+
+> ---}
