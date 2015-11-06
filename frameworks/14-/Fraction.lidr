@@ -313,7 +313,6 @@ Properties of |reduce|:
 >              Refl }=
 >     ( reduce alg (qm1n2d1d2 + qm2n1d1d2, qn1n2d1d2) )
 >   ={ ?s8 }=
-> 
 >     ( reduce alg (qm1n2d1d2 + qm2n1d2d1, qn1n2d1d2) )
 >   ={ replace {x = qn1n2d1d2}
 >              {y = qn1d1 * qn2d2}
@@ -341,6 +340,7 @@ Properties of |reduce|:
 >   QED  
 > %freeze reduceLinear
 
+> {-
 
 > ||| Addition preserves denominator positivity
 > plusPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 

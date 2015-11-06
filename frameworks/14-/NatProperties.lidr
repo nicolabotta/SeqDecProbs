@@ -173,8 +173,7 @@ LT, LTE properties
 
 Properties of |plus|:
 
-> {- Not used
-
+> |||
 > plusPlusElimLeft : {m1, n1, m2, n2 : Nat} -> m1 + n1 = m2 + n2 -> m1 = m2 -> n1 = n2
 > plusPlusElimLeft {m1 = Z} {n1} {m2 = Z} {n2} p1 Refl = s2 where
 >   s1 : n1 = Z + n2
@@ -196,14 +195,12 @@ Properties of |plus|:
 >   p1' = succInjective (m1 + n1) (m2 + n2) p1
 >   p2' : m1 = m2
 >   p2' = succInjective m1 m2 p2
+> %freeze plusPlusElimLeft
 
-> plusPlusElimRight : {m1, n1, m2, n2 : Nat} -> m1 + n1 = m2 + n2 -> n1 = n2 -> m1 = m2
-
+> |||
 > plusElimLeft : (m1 : Nat) -> (n : Nat) -> (m2 : Nat) -> m1 + n = m2 -> m1 = m2 -> n = Z
 > plusElimLeft m n m p Refl = plusLeftLeftRightZero m n p
-
-> -}
-
+> %freeze plusElimLeft
 
 Properties of |minus|:
 
@@ -430,6 +427,53 @@ Properties of |mult|
 >                   m1 = m2 -> n1 = n2 -> m1 * n1 = m2 * n2
 > multPreservesEq m m n n Refl Refl = Refl
 > %freeze multPreservesEq
+
+> |||
+> multMultElimLeft : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
+>                    m1 = m2 -> Not (m1 = Z) -> m1 * n1 = m2 * n2 -> 
+>                    n1 = n2
+> multMultElimLeft _  _   Z      Z     _      _      _            = Refl
+> multMultElimLeft m1 m2  Z     (S n2) m1EQm2 nm1EQZ m1ZEQm2sn2   = 
+>   void (nm1EQZ s4) where
+>     s0  :  m1 * Z = m2 * (S n2)
+>     s0  =  m1ZEQm2sn2
+>     s1  :  Z = m2 * (S n2)
+>     s1  =  replace {x = m1 * Z} {y = Z} {P = \ ZUZU => ZUZU = m2 * (S n2)} (multZeroRightZero m1) s0
+>     s2  :  Z = m2
+>     s2  =  sym (multZeroRightOneLeftZero m2 n2 (sym s1))
+>     s3  :  m2 = Z
+>     s3  =  sym s2
+>     s4  :  m1 = Z
+>     s4  =  replace (sym m1EQm2) s3
+> multMultElimLeft m1 m2 (S n1)  Z     m1EQm2 nm1EQZ m1sn1EQm2Z   = 
+>   void (nm1EQZ s2) where
+>     s0  :  m1 * (S n1) = m2 * Z
+>     s0  =  m1sn1EQm2Z
+>     s1  :  m1 * (S n1) = Z
+>     s1  =  replace {x = m2 * Z} {y = Z} {P = \ ZUZU => m1 * (S n1) = ZUZU} (multZeroRightZero m2) s0
+>     s2  :  m1 = Z
+>     s2  =  multZeroRightOneLeftZero m1 n1 s1
+> multMultElimLeft m1 m2 (S n1) (S n2) m1EQm2 nm1EQZ m1sn1EQm2sn2 = 
+>   eqSucc n1 n2 s5 where
+>     s0  :  m1 * (S n1) = m2 * (S n2)
+>     s0  =  m1sn1EQm2sn2
+>     s1  :  (S n1) * m1 = (S n2) * m2
+>     s1  =  replace2 {a = Nat} {a1 = m1 * (S n1)} {a2 = (S n1) * m1} 
+>                     {b = Nat} {b1 = m2 * (S n2)} {b2 = (S n2) * m2} 
+>                     {P = \ ZUZU => \ ZAZA => ZUZU = ZAZA}
+>                     (multCommutative m1 (S n1)) (multCommutative m2 (S n2)) s0
+>     s2  :  m1 + n1 * m1 = m2 + n2 * m2
+>     s2  =  s1
+>     s3  :  n1 * m1 = n2 * m2
+>     s3  =  plusPlusElimLeft s2 m1EQm2
+>     s4  :  m1 * n1 = m2 * n2
+>     s4  =  replace2 {a = Nat} {a1 = n1 * m1} {a2 = m1 * n1}
+>                     {b = Nat} {b1 = n2 * m2} {b2 = m2 * n2}
+>                     {P = \ ZUZU => \ ZAZA => ZUZU = ZAZA}
+>                     (multCommutative n1 m1) (multCommutative n2 m2) s3
+>     s5  :  n1 = n2
+>     s5  =  multMultElimLeft m1 m2 n1 n2 m1EQm2 nm1EQZ s4
+
 
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
@@ -757,6 +801,36 @@ Further quotient properties:
 >     ( quotient (m1 * m2) (d1 * d2) (divisorMultLemma1 m1 d1 (Evidence q1 p1) m2 d2 (Evidence q2 p2)) )
 >   QED
 
+> |||
+> quotientCancellationLemma : (m : Nat) -> (d : Nat) -> 
+>                             (sdDsdm : (S d) `Divisor` (S d) * m) -> 
+>                             quotient ((S d) * m) (S d) sdDsdm = m
+> quotientCancellationLemma m d (Evidence q prf) = 
+>     ( q )
+>   ={ multMultElimLeft (S d) (S d) q m Refl SIsNotZ prf }=
+>     ( m )
+>   QED
+   
+> |||
+> quotientDivisorLemma : (d : Nat) -> (m : Nat) -> (n : Nat) ->
+>                        (sdDm : S d `Divisor` m) ->
+>                        (mDn: m `Divisor` n) -> 
+>                        (sdDn : S d `Divisor` n) ->
+>                        (quotient m (S d) sdDm) `Divisor` (quotient n (S d) sdDn)
+> quotientDivisorLemma d m n (Evidence x sdxEQm) (Evidence y myEQn) (Evidence z sdzEQn) = 
+>   Evidence y xyEQz where
+>     sdxyEQmy    :  ((S d) * x) * y = m * y
+>     sdxyEQmy    =  multPreservesEq ((S d) * x) m y y sdxEQm Refl
+>     sdxyEQsdz   :  ((S d) * x) * y = (S d) * z
+>     sdxyEQsdz   =  trans sdxyEQmy (trans myEQn (sym sdzEQn))
+>     sdxyEQsdz'  :  (S d) * (x * y) = (S d) * z
+>     sdxyEQsdz'  =  replace {x = ((S d) * x) * y}
+>                            {y = (S d) * (x * y)}
+>                            {P = \ ZUZU => ZUZU = (S d) * z}
+>                            (sym (multAssociative (S d) x y)) sdxyEQsdz
+>     xyEQz       :  x * y = z
+>     xyEQz       =  multMultElimLeft (S d) (S d) (x * y) z Refl SIsNotZ sdxyEQsdz'
+   
 
 Greatest common divisor properties:
 
@@ -836,6 +910,98 @@ Greatest common divisor properties:
 >   Sdd'DSd : d * d' `Divisor` d
 >   Sdd'DSd = SdG (d * d') Sdd'Dm Sdd'Dn
 > %freeze gcdLemma'
+
+> ||| 
+> ||| 
+> ||| The implementation is based on a proof by Tim Richter. We have to show
+> |||
+> |||   1) d/(S a) is a divisor of m
+> |||   2) d/(S a) is a divisor of n
+> |||   3) if d' is a divisor of m and n, then d' is a divisor of d/(S a)
+> ||| 
+> ||| We know that (quotientDivisorLemma)
+> |||
+> gcdDivisorLemma : (d : Nat) -> (m : Nat) -> (n : Nat) -> (a : Nat) ->
+>                   GCD d ((S a) * m) ((S a) * n) -> 
+>                   (saDd : (S a) `Divisor` d ** GCD (quotient d (S a) saDd) m n)
+
+> gcdDivisorLemma d m n a v = (saDd ** MkGCD qDm qDn qG) where
+>   dDsam   :  d `Divisor` ((S a) * m)
+>   dDsam   =  gcdDivisorFst v
+>   saDsam  :  S a `Divisor` ((S a) * m)
+>   saDsam  =  Evidence m Refl
+>   dDsan   :  d `Divisor` ((S a) * n)
+>   dDsan   =  gcdDivisorSnd v
+>   saDsan  :  S a `Divisor` ((S a) * n)
+>   saDsan  =  Evidence n Refl
+>   saDd    :  (S a) `Divisor` d
+>   saDd    =  gcdDivisorGreatest {d = d} v (S a) saDsam saDsan
+>
+>   q       :  Nat
+>   q       =  quotient d (S a) saDd
+>   preqDm  :  q `Divisor` (quotient ((S a) * m) (S a) saDsam)
+>   preqDm  =  quotientDivisorLemma a d ((S a) * m) saDd dDsam saDsam
+>   qDm     :  q `Divisor` m
+>   qDm     =  replace {x = quotient ((S a) * m) (S a) saDsam}
+>                      {y = m}
+>                      {P = \ ZUZU => q `Divisor` ZUZU}
+>                      (quotientCancellationLemma m a saDsam) preqDm
+>    
+>   preqDn  :  q `Divisor` (quotient ((S a) * n) (S a) saDsan)
+>   preqDn  =  quotientDivisorLemma a d ((S a) * n) saDd dDsan saDsan
+>   qDn     :  q `Divisor` n
+>   qDn     =  replace {x = quotient ((S a) * n) (S a) saDsan}
+>                      {y = n}
+>                      {P = \ ZUZU => q `Divisor` ZUZU}
+>                      (quotientCancellationLemma n a saDsan) preqDn
+>   
+>   preqG   :  (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> 
+>              (quotient ((S a) * d') (S a) (Evidence d' Refl)) `Divisor` q
+>   preqG d' d'Dm d'Dn  =  quotientDivisorLemma a ((S a) * d') d (Evidence d' Refl) sad'Dd saDd
+>     where sad'Dsam  :  ((S a) * d') `Divisor` ((S a) * m)
+>           sad'Dsam  =  divisorMultLemma1 (S a) (S a) (anyDivisorAny (S a)) m d' d'Dm
+>           sad'Dsan  :  ((S a) * d') `Divisor` ((S a) * n)
+>           sad'Dsan  =  divisorMultLemma1 (S a) (S a) (anyDivisorAny (S a)) n d' d'Dn
+>           sad'Dd    :  ((S a) * d') `Divisor` d
+>           sad'Dd    =  gcdDivisorGreatest {d = d} v ((S a) * d') sad'Dsam sad'Dsan
+>
+>   qG      :  (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` q
+>   qG    d' d'Dm d'Dn     =  replace {x = quotient ((S a) * d') (S a) (Evidence d' Refl)}
+>                                     {y = d'}
+>                                     {P = \ ZUZU => ZUZU `Divisor` q}
+>                                     (quotientCancellationLemma d' a (Evidence d' Refl)) (preqG d' d'Dm d'Dn)
+
+> gcdScaleInvariant : (d : Nat) -> (m : Nat) -> (n : Nat) -> (d' : Nat) -> (a : Nat) ->
+>                     GCD d m n -> GCD d' (a * m) (a * n) -> d' = a * d
+> gcdScaleInvariant d m n d'  Z    v  v' = s6 where
+>   s0   :  Z `Divisor` (Z * m)
+>   s0   =  Evidence m Refl
+>   s1   :  Z `Divisor` (Z * n)
+>   s1   =  Evidence n Refl
+>   s2   :  Z `Divisor` d'
+>   s2   =  gcdDivisorGreatest {d = d'} v' Z s0 s1
+>   s3   :  Nat
+>   s3   =  getWitness s2
+>   s4   :  Z * s3 = d'
+>   s4   =  getProof s2
+>   s5   :  d' = Z
+>   s5   =  replace {x = Z * s3} {y = Z} {P = \ ZUZU => d' = ZUZU} (multZeroLeftZero s3) (sym s4)
+>   s6   :  d' = Z * d
+>   s6   =  replace {x = Z} {y = Z * d} {P = \ ZUZU => d' = ZUZU} (sym (multZeroLeftZero d)) s5
+> gcdScaleInvariant d m n d' (S a) v  v' = s4 where
+>   s0   :  (S a) `Divisor` d'
+>   s0   =  getWitness (gcdDivisorLemma d' m n a v')
+>   s1   :  GCD (quotient d' (S a) s0) m n 
+>   s1   =  getProof (gcdDivisorLemma d' m n a v')
+>   s2   :  quotient d' (S a) s0 = d
+>   s2   =  gcdUnique (quotient d' (S a) s0) d s1 v
+>   s3   :  (S a) * (quotient d' (S a) s0) = (S a) * d
+>   s3   =  multPreservesEq (S a) (S a) (quotient d' (S a) s0) d Refl s2
+>   s4   :  d' = (S a) * d
+>   s4   =  replace {x = (S a) * (quotient d' (S a) s0)}
+>                   {y = d'}
+>                   {P = \ ZUZU => ZUZU = (S a) * d}
+>                   (quotientLemma d' (S a) s0) s3
 
 
 Coprime properties:
