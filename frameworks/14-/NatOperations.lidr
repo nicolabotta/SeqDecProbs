@@ -19,7 +19,7 @@ Infix minus
 Division:
 
 > public quotient : (m : Nat) -> (d : Nat) -> d `Divisor` m -> Nat
-> quotient m d (Evidence q prf) = q 
+> quotient _ _ (Evidence q _) = q 
 
 
 

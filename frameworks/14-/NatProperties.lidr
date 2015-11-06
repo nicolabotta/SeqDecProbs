@@ -570,6 +570,17 @@ Properties of quotient:
 > quotientLemma m d (Evidence q prf) = prf
 > %freeze quotientLemma
 
+> quotientIsJustGetWitness : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> 
+>                            quotient m d dDm = getWitness dDm
+> quotientIsJustGetWitness m d (Evidence q prf) = 
+>    ( quotient m d (Evidence q prf) )
+>  ={ Refl }=
+>    ( q )
+>  ={ Refl }=
+>    ( getWitness (Evidence q prf) )
+>  QED
+> %freeze quotientIsJustGetWitness
+
 > ||| quotient preserves positivity
 > quotientPreservesPositivity : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> 
 >                               Z `LT` m -> Z `LT` (quotient m d dDm)
@@ -831,6 +842,52 @@ Further quotient properties:
 >     xyEQz       :  x * y = z
 >     xyEQz       =  multMultElimLeft (S d) (S d) (x * y) z Refl SIsNotZ sdxyEQsdz'
    
+> |||
+> quotientDivisorLemma1 : (a : Nat) -> (b : Nat) -> (c : Nat) ->
+>                         (saDb : S a `Divisor` b) ->
+>                         (bDc  :   b `Divisor` c) -> 
+>                         (quotient b (S a) saDb) 
+>                         `Divisor` 
+>                         (quotient c (S a) (divisorTransitive {l = S a} {m = b} {n = c} saDb bDc))
+> quotientDivisorLemma1 a b c saDb bDc = prf where
+>   x           :  Nat
+>   x           =  getWitness saDb
+>   saxEQb      :  (S a) * x = b
+>   saxEQb      =  getProof saDb
+>   y           :  Nat
+>   y           =  getWitness bDc
+>   byEQc       :  b * y = c
+>   byEQc       =  getProof bDc
+>   saDc        :  (S a) `Divisor` c
+>   saDc        =  divisorTransitive {l = S a} {m = b} {n = c} saDb bDc
+>   z           :  Nat
+>   z           =  getWitness saDc
+>   sazEQc      :  (S a) * z = c
+>   sazEQc      =  getProof saDc 
+>   saxyEQby    :  ((S a) * x) * y = b * y
+>   saxyEQby    =  multPreservesEq ((S a) * x) b y y saxEQb Refl
+>   saxyEQsaz   :  ((S a) * x) * y = (S a) * z
+>   saxyEQsaz   =  trans saxyEQby (trans byEQc (sym sazEQc))
+>   saxyEQsaz'  :  (S a) * (x * y) = (S a) * z
+>   saxyEQsaz'  =  replace {x = ((S a) * x) * y}
+>                          {y = (S a) * (x * y)}
+>                          {P = \ ZUZU => ZUZU = (S a) * z}
+>                          (sym (multAssociative (S a) x y)) saxyEQsaz
+>   xyEQz       :  x * y = z
+>   xyEQz       =  multMultElimLeft (S a) (S a) (x * y) z Refl SIsNotZ saxyEQsaz'
+>   prf1        :  x `Divisor` z
+>   prf1        =  Evidence y xyEQz
+>   prf2        :  (quotient b (S a) saDb)  `Divisor` z
+>   prf2        =  replace {x = x}
+>                          {y = quotient b (S a) saDb}
+>                          {P = \ ZUZU => ZUZU `Divisor` z}
+>                          (sym (quotientIsJustGetWitness b (S a) saDb)) prf1
+>   prf         :  (quotient b (S a) saDb) `Divisor` (quotient c (S a) saDc)
+>   prf         =  replace {x = z}
+>                          {y = quotient c (S a) (divisorTransitive {l = S a} {m = b} {n = c} saDb bDc)}
+>                          {P = \ ZUZU => (quotient b (S a) saDb) `Divisor` ZUZU}
+>                          (sym (quotientIsJustGetWitness c (S a) saDc)) prf2
+
 
 Greatest common divisor properties:
 
@@ -911,7 +968,7 @@ Greatest common divisor properties:
 >   Sdd'DSd = SdG (d * d') Sdd'Dm Sdd'Dn
 > %freeze gcdLemma'
 
-> ||| 
+> ||| d GCD ((S a) * m) ((S a) * n) => d/(S a) GCD m n
 > ||| 
 > ||| The implementation is based on a proof by Tim Richter. We have to show
 > |||
@@ -919,7 +976,34 @@ Greatest common divisor properties:
 > |||   2) d/(S a) is a divisor of n
 > |||   3) if d' is a divisor of m and n, then d' is a divisor of d/(S a)
 > ||| 
-> ||| We know that (quotientDivisorLemma)
+> ||| We know from |quotientDivisorLemma| that
+> |||   
+> |||   a|b, b|c, a|c => (b/a)|(c/a)
+> |||
+> ||| Thus, we can prove 1) and 2) by applying the lemma to
+> |||
+> |||   (S a)|d, d|((S a) * m), (S a)|((S a) * m)
+> |||
+> |||   and
+> |||
+> |||   (S a)|d, d|((S a) * n), (S a)|((S a) * n)
+> |||
+> ||| and using |quotientCancellationLemma| to reduce ((S a) * m)/(S a) and
+> ||| ((S a) * n)/(S a) to m and n, respectively. Since d is the GCD of 
+> ||| (S a) * m and (S a) * n and (S a) is trivially a divisor of both, we
+> ||| readily have (S a)|d. d|((S a) * m) and d|((S a) * m) also diretly follow
+> ||| from d being the GCD of (S a) * m and (S a) * n. 
+> |||
+> ||| In order to prove 3), we again apply |quotientDivisorLemma|, this time to
+> ||| 
+> |||   (S a)|((S a) * d'), ((S a) * d')|d, (S a)|d
+> |||
+> ||| We derive ((S a) * d')|d from the hypothesis d'|m, d'|n by pre-multiplying
+> ||| by (S a) (and using |divisorMultLemma1|). This yields
+> |||
+> |||   ((S a) * d')|((S a) * m), ((S a) * d')|((S a) * n)
+> |||
+> ||| The result directly follows from d being the GCD of (S a) * m and (S a) * n.
 > |||
 > gcdDivisorLemma : (d : Nat) -> (m : Nat) -> (n : Nat) -> (a : Nat) ->
 >                   GCD d ((S a) * m) ((S a) * n) -> 
@@ -936,7 +1020,7 @@ Greatest common divisor properties:
 >   saDsan  =  Evidence n Refl
 >   saDd    :  (S a) `Divisor` d
 >   saDd    =  gcdDivisorGreatest {d = d} v (S a) saDsam saDsan
->
+
 >   q       :  Nat
 >   q       =  quotient d (S a) saDd
 >   preqDm  :  q `Divisor` (quotient ((S a) * m) (S a) saDsam)
@@ -946,7 +1030,7 @@ Greatest common divisor properties:
 >                      {y = m}
 >                      {P = \ ZUZU => q `Divisor` ZUZU}
 >                      (quotientCancellationLemma m a saDsam) preqDm
->    
+    
 >   preqDn  :  q `Divisor` (quotient ((S a) * n) (S a) saDsan)
 >   preqDn  =  quotientDivisorLemma a d ((S a) * n) saDd dDsan saDsan
 >   qDn     :  q `Divisor` n
@@ -954,7 +1038,7 @@ Greatest common divisor properties:
 >                      {y = n}
 >                      {P = \ ZUZU => q `Divisor` ZUZU}
 >                      (quotientCancellationLemma n a saDsan) preqDn
->   
+   
 >   preqG   :  (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> 
 >              (quotient ((S a) * d') (S a) (Evidence d' Refl)) `Divisor` q
 >   preqG d' d'Dm d'Dn  =  quotientDivisorLemma a ((S a) * d') d (Evidence d' Refl) sad'Dd saDd
