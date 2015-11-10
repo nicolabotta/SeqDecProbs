@@ -232,12 +232,64 @@ Properties of |reduce|:
 >   fromInteger = Fraction.fromNat . fromIntegerNat
 
 
+< gcdScaleInvariantCoro1 : (m : Nat) -> (n : Nat) -> (d : Nat) -> (d1 : Nat) -> (d2 : Nat) ->
+<                          (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) -> 
+<                          GCD d1 (quotient m d dDm) (quotient n d dDn) -> GCD d2 m n -> d2 = d * d1
+
 > ||| 
 > reduceQuotientLemma : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
 >                       (m : Nat) -> (n : Nat) -> (d : Nat) ->
 >                       (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) ->
 >                       reduce alg (m, n) = reduce alg (quotient m d dDm, quotient n d dDn)
+> reduceQuotientLemma alg m n d dDm dDn =
+>   let m'     :  Nat
+>              =  quotient m d dDm in
+>   let n'     :  Nat
+>              =  quotient n d dDn in
+>   let dv1    :  (d1 : Nat ** GCD d1 m' n')
+>              =  alg m' n' in
+>   let d1     :  Nat
+>              =  getWitness dv1 in
+>   let v1     :  (GCD d1 m' n')
+>              =  getProof dv1 in 
+>   let d1Dm'  :  (d1 `Divisor` m')
+>              =  gcdDivisorFst v1 in
+>   let d1Dn'  :  (d1 `Divisor` n')
+>              =  gcdDivisorSnd v1 in
+>                       
+>   let dv2   :  (d2 : Nat ** GCD d2 m n)
+>             =  alg m n in
+>   let d2    :  Nat
+>             =  getWitness dv2 in
+>   let v2    :  (GCD d2 m n)
+>             =  getProof dv2 in 
+>   let d2Dm  :  (d2 `Divisor` m)
+>             =  gcdDivisorFst v2 in
+>   let d2Dn  :  (d2 `Divisor` n)
+>             =  gcdDivisorSnd v2 in
+>   
+>   let d2EQdd1  :  (d2 = d * d1) 
+>                =  gcdScaleInvariantCoro1 m n d d1 d2 dDm dDn v1 v2 in
+>   let dd1Dm    :  ((d * d1) `Divisor` m)
+>                =  replace {x = d2} {y = d * d1} {P = \ ZUZU => ZUZU `Divisor` m} d2EQdd1 d2Dm in
+>   let dd1Dn    :  ((d * d1) `Divisor` n)
+>                =  replace {x = d2} {y = d * d1} {P = \ ZUZU => ZUZU `Divisor` n} d2EQdd1 d2Dn in
+>   
+>     ( reduce alg (m, n) )
+>   ={ Refl }=
+>     ( (quotient m d2 d2Dm, quotient n d2 d2Dn) )
+>   ={ ?s0 }=
+>     ( (quotient m (d * d1) dd1Dm, quotient n d2 d2Dn) )
+>   ={ ?s1 }=
+>     ( (quotient m (d * d1) dd1Dm, quotient n (d * d1) dd1Dn) )
+>   ={ ?s2 }=
+>     ( (quotient m' d1 d1Dm', quotient n' d1 d1Dn') )
+>   ={ Refl }=
+>     ( reduce alg (quotient m d dDm, quotient n d dDn) )
+>   QED
 
+
+> {-
 
 > ||| Reduction is "linear"
 > reduceLinear : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
@@ -340,7 +392,6 @@ Properties of |reduce|:
 >   QED  
 > %freeze reduceLinear
 
-> {-
 
 > ||| Addition preserves denominator positivity
 > plusPreservesPositivity : (x : Fraction) -> (y : Fraction) -> 

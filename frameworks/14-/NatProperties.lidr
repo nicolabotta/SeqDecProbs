@@ -581,6 +581,21 @@ Properties of quotient:
 >  QED
 > %freeze quotientIsJustGetWitness
 
+> quotientDivisorLemma2 : (m : Nat) -> 
+>                         (d1 : Nat) -> (d1Dm : d1 `Divisor` m) ->
+>                         (d2 : Nat) -> (d2Dm : d2 `Divisor` m) -> 
+>                         d1 = d2 -> Not (d1 = Z) -> quotient m d1 d1Dm = quotient m d2 d2Dm 
+> quotientDivisorLemma2 m d (Evidence q1 dq1EQm) d (Evidence q2 dq2EQm) Refl NdEQZ =
+>     ( quotient m d (Evidence q1 dq1EQm) )
+>   ={ Refl }=
+>     ( q1 )
+>   ={ multMultElimLeft d d q1 q2 Refl NdEQZ (trans dq1EQm (sym dq2EQm)) }=
+>     ( q2 )
+>   ={ Refl }=
+>     ( quotient m d (Evidence q2 dq2EQm) )
+>   QED
+> %freeze quotientDivisorLemma2
+
 > ||| quotient preserves positivity
 > quotientPreservesPositivity : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> 
 >                               Z `LT` m -> Z `LT` (quotient m d dDm)
@@ -1054,7 +1069,9 @@ Greatest common divisor properties:
 >                                     {y = d'}
 >                                     {P = \ ZUZU => ZUZU `Divisor` q}
 >                                     (quotientCancellationLemma d' a (Evidence d' Refl)) (preqG d' d'Dm d'Dn)
+> %freeze gcdDivisorLemma
 
+> |||
 > gcdScaleInvariant : (d : Nat) -> (m : Nat) -> (n : Nat) -> (d' : Nat) -> (a : Nat) ->
 >                     GCD d m n -> GCD d' (a * m) (a * n) -> d' = a * d
 > gcdScaleInvariant d m n d'  Z    v  v' = s6 where
@@ -1086,6 +1103,20 @@ Greatest common divisor properties:
 >                   {y = d'}
 >                   {P = \ ZUZU => ZUZU = (S a) * d}
 >                   (quotientLemma d' (S a) s0) s3
+> %freeze gcdScaleInvariant
+
+> |||
+> gcdScaleInvariantCoro1 : (m : Nat) -> (n : Nat) -> (d : Nat) -> (d1 : Nat) -> (d2 : Nat) ->
+>                          (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) -> 
+>                          GCD d1 (quotient m d dDm) (quotient n d dDn) -> GCD d2 m n -> d2 = d * d1
+> gcdScaleInvariantCoro1 m n d d1 d2 dDm dDn v1 v2 =
+>   gcdScaleInvariant d1 (quotient m d dDm) (quotient n d dDn) d2 d v1 v2' where
+>     v2'  :  GCD d2 (d * (quotient m d dDm)) (d * (quotient n d dDn))
+>     v2'  =  replace2 {a = Nat} {a1 = m} {a2 = d * (quotient m d dDm)} 
+>                      {b = Nat} {b1 = n} {b2 = d * (quotient n d dDn)} 
+>                      {P = \ ZAZA => \ ZUZU => GCD d2 ZAZA ZUZU}
+>                      (sym (quotientLemma m d dDm)) (sym (quotientLemma n d dDn)) v2
+> %freeze gcdScaleInvariantCoro1
 
 
 Coprime properties:
