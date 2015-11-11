@@ -2,9 +2,16 @@
 
 > import Syntax.PreorderReasoning
 
-> import NatPredicates
-> import NatOperations
+> import NatGCD
+> import NatGCDOperations
+> import NatGCDProperties
+> import NatCoprime
+> import NatCoprimeProperties
+> import NatDivisor
+> import NatDivisorOperations
+> import NatDivisorProperties
 > import NatProperties
+> import Basics
 
 
 > %default total
