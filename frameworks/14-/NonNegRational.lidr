@@ -1,10 +1,9 @@
 > module NonNegRational
 
 
-> import NatPredicates
-> import NatOperations
-> import NatProperties
-> import GCD
+> import NatGCD
+> import NatGCDOperations
+> import NatGCDEuclid
 
 
 > %default total

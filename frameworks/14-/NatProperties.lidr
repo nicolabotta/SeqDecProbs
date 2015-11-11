@@ -563,6 +563,7 @@ Uniqueness
 > uniqueLT' Refl Refl p1 p2 = uniqueLT p1 p2
 > %freeze uniqueLT'
 
+> {-
 
 Properties of quotient:
 
@@ -610,8 +611,11 @@ Properties of quotient:
 >                     (sym (quotientLemma m d dDm)) zLTm
 > %freeze quotientPreservesPositivity
 
+> -}
 
 Properties of Divisor:
+
+> {-
 
 > anyDivisorZ : (m : Nat) -> m `Divisor` Z
 > anyDivisorZ m = Evidence Z (multZeroRightZero m)
@@ -778,6 +782,9 @@ Divisor is a pre-order:
 >   p = replace {x = d * (d' * q')} {y = (d * d') * q'} {P = \ ZUZU => ZUZU = m} (multAssociative d d' q') s3
 > %freeze divisorTowerLemma
 
+> -}
+
+> {-
 
 Further quotient properties:
 
@@ -1248,7 +1255,5 @@ GCD / Coprime properties:
 >                gcd (alg m (S Z)) = S Z
 > gcdAnyOneOne alg m = gcdOneCoprimeLemma2 m (S Z) alg anyCoprimeOne
 > %freeze gcdAnyOneOne
-
-> {-
 
 > ---}

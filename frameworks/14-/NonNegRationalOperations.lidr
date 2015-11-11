@@ -2,11 +2,13 @@
 
 
 > import NonNegRational
-> import NatPredicates
-> import NatOperations
-> import NatProperties
-> import GCD
+> import NatGCD
+> import NatGCDOperations
+> import NatGCDEuclid
 > import Fraction
+> import NatProperties
+> import NatCoprime
+> import NatCoprimeProperties
 
 
 > %default total

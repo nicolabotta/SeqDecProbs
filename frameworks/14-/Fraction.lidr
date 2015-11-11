@@ -1,9 +1,18 @@
 > module Fraction
 
+
 > import Syntax.PreorderReasoning
 
-> import NatPredicates
-> import NatOperations
+
+> import NatGCD
+> import NatGCDOperations
+> import NatGCDProperties
+> import NatCoprime
+> import NatCoprimeProperties
+> import NatDivisor
+> import NatDivisorOperations
+> import NatDivisorProperties
+> -- import NatOperations
 > import NatProperties
 > import Basics
 
@@ -288,8 +297,6 @@ Properties of |reduce|:
 >     ( reduce alg (quotient m d dDm, quotient n d dDn) )
 >   QED
 
-
-> {-
 
 > ||| Reduction is "linear"
 > reduceLinear : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
@@ -608,5 +615,7 @@ Properties of |reduce|:
 >     ( x )
 >   QED
 > %freeze multOneLeft
+
+> {-
 
 > ---}

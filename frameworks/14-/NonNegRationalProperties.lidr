@@ -1,17 +1,20 @@
 > module NonNegRationalProperties
 
+
 > import Syntax.PreorderReasoning
 
 > import NonNegRational
 > import NonNegRationalOperations
-> import NatPredicates
-> import NatOperations
+> import NatGCD
+> import NatGCDOperations
+> import NatGCDProperties
+> import NatGCDEuclid
 > import NatProperties
-> import Basics
-> import NumRefinements
-> import GCD
 > import EqualityProperties
 > import Fraction
+> import NatCoprime
+> import NatCoprimeProperties
+> import Basics
 
 
 > %default total
