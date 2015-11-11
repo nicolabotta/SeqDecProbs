@@ -11,7 +11,7 @@
 > import NatGCDEuclid
 > import NatProperties
 > import EqualityProperties
-> import Fraction
+> import BareFraction
 > import NatCoprime
 > import NatCoprimeProperties
 > import Basics

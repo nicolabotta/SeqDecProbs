@@ -5,7 +5,7 @@
 > import NatGCD
 > import NatGCDOperations
 > import NatGCDEuclid
-> import Fraction
+> import BareFraction
 > import NatProperties
 > import NatCoprime
 > import NatCoprimeProperties
