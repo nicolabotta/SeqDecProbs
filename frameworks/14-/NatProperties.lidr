@@ -37,6 +37,53 @@
 > -}
 
 
+> {-
+
+Test:
+
+> CLTtoLT : {m, n : Nat} -> compare m n = LT -> m `LT` n
+
+> LTtoCLT : {m, n : Nat} -> m `LT` n -> compare m n = LT
+
+> CEQtoEQ : {m, n : Nat} -> compare m n = EQ -> m = n
+
+> EQtoCEQ : {m, n : Nat} -> m = n -> compare m n = EQ
+
+
+> anyPlusPreservesOrd : {x, y, z : Nat} -> {ORD : Ordering} -> 
+>                       compare x y = ORD -> compare (z + x) (z + y) = ORD
+
+> plusAnyPreservesOrd : {x, y, z : Nat} -> {ORD : Ordering} -> 
+>                       compare x y = ORD -> compare (z + x) (z + y) = ORD
+
+> LTinLTE : {m, n : Nat} -> LT m n -> LTE m n
+
+> pLTpEQpLTE : (LT x1 x2 -> LT y1 y2) -> (x1 = x2 -> y1 = y2) -> (LTE x1 x2 -> LTE y1 y2)
+
+> anyPlusPreservesLT : LT x y -> LT (z + x) (z + y)
+> anyPlusPreservesLT {x} {y} {z} prf = s3 where
+>   s1  :  compare x y = LT
+>   s1  =  LTtoCLT prf
+>   s2  :  compare (z + x) (z + y) = LT
+>   s2  =  anyPlusPreservesOrd s1
+>   s3  :  (z + x) `LT` (z + y) 
+>   s3  =  CLTtoLT s2
+
+> anyPlusPreservesEQ : {x, y, z : Nat} -> x = y -> (z + x) = (z + y)
+> anyPlusPreservesEQ {x} {y} {z} prf = s3 where
+>   s1  :  compare x y = EQ
+>   s1  =  EQtoCEQ prf
+>   s2  :  compare (z + x) (z + y) = EQ
+>   s2  =  anyPlusPreservesOrd s1
+>   s3  :  (z + x) = (z + y) 
+>   s3  =  CEQtoEQ s2
+
+> anyPlusPreservesLTE : LTE x y -> LTE (z + x) (z + y)
+> anyPlusPreservesLTE = pLTpEQpLTE anyPlusPreservesLT anyPlusPreservesEQ
+
+> -}
+
+
 EQ properties
 
 > predInjective : (left : Nat) -> (right : Nat) -> Not (S left = S right) -> Not (left = right)
@@ -359,6 +406,32 @@ Properties of |mult|
 > multZeroLTZeroLT (S m) (S n) _ _ = ltZS (n + m * (S n))
 > %freeze multZeroLTZeroLT
 
+> -- plusZeroLTZeroLT : (m : Nat) -> (n : Nat) -> Z `LT` m -> Z `LT` n -> Z `LT` (m + n)
+
+> {-
+
+> |||
+> idPlusAnyPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (n + p)
+
+> |||
+> idAnyPlusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (p + n)
+
+> |||
+> plusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
+>                   (p : Nat) -> (q : Nat) -> p `LT` q ->
+>                   (m + p) `LT` (n + q)
+> plusPreservesLT  Z     Z     zLTz  _ _ _    = absurd  zLTz 
+> plusPreservesLT  Z    (S n)  zLTsn p q pLTq = idAnyPlusPreservesLT p q pLTq (S n)
+> plusPreservesLT (S m)  Z    smLTz  _ _ _    = absurd smLTz 
+> plusPreservesLT (S m) (S n) smLTsn p q pLTq = LTESucc (plusPreservesLT m n (fromLteSucc smLTsn) p q pLTq)
+
+> |||
+> multPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
+>                   (p : Nat) -> (q : Nat) -> p `LT` q ->
+>                   (m * p) `LT` (n * q)
+
+> -}
+
 > |||
 > multLTZeroLeftLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` m
 > multLTZeroLeftLTZero Z n p = absurd p' where
@@ -562,7 +635,5 @@ Uniqueness
 > uniqueLT' : m1 = m2 -> n1 = n2 -> (p1 : LT m1 n1) -> (p2 : LT m2 n2) -> p1 = p2
 > uniqueLT' Refl Refl p1 p2 = uniqueLT p1 p2
 > %freeze uniqueLT'
-
-> {-
 
 > ---}

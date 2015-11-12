@@ -30,7 +30,7 @@ Equality of projections:
 >                         {P  : A -> Type} ->
 >                         {s1 : Subset A P} ->
 >                         {s2 : Subset A P} ->
->                         .(s1 = s2) -> (getWitness s1 = getWitness s2)
+>                         (s1 = s2) -> (getWitness s1 = getWitness s2)
 > getWitnessPreservesEq {s1 = (Element a p)} {s2 = (Element a p)} Refl = Refl
 
 
@@ -39,7 +39,7 @@ Equality of projections:
 >                       {P  : A -> Type} ->
 >                       {s1 : Subset A P} ->
 >                       {s2 : Subset A P} ->
->                       .(s1 = s2) -> (getProof s1 = getProof s2)
+>                       (s1 = s2) -> (getProof s1 = getProof s2)
 > getProofPreservesEq {s1 = (Element a p)} {s2 = (Element a p)} Refl = Refl
 
 
@@ -47,12 +47,12 @@ Equality of Subset types:
 
 > ||| Introduction
 > subsetEqLemma2 : {A : Type} ->
->                 {P : A -> Type} ->
->                 {s1: Subset A P} ->
->                 {s2: Subset A P} ->
->                 .(getWitness s1 = getWitness s2) ->
->                 .(getProof s1 = getProof s2) ->
->                 s1 = s2
+>                  {P : A -> Type} ->
+>                  {s1: Subset A P} ->
+>                  {s2: Subset A P} ->
+>                  (getWitness s1 = getWitness s2) ->
+>                  (getProof s1 = getProof s2) ->
+>                  s1 = s2
 > subsetEqLemma2 {A} {P} {s1 = (Element a p)} {s2 = (Element a p)} Refl Refl = Refl
 
 subsetEqLemma2 {A} {P} {s1 = (Element a p)} {s2 = (Element a p)} r1 r2 = Refl
@@ -69,12 +69,12 @@ subsetEqLemma2 r1 r2 = Refl
 
 > ||| Equality for singleton predicates
 > subsetEqLemma1 : {A  : Type} ->
->                 {P  : A -> Type} ->
->                 .(s1 : Subset A P) ->
->                 .(s2 : Subset A P) ->
->                 getWitness s1 = getWitness s2 ->
->                 Unique0 (P (getWitness s1)) ->
->                 s1 = s2
+>                  {P  : A -> Type} ->
+>                  (s1 : Subset A P) ->
+>                  (s2 : Subset A P) ->
+>                  getWitness s1 = getWitness s2 ->
+>                  Unique0 (P (getWitness s1)) ->
+>                  s1 = s2
 > subsetEqLemma1 (Element a p) (Element a q) Refl uP = cong (uP p q)
 
 
@@ -82,12 +82,12 @@ Decidability of Subset equality:
 
 > ||| Decidability of equality 1
 > subsetDecEqLemma1 : {A : Type} ->
->                    {P : A -> Type} ->
->                    .(DecEq0 A) ->
->                    .(DecEq1 P) ->
->                    .(s1 : Subset A P) ->
->                    .(s2 : Subset A P) ->
->                    Dec (s1 = s2)
+>                     {P : A -> Type} ->
+>                     (DecEq0 A) ->
+>                     (DecEq1 P) ->
+>                     (s1 : Subset A P) ->
+>                     (s2 : Subset A P) ->
+>                     Dec (s1 = s2)
 > subsetDecEqLemma1 da d1p (Element a1 pa1) (Element a2 pa2)     with (da a1 a2)
 >   subsetDecEqLemma1 da d1p (Element a1 pa1) (Element a1 pa2)   | (Yes Refl) with ((d1p a1) pa1 pa2)
 >     subsetDecEqLemma1 da d1p (Element a1 pa1) (Element a1 pa1) | (Yes Refl) | (Yes Refl) = Yes Refl
@@ -97,12 +97,12 @@ Decidability of Subset equality:
 
 > ||| Decidability of equality 2
 > subsetDecEqLemma2 : {A : Type} ->
->                    {P : A -> Type} ->
->                    .(DecEq A) ->
->                    .(Unique1 {t0 = A} P) ->
->                    .(s1 : Subset A P) ->
->                    .(s2 : Subset A P) ->
->                    Dec (s1 = s2)
+>                     {P : A -> Type} ->
+>                     (DecEq A) ->
+>                     (Unique1 {t0 = A} P) ->
+>                     (s1 : Subset A P) ->
+>                     (s2 : Subset A P) ->
+>                     Dec (s1 = s2)
 > subsetDecEqLemma2 da p1P s1 s2 with (decEq (getWitness s1) (getWitness s2))
 >   | (Yes prf)   = Yes (subsetEqLemma1 s1 s2 prf (p1P (getWitness s1)))
 >   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
@@ -111,22 +111,22 @@ Decidability of Subset equality:
 We want to show that |toVect| is complete
 
 < toVectSubsetComplete : {A   : Type} ->
-<                       {P   : A -> Type} ->
-<                       .(fA  : Finite A) ->
-<                       .(d1P : Dec1 P) ->
-<                       .(Unique1 {t0 = A} P) ->
-<                       .(s   : Subset A P) ->
-<                       Elem s (getProof (toVectSubset fA d1P))
+<                        {P   : A -> Type} ->
+<                        (fA  : Finite A) ->
+<                        (d1P : Dec1 P) ->
+<                        (Unique1 {t0 = A} P) ->
+<                        (s   : Subset A P) ->
+<                        Elem s (getProof (toVectSubset fA d1P))
 
 We start by deriving two auxiliary results. The first one is
 
 > toVectSubsetLemma : {A : Type} ->
->                    {P : A -> Type} ->
->                    .(fA : Finite A) ->
->                    .(d1P : Dec1 P) ->
->                    .(a : A) ->
->                    .(p : P a) ->
->                    Elem a (map Subset.getWitness (getProof (toVectSubset fA d1P)))
+>                     {P : A -> Type} ->
+>                     (fA : Finite A) ->
+>                     (d1P : Dec1 P) ->
+>                     (a : A) ->
+>                     (p : P a) ->
+>                     Elem a (map Subset.getWitness (getProof (toVectSubset fA d1P)))
 > toVectSubsetLemma {A} {P} fA d1P a p =
 >   filterTagSubsetLemma d1P a (toVect fA) (toVectComplete fA a) p
 
@@ -149,13 +149,13 @@ form, |toVectLemma| does not type check.
 The second result is
 
 > subsetUniqueLemma1 : {A   : Type} ->
->                     {P   : A -> Type} ->
->                     .(Unique1 {t0 = A} P) ->
->                     .(a : A) ->
->                     .(p : P a) ->
->                     (ss : Vect n (Subset A P)) ->
->                     (Elem a (map Prelude.Pairs.Subset.getWitness ss)) ->
->                     Elem (Element a p) ss
+>                      {P   : A -> Type} ->
+>                      (Unique1 {t0 = A} P) ->
+>                      (a : A) ->
+>                      (p : P a) ->
+>                      (ss : Vect n (Subset A P)) ->
+>                      (Elem a (map Prelude.Pairs.Subset.getWitness ss)) ->
+>                      Elem (Element a p) ss
 > subsetUniqueLemma1 u1P a p Nil prf = absurd prf
 > subsetUniqueLemma1 u1P a p ((Element a q) :: ss) (Here {x = a}) with (u1P a p q)
 >   subsetUniqueLemma1 u1P a p ((Element a p) :: ss) (Here {x = a}) | Refl =
@@ -167,12 +167,12 @@ With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 |toVect| is complete:
 
 > toVectSubsetComplete : {A   : Type} ->
->                       {P   : A -> Type} ->
->                       .(fA  : Finite A) ->
->                       .(d1P : Dec1 P) ->
->                       .(Unique1 {t0 = A} P) ->
->                       (s   : Subset A P) ->
->                       Elem s (getProof (toVectSubset fA d1P))
+>                        {P   : A -> Type} ->
+>                        (fA  : Finite A) ->
+>                        (d1P : Dec1 P) ->
+>                        (Unique1 {t0 = A} P) ->
+>                        (s   : Subset A P) ->
+>                        Elem s (getProof (toVectSubset fA d1P))
 > toVectSubsetComplete fA d1P u1P (Element a p) = s1 where
 >   s0 : Elem a (map Subset.getWitness (getProof (toVectSubset fA d1P)))
 >   s0 = toVectSubsetLemma fA d1P a p
@@ -183,9 +183,9 @@ With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 > {-
 > toVectSubsetInjective1 : {A   : Type} ->
 >                          {P   : A -> Type} ->
->                          .(fA  : Finite A) ->
->                          .(d1P : Dec1 P) ->
->                          .(Unique1 {t0 = A} P) ->
+>                          (fA  : Finite A) ->
+>                          (d1P : Dec1 P) ->
+>                          (Unique1 {t0 = A} P) ->
 >                          Injective1 (getProof (toVectSubset fA d1P))
 > toVectSubsetInjective1 fA dP uP =
 >   injectiveFilterTagSubsetLemma dP (toVect fA) (toVectInjective1 fA)
