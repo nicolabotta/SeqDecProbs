@@ -10,7 +10,14 @@
 > %hide (-)
 
 
-Infix minus
+Predecessor:
+
+> public pred : (n : Nat) -> Z `LT` n -> Nat
+> pred  Z    prf = absurd prf
+> pred (S m) _   = m
+
+
+Infix minus:
 
 > public (-) : Nat -> Nat -> Nat
 > (-) = minus

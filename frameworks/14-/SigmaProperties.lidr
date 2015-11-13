@@ -240,7 +240,7 @@ Sigma Fin properties:
 >                  {a2 = a}
 >                  {Pa1 = replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)}
 >                  {Pa2 = to (isoBa a) b}
->                  (\ x => \ y => from (isoBa x) y)
+>                  {f = \ x => \ y => from (isoBa x) y}
 >                  (fromTo isoA a)
 >                  s1
 >   s3 : from (isoBa a) (to (isoBa a) b) = b

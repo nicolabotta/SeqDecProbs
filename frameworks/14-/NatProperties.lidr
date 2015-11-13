@@ -84,6 +84,13 @@ Test:
 > -}
 
 
+Predecessor properties
+
+> predLemma : (n : Nat) -> (prf : Z `LT` n) -> S (pred n prf) = n
+> predLemma  Z    prf = absurd prf
+> predLemma (S m) _   = Refl
+
+
 EQ properties
 
 > predInjective : (left : Nat) -> (right : Nat) -> Not (S left = S right) -> Not (left = right)
@@ -594,6 +601,19 @@ Properties of |mult|
 >   ( (m1 * n1) * (m2 * n2) )
 > QED
 > %freeze multPreservesEq
+
+> |||
+> multOneRightNeutralPlusMultZeroLeftZero : (m : Nat) -> (n : Nat) -> m * 1 + 0 * n = m
+> multOneRightNeutralPlusMultZeroLeftZero m n =
+>     ( m * 1 + 0 * n )
+>   ={ cong (multZeroLeftZero n) }=
+>     ( m * 1 + 0 )
+>   ={ cong {f = \ ZUZU => ZUZU + 0} (multOneRightNeutral m) }=
+>     ( m + 0 )
+>   ={ plusZeroRightNeutral m }=  
+>     ( m )
+>   QED
+> %freeze multOneRightNeutralPlusMultZeroLeftZero
 
 
 Decidability:

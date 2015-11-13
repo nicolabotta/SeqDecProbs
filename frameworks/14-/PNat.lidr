@@ -18,6 +18,14 @@
 > IsSuccUnique MkIsSucc MkIsSucc = Refl
 
 > |||
+> fromSucc : (m : Nat) -> (n : Nat) -> S m = n -> IsSucc n
+> fromSucc m n prf = s2 where
+>   s1 : IsSucc (S m)
+>   s1 = MkIsSucc
+>   s2 : IsSucc n
+>   s2 = replace prf s1
+
+> |||
 > plusPreservesIsSucc : IsSucc m -> IsSucc n -> IsSucc (m + n)
 > plusPreservesIsSucc {m = Z  } {n      } MkIsSucc _        impossible
 > plusPreservesIsSucc {m      } {n = Z  } _        MkIsSucc impossible

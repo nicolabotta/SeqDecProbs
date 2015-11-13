@@ -5,6 +5,10 @@
 > import Fraction
 > import FractionOperations
 > import PNat
+> import PNatOperations
+> import PNatProperties
+> import Basics
+> import NatProperties
 
 
 > %default total
@@ -14,211 +18,156 @@
 > instance Num Fraction where
 >   (+) = plus
 >   (*) = mult
->   fromInteger = FractionOperations.fromNat . fromIntegerNat
-
-> {-
+>   fromInteger = fromNat . fromIntegerNat
 
 
 > ||| Addition is commutative
 > plusCommutative : (x : Fraction) -> (y : Fraction) -> x + y = y + x
-> plusCommutative (n1, d1) (n2, d2) = 
->     ( (n1, d1) + (n2, d2) )
+> plusCommutative (m, d') (n, e') =
+>   let d = toNat d' in
+>   let e = toNat e' in
+>     ( (m, d') + (n, e') )
 >   ={ Refl }=
->     ( (n1 * d2 + n2 * d1, d1 * d2) )
->   ={ replace {x = n1 * d2 + n2 * d1}
->              {y = n2 * d1 + n1 * d2}
->              {P = \ ZUZU => (n1 * d2 + n2 * d1, d1 * d2) = (ZUZU, d1 * d2)}
->              (Nat.plusCommutative (n1 * d2) (n2 * d1)) Refl }=
->     ( (n2 * d1 + n1 * d2, d1 * d2) )
->   ={ replace {x = d1 * d2}
->              {y = d2 * d1}
->              {P = \ ZUZU => (n2 * d1 + n1 * d2, d1 * d2) = (n2 * d1 + n1 * d2, ZUZU)}
->              (Nat.multCommutative d1 d2) Refl }=           
->     ( (n2 * d1 + n1 * d2, d2 * d1) )
+>     ( (m * e + n * d, d' * e') )
+>   ={ cong2 (plusCommutative (m * e) (n * d)) (multCommutative d' e') }=
+>     ( (n * d + m * e, e' * d') )
 >   ={ Refl }=
->     ( (n2, d2) + (n1, d1) )
+>     ( (n, e') + (m, d') )
 >   QED
 > %freeze plusCommutative
 
 
 > ||| |fromInteger 0| is neutral element of addition
-> plusZeroPlusRight : (x : Fraction) -> x + (fromInteger 0) = x
-> plusZeroPlusRight (n, d) =
->     ( (n, d) + (fromInteger 0) )
+> plusZeroRightNeutral : (x : Fraction) -> x + (fromInteger 0) = x
+> plusZeroRightNeutral (n, d') =
+>   let d = toNat d' in
+>     ( (n, d') + (fromInteger 0) )
 >   ={ Refl }=
->     ( (n, d) + (Z, S Z) )
+>     ( (n, d') + fromNat (fromIntegerNat 0) )
 >   ={ Refl }=
->     ( (n * (S Z) + Z * d, d * (S Z)) )
->   ={ replace {x = n * (S Z)}
->              {y = n}
->              {P = \ ZUZU => (n * (S Z) + Z * d, d * (S Z)) = (ZUZU + Z * d, d * (S Z))}
->              (multOneRightNeutral n) Refl }=
->     ( (n + Z * d, d * (S Z)) )
+>     ( (n, d') + fromNat 0 )
 >   ={ Refl }=
->     ( (n + Z, d * (S Z)) )
->   ={ replace {x = n + Z}
->              {y = n}
->              {P = \ ZUZU => (n + Z, d * (S Z)) = (ZUZU, d * (S Z))}
->              (plusZeroRightNeutral n) Refl }=
->     ( (n, d * (S Z)) )
->   ={ replace {x = d * (S Z)}
->              {y = d}
->              {P = \ ZUZU => (n, d * (S Z)) = (n, ZUZU)}
->              (multOneRightNeutral d) Refl }=
->     ( (n, d) )
+>     ( (n, d') + (0, Element 1 MkIsSucc) )
+>   ={ Refl }=
+>     ( (n * 1 + 0 * d, d' * (Element 1 MkIsSucc)) )
+>   ={ cong2 (multOneRightNeutralPlusMultZeroLeftZero n d) (multOneRightNeutral d') }=
+>     ( (n, d') )
 >   QED
-> %freeze plusZeroPlusRight
+> %freeze plusZeroRightNeutral
 
 
 > ||| |fromInteger 0| is neutral element of addition
-> plusZeroPlusLeft  : (x : Fraction) -> (fromInteger 0) + x = x
-> plusZeroPlusLeft x = 
+> plusZeroLeftNeutral  : (x : Fraction) -> (fromInteger 0) + x = x
+> plusZeroLeftNeutral x = 
 >     ( (fromInteger 0) + x )
 >   ={ plusCommutative (fromInteger 0) x }=
 >     ( x + (fromInteger 0) )
->   ={ plusZeroPlusRight x }=
+>   ={ plusZeroRightNeutral x }=
 >     ( x )
 >   QED
-> %freeze plusZeroPlusLeft
-
-
-> ||| Addition is associative
-> plusAssociative : (x : Fraction) -> (y : Fraction) -> (z : Fraction) -> x + (y + z) = (x + y) + z
-> plusAssociative (n1, d1) (n2, d2) (n3, d3) =
->     ( (n1, d1) + ((n2, d2) + (n3, d3)) )
->   ={ Refl }=
->     ( (n1, d1) + (n2 * d3 + n3 * d2, d2 * d3) )
->   ={ Refl }=
->     ( (n1 * (d2 * d3) + (n2 * d3 + n3 * d2) * d1, d1 * (d2 * d3)) )
->   ={ replace {x = n1 * (d2 * d3)}
->              {y = (n1 * d2) * d3}
->              {P = \ ZUZU => (n1 * (d2 * d3) + (n2 * d3 + n3 * d2) * d1, d1 * (d2 * d3))
->                             =
->                             (ZUZU + (n2 * d3 + n3 * d2) * d1, d1 * (d2 * d3))}
->              (multAssociative n1 d2 d3) Refl }=
->     ( ((n1 * d2) * d3 + (n2 * d3 + n3 * d2) * d1, d1 * (d2 * d3)) )
->   ={ replace {x = (n2 * d3 + n3 * d2) * d1}
->              {y = (n2 * d3) * d1 + (n3 * d2) * d1}
->              {P = \ ZUZU => ((n1 * d2) * d3 + (n2 * d3 + n3 * d2) * d1, d1 * (d2 * d3))
->                             =
->                             ((n1 * d2) * d3 + (ZUZU), d1 * (d2 * d3))}
->              (multDistributesOverPlusLeft (n2 * d3) (n3 * d2) d1) Refl }=
->     ( ((n1 * d2) * d3 + ((n2 * d3) * d1 + (n3 * d2) * d1), d1 * (d2 * d3)) )
->   ={ replace {x = (n2 * d3) * d1}
->              {y = n2 * (d3 * d1)}
->              {P = \ ZUZU => ((n1 * d2) * d3 + ((n2 * d3) * d1 + (n3 * d2) * d1), d1 * (d2 * d3))
->                             =
->                             ((n1 * d2) * d3 + (ZUZU + (n3 * d2) * d1), d1 * (d2 * d3))}
->              (sym (multAssociative n2 d3 d1)) Refl }=
->     ( ((n1 * d2) * d3 + (n2 * (d3 * d1) + (n3 * d2) * d1), d1 * (d2 * d3)) )
->   ={ replace {x = d3 * d1}
->              {y = d1 * d3}
->              {P = \ ZUZU => ((n1 * d2) * d3 + (n2 * (d3 * d1) + (n3 * d2) * d1), d1 * (d2 * d3))
->                             =
->                             ((n1 * d2) * d3 + (n2 * (ZUZU) + (n3 * d2) * d1), d1 * (d2 * d3))}
->              (multCommutative d3 d1) Refl }=
->     ( ((n1 * d2) * d3 + (n2 * (d1 * d3) + (n3 * d2) * d1), d1 * (d2 * d3)) )
->   ={ replace {x = n2 * (d1 * d3)}
->              {y = (n2 * d1) * d3}
->              {P = \ ZUZU => ((n1 * d2) * d3 + (n2 * (d1 * d3) + (n3 * d2) * d1), d1 * (d2 * d3))
->                             =
->                             ((n1 * d2) * d3 + (ZUZU + (n3 * d2) * d1), d1 * (d2 * d3))}
->              (multAssociative n2 d1 d3) Refl }=
->     ( ((n1 * d2) * d3 + ((n2 * d1) * d3 + (n3 * d2) * d1), d1 * (d2 * d3)) )
->   ={ replace {x = (n1 * d2) * d3 + ((n2 * d1) * d3 + (n3 * d2) * d1)}
->              {y = ((n1 * d2) * d3 + (n2 * d1) * d3) + (n3 * d2) * d1}
->              {P = \ ZUZU => ((n1 * d2) * d3 + ((n2 * d1) * d3 + (n3 * d2) * d1), d1 * (d2 * d3))
->                             =
->                             (ZUZU, d1 * (d2 * d3))}
->              (plusAssociative ((n1 * d2) * d3) ((n2 * d1) * d3) ((n3 * d2) * d1)) Refl }=
->     ( (((n1 * d2) * d3 + (n2 * d1) * d3) + (n3 * d2) * d1, d1 * (d2 * d3)) )
->   ={ replace {x = (n3 * d2) * d1}
->              {y = n3 * (d2 * d1)}
->              {P = \ ZUZU => (((n1 * d2) * d3 + (n2 * d1) * d3) + (n3 * d2) * d1, d1 * (d2 * d3))
->                             =
->                             (((n1 * d2) * d3 + (n2 * d1) * d3) + ZUZU, d1 * (d2 * d3))}
->              (sym (multAssociative n3 d2 d1)) Refl }=         
->     ( (((n1 * d2) * d3 + (n2 * d1) * d3) + n3 * (d2 * d1), d1 * (d2 * d3)) )
->   ={ replace {x = (n1 * d2) * d3 + (n2 * d1) * d3}
->              {y = (n1 * d2 + n2 * d1) * d3}
->              {P = \ ZUZU => (((n1 * d2) * d3 + (n2 * d1) * d3) + n3 * (d2 * d1), d1 * (d2 * d3))
->                             =
->                             (ZUZU + n3 * (d2 * d1), d1 * (d2 * d3))}
->              (sym (multDistributesOverPlusLeft (n1 * d2) (n2 * d1) d3)) Refl }=
->     ( ((n1 * d2 + n2 * d1) * d3 + n3 * (d2 * d1), d1 * (d2 * d3)) )
->   ={ replace {x = d1 * (d2 * d3)}
->              {y = (d1 * d2) * d3}
->              {P = \ ZUZU => ((n1 * d2 + n2 * d1) * d3 + n3 * (d2 * d1), d1 * (d2 * d3))
->                             =
->                             ((n1 * d2 + n2 * d1) * d3 + n3 * (d2 * d1), ZUZU)}
->              (multAssociative d1 d2 d3) Refl }=  
->     ( ((n1 * d2 + n2 * d1) * d3 + n3 * (d2 * d1), (d1 * d2) * d3) )
->   ={ replace {x = d2 * d1}
->              {y = d1 * d2}
->              {P = \ ZUZU => ((n1 * d2 + n2 * d1) * d3 + n3 * (d2 * d1), (d1 * d2) * d3)
->                             =
->                             ((n1 * d2 + n2 * d1) * d3 + n3 * (ZUZU), (d1 * d2) * d3)}
->              (multCommutative d2 d1) Refl }=
->     ( ((n1 * d2 + n2 * d1) * d3 + n3 * (d1 * d2), (d1 * d2) * d3) )
->   ={ Refl }=
->     ( (n1 * d2 + n2 * d1, d1 * d2) + (n3, d3) )
->   ={ Refl }=
->     ( ((n1, d1) + (n2, d2)) + (n3, d3) )
->   QED
-> %freeze plusAssociative
+> %freeze plusZeroLeftNeutral
 
 
 > ||| Multiplication is commutative
 > multCommutative : (x : Fraction) -> (y : Fraction) -> x * y = y * x
-> multCommutative (n1, d1) (n2, d2) = 
->     ( (n1, d1) * (n2, d2) )
+> multCommutative (m, d') (n, e') =
+>     ( (m, d') * (n, e') )
 >   ={ Refl }=
->     ( (n1 * n2, d1 * d2) )
->   ={ replace {x = n1 * n2}
->              {y = n2 * n1}
->              {P = \ ZUZU => (n1 * n2, d1 * d2) = (ZUZU, d1 * d2)}
->              (Nat.multCommutative n1 n2) Refl }=
->     ( (n2 * n1, d1 * d2) )
->   ={ replace {x = d1 * d2}
->              {y = d2 * d1}
->              {P = \ ZUZU => (n2 * n1, d1 * d2) = (n2 * n1, ZUZU)}
->              (Nat.multCommutative d1 d2) Refl }=           
->     ( (n2 * n1, d2 * d1) )
+>     ( (m * n, d' * e') )
+>   ={ cong2 (multCommutative m n) (multCommutative d' e') }=
+>     ( (n * m, e' * d') )
 >   ={ Refl }=
->     ( (n2, d2) * (n1, d1) )
+>     ( (n, e') * (m, d') )
 >   QED
 > %freeze multCommutative
 
 
-> |||
-> multOneRight : (x : Fraction) -> x * (fromInteger 1) = x
-> multOneRight (n, d) = 
->     ( (n, d) * (S Z, S Z) )
+> ||| |fromInteger 1| is neutral element of multiplication
+> multOneRightNeutral : (x : Fraction) -> x * (fromInteger 1) = x
+> multOneRightNeutral (n, d') =
+>   let d = toNat d' in
+>     ( (n, d') * (fromInteger 1) )
 >   ={ Refl }=
->     ( (n * (S Z), d * (S Z)) )
->   ={ replace {x = n * (S Z)}
->              {y = n}
->              {P = \ ZUZU => (n * (S Z), d * (S Z)) = (ZUZU, d * (S Z))}
->              (multOneRightNeutral n) Refl }=
->     ( (n, d * (S Z)) )
->   ={ replace {x = d * (S Z)}
->              {y = d}
->              {P = \ ZUZU => (n, d * (S Z)) = (n, ZUZU)}
->              (multOneRightNeutral d) Refl }=           
->     ( (n, d) )
+>     ( (n, d') * (fromNat (fromIntegerNat 1)) )
+>   ={ Refl }=
+>     ( (n, d') * (fromNat 1) )
+>   ={ Refl }=
+>     ( (n, d') * (1, Element 1 MkIsSucc) )
+>   ={ Refl }=
+>     ( (n * 1, d' * (Element 1 MkIsSucc)) )
+>   ={ cong2 (multOneRightNeutral n) (multOneRightNeutral d') }=
+>     ( (n, d') )
 >   QED
-> %freeze multOneRight
+> %freeze multOneRightNeutral
 
 
-> |||
-> multOneLeft : (x : Fraction) -> (fromInteger 1) * x = x
-> multOneLeft x = 
+> ||| |fromInteger 1| is neutral element of multiplication
+> multOneLeftNeutral  : (x : Fraction) -> (fromInteger 1) * x = x
+> multOneLeftNeutral x = 
 >     ( (fromInteger 1) * x )
 >   ={ multCommutative (fromInteger 1) x }=
 >     ( x * (fromInteger 1) )
->   ={ multOneRight x }=
+>   ={ multOneRightNeutral x }=
 >     ( x )
 >   QED
-> %freeze multOneLeft
+> %freeze multOneLeftNeutral
+
+
+> ||| Addition is associative
+> plusAssociative : (x : Fraction) -> (y : Fraction) -> (z : Fraction) -> x + (y + z) = (x + y) + z
+> plusAssociative (m, d') (n, e') (o, f') = 
+>   let d = toNat d' in
+>   let e = toNat e' in
+>   let f = toNat f' in
+>     ( (m, d') + ((n, e') + (o, f')) )
+>   ={ Refl }=
+>     ( (m, d') + (n * f + o * e, e' * f') )
+>   ={ Refl }=
+>     ( (m * (toNat (e' * f')) + (n * f + o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (m * (ZUZU) + (n * f + o * e) * d, d' * (e' * f'))} 
+>           toNatMultLemma }=
+>     ( (m * (e * f) + (n * f + o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (m * (e * f) + ZUZU, d' * (e' * f'))} 
+>           (multDistributesOverPlusLeft (n * f) (o * e) d) }=
+>     ( (m * (e * f) + ((n * f) * d + (o * e) * d), d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (ZUZU, d' * (e' * f'))}
+>           (plusAssociative (m * (e * f)) ((n * f) * d) ((o * e) * d)) }=
+>     ( ((m * (e * f) + (n * f) * d) + (o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => ((ZUZU + (n * f) * d) + (o * e) * d, d' * (e' * f'))}
+>           (multAssociative m e f) }=
+>     ( (((m * e) * f + (n * f) * d) + (o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (((m * e) * f + ZUZU) + (o * e) * d, d' * (e' * f'))}
+>           (sym (multAssociative n f d)) }=
+>     ( (((m * e) * f + n * (f * d)) + (o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (((m * e) * f + n * (ZUZU)) + (o * e) * d, d' * (e' * f'))}
+>           (multCommutative f d) }=
+>     ( (((m * e) * f + n * (d * f)) + (o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (((m * e) * f + ZUZU) + (o * e) * d, d' * (e' * f'))}
+>           (multAssociative n d f) }=
+>     ( (((m * e) * f + (n * d) * f) + (o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => (ZUZU + (o * e) * d, d' * (e' * f'))}
+>           (sym (multDistributesOverPlusLeft (m * e) (n * d) f)) }=
+>     ( ((m * e + n * d) * f + (o * e) * d, d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => ((m * e + n * d) * f + ZUZU, d' * (e' * f'))}
+>           (sym (multAssociative o e d)) }=
+>     ( ((m * e + n * d) * f + o * (e * d), d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => ((m * e + n * d) * f + o * (ZUZU), d' * (e' * f'))}
+>           (multCommutative e d) }=  
+>     ( ((m * e + n * d) * f + o * (d * e), d' * (e' * f')) )
+>   ={ cong {f = \ ZUZU => ((m * e + n * d) * f + o * (d * e), ZUZU)}
+>           (multAssociative d' e' f')}=
+>     ( ((m * e + n * d) * f + o * (d * e), (d' * e') * f') )
+>   ={ cong {f = \ ZUZU => ((m * e + n * d) * f + o * (ZUZU), (d' * e') * f')}
+>           (sym toNatMultLemma) }=
+>     ( ((m * e + n * d) * f + o * (toNat (d' * e')), (d' * e') * f') )
+>   ={ Refl }=  
+>     ( (m * e + n * d, d' * e') + (o, f') )
+>   ={ Refl }=
+>     ( ((m, d') + (n, e')) + (o, f') )
+>   QED
+> %freeze plusAssociative
+
+
+> {-
 
 > ---}
