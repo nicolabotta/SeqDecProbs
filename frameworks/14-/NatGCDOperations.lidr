@@ -9,10 +9,6 @@
 
 
 > |||
-> gcd : (d : Nat ** GCD d m n) -> Nat
-> gcd = getWitness
-
-> |||
 > gcdDivisorFst : GCD d m n -> d `Divisor` m
 > gcdDivisorFst {d} (MkGCD dDm dDn dG) = dDm
 

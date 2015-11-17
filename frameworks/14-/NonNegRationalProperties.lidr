@@ -5,32 +5,185 @@
 
 > import NonNegRational
 > import NonNegRationalOperations
-> import NatGCD
-> import NatGCDOperations
-> import NatGCDProperties
-> import NatGCDEuclid
-> import NatProperties
-> import EqualityProperties
-> import BareFraction
+> import PNat
 > import NatCoprime
-> import NatCoprimeProperties
-> import Basics
+> import Fraction
+> import FractionOperations
+> import FractionProperties
+> import FractionReduction
+> import FractionReductionOperations
+> import FractionReductionProperties
+> import SubsetProperties
+> import Unique
 
 
 > %default total
 
 
-> ||| Non-negative rationals are in |Show|
+> |||
+> toFractionEqLemma1 : {x, y : NonNegQ} -> (toFraction x) = (toFraction y) -> x = y
+> toFractionEqLemma1 {x} {y} p = subsetEqLemma1 x y p ReducedUnique 
+
+
+> |||
+> toFractionEqLemma2 : {x, y : NonNegQ} -> x = y -> (toFraction x) = (toFraction y)
+> toFractionEqLemma2 {x} {y} p = getWitnessPreservesEq p 
+
+
+> |||
+> -- fromFractionLemma : {x, y : Fraction} -> fromFraction 
+
+
+> ||| NonNegQ is an instance of Show
 > instance Show NonNegQ where
 >   show q = show (num q) ++ "/" ++ show (den q)
 
-> ||| Non-negative rationals are in |Num|
+
+> ||| NonNegQ is an instance of Num
 > instance Num NonNegQ where
 >   (+) = plus
 >   (*) = mult
->   fromInteger = NonNegRationalOperations.fromNat . fromIntegerNat
+>   fromInteger = fromNat . fromIntegerNat
 
 
+> ||| Addition is commutative
+> plusCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x + y = y + x
+> plusCommutative x' y' =
+>   let x   =  toFraction x' in
+>   let y   =  toFraction y' in
+>     ( x' + y' )
+>   ={ Refl }=
+>     ( reduce (x + y) )
+>   ={ cong {f = reduce} (plusCommutative x y) }=
+>     ( reduce (y + x) )
+>   ={ Refl }=
+>     ( y' + x' )
+>   QED
+> %freeze plusCommutative
+
+> {-
+> ||| |fromInteger 0| is neutral element of addition
+> plusZeroRightNeutral : (x : NonNegQ) -> x + (fromInteger 0) = x
+> plusZeroRightNeutral (Element x prf) =  
+>     ( (Element x prf) + (fromInteger 0) )
+>   ={ Refl }=
+>     ( fromFraction (x + (fromInteger 0)) )
+>   ={ cong (plusZeroRightNeutral x) }=
+>     ( fromFraction x )
+>   ={ toFractionEqLemma1 (reducePreservesReduced x prf) }=
+>     ( Element x prf )
+>   QED
+> %freeze plusZeroRightNeutral
+> -}
+
+
+> ||| |fromInteger 0| is neutral element of addition
+> plusZeroRightNeutral : (x : NonNegQ) -> x + (fromInteger 0) = x
+> plusZeroRightNeutral x =  
+>     ( x + (fromInteger 0) )
+>   ={ Refl }=
+>     ( reduce (toFraction x + toFraction (fromInteger 0)) )
+>   ={ cong (plusZeroRightNeutral (toFraction x)) }=
+>     ( reduce (toFraction x) )
+>   ={ reducePreservesReduced x }=
+>     ( x )
+>   QED
+> %freeze plusZeroRightNeutral
+
+
+> ||| |fromInteger 0| is neutral element of addition
+> plusZeroLeftNeutral : (x : NonNegQ) -> (fromInteger 0) + x = x
+> plusZeroLeftNeutral x =   
+>     ( (fromInteger 0) + x )
+>   ={ plusCommutative (fromInteger 0) x }=
+>     ( x + (fromInteger 0) )
+>   ={ plusZeroRightNeutral x }=
+>     ( x )
+>   QED
+> %freeze plusZeroLeftNeutral
+
+
+> ||| Multiplication is commutative
+> multCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x * y = y * x
+> multCommutative x' y' =
+>   let x   =  toFraction x' in
+>   let y   =  toFraction y' in
+>     ( x' * y' )
+>   ={ Refl }=
+>     ( reduce (x * y) )
+>   ={ cong {f = reduce} (multCommutative x y) }=
+>     ( reduce (y * x) )
+>   ={ Refl }=
+>     ( y' * x' )
+>   QED
+> %freeze multCommutative
+
+> {-
+> ||| |fromInteger 1| is neutral element of multiplication
+> multOneRightNeutral : (x : NonNegQ) -> x * (fromInteger 1) = x
+> multOneRightNeutral (Element x prf) =  
+>     ( (Element x prf) * (fromInteger 1) )
+>   ={ ?gaga }=
+>     ( reduce (x * (fromInteger 1)) )
+>   ={ cong (multOneRightNeutral x) }=
+>     ( reduce x )
+>   ={ toFractionEqLemma1 (reducePreservesReduced x prf) }=
+>     ( Element x prf )
+>   QED
+> %freeze multOneRightNeutral
+> -}
+
+
+> ||| |fromInteger 1| is neutral element of multiplication
+> multOneRightNeutral : (x : NonNegQ) -> x * (fromInteger 1) = x
+> multOneRightNeutral x =  
+>     ( x * (fromInteger 1) )
+>   ={ Refl }=
+>     ( reduce ((toFraction x) * (toFraction (fromInteger 1))) )
+>   ={ cong (multOneRightNeutral (toFraction x)) }=
+>     ( reduce (toFraction x) )
+>   ={ reducePreservesReduced x }=
+>     ( x )
+>   QED
+> %freeze multOneRightNeutral
+
+
+> ||| |fromInteger 1| is neutral element of multiplication
+> multOneLeftNeutral : (x : NonNegQ) -> (fromInteger 1) * x = x
+> multOneLeftNeutral x =   
+>     ( (fromInteger 1) * x )
+>   ={ multCommutative (fromInteger 1) x }=
+>     ( x * (fromInteger 1) )
+>   ={ multOneRightNeutral x }=
+>     ( x )
+>   QED
+> %freeze multOneLeftNeutral
+
+
+
+
+> {-
+
+
+> ||| Addition is associative
+> plusAssociative : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
+> plusAssociative x' y' z' = 
+>   let x  =  toFraction x' in
+>   let y  =  toFraction y' in
+>   let z  =  toFraction z' in
+>   let yz =  
+>     ( x' + (y' + z') )
+>   ={ Refl }=
+>     ( x' + fromFraction (y + z) )
+>   ={ Refl }=
+>     ( fromFraction (x + toFraction (fromFraction (y + z))) )
+>   ={ ?s1 }=
+>     ( (x' + y') + z' )
+>   QED
+
+
+
+ 
 Propertie of NonNegQ:
 
 > |||
@@ -333,6 +486,7 @@ Properties of fromFraction:
 >   QED
 > %freeze multCommutative
 
+> ---}
 
 > {-
 

@@ -9,46 +9,70 @@
 > import NatDivisorOperations
 > import NatDivisorProperties
 > import NatProperties
+> import NatGCDAlgorithm
+> import NatGCDEuclid
 
 
 > %default total
 
 
 > ||| Coprime is decidable
-> decCoprime : ((a : Nat) -> (b : Nat) -> (d : Nat ** GCD d a b)) ->
->              (m : Nat) -> (n : Nat) ->
->              Dec (Coprime m n)
-> decCoprime alg m n with (alg m n)
->   | (d ** v) with (decEq d (S Z))
->     | (Yes p) = Yes (MkCoprime {d = d} v p)
->     | (No contra) = No contra' where
+> decCoprime : (m : Nat) -> (n : Nat) -> Dec (Coprime m n)
+> decCoprime m n with (decEq (gcdAlg m n) (S Z))
+>   | (Yes p) = Yes (MkCoprime p)
+>   | (No contra) = No contra' where
 >         contra' : Coprime m n -> Void
->         contra' (MkCoprime {d = d'} v' p') = contra p where
->           p : d = S Z
->           p = replace {x = d'}
->                       {y = d}
->                       {P = \ ZUZU => ZUZU = S Z}
->                       (gcdUnique d' d v' v) p'
+>         contra' (MkCoprime p) = contra p
 > %freeze decCoprime
+
 
 > ||| Coprime is symmetric
 > symmetricCoprime : Coprime m n -> Coprime n m
-> symmetricCoprime {m} {n} (MkCoprime (MkGCD {d} {m} {n} dDm dDn dG)  dEQone) =
->                          (MkCoprime (MkGCD             dDn dDm dG') dEQone) where
->     dG' : (d' : Nat) -> Divisor d' n -> Divisor d' m -> Divisor d' d
->     dG' d' d'Dn d'Dm = dG d' d'Dm d'Dn
+> symmetricCoprime {m} {n} (MkCoprime prf) = MkCoprime (trans (gcdAlgCommutative n m) prf)
 > %freeze symmetricCoprime
+
 
 > ||| Any number is coprime with one
 > anyCoprimeOne : Coprime m (S Z)
-> anyCoprimeOne {m} = MkCoprime (MkGCD oDm oDo oG) Refl where
->   oDm : (S Z) `Divisor` m
->   oDm = oneDivisorAny m
->   oDo : (S Z) `Divisor` (S Z)
->   oDo = anyDivisorAny (S Z)
->   oG  : (d : Nat) -> d `Divisor` m -> d `Divisor` (S Z) -> d `Divisor` (S Z)
->   oG d dDm dDo = dDo
+> anyCoprimeOne {m} = MkCoprime s3 where
+>   s1 : (gcdAlg m (S Z)) `Divisor` (S Z)
+>   s1 = gcdDivisorSnd (gcdAlgLemma m (S Z))
+>   s2 : (S Z ) `Divisor` (gcdAlg m (S Z))
+>   s2 = oneDivisorAny (gcdAlg m (S Z))
+>   s3 : gcdAlg m (S Z) = S Z
+>   s3 = divisorAntisymmetric (gcdAlg m (S Z)) (S Z) s1 s2
 > %freeze anyCoprimeOne
+
+
+> ||| Division by gcd yields coprime numbers
+> gcdCoprimeLemma : (d : Nat) -> (m : Nat) -> (n : Nat) -> 
+>                   (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) -> 
+>                   Z `LT` d -> GCD d m n -> Coprime (quotient m d dDm) (quotient n d dDn)
+> gcdCoprimeLemma d m n dDm dDn zLTd dGCDmn =
+>   let m'         :  Nat
+>                  =  quotient m d dDm in
+>   let n'         :  Nat
+>                  =  quotient n d dDn in
+>   let d'         :  Nat
+>                  =  gcdAlg m' n' in
+>   let d'GCDm'n'  :  (GCD d' m' n')
+>                  =  gcdAlgLemma m' n' in
+>   let d'Dm'      :  (d' `Divisor` m')
+>                  =  gcdDivisorFst d'GCDm'n' in
+>   let d'Dn'      :  (d' `Divisor` n')
+>                  =  gcdDivisorSnd d'GCDm'n' in
+>   let oneDd'     :  ((S Z) `Divisor` d')
+>                  =  oneDivisorAny d' in
+>   let d'Done     :  (d' `Divisor` (S Z))
+>                  =  gcdLemma'' d m n dDm dDn dGCDmn zLTd d' d'Dm' d'Dn' in
+>   let d'EQone    :  (d' = (S Z)) 
+>                  =  divisorAntisymmetric d' (S Z) d'Done oneDd' in
+>   MkCoprime d'EQone
+
+
+
+
+> {-
 
 > ||| Division by gcd yields coprime numbers
 > gcdCoprimeLemma : (v : GCD (S d) m n) -> Coprime (quotient m (S d) (gcdDivisorFst v))
@@ -141,3 +165,5 @@ GCD / Coprime properties:
 >                gcd (alg m (S Z)) = S Z
 > gcdAnyOneOne alg m = gcdOneCoprimeLemma2 m (S Z) alg anyCoprimeOne
 > %freeze gcdAnyOneOne
+
+> ---}

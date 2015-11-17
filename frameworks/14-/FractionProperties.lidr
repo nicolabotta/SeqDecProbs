@@ -9,9 +9,24 @@
 > import PNatProperties
 > import Basics
 > import NatProperties
+> import NatGCD
+> import NatGCDOperations
+> import NatGCDProperties
+> import NatDivisor
+> import NatDivisorOperations
+> import NatDivisorProperties
+> import NatCoprime
+> import NatCoprimeProperties
+> import NatGCDAlgorithm
+> import NatGCDEuclid
 
 
 > %default total
+
+
+-- > ||| Fraction is an instance of Show
+-- > instance Show Fraction where
+-- >   show x = show (num x) ++ "/" ++ show (den x)
 
 
 > ||| Fraction is an instance of Num
@@ -169,5 +184,186 @@
 
 
 > {-
+ 
+> ||| Reduction yields coprime numbers
+> reduceYieldsCoprimes : (x : Fraction) -> Coprime (num (reduce x)) (den (reduce x))
+> reduceYieldsCoprimes (m, n') =
+>   let n       :  Nat
+>               =  toNat n' in  
+>   let zLTn    :  (Z `LT` n)
+>               =  toNatLTLemma n' in
+>   let d       :  Nat
+>               =  gcdAlg m n in
+>   let dGCDmn  :  (GCD d m n)
+>               =  gcdAlgLemma m n in
+>   let dDm     :  (d `Divisor` m)
+>               =  gcdDivisorFst dGCDmn in
+>   let dDn     :  (d `Divisor` n)
+>               =  gcdDivisorSnd dGCDmn in
+>   let zLTd    :  (Z `LT` d)
+>               =  gcdPreservesPositivity2 zLTn (d ** dGCDmn) in
+>   gcdCoprimeLemma d m n dDm dDn zLTd dGCDmn
+> %freeze reduceYieldsCoprimes
 
+
+> ||| Reduction of coprime numbers is identity
+> reducePreservesCoprimes : (x : Fraction) -> Coprime (num x) (den x) -> reduce x = x                       
+> reducePreservesCoprimes (m, n') (MkCoprime prf) =
+>   let n       :  Nat
+>               =  toNat n' in  
+>   let d       :  Nat
+>               =  gcdAlg m n in
+>   let dGCDmn  :  (GCD d m n)
+>               =  gcdAlgLemma m n in 
+>   let dDm     :  (d `Divisor` m)
+>               =  gcdDivisorFst dGCDmn in
+>   let dDn     :  (d `Divisor` n)
+>               =  gcdDivisorSnd dGCDmn in
+>   let o       :  Nat
+>               =  quotient m d dDm in
+>   let p       :  Nat
+>               =  quotient n d dDn in
+>   let zLTn    :  (Z `LT` n)
+>               =  toNatLTLemma n' in 
+>   let zLTp    :  (Z `LT` p) 
+>               =  quotientPreservesPositivity n d dDn zLTn in
+>   let dEQ1    :  (d = S Z)
+>               =  prf in
+>             
+>     ( reduce (m, n') )
+>   ={ Refl }=
+>     ( (o, fromNat p zLTp) )
+>   ={ cong2 (quotientAnyOneAny m d dDm dEQ1) (toNatEqLemma (quotientAnyOneAny n d dDn dEQ1)) }=
+>     ( (m, n') )
+>   QED
+> %freeze reducePreservesCoprimes
+
+
+> ||| Reduction is idempotent (not used)
+> reduceIdempotent : (x : Fraction) -> reduce (reduce x) = reduce x
+> reduceIdempotent x = 
+>     ( reduce (reduce x) )
+>   ={ reducePreservesCoprimes (reduce x) (reduceYieldsCoprimes x) }=
+>     ( reduce x )
+>   QED
+> %freeze reduceIdempotent
+
+
+> ||| 
+> reduceQuotientLemma : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                       (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                       (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) ->
+>                       reduce alg (m, n) = reduce alg (quotient m d dDm, quotient n d dDn)
+
+
+> ||| Reduction is "linear"
+> reduceLinear : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
+>                (x : Fraction) -> (y : Fraction) ->
+>                reduce alg (x + y) = reduce alg (reduce alg x + reduce alg y)
+> reduceLinear alg (m, d') (n, e') =
+>   let d             :  Nat
+>                     =  toNat d' in
+>   let e             :  Nat
+>                     =  toNat e' in
+> {-
+>   let dv1           :  (d1 : Nat ** GCD d1 m1 n1)
+>                     =  alg m1 n1 in
+>   let d1            :  Nat
+>                     =  getWitness dv1 in
+>   let v1            :  (GCD d1 m1 n1)
+>                     =  getProof dv1 in 
+>   let d1Dm1         :  (d1 `Divisor` m1)
+>                     =  gcdDivisorFst v1 in
+>   let d1Dn1         :  (d1 `Divisor` n1)
+>                     =  gcdDivisorSnd v1 in
+>   let qm1d1         :  Nat
+>                     =  quotient m1 d1 d1Dm1 in
+>   let qn1d1         :  Nat
+>                     =  quotient n1 d1 d1Dn1 in
+>                
+>   let dv2           :  (d2 : Nat ** GCD d2 m2 n2)
+>                     =  alg m2 n2 in
+>   let d2            :  Nat
+>                     =  getWitness dv2 in
+>   let v2            :  (GCD d2 m2 n2)
+>                     =  getProof dv2 in 
+>   let d2Dm2         :  (d2 `Divisor` m2)
+>                     =  gcdDivisorFst v2 in
+>   let d2Dn2         :  (d2 `Divisor` n2)
+>                     =  gcdDivisorSnd v2 in
+>   let qm2d2         :  Nat
+>                     =  quotient m2 d2 d2Dm2 in
+>   let qn2d2         :  Nat
+>                     =  quotient n2 d2 d2Dn2 in
+>                 
+>   let d2d1Dm2n1     :  ((d2 * d1) `Divisor` (m2 * n1))
+>                     =  divisorMultLemma1 m2 d2 d2Dm2 n1 d1 d1Dn1 in  
+>   let qm2n1d2d1     :  Nat
+>                     =  quotient (m2 * n1) (d2 * d1) d2d1Dm2n1 in                
+>   let d1d2Dm1n2     :  ((d1 * d2) `Divisor` (m1 * n2))
+>                     =  divisorMultLemma1 m1 d1 d1Dm1 n2 d2 d2Dn2 in  
+>   let qm1n2d1d2     :  Nat
+>                     =  quotient (m1 * n2) (d1 * d2) d1d2Dm1n2 in
+>   let d1d2Dn1n2     :  ((d1 * d2) `Divisor` (n1 * n2))
+>                     =  divisorMultLemma1 n1 d1 d1Dn1 n2 d2 d2Dn2 in  
+>   let qn1n2d1d2     :  Nat
+>                     =  quotient (n1 * n2) (d1 * d2) d1d2Dn1n2 in
+>   let d1d2Dm2n1     :  ((d1 * d2) `Divisor` (m2 * n1))
+>                     =  replace {x = d2 * d1}
+>                                {y = d1 * d2}
+>                                {P = \ ZUZU => (ZUZU) `Divisor` (m2 * n1)}
+>                                (multCommutative d2 d1) d2d1Dm2n1 in  
+>   let qm2n1d1d2     :  Nat
+>                     =  quotient (m2 * n1) (d1 * d2) d1d2Dm2n1 in
+>   let d1d2Dm1n2m2n1 :  ((d1 * d2) `Divisor` (m1 * n2 + m2 * n1))
+>                     =  divisorPlusLemma1 (m1 * n2) (m2 * n1) (d1 * d2) d1d2Dm1n2 d1d2Dm2n1 in              
+>   let qm1n2m2n1d1d2 :  Nat 
+>                     =  quotient (m1 * n2 + m2 * n1) (d1 * d2) d1d2Dm1n2m2n1 in
+> -}
+>                     
+>     ( reduce alg ((m, d') + (n, e')) )
+>   ={ Refl }=
+>     ( reduce alg (m * e + n * d, d' * e') )
+>   ={ reduceQuotientLemma alg (m1 * n2 + m2 * n1) (n1 * n2) (d1 * d2) d1d2Dm1n2m2n1 d1d2Dn1n2 }=
+>     ( reduce alg (quotient (m1 * n2 + m2 * n1) (d1 * d2) d1d2Dm1n2m2n1, 
+>                   quotient (n1 * n2) (d1 * d2) d1d2Dn1n2) )
+>   ={ Refl }=
+>     ( reduce alg (qm1n2m2n1d1d2, qn1n2d1d2) )
+>   ={ replace {x = qm1n2m2n1d1d2}
+>              {y = qm1n2d1d2 + qm2n1d1d2}
+>              {P = \ ZUZU => reduce alg (qm1n2m2n1d1d2, qn1n2d1d2) = reduce alg (ZUZU, qn1n2d1d2)}
+>              (sym (quotientPlusLemma (m1 * n2) (m2 * n1) (d1 * d2) d1d2Dm1n2 d1d2Dm2n1))
+>              Refl }=
+>     ( reduce alg (qm1n2d1d2 + qm2n1d1d2, qn1n2d1d2) )
+>   ={ ?s8 }=
+>     ( reduce alg (qm1n2d1d2 + qm2n1d2d1, qn1n2d1d2) )
+>   ={ replace {x = qn1n2d1d2}
+>              {y = qn1d1 * qn2d2}
+>              {P = \ ZUZU => reduce alg (qm1n2d1d2 + qm2n1d2d1, qn1n2d1d2) = reduce alg (qm1n2d1d2 + qm2n1d2d1, ZUZU)}
+>              (sym (quotientMultLemma n1 d1 d1Dn1 n2 d2 d2Dn2)) Refl }=
+>     ( reduce alg (qm1n2d1d2 + qm2n1d2d1, qn1d1 * qn2d2) )
+>   ={ replace {x = qm2n1d2d1}
+>              {y = qm2d2 * qn1d1}
+>              {P = \ ZUZU => reduce alg (qm1n2d1d2 + qm2n1d2d1, qn1d1 * qn2d2) = reduce alg (qm1n2d1d2 + ZUZU, qn1d1 * qn2d2)}
+>              (sym (quotientMultLemma m2 d2 d2Dm2 n1 d1 d1Dn1)) Refl }=
+>     ( reduce alg (qm1n2d1d2 + qm2d2 * qn1d1, qn1d1 * qn2d2) )
+>   ={ replace {x = qm1n2d1d2}
+>              {y = qm1d1 * qn2d2}
+>              {P = \ ZUZU => reduce alg (qm1n2d1d2 + qm2d2 * qn1d1, qn1d1 * qn2d2) = reduce alg (ZUZU + qm2d2 * qn1d1, qn1d1 * qn2d2)}
+>              (sym (quotientMultLemma m1 d1 d1Dm1 n2 d2 d2Dn2)) Refl }=
+>     ( reduce alg (qm1d1 * qn2d2 + qm2d2 * qn1d1, qn1d1 * qn2d2) )
+>   ={ Refl }=
+>     ( reduce alg ((qm1d1, qn1d1) + (qm2d2, qn2d2)) )
+>   ={ Refl }=
+>     ( reduce alg ((quotient m1 d1 d1Dm1, quotient n1 d1 d1Dn1) 
+>                   + 
+>                   (quotient m2 d2 d2Dm2, quotient n2 d2 d2Dn2)) )
+>   ={ Refl }=
+>     ( reduce alg (reduce alg (m1, n1) + reduce alg (m2, n2)) )
+>   QED  
+> %freeze reduceLinear
+
+ 
 > ---}
+
+ 

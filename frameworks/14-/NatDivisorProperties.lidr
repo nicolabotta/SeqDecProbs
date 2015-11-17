@@ -145,7 +145,7 @@ Properties of |Divisor|:
 >     p : d * q = n - m
 >     p = s2 where
 >       s1 : d * q2 - d * q1 = n - m
->       s1 = cong2 minus p2 p1
+>       s1 = cong2 p2 p1
 >       s2 : d * (q2 - q1) = n - m
 >       s2 = replace {x = d * q2 - d * q1}
 >                    {y = d * (q2 - q1)}
@@ -178,6 +178,20 @@ Properties of |Divisor|:
 >     p' : d' * q = S Z
 >     p' = multElim1 d (d' * q) s2
 > %freeze divisorOneLemma'
+
+> |||
+> divisorOneLemma'' : (d : Nat) -> (d' : Nat) -> Z `LT` d -> d * d' `Divisor` d -> d' `Divisor` S Z
+> divisorOneLemma''  Z    _  p  _             = 
+>   absurd p
+> divisorOneLemma'' (S d) d' _ (Evidence q p) =
+>   Evidence q p' where
+>     s1 : ((S d) * d') * q = S d
+>     s1 = p
+>     s2 : (S d) * (d' * q) = S d
+>     s2 = replace {x = ((S d) * d') * q} {y = (S d) * (d' * q)} {P = \ ZUZU => ZUZU = S d} (sym (multAssociative (S d) d' q)) s1
+>     p' : d' * q = S Z
+>     p' = multElim1 d (d' * q) s2
+> %freeze divisorOneLemma''
 
 > |||
 > divisorTowerLemma: (d : Nat) -> (d' : Nat) -> (m : Nat) ->

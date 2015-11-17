@@ -24,6 +24,13 @@
 >   s3 = divisorAntisymmetric d1 d2 s1 s2
 > %freeze gcdUnique
 
+
+> ||| 
+> gcdCommutative : GCD d m n -> GCD d n m
+> gcdCommutative (MkGCD dDm dDn dG) = (MkGCD dDn dDm (\ d' => \ n => \ m => dG d' m n))
+> %freeze gcdCommutative
+
+
 > ||| If |m| is positive, the greatest common divisor of |m| and |n| is positive
 > gcdPreservesPositivity1 : Z `LT` m -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
 > gcdPreservesPositivity1 {m} zLTm (d ** prf) = multLTZeroLeftLTZero d q zLTdq where
@@ -91,6 +98,26 @@
 >   Sdd'DSd : d * d' `Divisor` d
 >   Sdd'DSd = SdG (d * d') Sdd'Dm Sdd'Dn
 > %freeze gcdLemma'
+
+> |||
+> gcdLemma'' : (d : Nat) -> (m : Nat) -> (n : Nat) -> 
+>              (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) -> 
+>              (v : GCD d m n) -> Z `LT` d ->
+>              (d' : Nat) ->
+>              d' `Divisor` (quotient m d dDm) ->
+>              d' `Divisor` (quotient n d dDn) ->
+>              d' `Divisor` S Z
+> gcdLemma'' d m n dDm dDn v zLTd d' d'Dqmd d'Dqnd = divisorOneLemma'' d d' zLTd dd'Dd where
+>   dG     : (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d
+>   dG     = gcdDivisorGreatest v
+>   dd'Dm  : d * d' `Divisor` m
+>   dd'Dm  = divisorTowerLemma d d' m dDm d'Dqmd
+>   dd'Dn  : d * d' `Divisor` n
+>   dd'Dn  = divisorTowerLemma d d' n dDn d'Dqnd
+>   dd'Dd  : d * d' `Divisor` d
+>   dd'Dd  = dG (d * d') dd'Dm dd'Dn
+> %freeze gcdLemma''
+
 
 > ||| d GCD ((S a) * m) ((S a) * n) => d/(S a) GCD m n
 > ||| 

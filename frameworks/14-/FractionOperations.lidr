@@ -10,6 +10,7 @@
 > import NatDivisor
 > import NatDivisorOperations
 > import NatDivisorProperties
+> import NatGCDAlgorithm
 
 
 > %default total
@@ -45,30 +46,4 @@
 > -- %freeze mult
 
 
-> ||| Reduction to normal form (coprime numbers)
-> reduce : ((m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) -> 
->          Fraction -> Fraction
-> reduce alg (m, n') =
->   let n     :  Nat
->             =  toNat n' in 
->   let dv    :  (d : Nat ** GCD d m n)
->             =  alg m n in
->   let d     :  Nat
->             =  getWitness dv in
->   let v     :  (GCD d m n)
->             =  getProof dv in 
->   let dDm   :  (d `Divisor` m)
->             =  gcdDivisorFst v in
->   let dDn   :  (d `Divisor` n)
->             =  gcdDivisorSnd v in
->   let o     :  Nat
->             =  quotient m d dDm in
->   let p     :  Nat
->             =  quotient n d dDn in
->   let zLTn  :  (Z `LT` n)
->             =  toNatLTLemma n' in 
->   let zLTp  :  (Z `LT` p) 
->             =  quotientPreservesPositivity n d dDn zLTn in
->    
->   (o, fromNat p zLTp)
-> -- %freeze reduce
+
