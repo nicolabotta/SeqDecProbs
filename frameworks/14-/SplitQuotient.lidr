@@ -100,9 +100,9 @@ module parameters
 >             (f x) = (f y)
 >
 > invToInvN f fInv x y nxEQny = 
->     (f x)              ={ sym (invNormalizeEq f fInv x) }= 
->     (f (normalize x))  ={ cong nxEQny                   }=
->     (f (normalize y))  ={ invNormalizeEq f fInv y       }=
+>     (f x)                 ={ sym (invNormalizeEq f fInv x) }= 
+>     (f (KQ.normalize x))  ={ cong nxEQny                   }=
+>     (f (KQ.normalize y))  ={ invNormalizeEq f fInv y       }=
 >     (f y)              QED
 
 
