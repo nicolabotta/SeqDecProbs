@@ -385,7 +385,7 @@ Properties of |plus| and |minus|:
 > %freeze plusRightInverseMinus
 
 
-Properties of |mult|
+Properties of |mult|: LT, EQ and GT zero:
 
 > multSuccNotZero : (m : Nat) -> (n : Nat) -> Not ((S m) * (S n) = Z)
 > multSuccNotZero m  n  p = absurd p
@@ -412,32 +412,6 @@ Properties of |mult|
 > multZeroLTZeroLT (S m)  Z    _ q = absurd q
 > multZeroLTZeroLT (S m) (S n) _ _ = ltZS (n + m * (S n))
 > %freeze multZeroLTZeroLT
-
-> -- plusZeroLTZeroLT : (m : Nat) -> (n : Nat) -> Z `LT` m -> Z `LT` n -> Z `LT` (m + n)
-
-> {-
-
-> |||
-> idPlusAnyPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (n + p)
-
-> |||
-> idAnyPlusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (p + n)
-
-> |||
-> plusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
->                   (p : Nat) -> (q : Nat) -> p `LT` q ->
->                   (m + p) `LT` (n + q)
-> plusPreservesLT  Z     Z     zLTz  _ _ _    = absurd  zLTz 
-> plusPreservesLT  Z    (S n)  zLTsn p q pLTq = idAnyPlusPreservesLT p q pLTq (S n)
-> plusPreservesLT (S m)  Z    smLTz  _ _ _    = absurd smLTz 
-> plusPreservesLT (S m) (S n) smLTsn p q pLTq = LTESucc (plusPreservesLT m n (fromLteSucc smLTsn) p q pLTq)
-
-> |||
-> multPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
->                   (p : Nat) -> (q : Nat) -> p `LT` q ->
->                   (m * p) `LT` (n * q)
-
-> -}
 
 > |||
 > multLTZeroLeftLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` m
@@ -502,11 +476,41 @@ Properties of |mult|
 >   prf' = replace {x = m * n} {y = n * m} {P = \ ZUZU => ZUZU = S Z} (multCommutative m n) prf
 > %freeze multOneRightOne
 
+
+Properties of |mult|: preservation rules:
+
 > |||
 > multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
 >                   m1 = m2 -> n1 = n2 -> m1 * n1 = m2 * n2
 > multPreservesEq m m n n Refl Refl = Refl
 > %freeze multPreservesEq
+
+> {-
+
+> |||
+> idPlusAnyPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (n + p)
+
+> |||
+> idAnyPlusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (p + n)
+
+> |||
+> plusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
+>                   (p : Nat) -> (q : Nat) -> p `LT` q ->
+>                   (m + p) `LT` (n + q)
+> plusPreservesLT  Z     Z     zLTz  _ _ _    = absurd  zLTz 
+> plusPreservesLT  Z    (S n)  zLTsn p q pLTq = idAnyPlusPreservesLT p q pLTq (S n)
+> plusPreservesLT (S m)  Z    smLTz  _ _ _    = absurd smLTz 
+> plusPreservesLT (S m) (S n) smLTsn p q pLTq = LTESucc (plusPreservesLT m n (fromLteSucc smLTsn) p q pLTq)
+
+> |||
+> multPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
+>                   (p : Nat) -> (q : Nat) -> p `LT` q ->
+>                   (m * p) `LT` (n * q)
+
+> -}
+
+
+Properties of |mult|: elimination rules
 
 > |||
 > multMultElimLeft : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
@@ -554,7 +558,6 @@ Properties of |mult|
 >     s5  :  n1 = n2
 >     s5  =  multMultElimLeft m1 m2 n1 n2 m1EQm2 nm1EQZ s4
 
-
 > |||
 > multMultElimRight : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
 >                     n1 = n2 -> Not (n1 = Z) -> m1 * n1 = m2 * n2 -> 
@@ -564,7 +567,7 @@ Properties of |mult|
 >     prf' : n1 * m1 = n2 * m2
 >     prf' = replace2 (multCommutative m1 n1) (multCommutative m2 n2) prf
 
-
+> |||
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
 >   s1 : Z = S m

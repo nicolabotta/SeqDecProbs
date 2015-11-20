@@ -95,11 +95,11 @@ be to define rational numbers as normalized fractions, something like
   NonNegRational = Subset Fraction Normal
 
 where |Normal : Fraction -> Type| represents the property of being in
-normal form, see "FractionNormal.lidr". It is easy to see that
-|normalize| does indeed return fractions in normal form, see
-|normalNormalize| in "FractionProperties.lidr". Thus, one could
-implement addition and multiplication of rational numbers in terms of
-|normalize| and of fraction addition and multiplication. For instance:
+normal form, see "FractionNormal". It is easy to see that |normalize|
+does indeed return fractions in normal form, see |normalNormalize| in
+"FractionProperties". Thus, one could implement addition and
+multiplication of rational numbers in terms of |normalize| and of
+fraction addition and multiplication. For instance:
 
   plus : NonNegRational -> NonNegRational -> NonNegRational
   plus x' y' = let x   =  getWitness x' in
@@ -140,9 +140,17 @@ To this end, we only need to show that:
 
 These properties are implemented via
 
+< plusPreservesEq : (x, x', y, y' : Fraction) -> 
+<                   (x `Eq` x') -> (y `Eq` y') -> (x + y) `Eq` (x' + y')
 
-
+< multPreservesEq : (x, x', y, y' : Fraction) -> 
+<                   (x `Eq` x') -> (y `Eq` y') -> (x * y) `Eq` (x' * y')
+ 
+and
+                  
 < normalizeEqLemma1 : (x : Fraction) -> (normalize x) `Eq` x
 
 < normalizeEqLemma2 : (x : Fraction) -> (y : Fraction) -> 
 <                     x `Eq` y -> normalize x = normalize y
+
+in "FractionProperties".

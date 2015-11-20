@@ -420,21 +420,13 @@ Properties of |Eq|, |plus|:
 > plusPreservesEq (n, Element d _) (n', Element d' _) 
 >                 (m, Element e _) (m', Element e' _) 
 >                 nd'EQn'd me'EQm'e = pf where
->   helper : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * c) * (b * d)
->   helper a b c d =
->     ((a * b) * (c * d))  ={ sym (multAssociative a b (c * d))                    }=
->     (a * (b * (c * d)))  ={ cong {f = \x => a * x} (multAssociative b c d)       }=
->     (a * ((b * c) * d))  ={ cong {f = \x => a * (x * d)} (multCommutative b c)   }=
->     (a * ((c * b) * d))  ={ cong {f = \x => a * x} (sym (multAssociative c b d)) }=
->     (a * (c * (b * d)))  ={ multAssociative a c (b * d)                          }=
->     ((a * c) * (b * d))  QED
 >   helper2 : (a, b, c, d, a', c' : Nat) -> (a * c = a' * c') ->
 >             ((a * b) * (c * d)) = ((a' * d) * (c' * b))
 >   helper2 a b c d a' c' acEQa'c' =
->     ((a * b) * (c * d))   ={ helper a b c d }=
+>     ((a * b) * (c * d))   ={ multFlipCentre a b c d }=
 >     ((a * c) * (b * d))   ={ cong {f = \x => x * (b * d)} acEQa'c' }=
 >     ((a' * c') * (b * d)) ={ cong {f = \x => (a' * c') * x} (multCommutative b d) }=
->     ((a' * c') * (d * b)) ={ helper a' c' d b }=
+>     ((a' * c') * (d * b)) ={ multFlipCentre a' c' d b }=
 >     ((a' * d) * (c' * b)) QED 
 >   pf : ((n * e) + (m * d)) * (d' * e') = ((n' * e') + (m' * d')) * (d * e)
 >   pf = 
@@ -457,25 +449,17 @@ Properties of |Eq|, |plus|:
 Properties of |Eq|, |mult|:
 
 > ||| 
-> multPreservesEq : (x, x' : Fraction) -> (x `Eq` x') -> 
->                   (y, y' : Fraction) -> (y `Eq` y') ->
->                   (x * y) `Eq` (x' * y')
-> multPreservesEq (n, Element d _) (n', Element d' _) nd'EQn'd
->                 (m, Element e _) (m', Element e' _) me'EQm'e = pf where
->   helper : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * c) * (b * d)
->   helper a b c d =
->     ((a * b) * (c * d))  ={ sym (multAssociative a b (c * d))                    }=
->     (a * (b * (c * d)))  ={ cong {f = \x => a * x} (multAssociative b c d)       }=
->     (a * ((b * c) * d))  ={ cong {f = \x => a * (x * d)} (multCommutative b c)   }=
->     (a * ((c * b) * d))  ={ cong {f = \x => a * x} (sym (multAssociative c b d)) }=
->     (a * (c * (b * d)))  ={ multAssociative a c (b * d)                          }=
->     ((a * c) * (b * d))  QED
+> multPreservesEq : (x, x', y, y' : Fraction) -> 
+>                   (x `Eq` x') -> (y `Eq` y') -> (x * y) `Eq` (x' * y')
+> multPreservesEq (n, Element d _) (n', Element d' _) 
+>                 (m, Element e _) (m', Element e' _) 
+>                 nd'EQn'd me'EQm'e = pf where
 >   pf : (n * m) * (d' * e') = (n' * m') * (d * e)
 >   pf = 
->     ((n * m) * (d' * e')) ={ helper n m d' e' }=
+>     ((n * m) * (d' * e')) ={ multFlipCentre n m d' e' }=
 >     ((n * d') * (m * e')) ={ cong {f = \x => x * (m * e')} nd'EQn'd }=
 >     ((n' * d) * (m * e')) ={ cong {f = \x => (n' * d) * x} me'EQm'e }=
->     ((n' * d) * (m' * e)) ={ helper n' d m' e }=
+>     ((n' * d) * (m' * e)) ={ multFlipCentre n' d m' e }=
 >     ((n' * m') * (d * e)) QED
 
 
