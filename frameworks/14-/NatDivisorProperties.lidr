@@ -309,6 +309,27 @@ Properties of |quotient|:
 >   ={ multMultElimLeft (S d) (S d) q m Refl SIsNotZ prf }=
 >     ( m )
 >   QED
+
+
+> quotientScaleInvariant : (m : Nat) -> (n : Nat) -> (d : Nat) -> Not (d * n = Z) ->
+>                          (nDm : n `Divisor` m) -> (dnDdm : (d * n) `Divisor` (d * m)) ->
+>                          quotient m n nDm = quotient (d * m) (d * n) dnDdm 
+> quotientScaleInvariant m n d ndnEQZ (Evidence p npEQm) (Evidence q dnqEQdm) =
+>   let s1 : (d * (n * p) = d * m)
+>          = multPreservesEq d d (n * p) m Refl npEQm in
+>   let s2 : ((d * n) * p = d * m)
+>          = replace {P = \ ZUZU => ZUZU = d * m} (multAssociative d n p) s1 in
+>   let s3 : ((d * n) * p = (d * n) * q)
+>          = trans s2 (sym dnqEQdm) in
+>     ( quotient m n (Evidence p npEQm) )
+>   ={ Refl }=
+>     ( p )
+>   ={ multMultElimLeft (d * n) (d * n) p q Refl ndnEQZ s3 }=
+>     ( q )
+>   ={ Refl }=
+>     ( quotient (d * m) (d * n) (Evidence q dnqEQdm) )
+>   QED
+>        
    
 > |||
 > quotientDivisorLemma : (d : Nat) -> (m : Nat) -> (n : Nat) ->
@@ -375,6 +396,37 @@ Properties of |quotient|:
 >                          {y = quotient c (S a) (divisorTransitive {l = S a} {m = b} {n = c} saDb bDc)}
 >                          {P = \ ZUZU => (quotient b (S a) saDb) `Divisor` ZUZU}
 >                          (sym (quotientIsJustGetWitness c (S a) saDc)) prf2
+
+>  flipQuotientLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                      (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) ->
+>                      (quotient m d dDm) * n = m * (quotient n d dDn)
+>  flipQuotientLemma m n d dDm dDn = 
+>    let qmd = quotient m d dDm in
+>    let qnd = quotient n d dDn in
+>      ( qmd * n )
+>    ={ cong {f = \ ZUZU => qmd * ZUZU} (sym (quotientLemma n d dDn)) }=
+>      ( qmd * (d * qnd) )
+>    ={ multAssociative qmd d qnd }=
+>      ( (qmd * d) * qnd )
+>    ={ cong {f = \ ZUZU => ZUZU * qnd} (multCommutative qmd d) }=
+>      ( (d * qmd) * qnd )
+>    ={ cong {f = \ ZUZU => ZUZU * qnd} (quotientLemma m d dDm) }=
+>      ( m * qnd )
+>    QED
+
+> quotientEqLemma : (m1 : Nat) -> (d1 : Nat) -> (d1Dm1 : d1 `Divisor` m1) ->
+>                   (m2 : Nat) -> (d2 : Nat) -> (d2Dm2 : d2 `Divisor` m2) ->
+>                   m1 = m2 -> d1 = d2 -> Not (d1 = Z) ->
+>                   quotient m1 d1 d1Dm1 = quotient m2 d2 d2Dm2
+> quotientEqLemma m d (Evidence p dpEQm) m d (Evidence q dqEQm) Refl Refl ndEQZ =
+>     ( quotient m d (Evidence p dpEQm) )
+>   ={ Refl }=
+>     ( p )
+>   ={ multMultElimLeft d d p q Refl ndEQZ (trans dpEQm (sym dqEQm)) }=
+>     ( q )
+>   ={ Refl }=
+>     ( quotient m d (Evidence q dqEQm) )
+>   QED
 
 
 > {-

@@ -2,6 +2,7 @@
 
 
 > import PNat
+> import NatPositive
 > import NatOperations
 > import NatProperties
 
@@ -11,13 +12,13 @@
 
 > ||| The predecessor of a PNat
 > pred : PNat -> Nat
-> pred (Element _ (MkIsSucc {n})) = n
+> pred (Element _ (MkPositive {n})) = n
 
 
 > ||| 
 > fromNat : (m : Nat) -> Z `LT` m -> PNat
 > fromNat m prf = Element m pm where
->   pm : IsSucc m
+>   pm : Positive m
 >   pm = fromSucc (pred m prf) m (predLemma m prf)
 
 
@@ -28,7 +29,7 @@
 
 > |||
 > plus : PNat -> PNat -> PNat
-> plus (Element m pm) (Element n pn) = Element (m + n) (plusPreservesIsSucc pm pn)
+> plus (Element m pm) (Element n pn) = Element (m + n) (plusPreservesPositivity pm pn)
 
 
 > |||
@@ -38,7 +39,7 @@
 
 > |||
 > mult : PNat -> PNat -> PNat
-> mult (Element m pm) (Element n pn) = Element (m * n) (multPreservesIsSucc pm pn)
+> mult (Element m pm) (Element n pn) = Element (m * n) (multPreservesPositivity pm pn)
 
 
 > |||

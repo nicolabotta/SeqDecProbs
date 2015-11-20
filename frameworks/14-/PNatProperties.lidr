@@ -4,6 +4,7 @@
 
 > import PNat
 > import PNatOperations
+> import NatPositive
 > import Unique
 > import SubsetProperties
 > import NatProperties
@@ -14,7 +15,7 @@
 
 > |||
 > predToNatLemma : (x : PNat) -> S (pred x) = toNat x
-> predToNatLemma (Element _ (MkIsSucc {n})) = Refl
+> predToNatLemma (Element _ (MkPositive {n})) = Refl
 
 
 > |||
@@ -28,7 +29,7 @@
 
 > ||| 
 > toNatEqLemma : {x, y : PNat} -> (toNat x) = (toNat y) -> x = y
-> toNatEqLemma {x} {y} p = subsetEqLemma1 x y p IsSuccUnique
+> toNatEqLemma {x} {y} p = subsetEqLemma1 x y p PositiveUnique
 > %freeze toNatEqLemma
 
 
@@ -39,11 +40,11 @@
 
 
 > |||
-> multOneRightNeutral : (x : PNat) -> x * (Element 1 MkIsSucc) = x
+> multOneRightNeutral : (x : PNat) -> x * (Element 1 MkPositive) = x
 > multOneRightNeutral (Element m pm) =
->     ( (Element m pm) * (Element 1 MkIsSucc) )
+>     ( (Element m pm) * (Element 1 MkPositive) )
 >   ={ Refl }=
->     ( Element (m * 1) (multPreservesIsSucc pm MkIsSucc) )
+>     ( Element (m * 1) (multPreservesPositivity pm MkPositive) )
 >   ={ toNatEqLemma (multOneRightNeutral m) }=
 >     ( Element m pm )
 >   QED
@@ -53,8 +54,8 @@
 > |||
 > multCommutative : (x : PNat) -> (y : PNat) -> x * y = y * x
 > multCommutative (Element m pm) (Element n pn) =
->   let pmn = multPreservesIsSucc pm pn in
->   let pnm = multPreservesIsSucc pn pm in
+>   let pmn = multPreservesPositivity pm pn in
+>   let pnm = multPreservesPositivity pn pm in
 >     ( Element (m * n) pmn )
 >   ={ toNatEqLemma (multCommutative m n) }=
 >     ( Element (n * m) pnm )
@@ -65,10 +66,10 @@
 > |||
 > multAssociative : (x : PNat) -> (y : PNat) -> (z : PNat) -> x * (y * z) = (x * y) * z
 > multAssociative (Element m pm) (Element n pn) (Element o po) = 
->   let pno   = multPreservesIsSucc pn po  in
->   let pmno  = multPreservesIsSucc pm pno in
->   let pmn   = multPreservesIsSucc pm pn  in
->   let pmno' = multPreservesIsSucc pmn po in
+>   let pno   = multPreservesPositivity pn po  in
+>   let pmno  = multPreservesPositivity pm pno in
+>   let pmn   = multPreservesPositivity pm pn  in
+>   let pmno' = multPreservesPositivity pmn po in
 >     ( (Element m pm) * ((Element n pn) * (Element o po)) )
 >   ={ Refl }=
 >     ( (Element m pm) * (Element (n * o) pno) )

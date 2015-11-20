@@ -555,6 +555,16 @@ Properties of |mult|
 >     s5  =  multMultElimLeft m1 m2 n1 n2 m1EQm2 nm1EQZ s4
 
 
+> |||
+> multMultElimRight : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
+>                     n1 = n2 -> Not (n1 = Z) -> m1 * n1 = m2 * n2 -> 
+>                     m1 = m2
+> multMultElimRight m1 m2 n1 n2 n1EQn2 nn1EQZ prf =
+>   multMultElimLeft n1 n2 m1 m2 n1EQn2 nn1EQZ prf' where
+>     prf' : n1 * m1 = n2 * m2
+>     prf' = replace2 (multCommutative m1 n1) (multCommutative m2 n2) prf
+
+
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
 > multElim1 m    Z  p = absurd s1 where
 >   s1 : Z = S m
