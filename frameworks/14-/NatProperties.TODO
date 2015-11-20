@@ -1,0 +1,10 @@
+* 2015.11.20 
+** For consistency and as a preparation for making certain arguments
+   implicit, rearrange argument lists in order to avoid value - property
+   - value - property sequences. For instance, rewrite
+
+     lala : (m, n : Nat) -> LT m n -> (o, p : Nat) -> LT o p -> Lala
+
+   as
+
+     lala : (m, n, o, p : Nat) -> LT m n -> LT o p -> Lala
