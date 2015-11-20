@@ -53,7 +53,7 @@
 > -- %freeze upscale
 
 
-> ||| Reduction to normal form
+> ||| Reduction to normal form via gcdAlg (NatGCDAlgorithm)
 > normalize : Fraction -> Fraction
 > normalize (m, d') =
 >   let d       :  Nat
@@ -78,24 +78,34 @@
 > -- %freeze normalize
 
 
-> ||| An equivalence relation Eq: the idea is that Eq will be used to define
-> ||| non-negative rational numbers as quotient of fractions by Eq. For
-> ||| this, we have to implement a
-> |||  
-> |||   normalize : Fraction -> Fraction
-> |||
-> ||| and show that 
-> |||
-> |||   x `Eq` normalize x
-> |||
-> |||   x `Eq` y => normalize x = normalize y
-> |||
-> ||| and that addition and multiplication preserve Eq. 
+> ||| An equivalence relation (see below)
 > Eq : Fraction -> Fraction -> Type
 > Eq (m, d') (n, e') = let d = toNat d' in
 >                      let e = toNat e' in
 >                      m * e = n * d
 > -- %freeze Eq
+
+The idea is to use |Eq| define non-negative rational numbers as quotient
+of fractions by |Eq|. Ideally, we would like to say something like
+
+  NonNegRational = Subset Fraction Normal
+
+where |Normal : Fraction -> Type| represents the property of being in
+normal form, see "FractionNormal.lidr".
+
+
+For this, we have to implement a
+ 
+  normalize : Fraction -> Fraction
+
+and show that 
+
+  x `Eq` normalize x
+
+  x `Eq` y => normalize x = normalize y
+
+and that addition and multiplication preserve Eq. 
+
 
 
 > {-
