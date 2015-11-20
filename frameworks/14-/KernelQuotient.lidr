@@ -248,25 +248,25 @@ module parameters
 Type classes
 ----------------------------
 
-> instance Num KBase => Num KQuot where
->   (+) = liftBinop (+)
->   (*) = liftBinop (*)
->   fromInteger = classOf . fromInteger
->   -- abs = classOf . (lift abs)
->
-> instance Show KBase => Show KQuot where
->   show (Class x _) = "[" ++ show x ++ "]"
->
-> instance DecEq KBase => DecEq KQuot where
->   decEq (Class x nxIsx) (Class y nyIsy)
->     with (decEq (normalize x) (normalize y))
->     | (Yes p) = Yes (classesEqIfReprEq  (Class x nxIsx)
->                                         (Class y nyIsy)
->                                         xIsy) where
->         xIsy =
->           (x)             ={ sym nxIsx }=
->           (normalize x)   ={ p }=
->           (normalize y)   ={ nyIsy }=
->           (y)             QED
->     | (No contra) = No (contra . (cong {f = normalize . repr}))
+ instance Num KBase => Num KQuot where
+   (+) = liftBinop (+)
+   (*) = liftBinop (*)
+   fromInteger = classOf . fromInteger
+   -- abs = classOf . (lift abs)
+
+ instance Show KBase => Show KQuot where
+   show (Class x _) = "[" ++ show x ++ "]"
+
+ instance DecEq KBase => DecEq KQuot where
+   decEq (Class x nxIsx) (Class y nyIsy)
+     with (decEq (normalize x) (normalize y))
+     | (Yes p) = Yes (classesEqIfReprEq  (Class x nxIsx)
+                                         (Class y nyIsy)
+                                         xIsy) where
+         xIsy =
+           (x)             ={ sym nxIsx }=
+           (normalize x)   ={ p }=
+           (normalize y)   ={ nyIsy }=
+           (y)             QED
+     | (No contra) = No (contra . (cong {f = normalize . repr}))
 
