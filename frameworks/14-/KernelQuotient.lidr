@@ -82,7 +82,7 @@ module parameters
 
 > ||| The classes of elements |x| and |y| such that
 > ||| |normalize x = normalize y| (, i.e. |x| and |y|
-> ||| are in the |ker normalize| relation, are equal.
+> ||| are in the |ker normalize| relation,) are equal.
 > |||
 > classOfEqIfNormalizeEq :  (x, y : KBase) ->
 >                           (normalize x = normalize y) ->
@@ -186,16 +186,17 @@ module parameters
 > ||| 
 > lift2Comp:  {B : Type} ->
 >             (f : KBase -> KBase -> B) ->
->             ( (x, x', y, y' : KBase) ->
->               (normalize x  = normalize y ) ->
->               (normalize x' = normalize y') ->
->               f x x' = f y y') ->
+>             ( (x, x' : KBase) ->
+>               (normalize x  = normalize x' ) ->
+>               (y, y' : KBase) ->
+>               (normalize y = normalize y') ->
+>               f x y = f x' y') ->
 >             (x, y : KBase) ->
 >             (lift2 f) [x] [y] = f x y
 >
 > lift2Comp f fInv x y =
->   fInv (normalize x) (normalize y) x y
->        (normalizeIdem x) (normalizeIdem y)
+>   fInv (normalize x) x (normalizeIdem x)
+>        (normalize y) y (normalizeIdem y)
 
 
 > ||| Helper for liftBinop and liftBinopLemma, mapping
@@ -233,10 +234,11 @@ module parameters
 > ||| |liftBinop op|: |(liftBinop op) [x] [y] = [x `op` y]|.
 > |||
 > liftBinopComp:  (op : KBase -> KBase -> KBase) ->
->                 ( (x, x', y, y' : KBase) ->
->                   (normalize x = normalize y) ->
->                   (normalize x' = normalize y') ->
->                   [x `op` x'] = [y `op` y']
+>                 ( (x, x' : KBase) ->
+>                   (normalize x = normalize x') ->
+>                   (y, y' : KBase) ->
+>                   (normalize y = normalize y') ->
+>                   [x `op` y] = [x' `op` y']
 >                 ) ->
 >                 (x, y : KBase) ->
 >                 (liftBinop op) [x] [y] = [x `op` y]
