@@ -2,7 +2,7 @@
 
 
 > import Fraction
-> import FractionReduction
+> import FractionNormal
 
 
 > %default total
@@ -10,6 +10,6 @@
 
 > ||| Non negative rationals
 > NonNegQ : Type
-> NonNegQ = Subset Fraction Reduced
+> NonNegQ = Subset Fraction Normal
 
 

@@ -5,24 +5,26 @@
 
 > import NonNegRational
 > import NonNegRationalOperations
-> import PNat
-> import NatCoprime
 > import Fraction
 > import FractionOperations
 > import FractionProperties
-> import FractionReduction
-> import FractionReductionOperations
-> import FractionReductionProperties
+> import FractionNormal
 > import SubsetProperties
 > import Unique
+> import NatPositive
+> -- import PNat
+> -- import NatCoprime
+> 
 
 
 > %default total
 
 
+Properties of |toFraction|:
+
 > |||
 > toFractionEqLemma1 : {x, y : NonNegQ} -> (toFraction x) = (toFraction y) -> x = y
-> toFractionEqLemma1 {x} {y} p = subsetEqLemma1 x y p ReducedUnique 
+> toFractionEqLemma1 {x} {y} p = subsetEqLemma1 x y p NormalUnique 
 
 
 > |||
@@ -30,8 +32,18 @@
 > toFractionEqLemma2 {x} {y} p = getWitnessPreservesEq p 
 
 
+Properties of |fromFraction| and |toFraction|:
+
 > |||
-> -- fromFractionLemma : {x, y : Fraction} -> fromFraction 
+> fromToId : (x : NonNegQ) -> fromFraction (toFraction x) = x
+> fromToId (Element x nx) = ( fromFraction (toFraction (Element x nx)) )
+>                         ={ Refl }=
+>                           ( fromFraction x )
+>                         ={ Refl }=
+>                           ( Element (normalize x) (normalNormalize x) )
+>                         ={ toFractionEqLemma1 (normalizePreservesNormal x nx) }=
+>                           ( Element x nx )
+>                         QED
 
 
 > ||| NonNegQ is an instance of Show
@@ -48,59 +60,48 @@
 
 > ||| Addition is commutative
 > plusCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x + y = y + x
-> plusCommutative x' y' =
->   let x   =  toFraction x' in
->   let y   =  toFraction y' in
->     ( x' + y' )
+> plusCommutative x y =
+>     ( x + y )
 >   ={ Refl }=
->     ( reduce (x + y) )
->   ={ cong {f = reduce} (plusCommutative x y) }=
->     ( reduce (y + x) )
+>     ( fromFraction (toFraction x + toFraction y) )
+>   ={ cong {f = fromFraction} (plusCommutative (toFraction x) (toFraction y)) }=
+>     ( fromFraction (toFraction y + toFraction x) )
 >   ={ Refl }=
->     ( y' + x' )
+>     ( y + x )
 >   QED
 > %freeze plusCommutative
 
-> {-
-> ||| |fromInteger 0| is neutral element of addition
-> plusZeroRightNeutral : (x : NonNegQ) -> x + (fromInteger 0) = x
-> plusZeroRightNeutral (Element x prf) =  
->     ( (Element x prf) + (fromInteger 0) )
->   ={ Refl }=
->     ( fromFraction (x + (fromInteger 0)) )
->   ={ cong (plusZeroRightNeutral x) }=
->     ( fromFraction x )
->   ={ toFractionEqLemma1 (reducePreservesReduced x prf) }=
->     ( Element x prf )
->   QED
-> %freeze plusZeroRightNeutral
-> -}
 
-
-> ||| |fromInteger 0| is neutral element of addition
-> plusZeroRightNeutral : (x : NonNegQ) -> x + (fromInteger 0) = x
+> ||| 0 is neutral element of addition
+> plusZeroRightNeutral : (x : NonNegQ) -> x + 0 = x
 > plusZeroRightNeutral x =  
->     ( x + (fromInteger 0) )
+>     ( x + 0 )
 >   ={ Refl }=
->     ( reduce (toFraction x + toFraction (fromInteger 0)) )
->   ={ cong (plusZeroRightNeutral (toFraction x)) }=
->     ( reduce (toFraction x) )
->   ={ reducePreservesReduced x }=
+>     ( fromFraction (toFraction x + toFraction 0) )
+>   ={ cong {f = fromFraction} (plusZeroRightNeutral (toFraction x)) }=
+>     ( fromFraction (toFraction x) )
+>   ={ fromToId x }=
 >     ( x )
 >   QED
 > %freeze plusZeroRightNeutral
 
 
-> ||| |fromInteger 0| is neutral element of addition
-> plusZeroLeftNeutral : (x : NonNegQ) -> (fromInteger 0) + x = x
+> ||| 0 is neutral element of addition
+> plusZeroLeftNeutral : (x : NonNegQ) -> 0 + x = x
 > plusZeroLeftNeutral x =   
->     ( (fromInteger 0) + x )
->   ={ plusCommutative (fromInteger 0) x }=
->     ( x + (fromInteger 0) )
+>     ( 0 + x )
+>   ={ plusCommutative 0 x }=
+>     ( x + 0 )
 >   ={ plusZeroRightNeutral x }=
 >     ( x )
 >   QED
 > %freeze plusZeroLeftNeutral
+
+
+
+
+> {-
+
 
 
 > ||| Multiplication is commutative
@@ -161,8 +162,6 @@
 
 
 
-
-> {-
 
 
 > ||| Addition is associative

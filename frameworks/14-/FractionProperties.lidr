@@ -364,18 +364,20 @@ Properties of |normalize|:
 >   ={ Refl }=
 >     ( normalize (m, d') )
 >   QED
-
+> %freeze normalizeUpscaleLemma
 
 Properties of |Eq|:
 
 > ||| Eq is reflexive
 > EqReflexive : {x : Fraction} -> x `Eq` x
 > EqReflexive {x = (m, d')} = Refl
+> %freeze EqReflexive
 
 
 > ||| Eq is symmetric
 > EqSymmetric : {x, y : Fraction} -> x `Eq` y -> y `Eq` x
 > EqSymmetric {x = (m, d')} {y = (n, e')} = sym
+> %freeze EqSymmetric
 
 
 > ||| Eq is transitive
@@ -410,6 +412,7 @@ Properties of |Eq|:
 >               =  replace {P = \ ZUZU => (m * f) * e = ZUZU} (multAssociative o d e) s10 in
 >
 >   multMultElimRight (m * f) (o * d) e e Refl neEQZ s11
+> %freeze EqTransitive
 
 
 Properties of |Eq|, |plus|:
@@ -444,6 +447,7 @@ Properties of |Eq|, |plus|:
 >       ={ sym (multDistributesOverPlusLeft (n' * e') (m' * d') (d * e)) }=
 >     (((n' * e') + (m' * d')) * (d * e))
 >       QED
+> %freeze plusPreservesEq
 
 
 Properties of |Eq|, |mult|:
@@ -461,6 +465,7 @@ Properties of |Eq|, |mult|:
 >     ((n' * d) * (m * e')) ={ cong {f = \x => (n' * d) * x} me'EQm'e }=
 >     ((n' * d) * (m' * e)) ={ multFlipCentre n' d m' e }=
 >     ((n' * m') * (d * e)) QED
+> %freeze multPreservesEq
 
 
 Properties of |normalize|, |Eq|:
@@ -480,6 +485,7 @@ Properties of |normalize|, |Eq|:
 >             =  gcdDivisorSnd v in
 > 
 >  flipQuotientLemma m n d dDm dDn
+> %freeze normalizeEqLemma1
 
 
 > |||
@@ -499,6 +505,8 @@ Properties of |normalize|, |Eq|:
 >   ={ normalizeUpscaleLemma (m2, n2') n1' }=
 >     ( normalize (m2, n2') )
 >   QED
+> %freeze normalizeEqLemma2
+
 
 > {-
 
