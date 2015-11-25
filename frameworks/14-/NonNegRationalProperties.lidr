@@ -104,7 +104,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| Addition is associative
-> plusAssociative : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) -> x + (y + z) = (x + y) + z
+> plusAssociative : (x, y, z : NonNegQ) -> x + (y + z) = (x + y) + z
 > plusAssociative x y z =
 >   let x' = toFraction x in
 >   let y' = toFraction y in
@@ -176,67 +176,71 @@ Properties of |fromFraction| and |toFraction|:
 > %freeze multOneLeftNeutral
 
 
-> {-
 > |||
-> multZeroPlusRightZero : (x : NonNegQ) -> x * 0 = 0
-> multZeroPlusRightZero x =  
+> multZeroRightZero : (x : NonNegQ) -> x * 0 = 0
+> multZeroRightZero x = 
+>   let x' = toFraction x in 
 >     ( x * 0 )
 >   ={ Refl }=
->     ( fromFraction ((toFraction x) * (toFraction 0)) )
->   ={ cong {f = fromFraction} (plusZeroRightNeutral (toFraction x)) }=
->     ( fromFraction (toFraction 0) )
+>     ( fromFraction (x' * 0) )
+>   ={ Refl }=
+>     ( Element (normalize (x' * 0)) (normalNormalize (x' * 0)) )
+>   ={ toFractionEqLemma1 (normalizeEqLemma2 (x' * 0) 0 (multZeroRightEqZero x')) }=
+>     ( Element (normalize 0) (normalNormalize 0) )
+>   ={ Refl }=
+>     ( fromFraction 0 )
 >   ={ fromToId 0 }=
 >     ( 0 )
 >   QED
-> %freeze multZeroPlusRightZero
-> -}
+> %freeze multZeroRightZero
 
 
-> {-
-
-
-> {- TODO: complete
-> multZeroPlusRight : (x : NonNegQ) -> x * (fromInteger 0) = fromInteger 0
-> multZeroPlusRight x@(MkNonNegQ n d zLTd gcdOne) =
->     (  x * (fromInteger 0)  )
->   ={ Refl }=
->     (  (MkNonNegQ n d zLTd gcdOne) * (MkNonNegQ Z (S Z) (ltZS Z) (gcdAnyOneOne alg Z))  )
->   ={ Refl }=
->     (  fromFraction (n * Z) (d * (S Z)) (multZeroLTZeroLT d (S Z) zLTd (zeroLTden (fromInteger 0))))
->   ={ ?foo }=
->     (  fromInteger 0  )
+> ||| 
+> multZeroLeftZero : (x : NonNegQ) -> 0 * x = 0
+> multZeroLeftZero x =   
+>     ( 0 * x )
+>   ={ multCommutative 0 x }=
+>     ( x * 0 )
+>   ={ multZeroRightZero x }=
+>     ( 0 )
 >   QED
-> -}
+> %freeze multZeroLeftZero
+
+
+> |||
+> multDistributesOverPlusRight : (x, y, z : NonNegQ) -> x * (y + z) = (x * y) + (x * z)
+> multDistributesOverPlusRight x y z =
+>   let x' = toFraction x in
+>   let y' = toFraction y in
+>   let z' = toFraction z in
+>     ( x * (y + z) )
+>   ={ Refl }=
+>     ( fromFraction (x' * toFraction (fromFraction (y' + z'))) )
+>   ={ Refl }=
+>     ( fromFraction (x' * (normalize (y' + z'))) )
+>   ={ Refl }=
+>     ( Element (normalize (x' * (normalize (y' + z')))) (normalNormalize (x' * (normalize (y' + z')))) )
+>   ={ toFractionEqLemma1 (normalizeMultElimRight x' (y' + z')) }=
+>     ( Element (normalize (x' * (y' + z'))) (normalNormalize (x' * (y' + z'))) )
+>   ={ ?s2 }=
+>     ( Element (normalize ((x' * y') + (x' * z'))) (normalNormalize ((x' * y') + (x' * z'))) )
+>   ={ toFractionEqLemma1 (sym (normalizePlusElim (x' * y') (x' * z'))) }=
+>     ( Element (normalize (normalize (x' * y') + normalize (x' * z'))) 
+>               (normalNormalize (normalize (x' * y') + normalize (x' * z'))) )
+>   ={ Refl }=
+>     ( fromFraction ((normalize (x' * y')) + (normalize (x' * z'))) )
+>   ={ Refl }=
+>     ( fromFraction ((toFraction (fromFraction (x' * y'))) + (toFraction (fromFraction (x' * z')))) )
+>   ={ Refl }=
+>     ( (x * y) + (x * z) )
+>   QED
+> %freeze multDistributesOverPlusRight
+
 
 > {-
-
-> multZeroPlusLeft  : (x : NonNegQ) -> (fromInteger 0) * x = fromInteger 0
-
-> multOneRight      : (x : NonNegQ) -> x * (fromInteger 1) = x
-
-> multOneLeft       : (x : NonNegQ) -> (fromInteger 1) * x = x
-
-
-> multDistributesOverPlusRight : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
->                                x * (y + z) = (x * y) + (x * z)
 
 > multDistributesOverPlusLeft  : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
 >                                (x + y) * z = (x * z) + (y * z)
-
-> -}
-
-> ||| |fromInteger 1| is neutral element of multiplication
-> multOneRightNeutral : (x : NonNegQ) -> x * (fromInteger 1) = x
-> multOneRightNeutral x =  
->     ( x * (fromInteger 1) )
->   ={ Refl }=
->     ( reduce ((toFraction x) * (toFraction (fromInteger 1))) )
->   ={ cong (multOneRightNeutral (toFraction x)) }=
->     ( reduce (toFraction x) )
->   ={ reducePreservesReduced x }=
->     ( x )
->   QED
-> %freeze multOneRightNeutral
 
 > ---}
  

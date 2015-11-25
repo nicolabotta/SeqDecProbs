@@ -415,6 +415,14 @@ Properties of |Eq|:
 > %freeze EqTransitive
 
 
+> |||
+> multZeroRightEqZero : (x : Fraction) -> x * 0 `Eq` 0
+
+
+> |||
+> multZeroLeftEqZero : (x : Fraction) -> 0 * x `Eq` 0
+
+
 Properties of |Eq|, |plus|:
 
 > |||
@@ -540,6 +548,36 @@ Further properties of |normalize|:
 >   normalizeEqLemma2 (normalize x + normalize y) (x + y) nxnyEqxy
 > %freeze normalizePlusElim
 
+
+> |||
+> normalizeMultElimLeft : (x : Fraction) -> (y : Fraction) -> 
+>                         normalize ((normalize x) * y) = normalize (x * y)
+> normalizeMultElimLeft x y = 
+>   let nxEqx   = normalizeEqLemma1 x in
+>   let nxyEqxy = multPreservesEq (normalize x) x y y nxEqx EqReflexive in
+>   normalizeEqLemma2 ((normalize x) * y) (x * y) nxyEqxy
+> %freeze normalizeMultElimLeft
+
+
+> |||
+> normalizeMultElimRight : (x : Fraction) -> (y : Fraction) -> 
+>                          normalize (x * (normalize y)) = normalize (x * y)
+> normalizeMultElimRight x y = 
+>   let nyEqy   = normalizeEqLemma1 y in
+>   let xnyEqxy = multPreservesEq x x (normalize y) y EqReflexive nyEqy in
+>   normalizeEqLemma2 (x * (normalize y)) (x * y) xnyEqxy
+> %freeze normalizeMultElimRight
+
+
+> |||
+> normalizeMultElim : (x : Fraction) -> (y : Fraction) -> 
+>                     normalize ((normalize x) * (normalize y)) = normalize (x * y)
+> normalizeMultElim x y = 
+>   let nxEqx   = normalizeEqLemma1 x in
+>   let nyEqy   = normalizeEqLemma1 y in
+>   let nxnyEqxy = multPreservesEq (normalize x) x (normalize y) y nxEqx nyEqy in
+>   normalizeEqLemma2 ((normalize x) * (normalize y)) (x * y) nxnyEqxy
+> %freeze normalizeMultElim
 
 > {-
 
