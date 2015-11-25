@@ -29,3 +29,7 @@
 
 > z : NonNegQ
 > z = x `plus` y
+
+
+> main : IO ()               
+> main = putStrLn $ show z
