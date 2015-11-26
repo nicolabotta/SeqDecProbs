@@ -20,14 +20,14 @@
 > zLTs {m} = ltZS m
 
 
-> x : NonNegQ
+> x : NonNegRational
 > x = fromFraction (7, fromNat 3 zLTs) 
 
-> y : NonNegQ
+> y : NonNegRational
 > y = fromFraction (28, fromNat 8 zLTs)
 
 
-> z : NonNegQ
+> z : NonNegRational
 > z = x `plus` y
 
 

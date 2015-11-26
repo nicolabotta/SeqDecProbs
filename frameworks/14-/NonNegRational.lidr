@@ -8,8 +8,8 @@
 > %default total
 
 
-> ||| Non negative rationals
-> NonNegQ : Type
-> NonNegQ = Subset Fraction Normal
+> ||| Non negative rational numbers
+> NonNegRational : Type
+> NonNegRational = Subset Fraction Normal
 
 

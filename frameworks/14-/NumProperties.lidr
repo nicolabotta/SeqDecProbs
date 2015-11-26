@@ -2,14 +2,13 @@
 
 > import Data.Fin
 > import Data.Vect
-> -- import Data.VectType
 > import Syntax.PreorderReasoning
 
 > import Matrix
 > import MatrixOperations
 > import NumRefinements
 > import NumOperations
-> -- import FinOperations
+
 
 > %default total
 
@@ -104,7 +103,7 @@ of append (because it is not defined in terms of |foldrImpl|)
 >                (x : t) -> (xs : Vect m t) ->
 >                x * sum xs = sum (multSV x xs)
 > multSumLemma x  Nil      = ( x * (fromInteger 0) )
->                          ={ multZeroPlusRight x }=
+>                          ={ multZeroRightZero x }=
 >                            ( fromInteger 0 )
 >                          ={ Refl }=
 >                            ( sum Data.Vect.Nil )
@@ -137,19 +136,19 @@ of append (because it is not defined in terms of |foldrImpl|)
 >     ( x * sum xs )
 >   ={ cong pxs }=
 >     ( x * fromInteger 1 )
->   ={ multOneRight x }=
+>   ={ multOneRightNeutral x }=
 >     x
 >   QED
 
-> sumPlusAppendLemma :  NumAssocPlus t =>
+> sumPlusAppendLemma :  NumPlusAssociative t =>
 >                       (xs : Vect n t) -> (ys : Vect m t) ->
 >                       (sum xs + sum ys) = sum (xs ++ ys)
-> sumPlusAppendLemma Nil       ys = plusZeroPlusLeft (sum ys)
+> sumPlusAppendLemma Nil       ys = plusZeroLeftNeutral (sum ys)
 > sumPlusAppendLemma (x :: xs) ys =
 >     ( sum (x :: xs) + sum ys )
 >   ={ cong {f = (+ sum ys)} (sumLemma x xs) }=
 >     ( (x + sum xs) + sum ys )
->   ={ sym (plusAssoc x (sum xs) (sum ys)) }=
+>   ={ sym (plusAssociative x (sum xs) (sum ys)) }=
 >     ( x + (sum xs + sum ys) )
 >   ={ cong (sumPlusAppendLemma xs ys) }=
 >     ( x + sum (xs ++ ys) )
@@ -159,7 +158,7 @@ of append (because it is not defined in terms of |foldrImpl|)
 >     ( sum ((x :: xs) ++ ys) )
 >   QED
 >
-> sumMapConcat : (NumAssocPlus t) => (xss : Matrix m n t) ->
+> sumMapConcat : (NumPlusAssociative t) => (xss : Matrix m n t) ->
 >                sum (map sum xss) = sum (Vect.concat xss)
 > sumMapConcat Nil           = Refl
 > sumMapConcat (row :: rows) =

@@ -12,9 +12,7 @@
 > import SubsetProperties
 > import Unique
 > import NatPositive
-> -- import PNat
-> -- import NatCoprime
-> 
+> import NumRefinements
 
 
 > %default total
@@ -22,37 +20,60 @@
 
 Properties of |toFraction|:
 
-> |||
-> toFractionEqLemma1 : {x, y : NonNegQ} -> (toFraction x) = (toFraction y) -> x = y
-> toFractionEqLemma1 {x} {y} p = subsetEqLemma1 x y p NormalUnique 
+> ||| toFraction is injective
+> toFractionInjective : {x, y : NonNegRational} -> (toFraction x) = (toFraction y) -> x = y
+> toFractionInjective {x} {y} p = subsetEqLemma1 x y p NormalUnique 
+> %freeze toFractionInjective
 
 
-> |||
-> toFractionEqLemma2 : {x, y : NonNegQ} -> x = y -> (toFraction x) = (toFraction y)
+> ||| toFraction preserves equality
+> toFractionEqLemma2 : {x, y : NonNegRational} -> x = y -> (toFraction x) = (toFraction y)
 > toFractionEqLemma2 {x} {y} p = getWitnessPreservesEq p 
+> %freeze toFractionEqLemma2
 
 
 Properties of |fromFraction| and |toFraction|:
 
-> |||
-> fromToId : (x : NonNegQ) -> fromFraction (toFraction x) = x
+> ||| fromFraction is left inverse of toFraction
+> fromToId : (x : NonNegRational) -> fromFraction (toFraction x) = x
 > fromToId (Element x nx) = ( fromFraction (toFraction (Element x nx)) )
 >                         ={ Refl }=
 >                           ( fromFraction x )
 >                         ={ Refl }=
 >                           ( Element (normalize x) (normalNormalize x) )
->                         ={ toFractionEqLemma1 (normalizePreservesNormal x nx) }=
+>                         ={ toFractionInjective (normalizePreservesNormal x nx) }=
 >                           ( Element x nx )
 >                         QED
+> %freeze fromToId
 
 
-> ||| NonNegQ is an instance of Show
-> instance Show NonNegQ where
+> ||| 
+> toFractionFromNatLemma : (n : Nat) -> toFraction (fromNat n) = fromNat n
+> toFractionFromNatLemma n =
+>     ( toFraction (fromNat n) )
+>   ={ Refl }=
+>     ( toFraction (fromFraction (fromNat n)) )
+>   ={ Refl }=
+>     ( toFraction (fromFraction (n, Element (S Z) MkPositive)) )
+>   ={ Refl }=
+>     ( toFraction (Element (normalize (n, Element (S Z) MkPositive)) (normalNormalize (n, Element (S Z) MkPositive))) )
+>   ={ cong (toFractionInjective (normalizePreservesNormal (n, Element (S Z) MkPositive) fromNatNormal)) }=
+>     ( toFraction (Element (n, Element (S Z) MkPositive) fromNatNormal) )
+>   ={ Refl }=
+>     ( (n, Element (S Z) MkPositive) )
+>   ={ Refl }=
+>     ( fromNat n )
+>   QED
+> %freeze toFractionFromNatLemma
+
+
+> ||| NonNegRational is an instance of Show
+> instance Show NonNegRational where
 >   show q = show (num q) ++ "/" ++ show (den q)
 
 
-> ||| NonNegQ is an instance of Num
-> instance Num NonNegQ where
+> ||| NonNegRational is an instance of Num
+> instance Num NonNegRational where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = fromNat . fromIntegerNat
@@ -60,11 +81,20 @@ Properties of |fromFraction| and |toFraction|:
 
 > |||
 > toFractionFromIntegerLemma : (n : Integer) -> toFraction (fromInteger n) = fromInteger n
-
+> toFractionFromIntegerLemma n =
+>     ( toFraction (fromInteger n) )
+>   ={ Refl }=
+>     ( toFraction (fromNat (fromIntegerNat n)) )
+>   ={ toFractionFromNatLemma (fromIntegerNat n) }=
+>     ( fromNat (fromIntegerNat n) )
+>   ={ Refl }=
+>     ( fromInteger n )
+>   QED
+> %freeze toFractionFromIntegerLemma
 
 
 > ||| Addition is commutative
-> plusCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x + y = y + x
+> plusCommutative : (x : NonNegRational) -> (y : NonNegRational) -> x + y = y + x
 > plusCommutative x y =
 >     ( x + y )
 >   ={ Refl }=
@@ -78,7 +108,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| 0 is neutral element of addition
-> plusZeroRightNeutral : (x : NonNegQ) -> x + 0 = x
+> plusZeroRightNeutral : (x : NonNegRational) -> x + 0 = x
 > plusZeroRightNeutral x =  
 >     ( x + 0 )
 >   ={ Refl }=
@@ -92,7 +122,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| 0 is neutral element of addition
-> plusZeroLeftNeutral : (x : NonNegQ) -> 0 + x = x
+> plusZeroLeftNeutral : (x : NonNegRational) -> 0 + x = x
 > plusZeroLeftNeutral x =   
 >     ( 0 + x )
 >   ={ plusCommutative 0 x }=
@@ -104,7 +134,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| Addition is associative
-> plusAssociative : (x, y, z : NonNegQ) -> x + (y + z) = (x + y) + z
+> plusAssociative : (x, y, z : NonNegRational) -> x + (y + z) = (x + y) + z
 > plusAssociative x y z =
 >   let x' = toFraction x in
 >   let y' = toFraction y in
@@ -116,11 +146,11 @@ Properties of |fromFraction| and |toFraction|:
 >     ( fromFraction (x' + normalize (y' + z')) )
 >   ={ Refl }=
 >     ( Element (normalize (x' + normalize (y' + z'))) (normalNormalize (x' + normalize (y' + z'))) )
->   ={ toFractionEqLemma1 (normalizePlusElimRight x' (y' + z')) }=
+>   ={ toFractionInjective (normalizePlusElimRight x' (y' + z')) }=
 >     ( Element (normalize (x' + (y' + z'))) (normalNormalize (x' + (y' + z'))) )
->   ={ toFractionEqLemma1 (cong (plusAssociative x' y' z')) }=
+>   ={ toFractionInjective (cong (plusAssociative x' y' z')) }=
 >     ( Element (normalize ((x' + y') + z')) (normalNormalize ((x' + y') + z')) )
->   ={ sym (toFractionEqLemma1 (normalizePlusElimLeft (x' + y') z')) }=
+>   ={ sym (toFractionInjective (normalizePlusElimLeft (x' + y') z')) }=
 >     ( Element (normalize (normalize (x' + y') + z')) (normalNormalize (normalize (x' + y') + z')) )
 >   ={ Refl }=  
 >     ( fromFraction (normalize (x' + y') + z') )
@@ -133,7 +163,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| Multiplication is commutative
-> multCommutative : (x : NonNegQ) -> (y : NonNegQ) -> x * y = y * x
+> multCommutative : (x : NonNegRational) -> (y : NonNegRational) -> x * y = y * x
 > multCommutative x y =
 >     ( x * y )
 >   ={ Refl }=
@@ -147,7 +177,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| 1 is neutral element of multiplication
-> multOneRightNeutral : (x : NonNegQ) -> x * 1 = x
+> multOneRightNeutral : (x : NonNegRational) -> x * 1 = x
 > multOneRightNeutral x =  
 >     ( x * 1 )
 >   ={ Refl }=
@@ -165,7 +195,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| 1 is neutral element of multiplication
-> multOneLeftNeutral : (x : NonNegQ) -> 1 * x = x
+> multOneLeftNeutral : (x : NonNegRational) -> 1 * x = x
 > multOneLeftNeutral x =   
 >     ( 1 * x )
 >   ={ multCommutative 1 x }=
@@ -177,7 +207,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > |||
-> multZeroRightZero : (x : NonNegQ) -> x * 0 = 0
+> multZeroRightZero : (x : NonNegRational) -> x * 0 = 0
 > multZeroRightZero x = 
 >   let x' = toFraction x in 
 >     ( x * 0 )
@@ -185,7 +215,7 @@ Properties of |fromFraction| and |toFraction|:
 >     ( fromFraction (x' * 0) )
 >   ={ Refl }=
 >     ( Element (normalize (x' * 0)) (normalNormalize (x' * 0)) )
->   ={ toFractionEqLemma1 (normalizeEqLemma2 (x' * 0) 0 (multZeroRightEqZero x')) }=
+>   ={ toFractionInjective (normalizeEqLemma2 (x' * 0) 0 (multZeroRightEqZero x')) }=
 >     ( Element (normalize 0) (normalNormalize 0) )
 >   ={ Refl }=
 >     ( fromFraction 0 )
@@ -196,7 +226,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > ||| 
-> multZeroLeftZero : (x : NonNegQ) -> 0 * x = 0
+> multZeroLeftZero : (x : NonNegRational) -> 0 * x = 0
 > multZeroLeftZero x =   
 >     ( 0 * x )
 >   ={ multCommutative 0 x }=
@@ -208,7 +238,7 @@ Properties of |fromFraction| and |toFraction|:
 
 
 > |||
-> multDistributesOverPlusRight : (x, y, z : NonNegQ) -> x * (y + z) = (x * y) + (x * z)
+> multDistributesOverPlusRight : (x, y, z : NonNegRational) -> x * (y + z) = (x * y) + (x * z)
 > multDistributesOverPlusRight x y z =
 >   let x' = toFraction x in
 >   let y' = toFraction y in
@@ -220,11 +250,11 @@ Properties of |fromFraction| and |toFraction|:
 >     ( fromFraction (x' * (normalize (y' + z'))) )
 >   ={ Refl }=
 >     ( Element (normalize (x' * (normalize (y' + z')))) (normalNormalize (x' * (normalize (y' + z')))) )
->   ={ toFractionEqLemma1 (normalizeMultElimRight x' (y' + z')) }=
+>   ={ toFractionInjective (normalizeMultElimRight x' (y' + z')) }=
 >     ( Element (normalize (x' * (y' + z'))) (normalNormalize (x' * (y' + z'))) )
->   ={ ?s2 }=
+>   ={ toFractionInjective (normalizeEqLemma2 (x' * (y' + z')) ((x' * y') + (x' * z')) multDistributesOverPlusRightEq) }=
 >     ( Element (normalize ((x' * y') + (x' * z'))) (normalNormalize ((x' * y') + (x' * z'))) )
->   ={ toFractionEqLemma1 (sym (normalizePlusElim (x' * y') (x' * z'))) }=
+>   ={ toFractionInjective (sym (normalizePlusElim (x' * y') (x' * z'))) }=
 >     ( Element (normalize (normalize (x' * y') + normalize (x' * z'))) 
 >               (normalNormalize (normalize (x' * y') + normalize (x' * z'))) )
 >   ={ Refl }=
@@ -237,10 +267,50 @@ Properties of |fromFraction| and |toFraction|:
 > %freeze multDistributesOverPlusRight
 
 
-> {-
+> |||
+> multDistributesOverPlusLeft  : (x, y, z : NonNegRational) -> (x + y) * z = (x * z) + (y * z)
+> multDistributesOverPlusLeft x y z =
+>     ( (x + y) * z )
+>   ={ multCommutative (x + y) z }=
+>     ( z * (x + y) )
+>   ={ multDistributesOverPlusRight z x y }=
+>     ( z * x + z * y )
+>   ={ cong {f = \ ZUZU => ZUZU + z * y} (multCommutative z x) }=
+>     ( x * z + z * y )
+>   ={ cong {f = \ ZUZU => x * z + ZUZU} (multCommutative z y) }=
+>     ( x * z + y * z ) 
+>   QED  
+> %freeze multDistributesOverPlusLeft
 
-> multDistributesOverPlusLeft  : (x : NonNegQ) -> (y : NonNegQ) -> (z : NonNegQ) ->
->                                (x + y) * z = (x * z) + (y * z)
+
+> ||| NonNegRational is an instance of NumPlusZeroNeutral
+> instance NumPlusZeroNeutral NonNegRational where
+>   plusZeroLeftNeutral = plusZeroLeftNeutral
+>   plusZeroRightNeutral = plusZeroRightNeutral
+
+
+> ||| NonNegRational is an instance of NumPlusAssociative
+> instance NumPlusAssociative NonNegRational where
+>   plusAssociative = plusAssociative
+
+
+> ||| NonNegRational is an instance of NumMultZeroOne
+> instance NumMultZeroOne NonNegRational where
+>   multZeroRightZero   = multZeroRightZero
+>   multZeroLeftZero    = multZeroLeftZero
+>   multOneRightNeutral = multOneRightNeutral
+>   multOneLeftNeutral  = multOneLeftNeutral
+
+
+> ||| NonNegRational is an instance NumMultDistributesOverPlus
+> instance NumMultDistributesOverPlus NonNegRational where
+>   multDistributesOverPlusRight = multDistributesOverPlusRight
+>   multDistributesOverPlusLeft  = multDistributesOverPlusLeft
+
+
+
+
+> {-
 
 > ---}
  
