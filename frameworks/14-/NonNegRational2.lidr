@@ -27,6 +27,15 @@
 >   (*) = KQ.liftBinop (*)
 >   fromInteger = KQ.classOf . fromInteger
 
+> instance Show NonNegRational where
+>   show (Class (n,(Element d _)) _) = show n ++ "/" ++ show d
+
+> Fraction : Type
+> Fraction = F.Fraction
+
+> fromFraction : NonNegRational2.Fraction -> NonNegRational
+> fromFraction = KQ.classOf
+
 > plusInvariant : (x, x' : SQ.Base) -> (x `SQ.Relation` x') -> 
 >                 (y, y' : SQ.Base) -> (y `SQ.Relation` y') -> 
 >                 (x + y) `SQ.Relation` (x' + y')
