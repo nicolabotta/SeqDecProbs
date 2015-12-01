@@ -31,6 +31,13 @@
 > %freeze fromNatNormal
 
 
+> {-
+> ||| Fraction is an instance of Show
+> instance Show Fraction where
+>   show q = show (num q) ++ "/" ++ show (den q)
+> -}
+
+
 > ||| Fraction is an instance of Num
 > instance Num Fraction where
 >   (+) = plus
