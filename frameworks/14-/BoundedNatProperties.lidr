@@ -103,7 +103,7 @@ Basic properties
 >                  {a2 = n}
 >                  {Pa1 = finToNatLemma (toFin (n ** prf))}
 >                  {Pa2 = prf}
->                  (\ n, prf => LTESucc prf)
+>                  {f = \ n, prf => LTESucc prf}
 >                  (toFinLemma0 n b prf)
 >                  (toFinLemma2 n b prf)
 > ---}
@@ -180,7 +180,7 @@ Basic properties
 >        (finToNatLemma (FS (toFin (n ** prf))))
 >        =
 >        MkSigma {a = Nat} {P = \ i => LT i (S m)} (S n) (LTESucc prf)
->   s5 = depCong2 (MkSigma {a = Nat} {P = \ i => LT i (S m)}) s3 s4
+>   s5 = depCong2 {f = MkSigma {a = Nat} {P = \ i => LT i (S m)}} s3 s4
 >   s6 : fromFin (toFin (S n ** LTESucc prf)) = (S n ** LTESucc prf)
 >   s6 = trans s1 (trans s2 s5)
 
