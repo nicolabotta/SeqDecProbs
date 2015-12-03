@@ -10,5 +10,3 @@
 > ||| Fraction representation
 > Fraction : Type
 > Fraction = (Nat, PNat)
-
-
