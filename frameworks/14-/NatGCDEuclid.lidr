@@ -50,19 +50,19 @@ Euclid's greatest common divisor algorithm
 >     d'Dmmn = divisorMinusLemma n m d' d'Dn d'Dm
 
 > %assert_total
-> euclidGCD : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)
-> euclidGCD    m   Z    = (m ** euclidGCD1)
-> euclidGCD  Z       n  = (n ** euclidGCD2)
+> euclidGCD : (m : Nat) -> (n : Nat) -> Subset Nat (\ d => GCD d m n)
+> euclidGCD    m   Z    = Element m euclidGCD1
+> euclidGCD  Z       n  = Element n euclidGCD2
 > euclidGCD (S m) (S n) with (decLTE (S m) (S n))
->   | (Yes p) = (gcd ** euclidGCD3 p P) where
->     gcdP : (d : Nat ** GCD d (S m) (S n - S m))
+>   | (Yes p) = Element gcd (euclidGCD3 p P) where
+>     gcdP : Subset Nat (\ d => GCD d (S m) (S n - S m))
 >     gcdP = assert_total (euclidGCD (S m) (S n - S m))
 >     gcd  : Nat
 >     gcd  = getWitness gcdP
 >     P    : GCD gcd (S m) (S n - S m)
 >     P    = getProof gcdP
->   | (No  p) = (gcd ** euclidGCD4 p P) where
->     gcdP : (d : Nat ** GCD d (S m - S n) (S n))
+>   | (No  p) = Element gcd (euclidGCD4 p P) where
+>     gcdP : Subset Nat (\ d => GCD d (S m - S n) (S n))
 >     gcdP = assert_total (euclidGCD (S m - S n) (S n))
 >     gcd  : Nat
 >     gcd  = getWitness gcdP
