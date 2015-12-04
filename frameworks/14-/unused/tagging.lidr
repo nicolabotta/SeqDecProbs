@@ -5,6 +5,8 @@
 
 > %default total
 
+id : {a : Type} -> a -> a
+id x = x
 
 > getW : {A : Type} -> {P : A -> Type} -> Sigma A P -> A
 > getW = Prelude.Pairs.Sigma.getWitness
@@ -18,15 +20,17 @@
 > cross : {A, B, C, D : Type} -> (A -> C, B -> D) -> (A, B) -> (C, D)
 > cross (f, g) (a, b) = (f a, g b)
 
-
 > crossLemma : {A, B, D : Type} -> {f : B -> D} ->
 >              (ab : (A, B)) -> fst (cross (id, f) ab) = fst ab
-> crossLemma (a, b) = Refl
+> crossLemma (a, b) = Refl   -- 2015-12-04: problem
 
 
-> mapFstMapCrossLemma : (acs : List (a, c)) -> map fst (map (cross (id, f)) acs) = map fst acs
+> mapFstMapCrossLemma : {a, c, d : Type} -> {f : c -> d} ->
+>   (acs : List (a, c)) -> map fst (map (cross (id, f)) acs) = map fst acs
 > mapFstMapCrossLemma Nil = Refl
-> mapFstMapCrossLemma {f} (ac :: acs) = s5 where
+> mapFstMapCrossLemma {a} {c} {d} {f} (ac :: acs) = s5 where
+>   -- ida : a -> a
+>   -- ida = id {a}
 >   s1 : map fst (map (cross (id, f)) (ac :: acs))
 >        =
 >        map fst (((cross (id, f)) ac) :: (map (cross (id, f)) acs))
@@ -45,7 +49,6 @@
 >   s4 = Refl
 >   s5 : map fst (map (cross (id, f)) (ac :: acs)) = map fst (ac :: acs)
 >   s5 = trans s1 (trans s2 (trans s3 s4))
-
 
 > depCross : {A, B : Type} -> {P1 : A -> Type} -> {P2 : B -> Type} ->
 >            (f : A -> B ** (a : A) -> P1 a -> P2 (f a)) -> (a : A ** P1 a) -> (b : B ** P2 b)
