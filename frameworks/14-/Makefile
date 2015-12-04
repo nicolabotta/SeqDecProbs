@@ -2,7 +2,7 @@ IDRIS = idris
 IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects
 
 all:
-	find . -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check
+	find . -not \( -path "./zombies" -prune \) -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check
 
 example: SeqDecProbMonadicTheoryExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryExample2.lidr -o example
