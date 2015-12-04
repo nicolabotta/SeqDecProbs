@@ -19,13 +19,13 @@
 
 |Fin 0| properties:
 
-> fin0Lemma : (i : Fin Z) -> (j : Fin Z) -> i = j 
+> fin0Lemma : (i : Fin Z) -> (j : Fin Z) -> i = j
 > fin0Lemma i j = absurd i
 
 
 |Fin 1| properties:
 
-> fin1Lemma : (i : Fin (S Z)) -> (j : Fin (S Z)) -> i = j 
+> fin1Lemma : (i : Fin (S Z)) -> (j : Fin (S Z)) -> i = j
 > fin1Lemma FZ      FZ    = Refl
 > fin1Lemma FZ     (FS k) = absurd k
 > fin1Lemma (FS k)  FZ    = absurd k
@@ -36,7 +36,7 @@ Injectivity of FS
 
 > ||| FS is injective (one direction)
 > fsInjective1 : (left : Fin n) -> (right : Fin n) -> FS left = FS right -> left = right
-> fsInjective1 = FSInjective  
+> fsInjective1 = FSInjective
 
 
 > ||| FS is injective (the other way round)
@@ -54,11 +54,11 @@ Injectivity of FS
 
 |finToNat| properties:
 
-> ||| |finToNat (k : Fin n)| is LT bounded by |n| 
-> finToNatLemma : {n : Nat} -> (k : Fin n) -> LT (finToNat k) n 
+> ||| |finToNat (k : Fin n)| is LT bounded by |n|
+> finToNatLemma : {n : Nat} -> (k : Fin n) -> LT (finToNat k) n
 > finToNatLemma {n = Z}   k       =  absurd k
-> finToNatLemma {n = S m} FZ      =  LTESucc LTEZero 
-> finToNatLemma {n = S m} (FS k)  =  LTESucc (finToNatLemma k) 
+> finToNatLemma {n = S m} FZ      =  LTESucc LTEZero
+> finToNatLemma {n = S m} (FS k)  =  LTESucc (finToNatLemma k)
 
 
 |weaken| properties:
@@ -89,11 +89,11 @@ Injectivity of FS
 |tail| properties:
 
 > tailSuccLemma : {A : Type} -> (f : Fin (S n) -> A) -> (i : Fin n) -> (tail f) i = f (FS i)
-> tailSuccLemma f i = Refl 
+> tailSuccLemma f i = Refl
 
-> tailSuccEqLemma : {n : Nat} -> {A : Type} -> 
->                   (i : Fin n) -> (j : Fin n) -> (f : Fin (S n) -> A) -> 
->                   (tail f) i = (tail f) j -> 
+> tailSuccEqLemma : {n : Nat} -> {A : Type} ->
+>                   (i : Fin n) -> (j : Fin n) -> (f : Fin (S n) -> A) ->
+>                   (tail f) i = (tail f) j ->
 >                   f (FS i) = f (FS j)
 > tailSuccEqLemma i j f prf = replace2 (tailSuccLemma f i) (tailSuccLemma f j) prf
 

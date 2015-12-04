@@ -9,7 +9,6 @@
 > %default total
 
 
-> ||| Positive natural numbers as sigma types 
+> ||| Positive natural numbers as sigma types
 > PNat : Type
 > PNat = Subset Nat Positive
-

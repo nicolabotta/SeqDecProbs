@@ -19,7 +19,7 @@
 >          (Fin n -> A) -> Vect n A
 > toVect {n =   Z} _ = Nil
 > toVect {n = S m} f = (f FZ) :: (toVect (tail f))
-> -- toVect f = map f range 
+> -- toVect f = map f range
 
 > ||| Sum of the values of a finite function
 > sum : {n : Nat} -> (Fin n -> Nat) -> Nat
