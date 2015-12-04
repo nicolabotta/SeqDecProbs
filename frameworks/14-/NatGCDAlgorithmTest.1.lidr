@@ -15,11 +15,12 @@
 > %default total
 
 > m  : Nat
-> m  = 2067
+> m  = 42449
 > %freeze m
 
 > x  : (Nat, PNat)
-> x  = (Main.m, fromNat 616 (LTESucc LTEZero))
+> x  = (Main.m, fromNat 6776 (LTESucc LTEZero))
+> %freeze x
 
 > d'     : PNat
 > d'     = snd Main.x

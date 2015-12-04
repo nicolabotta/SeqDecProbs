@@ -9,7 +9,7 @@
 
 > ||| Exact integer division
 > public quotient : (m : Nat) -> (d : Nat) -> d `Divisor` m -> Nat
-> quotient _ _ (Evidence q _) = q 
+> quotient _ _ (Element q _) = q 
 
 
 

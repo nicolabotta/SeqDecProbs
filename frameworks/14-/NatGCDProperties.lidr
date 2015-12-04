@@ -164,11 +164,11 @@
 >   dDsam   :  d `Divisor` ((S a) * m)
 >   dDsam   =  gcdDivisorFst v
 >   saDsam  :  S a `Divisor` ((S a) * m)
->   saDsam  =  Evidence m Refl
+>   saDsam  =  Element m Refl
 >   dDsan   :  d `Divisor` ((S a) * n)
 >   dDsan   =  gcdDivisorSnd v
 >   saDsan  :  S a `Divisor` ((S a) * n)
->   saDsan  =  Evidence n Refl
+>   saDsan  =  Element n Refl
 >   saDd    :  (S a) `Divisor` d
 >   saDd    =  gcdDivisorGreatest {d = d} v (S a) saDsam saDsan
 
@@ -191,8 +191,8 @@
 >                      (quotientCancellationLemma n a saDsan) preqDn
    
 >   preqG   :  (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> 
->              (quotient ((S a) * d') (S a) (Evidence d' Refl)) `Divisor` q
->   preqG d' d'Dm d'Dn  =  quotientDivisorLemma a ((S a) * d') d (Evidence d' Refl) sad'Dd saDd
+>              (quotient ((S a) * d') (S a) (Element d' Refl)) `Divisor` q
+>   preqG d' d'Dm d'Dn  =  quotientDivisorLemma a ((S a) * d') d (Element d' Refl) sad'Dd saDd
 >     where sad'Dsam  :  ((S a) * d') `Divisor` ((S a) * m)
 >           sad'Dsam  =  divisorMultLemma1 (S a) (S a) (anyDivisorAny (S a)) m d' d'Dm
 >           sad'Dsan  :  ((S a) * d') `Divisor` ((S a) * n)
@@ -201,10 +201,10 @@
 >           sad'Dd    =  gcdDivisorGreatest {d = d} v ((S a) * d') sad'Dsam sad'Dsan
 >
 >   qG      :  (d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` q
->   qG    d' d'Dm d'Dn     =  replace {x = quotient ((S a) * d') (S a) (Evidence d' Refl)}
+>   qG    d' d'Dm d'Dn     =  replace {x = quotient ((S a) * d') (S a) (Element d' Refl)}
 >                                     {y = d'}
 >                                     {P = \ ZUZU => ZUZU `Divisor` q}
->                                     (quotientCancellationLemma d' a (Evidence d' Refl)) (preqG d' d'Dm d'Dn)
+>                                     (quotientCancellationLemma d' a (Element d' Refl)) (preqG d' d'Dm d'Dn)
 > %freeze gcdDivisorLemma
 
 > |||
@@ -212,9 +212,9 @@
 >                     GCD d m n -> GCD d' (a * m) (a * n) -> d' = a * d
 > gcdScaleInvariant d m n d'  Z    v  v' = s6 where
 >   s0   :  Z `Divisor` (Z * m)
->   s0   =  Evidence m Refl
+>   s0   =  Element m Refl
 >   s1   :  Z `Divisor` (Z * n)
->   s1   =  Evidence n Refl
+>   s1   =  Element n Refl
 >   s2   :  Z `Divisor` d'
 >   s2   =  gcdDivisorGreatest {d = d'} v' Z s0 s1
 >   s3   :  Nat

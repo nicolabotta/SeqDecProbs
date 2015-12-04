@@ -21,10 +21,12 @@
 > y = fromFraction (32, PNat.fromNat 11 (LTESucc LTEZero))
 
 > z : NonNegRational
-> -- z = x `plus` y
-> z = x + y
+> z = x `plus` y
+> -- z = x + y
 
 > main : IO ()               
-> main = do putStrLn (show z)
+> main = do putStrLn (show x)
+>           putStrLn (show y)
+>           putStrLn (show z)
 
 
