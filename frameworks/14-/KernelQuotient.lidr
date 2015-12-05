@@ -12,7 +12,7 @@ An idempotent endomap c of a type A can be thought of as
 a choice function for representatives of the kernel of c :
 
   ker c : A -> A -> Type
-  ker c x y = c x = c y
+  ker c x y =  (c x = c y)
 
 which is an (in Idris even propositional a.k.a. unique)
 equivalence relation on A.
@@ -27,7 +27,7 @@ identified with the quotient of A by that equivalence.
 module parameters
 
 > KBase : Type
-> normalize : KernelQuotient.KBase -> 
+> normalize : KernelQuotient.KBase ->
 >             KernelQuotient.KBase
 > normalizeIdem : Idempotent KernelQuotient.normalize
 
@@ -37,7 +37,7 @@ module parameters
 > ||| that are fixed by |normalize|
 > |||
 > data KQuot : Type where
->   Class : (x : KBase) -> normalize x = x -> KQuot
+>   Class : (x : KBase) ->  normalize x = x  -> KQuot
 
 
 > ||| Any class has a canonical representant
@@ -56,8 +56,8 @@ module parameters
 > ||| Since Idris has UIP, two elements |cl1, cl2 : KQuot|
 > ||| are equal if their representants are equal.
 > |||
-> classesEqIfReprEq : (cl1, cl2 : KQuot) ->
->                     repr cl1 = repr cl2 ->
+> classesEqIfReprEq : (cl1, cl2 : KQuot)    ->
+>                     repr cl1 = repr cl2   ->
 >                     cl1 = cl2
 > classesEqIfReprEq (Class q nqIsq) (Class q nqIsq') Refl =
 >   cong (uniqueEq (normalize q) q nqIsq nqIsq')
@@ -81,8 +81,8 @@ module parameters
 
 
 > ||| The classes of elements |x| and |y| such that
-> ||| |normalize x = normalize y| (, i.e. |x| and |y|
-> ||| are in the |ker normalize| relation,) are equal.
+> ||| |normalize x = normalize y| are equal (i.e. |x| and |y|
+> ||| are in the |ker normalize| relation) .
 > |||
 > classOfEqIfNormalizeEq :  (x, y : KBase) ->
 >                           (normalize x = normalize y) ->
@@ -92,29 +92,29 @@ module parameters
 >   classesEqIfReprEq [x] [y] rCxIsrCy where
 >     rCxIsrCy : repr [x] = repr [y]
 >     rCxIsrCy =
->       (repr [x])  
+>       (repr [x])
 >         ={ reprAfterClassOfIsNormalize x       }=
 >       (normalize x)
 >         ={ nxIsny                              }=
->       (normalize y)  
+>       (normalize y)
 >         ={ sym (reprAfterClassOfIsNormalize y) }=
->       (repr [y])     
+>       (repr [y])
 >         QED
 
 
-> ||| The class of the canonical representant of any 
+> ||| The class of the canonical representant of any
 > ||| given class is that class itself.
 > |||
 > classOfAfterReprIsId :  (cl : KQuot) ->
 >                         [repr cl] = cl
 >
 > classOfAfterReprIsId cl =
->   classesEqIfReprEq [repr cl] cl sameRepr where
+>   classesEqIfReprEq [repr cl] cl sameRepr  where
 >     sameRepr : repr [repr cl] = repr cl
 >     sameRepr =
->       (repr [repr cl])      
+>       (repr [repr cl])
 >         ={ reprAfterClassOfIsNormalize (repr cl) }=
->       (normalize (repr cl)) 
+>       (normalize (repr cl))
 >         ={ reprNormal cl                         }=
 >       (repr cl)
 >         QED
@@ -125,14 +125,14 @@ module parameters
 > |||
 > lift :  {B : Type} ->
 >         (f : KBase -> B) ->
->         KQuot -> B
+>              KQuot -> B
 >
 > lift f (Class x _) = f x
 
 
-> ||| If |f: KBase -> B| is invariant under the |ker normalize|
+> ||| If |f : KBase -> B| is invariant under the |ker normalize|
 > ||| relation, |lift f| is a lift of |f| along the canonical map
-> ||| |classOf: KBase -> KQuot|, i.e. |(lift f) . classOf|
+> ||| |classOf : KBase -> KQuot|, i.e. |(lift f) . classOf|
 > ||| is (pointwise) equal to |f|, i.e. this diagram commutes:
 > |||
 > |||              lift f
@@ -142,10 +142,10 @@ module parameters
 > |||         [_]  \    / f
 > |||               \  /
 > |||               KBase
-> ||| 
+> |||
 > ||| This can be seen as a "computation rule" for |lift f|:
 > ||| |(lift f) [x] = f x|.
-> ||| 
+> |||
 > liftComp: {B : Type} ->
 >           (f : KBase -> B) ->
 >           ( (x, y : KBase) ->
@@ -183,7 +183,7 @@ module parameters
 > |||
 > ||| This can be seen as a "computation rule" for
 > ||| |lift2 f|: |(lift f) [x] [y] = f x y|.
-> ||| 
+> |||
 > lift2Comp:  {B : Type} ->
 >             (f : KBase -> KBase -> B) ->
 >             ( (x, x' : KBase) ->
@@ -209,7 +209,7 @@ module parameters
 
 
 > ||| Important special case of |lift2| (in combination
-> ||| with |classOfAfterOp|): A binary operation on KBase 
+> ||| with |classOfAfterOp|): A binary operation on KBase
 > ||| lifts to a binary operation on KQuot.
 > |||
 > liftBinop : (op : KBase -> KBase -> KBase) ->
@@ -219,7 +219,7 @@ module parameters
 
 
 > ||| For a |ker normalize|-invariant binary operation |op|,
-> ||| |liftBinOp op| is (the currying of) a lift of (the 
+> ||| |liftBinOp op| is (the currying of) a lift of (the
 > ||| uncurrying of) |op| in the sense that this diagram commutes:
 > |||
 > |||                 uncurry (liftBinop op)
@@ -229,7 +229,7 @@ module parameters
 > |||             |                           |
 > |||        KBase x KBase ------------------> KBase
 > |||                       uncurry op
-> ||| 
+> |||
 > ||| This can be seen as a "computation rule" for
 > ||| |liftBinop op|: |(liftBinop op) [x] [y] = [x `op` y]|.
 > |||
@@ -271,4 +271,3 @@ Type classes
            (normalize y)   ={ nyIsy }=
            (y)             QED
      | (No contra) = No (contra . (cong {f = normalize . repr}))
-

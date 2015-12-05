@@ -13,7 +13,7 @@ we want to build a type that can be considered the
 quotient of |Base| by the smallest equivalence relation
 that contains |~|.
 
-If we have a function |normalize: Base -> Base| 
+If we have a function |normalize: Base -> Base|
 
 that maps any |x| to an element related to |x|, i.e.
 
@@ -23,13 +23,13 @@ and maps any two related elements to the same, i.e.
 
  |(x, y : Base) -> x ~ y -> normalize x = normalize y|
 
-it follows that 
+it follows that
 
  |normalize| is idempotent and
 
  |ker normalize| is (the propositional truncation of)
  the smallest equivalence relation containing |~|, so
- the construction in KernelQuotient fits the bill.
+ the construction in |KernelQuotient| fits the bill.
 
 ------------------------------------------------------------
 module parameters
@@ -41,7 +41,7 @@ module parameters
 >
 > normalize : Base -> Base
 >
-> normalizeMapsRelatedToEQ : 
+> normalizeMapsRelatedToEQ :
 >   (x, y : Base) ->
 >   (x ~ y) ->
 >   SplitQuotient.normalize x = SplitQuotient.normalize y
@@ -55,10 +55,10 @@ define parameters of the imported module KernelQuotient
 
 > KQ.KBase = Base
 > KQ.normalize = SplitQuotient.normalize
-> KQ.normalizeIdem x = 
->   normalizeMapsRelatedToEQ 
->       (KQ.normalize x) 
->       x 
+> KQ.normalizeIdem x =
+>   normalizeMapsRelatedToEQ
+>       (KQ.normalize x)
+>       x
 >       (normalizeIsRelated x)
 
 > Quot : Type
@@ -72,39 +72,54 @@ define parameters of the imported module KernelQuotient
 >                      (x ~ y) ->
 >                      [x] = [y]
 >
-> classOfEqIfRelated x y xRely = 
->   classOfEqIfNormalizeEq x y 
+> classOfEqIfRelated x y xRely =
+>   classOfEqIfNormalizeEq x y
 >             (normalizeMapsRelatedToEQ x y xRely)
+
+> Invariant : {A, B : Type} -> (Rel : A -> A -> Type) -> (f : A -> B) -> Type
+> Invariant {A} Rel f = (x, x' : A) ->
+>                       (Rel x x') ->
+>                       f x = f x'
+
+> Inv : {B : Type} -> (f : Base -> B) -> Type
+> Inv = Invariant Relation
+
+> Invariant2 : {A, B, C : Type} ->
+>              (RelA : A -> A -> Type) ->
+>              (RelB : B -> B -> Type) ->
+>              (f : A -> B -> C) -> Type
+> Invariant2 {A} {B} RelA RelB f =
+>   (a, a' : A) -> (RelA a a') ->
+>   (b, b' : B) -> (RelB b b') ->
+>   f a b = f a' b'
+
+> Inv2 : {C : Type} -> (f : Base -> Base -> C) -> Type
+> Inv2 = Invariant2 Relation Relation
+
 
 > ||| any |~|-invariant function maps |x| and |normalize x|
 > ||| to the same value
 > |||
 > invNormalizeEq : {B : Type} ->
 >                  (f : Base -> B) ->
->                  (fInv : (x, x' : Base) ->
->                          (x ~ x') ->
->                          f x = f x'
->                  ) ->
+>                  (fInv : Inv f) ->
 >                  (x : Base) ->
 >                  f (KQ.normalize x) = f x
 >
-> invNormalizeEq f fInv x = 
+> invNormalizeEq f fInv x =
 >   fInv (KQ.normalize x) x (normalizeIsRelated x)
 
 > ||| |~|-invariant functions are |ker normalize|-invariant
 > |||
 > invToInvN : {B : Type} ->
 >             (f : Base -> B) ->
->             (fInv : (x, x' : Base) ->
->                     (x ~ x') ->
->                     (f x = f x')
->             ) ->
+>             (fInv : Inv f) ->
 >             (x, x' : Base) ->
 >             (KQ.normalize x = KQ.normalize x') ->
 >             (f x = f x')
 >
-> invToInvN f fInv x y nxEQny = 
->     (f x)                 ={ sym (invNormalizeEq f fInv x) }= 
+> invToInvN f fInv x y nxEQny =
+>     (f x)                 ={ sym (invNormalizeEq f fInv x) }=
 >     (f (KQ.normalize x))  ={ cong nxEQny                   }=
 >     (f (KQ.normalize y))  ={ invNormalizeEq f fInv y       }=
 >     (f y)                 QED
@@ -113,68 +128,50 @@ define parameters of the imported module KernelQuotient
 > |||
 > liftCompR : {B : Type} ->
 >             (f : Base -> B) ->
->             (fInv : (x, x' : Base) ->
->                     (x ~ x') ->
->                     (f x = f x')
->             ) ->
+>             (fInv : Inv f) ->
 >             (x : Base) ->
 >             (lift f) [x] = f x
 >
-> liftCompR f fInv x = liftComp f (invToInvN f fInv) x 
+> liftCompR f fInv x = liftComp f (invToInvN f fInv) x
 
 > ||| |~|-invariant binary functions map |(normalize x, normalize y)|
 > ||| and |(x, y)| to the same value
 > invNormalizeEq2 : {B : Type} ->
 >                   (f : Base -> Base -> B) ->
->                   (fInv : (x, x' : Base) ->
->                           (x ~ x' ) ->
->                           (y, y' : Base) ->
->                           (y ~ y') ->
->                           f x y = f x' y'
->                   ) ->
+>                   (fInv2 : Inv2 f) ->
 >                   (x, y : Base) ->
 >                   f (KQ.normalize x) (KQ.normalize y) = f x y
 >
-> invNormalizeEq2 f fInv x y = 
->   fInv  (KQ.normalize x) x (normalizeIsRelated x)
->         (KQ.normalize y) y (normalizeIsRelated y)
+> invNormalizeEq2 f fInv2 x y =
+>   fInv2  (KQ.normalize x) x (normalizeIsRelated x)
+>          (KQ.normalize y) y (normalizeIsRelated y)
 
 > ||| binary |~|-invariant functions are |ker normalize|-invariant
 > invToInvN2 : {B : Type} ->
 >              (f : Base -> Base -> B) ->
->              (fInv : (x, x' : Base) ->
->                      (x  ~ x' ) ->
->                      (y, y' : Base) ->
->                      (y ~ y') ->
->                      (f x y = f x' y')
->              ) ->
+>              (fInv : Inv2 f) ->
 >              (x, x' : Base) ->
 >              (KQ.normalize x = KQ.normalize x' ) ->
 >              (y, y' : Base) ->
 >              (KQ.normalize y = KQ.normalize y') ->
 >              (f x y) = (f x' y')
 >
-> invToInvN2 f fInv x x' nxEQnx' y y' nyEQny' = 
->     (f x y)           
->       ={ sym (invNormalizeEq2 f fInv x y) }= 
->     (f (KQ.normalize x) (KQ.normalize y))  
+> invToInvN2 f fInv x x' nxEQnx' y y' nyEQny' =
+>     (f x y)
+>       ={ sym (invNormalizeEq2 f fInv x y) }=
+>     (f (KQ.normalize x) (KQ.normalize y))
 >       ={ cong {f = \ z => f z (KQ.normalize y)} nxEQnx'  }=
->     (f (KQ.normalize x') (KQ.normalize y))  
+>     (f (KQ.normalize x') (KQ.normalize y))
 >       ={ cong {f = \ z => f (KQ.normalize x') z} nyEQny' }=
->     (f (KQ.normalize x') (KQ.normalize y'))  
+>     (f (KQ.normalize x') (KQ.normalize y'))
 >       ={ invNormalizeEq2 f fInv x' y'                  }=
->     (f x' y')              
+>     (f x' y')
 >       QED
 
 > ||| computation rule for lift2 of |~|-invariant binary functions
 > lift2CompR : {B : Type} ->
 >              (f : Base -> Base-> B) ->
->              (fInv : (x, x' : Base) ->
->                      (x  ~ x' ) ->
->                      (y, y' : Base) ->
->                      (y ~ y') ->
->                      (f x y = f x' y')
->              ) ->
+>              (fInv : Inv2 f) ->
 >              (x, y : Base) ->
 >              (lift2 f) [x] [y] = f x y
 >
@@ -182,7 +179,7 @@ define parameters of the imported module KernelQuotient
 
 
 > ||| For a |~|-invariant binary operation |op|,
-> ||| |liftBinOp op| is (the currying of) a lift of (the 
+> ||| |liftBinOp op| is (the currying of) a lift of (the
 > ||| uncurrying of) |op| in the sense that this diagram commutes:
 > |||
 > |||                 uncurry (liftBinop op)
@@ -192,7 +189,7 @@ define parameters of the imported module KernelQuotient
 > |||             |                           |
 > |||        Base x Base ------------------> Base
 > |||                       uncurry op
-> ||| 
+> |||
 > ||| This can be seen as a "computation rule" for
 > ||| |liftBinop op|: |(liftBinop op) [x] [y] = [x `op` y]|.
 > |||
@@ -209,11 +206,10 @@ define parameters of the imported module KernelQuotient
 > liftBinopCompR op opInv x y =
 >   lift2CompR {B=Quot} (classOfAfterOp op) opInv' x y where
 >   opInv' :  (x, x' : Base) ->
->             (x ~ x') -> 
+>             (x ~ x') ->
 >             (y, y' : Base) ->
->             (y ~ y') -> 
+>             (y ~ y') ->
 >             [x `op` y] = [x' `op` y']
->   opInv' x x' xRx' y y' yRy' = 
->     classOfEqIfRelated (x `op` y) (x' `op` y') 
+>   opInv' x x' xRx' y y' yRy' =
+>     classOfEqIfRelated (x `op` y) (x' `op` y')
 >                        (opInv x x' xRx' y y' yRy')
-
