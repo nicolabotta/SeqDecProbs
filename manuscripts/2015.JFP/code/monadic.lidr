@@ -245,15 +245,16 @@ For every SDP, we can build the following notions:
 
   Optimality of policy sequences:
 
-> OptPolicySeq : PolicySeq t n -> Prop
+> OptPolicySeq : {t : Nat} -> {n : Nat} ->
+>                PolicySeq t n -> Prop
 > OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
 >                             (x : X t) ->
 >                             (r : Reachable x) ->
 >                             (v : Viable n x) ->
 >                             So (val x r v ps' <= val x r v ps)
 
-> nilOptPolicySeq : OptPolicySeq Nil
-> nilOptPolicySeq ps' x r v = reflexiveFloatLTE 0
+> nilOptPolicySeq : {t : Nat} -> OptPolicySeq {t = t} {n = Z} Nil
+> nilOptPolicySeq {t} ps' x r v = reflexiveFloatLTE 0
 
 
   Optimal extensions of policy sequences:
@@ -388,7 +389,7 @@ induction:
 >   ps = bi (S t) n
 
 > biLemma : (t : Nat) -> (n : Nat) -> OptPolicySeq (bi t n)
-> biLemma t  Z     =  nilOptPolicySeq
+> biLemma t  Z     =  nilOptPolicySeq {t}
 > biLemma t (S n)  =  Bellman ps ops p oep where
 >   ps   :  PolicySeq (S t) n
 >   ps   =  bi (S t) n
