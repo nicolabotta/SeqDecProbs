@@ -39,13 +39,13 @@ Syntax extensions:
 
 Postulates:
 
-> namespace FloatLib
+> namespace DoubleLib
 
->   postulate reflexiveFloatLTE     :  reflexive   Float  (<=)
->   postulate transitiveFloatLTE    :  transitive  Float  (<=)
->   postulate monotoneFloatPlusLTE  :  monotone    Float  (<=) (+)
+>   postulate reflexiveDoubleLTE     :  reflexive   Double  (<=)
+>   postulate transitiveDoubleLTE    :  transitive  Double  (<=)
+>   postulate monotoneDoublePlusLTE  :  monotone    Double  (<=) (+)
 
-> -- end namespace FloatLib
+> -- end namespace DoubleLib
 
 
 > namespace NatLib
@@ -92,6 +92,10 @@ A SDP is specified in terms of a monad ...
 >   join  :  {A : Type} -> M (M A) -> M A
 >   join mma = bind mma id
 
+>   certain : {A : Type} -> A -> List A
+>   certain a = [a]
+
+
 > -- end namespace MonadLib
 
 ... which is required to be a "container" monad:
@@ -120,24 +124,24 @@ The standard examples are |M = Id| (deterministic SDP), |M = List|
 The decision problem itself is specified by giving the decision
 process ...
 
-> X       : (t : Nat) -> Type
+> X : (t : Nat) -> Type
 
-> Y       : (t : Nat) -> (x : X t) -> Type
+> Y : (t : Nat) -> (x : X t) -> Type
 
 > step    : (t : Nat) -> (x : X t) -> (y : Y t x) -> M (X (S t))
 
-> reward  : (t : Nat) -> (x : X t) -> (y : Y t x) -> (x' : X (S t)) -> Float
+> reward  : (t : Nat) -> (x : X t) -> (y : Y t x) -> (x' : X (S t)) -> Double
 
-> rewards : (t : Nat) -> (x : X t) -> (y : Y t x) -> M Float
+> rewards : (t : Nat) -> (x : X t) -> (y : Y t x) -> M Double
 > rewards t x y = fmap (reward t x y) (step t x y)
 
 ... and a measure:
 
 > namespace MeasLib
 
->   meas : M Float -> Float
+>   meas : M Double -> Double
 >   measMon  :  {A : Type} ->
->               (f : A -> Float) -> (g : A -> Float) ->
+>               (f : A -> Double) -> (g : A -> Double) ->
 >               ((a : A) -> So (f a <= g a)) ->
 >               (ma : M A) -> So (meas (fmap f ma) <= meas (fmap g ma))
 
@@ -166,21 +170,21 @@ For every SDP, we can build the following notions:
 
 --   Value of (simple minded) policy seqeunces:
 
--- > val : (x : X t) -> (ps : PolicySeq t n) -> Float
+-- > val : (x : X t) -> (ps : PolicySeq t n) -> Double
 -- > val {t} {n = Z} x ps = 0
 -- > val {t} {n = S m} x (p :: ps) = meas (fmap f mx') where
 -- >   y : Y t x
 -- >   y = p x
 -- >   mx' : M (X (S t))
 -- >   mx' = step t x y
--- >   f : X (S t) -> Float
+-- >   f : X (S t) -> Double
 -- >   f x' = reward t x y x' + val x' ps
 
 -- > OptPolicySeq : PolicySeq t n -> Prop
 -- > OptPolicySeq {t} {n} ps = (ps' : PolicySeq t n) -> (x : X t) -> So (val x ps' <= val x ps)
 
 -- > nilOptPolicySeq : OptPolicySeq Nil
--- > nilOptPolicySeq ps' x = reflexiveFloatLTE 0
+-- > nilOptPolicySeq ps' x = reflexiveDoubleLTE 0
 
 
 > --{-
@@ -221,7 +225,7 @@ For every SDP, we can build the following notions:
 >         (y  : Y t x) ->
 >         (av : All (Viable m) (step t x y)) ->
 >         (ps : PolicySeq (S t) m) ->
->         (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
+>         (x' : X (S t) ** x' `Elem` (step t x y)) -> Double
 >   mkf {t} {m} x r v y av ps (x' ** x'estep) = reward t x y x' + val x' r' v' ps where
 >     xpx' : x `Pred` x'
 >     xpx' = Evidence y x'estep
@@ -230,7 +234,7 @@ For every SDP, we can build the following notions:
 >     v' : Viable m x'
 >     v' = av x' x'estep
 
->   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Float
+>   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Double
 >   val {t} {n = Z} x r v ps = 0
 >   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
 >     y    :  Y t x
@@ -239,7 +243,7 @@ For every SDP, we can build the following notions:
 >     mx'  =  step t x y
 >     av   :  All (Viable m) mx'
 >     av   =  outr (p x r v)
->     f    :  (x' : X (S t) ** x' `Elem` mx') -> Float
+>     f    :  (x' : X (S t) ** x' `Elem` mx') -> Double
 >     f    =  mkf x r v y av ps
 
 
@@ -254,7 +258,7 @@ For every SDP, we can build the following notions:
 >                             So (val x r v ps' <= val x r v ps)
 
 > nilOptPolicySeq : {t : Nat} -> OptPolicySeq {t = t} {n = Z} Nil
-> nilOptPolicySeq {t} ps' x r v = reflexiveFloatLTE 0
+> nilOptPolicySeq {t} ps' x r v = reflexiveDoubleLTE 0
 
 
   Optimal extensions of policy sequences:
@@ -277,22 +281,22 @@ For every SDP, we can build the following notions:
 
 > Bellman {t} {m} ps ops p oep = opps where
 >   opps : OptPolicySeq (p :: ps)
->   opps (p' :: ps') x r v = transitiveFloatLTE s4 s5 where
+>   opps (p' :: ps') x r v = transitiveDoubleLTE s4 s5 where
 >     y' : Y t x
 >     y' = outl (p' x r v)
 >     mx' : M (X (S t))
 >     mx' = step t x y'
 >     av' : All (Viable m) mx'
 >     av' = outr (p' x r v)
->     f' : (x' : X (S t) ** x' `Elem` mx') -> Float
+>     f' : (x' : X (S t) ** x' `Elem` mx') -> Double
 >     f' = mkf x r v y' av' ps'
->     f  : (x' : X (S t) ** x' `Elem` mx') -> Float
+>     f  : (x' : X (S t) ** x' `Elem` mx') -> Double
 >     f  = mkf x r v y' av' ps
 >     s1 : (x' : X (S t)) -> (r' : Reachable x') -> (v' : Viable m x') ->
 >          So (val x' r' v' ps' <= val x' r' v' ps)
 >     s1 x' r' v' = ops ps' x' r' v'
 >     s2 : (z : (x' : X (S t) ** x' `Elem` mx')) -> So (f' z <= f z)
->     s2 (x' ** x'emx') = monotoneFloatPlusLTE (reward t x y' x') (s1 x' r' v') where
+>     s2 (x' ** x'emx') = monotoneDoublePlusLTE (reward t x y' x') (s1 x' r' v') where
 >       xpx' : x `Pred` x'
 >       xpx' = Evidence y' x'emx'
 >       r' : Reachable x'
@@ -309,13 +313,13 @@ For every SDP, we can build the following notions:
 
 The idea is that, if clients can implement max and argmax
 
-> max         :  {A : Type} -> (f : A -> Float) -> Float
-> argmax      :  {A : Type} -> (f : A -> Float) -> A
+> max         :  {A : Type} -> (f : A -> Double) -> Double
+> argmax      :  {A : Type} -> (f : A -> Double) -> A
 
 that fulfill the specification
 
-> maxSpec     :  {A : Type} -> (f : A -> Float) -> (a : A) -> So (f a <= max f)
-> argmaxSpec  :  {A : Type} -> (f : A -> Float) -> max f = f (argmax f)
+> maxSpec     :  {A : Type} -> (f : A -> Double) -> (a : A) -> So (f a <= max f)
+> argmaxSpec  :  {A : Type} -> (f : A -> Double) -> max f = f (argmax f)
 
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
@@ -324,22 +328,22 @@ extensions for arbitrary policy sequences:
 >       (r  : Reachable x) ->
 >       (v  : Viable (S n) x) ->
 >       (ps : PolicySeq (S t) n) ->
->       (y : Y t x ** All (Viable n) (step t x y)) -> Float
+>       (y : Y t x ** All (Viable n) (step t x y)) -> Double
 > -- mkg {t} {n} x r v ps (y ** av) = meas (fmap f (tagElem (step t x y))) where
->   -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
+>   -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Double
 >   -- f = mkf x r v y av ps
 > mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
->   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Float
+>   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Double
 >   f = mkf x r v (outl yav) (outr yav) ps
 
 > optExt : PolicySeq (S t) n -> Policy t (S n)
 > optExt {t} {n} ps = p where
 >   p : Policy t (S n)
 >   p x r v = argmax g where
->     g : (y : Y t x ** All (Viable n) (step t x y)) -> Float
+>     g : (y : Y t x ** All (Viable n) (step t x y)) -> Double
 >     g = mkg x r v ps
 >     -- g (y ** av) = meas (fmap f (tagElem (step t x y))) where
->       -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
+>       -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Double
 >       -- f = mkf x r v y av ps
 
 > optExtLemma : (ps : PolicySeq (S t) n) -> OptExt ps (optExt ps)
@@ -358,11 +362,11 @@ extensions for arbitrary policy sequences:
 >   y'    =  outl yav'
 >   av'   :  All (Viable n) (step t x y')
 >   av'   =  outr yav'
->   g     :  (y : Y t x ** All (Viable n) (step t x y)) -> Float
+>   g     :  (y : Y t x ** All (Viable n) (step t x y)) -> Double
 >   g     =  mkg x r v ps
->   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Float
+>   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Double
 >   f     =  mkf x r v y av ps
->   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Float
+>   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Double
 >   f'    =  mkf x r v y' av' ps
 >   s1    :  So (g yav' <= max g)
 >   s1    =  maxSpec g yav'
