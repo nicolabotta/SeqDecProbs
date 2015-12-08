@@ -33,9 +33,9 @@
 > oneGTzero : So (1.0 >= 0.0)
 > oneGTzero = Oh
 
-> helper : (i : Fin 1) -> So (index i [1.0] >= 0.0)
-> helper FZ     = oneGTzero
-> helper (FS q) = FinZElim q
+> allPos : (i : Fin 1) -> So (index i [1.0] >= 0.0)
+> allPos FZ     = oneGTzero
+> allPos (FS q) = FinZElim q
 
 > certain : {A : Type} -> A -> Prob A
-> certain a = MkProb [a] [1.0] helper Refl
+> certain a = MkProb [a] [1.0] allPos Refl

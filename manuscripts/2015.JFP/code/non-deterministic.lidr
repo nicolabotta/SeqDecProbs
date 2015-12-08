@@ -15,3 +15,9 @@
 
 > rewards : (t : Nat) -> (x : X t) -> (y : Y t x) -> List Double
 > rewards t x y = fmap (reward t x y) (step t x y)
+
+
+Section 4:
+
+> certain : {A : Type} -> A -> List A
+> certain a = [a]
