@@ -1,7 +1,7 @@
 > module Deterministic
 
- 
-> %default total 
+
+> %default total
 
 
 > X : (t : Nat) -> Type
@@ -31,4 +31,3 @@
 > data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
 >   Nil   :  PolicySeq t Z
 >   (::)  :  Policy t (S n) -> PolicySeq (S t) n -> PolicySeq t (S n)
-

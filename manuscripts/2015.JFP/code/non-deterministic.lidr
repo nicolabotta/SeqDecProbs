@@ -1,6 +1,6 @@
 > module NonDeterministic
 
-> %default total 
+> %default total
 
 
 > X : (t : Nat) -> Type
