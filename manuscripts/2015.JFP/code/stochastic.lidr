@@ -12,7 +12,7 @@
 >              {n : Nat} ->
 >              (as : Vect n A) ->
 >              (ps : Vect n Double) ->
->              (k : Fin n -> So (index k ps >= 0.0)) ->
+>              (k : (i : Fin n) -> So (index i ps >= 0.0)) ->
 >              sum ps = 1.0 ->
 >              Prob A
 
@@ -39,10 +39,3 @@
 
 > certain : {A : Type} -> A -> Prob A
 > certain a = MkProb [a] [1.0] helper Refl
-
-2015-12-08: PaJa: I get
-- + Errors (1)
- `-- stochastic.lidr line 41 col 8:
-     No such variable i
-
-But there is no variable i mentioned!?
