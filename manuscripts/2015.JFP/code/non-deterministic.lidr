@@ -1,6 +1,6 @@
 > module NonDeterministic
 
-> %default total 
+> %default total
 
 
 > X : (t : Nat) -> Type
@@ -18,3 +18,7 @@
 
 > reduce : {A : Type} -> List (List A) -> List A
 > reduce = concat -- library function that ``merges'' the lists together
+
+> certain : {A : Type} -> A -> List A
+> certain a = [a]
+

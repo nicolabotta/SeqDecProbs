@@ -1,7 +1,7 @@
 > module Deterministic
 
- 
-> %default total 
+
+> %default total
 
 
 > Prop : Type
@@ -30,12 +30,8 @@
 > Policy : (t : Nat) -> (n : Nat) -> Type
 > Policy t Z      =  ()
 > -- Policy t (S m)  =  (x : X t) -> Viable (S m) x -> (y : Y t x ** Viable m (step t x y))
-> Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x ->
->                    (y : Y t x ** Viable m (step t x y))
-
+> Policy t (S m)  =  (x : X t) -> Reachable x -> Viable (S m) x -> (y : Y t x ** Viable m (step t x y))
 
 > data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
 >   Nil   :  PolicySeq t Z
 >   (::)  :  Policy t (S n) -> PolicySeq (S t) n -> PolicySeq t (S n)
-
-
