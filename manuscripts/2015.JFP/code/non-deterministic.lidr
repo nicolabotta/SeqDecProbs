@@ -15,3 +15,6 @@
 
 > rewards : (t : Nat) -> (x : X t) -> (y : Y t x) -> List Double
 > rewards t x y = fmap (reward t x y) (step t x y)
+
+> reduce : {A : Type} -> List (List A) -> List A
+> reduce = concat -- library function that ``merges'' the lists together

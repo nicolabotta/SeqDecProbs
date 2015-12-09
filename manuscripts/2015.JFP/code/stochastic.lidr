@@ -29,8 +29,11 @@
 > rewards : (t : Nat) -> (x : X t) -> (y : Y t x) -> Prob Double
 > rewards t x y = fmap (reward t x y) (step t x y)
 
-> lala : 
+> One : Vect 1 Double
+> One = [1.0]
+
+> lala : (k : Fin 1) -> So (index k One >= 0.0)
 
 > certain : {A : Type} -> A -> Prob A
-> certain a = MkProb [a] [1.0] (?lala) Refl
+> certain a = MkProb [a] [1.0] (lala) Refl
 
