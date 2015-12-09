@@ -81,8 +81,9 @@ module parameters
 
 
 > ||| The classes of elements |x| and |y| such that
-> ||| |normalize x = normalize y| are equal (i.e. |x| and |y|
-> ||| are in the |ker normalize| relation) .
+> ||| |normalize x = normalize y| (i.e. such that |x|
+> ||| and |y| are in the |ker normalize| relation) are
+> ||| equal.
 > |||
 > classOfEqIfNormalizeEq :  (x, y : KBase) ->
 >                           (normalize x = normalize y) ->
