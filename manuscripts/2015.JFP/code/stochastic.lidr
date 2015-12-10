@@ -12,7 +12,7 @@
 >              {n : Nat} ->
 >              (as : Vect n A) ->
 >              (ps : Vect n Double) ->
->              (k : (i : Fin n) -> So (index i ps >= 0.0)) ->
+>              ((i : Fin n) -> So (index i ps >= 0.0)) ->
 >              sum ps = 1.0 ->
 >              Prob A
 
