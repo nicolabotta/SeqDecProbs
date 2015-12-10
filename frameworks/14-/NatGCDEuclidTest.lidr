@@ -10,16 +10,13 @@
 > %default total
 
 > m : Nat
-
 > n : Nat
 
 > d : Nat
 > d = getWitness (euclidGCD m n)
 
-> {-
-
 > prf : GCD Main.d Main.m Main.n
-> prf = getProof dgcd
+> prf = getProof (euclidGCD m n)
 
 > dDm : Main.d `Divisor` Main.m
 > dDm = gcdDivisorFst prf
@@ -33,11 +30,10 @@
 > n' : Nat
 > n' = quotient Main.n Main.d Main.dDn
 
-> ---}
-
 > m = 42449
 > n = 6776
 
 > main : IO ()               
 > main = do putStrLn (show d)
+>           -- putStrLn (show m')
 

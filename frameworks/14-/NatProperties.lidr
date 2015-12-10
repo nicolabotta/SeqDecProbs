@@ -633,14 +633,14 @@ Decidability:
 
 > ||| LTE is decidable
 > decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)
-> decLTE = lte
-> {-
+> --decLTE = lte
+> --{-
 > decLTE Z _     = Yes LTEZero
 > decLTE (S m) Z = No succNotLTEzero
 > decLTE (S m) (S n) with (decLTE m n)
 >   | (Yes p) = Yes (LTESucc p)
 >   | (No contra) = No (\ p => contra (fromLteSucc p))
-> -}
+> ---}
 > -- %freeze decLTE
 
 > ||| LT is decidable
