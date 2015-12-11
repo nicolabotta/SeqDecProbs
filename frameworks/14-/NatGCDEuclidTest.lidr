@@ -35,5 +35,5 @@
 
 > main : IO ()               
 > main = do putStrLn (show d)
->           -- putStrLn (show m')
+>           putStrLn (show m')
 
