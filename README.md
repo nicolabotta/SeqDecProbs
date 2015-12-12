@@ -11,7 +11,7 @@ Some related Agda code is available in
 
 * [manuscripts/](manuscripts/)
     * 2014.LMCS: code from the paper "SDPs, dependent types and generic solutions". [The simple "cylinder" example](manuscripts/2014.LMCS/code/DynamicProgramming/S1206_CylinderExample1.lidr).
-    * 2015.MSS: code from the paper "A computational theory of policy advice and avoidability". [A fairly self-contained file](manuscripts/2015.MSS/code/monadic.lidr) and [the support framework](frameworks/14-/).
+    * 2015.JFP: code from the paper "Contributions to a computational theory of policy advice and avoidability". [A fairly self-contained file with the core development](manuscripts/2015.JFP/code/monadic.lidr), [some more code from the paper sections](manuscripts/2015.JFP/code/). The code is a snapshot matching the paper when submitted. (The full [support framework](frameworks/14-/) keeps developing.)
 * [frameworks/](frameworks/)
     Supporting code for the papers - Years [2011-2014](frameworks/11-14/) and a reworked structure from [2014-](frameworks/14-/).
 * [issue_reports/](issue_reports/)
@@ -40,8 +40,8 @@ Title: Sequential decision problems, dependent types and generic solutions
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edwin Brady
 
-### 2015: A computational theory of policy advice and avoidability
+### 2015: Contributions to a computational theory of policy advice and avoidability
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 
-In submission.
+* 2015-12: In submission (aiming at the JFP Special issue on Dependently Typed Programming).

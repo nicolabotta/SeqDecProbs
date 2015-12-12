@@ -17,8 +17,7 @@
 > rewards t x y = fmap (reward t x y) (step t x y)
 
 > reduce : {A : Type} -> List (List A) -> List A
-> reduce = concat -- library function that ``merges'' the lists together
+> reduce = concat
 
 > certain : {A : Type} -> A -> List A
 > certain a = [a]
-

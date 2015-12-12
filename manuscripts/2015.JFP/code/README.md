@@ -1,5 +1,5 @@
 TODOs:
-* Generalise the reward from Float to some preorder
+* Generalise the reward from Double to some preorder
 * Package all the assumptions (global metavariables) as a record (or a type class)
   * X, finX, decEqX,   -- State space
   * Y, finY,           -- Control space
