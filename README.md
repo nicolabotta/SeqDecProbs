@@ -45,3 +45,10 @@ Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edw
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 
 * 2015-12: In submission (aiming at the JFP Special issue on Dependently Typed Programming).
+
+The work was partially supported by the
+[GRACeFUL project](https://www.graceful-project.eu/)
+(640954, from the call H2020-FETPROACT-2014) and by the
+[CoeGSS project](http://coegss.eu/)
+(676547, H2020-EINFRA-2015-1) in the context of
+Global Systems Science (GSS).
