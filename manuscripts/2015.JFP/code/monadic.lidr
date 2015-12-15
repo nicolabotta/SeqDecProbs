@@ -161,31 +161,37 @@ For every SDP, we can build the following notions:
 
   Simple minded policies:
 
--- > Policy : (t : Nat) -> Type
--- > Policy t = (x : X t) -> Y t x
+> namespace SimpleMinded
+>
+>   Policy : (t : Nat) -> Type
+>   Policy t = (x : X t) -> Y t x
 
--- > data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
--- >   Nil   :  PolicySeq t Z
--- >   (::)  :  Policy t -> PolicySeq (S t) n -> PolicySeq t (S n)
+>   data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
+>     Nil   :  PolicySeq t Z
+>     (::)  :  Policy t -> PolicySeq (S t) n -> PolicySeq t (S n)
 
+Value of (simple minded) policy sequences:
 
---   Value of (simple minded) policy seqeunces:
+>   val : (x : X t) -> (ps : PolicySeq t n) -> Double
+>   val {t} {n = Z} x ps = 0
+>   val {t} {n = S m} x (p :: ps) = meas (fmap f mx') where
+>     y   : Y t x;;              y    = p x
+>     mx' : M (X (S t));;        mx'  = step t x y
+>     f   : X (S t) -> Double;;  f x' = reward t x y x' + val x' ps
+> -- **TODO: report Idris bug requiring two ";" between declarations on one line
 
--- > val : (x : X t) -> (ps : PolicySeq t n) -> Double
--- > val {t} {n = Z} x ps = 0
--- > val {t} {n = S m} x (p :: ps) = meas (fmap f mx') where
--- >   y : Y t x
--- >   y = p x
--- >   mx' : M (X (S t))
--- >   mx' = step t x y
--- >   f : X (S t) -> Double
--- >   f x' = reward t x y x' + val x' ps
+>   OptPolicySeq : PolicySeq t n -> Prop
+>   OptPolicySeq {t} {n} ps = (ps' : PolicySeq t n) -> (x : X t) -> So (val x ps' <= val x ps)
 
--- > OptPolicySeq : PolicySeq t n -> Prop
--- > OptPolicySeq {t} {n} ps = (ps' : PolicySeq t n) -> (x : X t) -> So (val x ps' <= val x ps)
+>   nilOptPolicySeq : OptPolicySeq Nil
+>   nilOptPolicySeq ps' x = reflexiveDoubleLTE 0
 
--- > nilOptPolicySeq : OptPolicySeq Nil
--- > nilOptPolicySeq ps' x = reflexiveDoubleLTE 0
+> %hide SimpleMinded.Policy
+> %hide SimpleMinded.PolicySeq
+> %hide SimpleMinded.val
+> %hide SimpleMinded.OptPolicySeq
+> %hide SimpleMinded.nilOptPolicySeq
+
 
 
   Viability and reachability:
