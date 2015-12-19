@@ -236,8 +236,8 @@ Value of (simple minded) policy sequences:
 >     v'    =  av x' x'estep
 
 >   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Double
->   val {t} {n = Z} x r v ps = 0
->   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
+>   val {t} {n = Z}    x r v ps         = 0
+>   val {t} {n = S m}  x r v (p :: ps)  = meas (fmap f (tagElem mx')) where
 >     y    :  Y t x
 >     y    =  outl (p x r v)
 >     mx'  :  M (X (S t))
@@ -269,8 +269,8 @@ Value of (simple minded) policy sequences:
 
   Bellman's principle of optimality:
 
-> Bellman  :  (ps : PolicySeq (S t) m) -> OptPolicySeq ps ->
->             (p : Policy t (S m)) -> OptExt ps p -> OptPolicySeq (p :: ps)
+> Bellman  :  (ps  : PolicySeq (S t) m)  -> OptPolicySeq ps  ->
+>             (p   : Policy t (S m))     -> OptExt ps p      -> OptPolicySeq (p :: ps)
 > Bellman {t} {m} ps ops p oep = opps where
 >   opps : OptPolicySeq (p :: ps)
 >   opps (p' :: ps') x r v = transitiveDoubleLTE s4 s5 where
@@ -472,7 +472,6 @@ Now we can explain what it means for a state |x'| to be avoidable in a
 decision process starting from a previous state |x|:
 
 > Alternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Prop
-> -- Alternative x x' m x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
 > Alternative x x' m x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
 
 > -- AvoidableFrom  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Prop
