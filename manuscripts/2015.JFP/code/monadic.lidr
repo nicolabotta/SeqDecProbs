@@ -471,14 +471,14 @@ states:
 Now we can explain what it means for a state |x'| to be avoidable in a
 decision process starting from a previous state |x|:
 
-> Alternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Prop
-> Alternative x x' m x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
+> Alternative : (x : X t) -> (m : Nat) -> (x' : X t') -> (x'' : X t') -> Prop
+> Alternative x m x' x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
 
-> -- AvoidableFrom  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Prop
-> -- AvoidableFrom {t'} {n} x' x r v = Exists (Alternative x x' n)
+> AvoidableFrom'  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Prop
+> AvoidableFrom' {t'} {n} x' x r v = Exists (Alternative x n x')
 
 > AvoidableFrom  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> (m : Nat) -> Prop
-> AvoidableFrom {t'} x' x r m = Exists (Alternative x x' m)
+> AvoidableFrom {t'} x' x r m = Exists (Alternative x m x')
 
 A relevant question for applications is under which conditions
 avoidability is decidable. We start by establishing some basic results
@@ -552,6 +552,8 @@ additional assumptions. Sufficient conditions are
 
 > decElem : {A : Type} -> (a : A) -> (as : M A) -> Dec (a `Elem` as)
 > decAll  :  {A : Type} -> (P : A -> Prop) -> Dec1 P -> (as : M A) -> Dec (All P as)
+> -- decElem :  {A : Type} -> Dec2 {A = A} {B = M A} Elem
+> -- decAll  :  {A : Type} -> (P : A -> Prop) -> Dec1 P -> Dec1 {A = M A} (All P)
 
 > decEqX : (x : X t) -> (x' : X t') -> Dec (x = x')
 > finX : (t : Nat) -> Finite (X t)
@@ -563,9 +565,10 @@ specification of monadic containers. Anyway, for decision problems that
 fulfill this specification it is easy to prove decidability of
 |Viable|
 
+> -- decViable : Dec2 {A = Nat} {B = X t} Viable
 > decViable : (n : Nat) -> (x : X t) -> Dec (Viable n x)
-> decViable  Z    x = Yes ()
-> decViable {t} (S m) x = finiteDecLemma fY dAll where
+> decViable      Z      x = Yes ()
+> decViable {t}  (S m)  x = finiteDecLemma fY dAll where
 >   fY      :  Finite (Y t x)
 >   fY      =  finY t x
 >   dAll    :  Dec1 (\ y => All (Viable m) (step t x y))
@@ -604,8 +607,8 @@ of |ReachableFrom|
 
 and, finally of |AvoidableFrom|:
 
-> decAlternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Dec (Alternative x x' m x'')
-> decAlternative x x' m x'' = decPair p q where
+> decAlternative : (x : X t) -> (m : Nat) -> (x' : X t') -> (x'' : X t') -> Dec (Alternative x m x' x'')
+> decAlternative x m x' x'' = decPair p q where
 >   p : Dec (x'' `ReachableFrom` x)
 >   p = decReachableFrom x'' x
 >   q : Dec (Viable m x'' , Not (x'' = x'))
@@ -619,8 +622,8 @@ and, finally of |AvoidableFrom|:
 > decAvoidableFrom {t'} {t} x' x r m = finiteDecLemma fX dA where
 >   fX : Finite (X t')
 >   fX = finX t'
->   dA : Dec1 (Alternative x x' m)
->   dA x'' = decAlternative x x' m x''
+>   dA : Dec1 (Alternative x m x')
+>   dA x'' = decAlternative x m x' x''
 
 
 > {-
