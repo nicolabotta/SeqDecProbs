@@ -315,23 +315,8 @@ that fulfill the specification
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
 
-> {-
-> mkg : (x  : X t) ->
->       (r  : Reachable x) ->
->       (v  : Viable (S n) x) ->
->       (ps : PolicySeq (S t) n) ->
->       (y : Y t x ** All (Viable n) (step t x y)) -> Double
-> -- mkg {t} {n} x r v ps (y ** av) = meas (fmap f (tagElem (step t x y))) where
->   -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Double
->   -- f = mkf x r v y av ps
-> mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
->   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Double
->   f = mkf x r v (outl yav) (outr yav) ps
-> -}
-
 > mkg : (x  : X t) -> (r  : Reachable x) ->  (v  : Viable (S n) x) ->
->       (ps : PolicySeq (S t) n) ->
->       (y : Y t x ** All (Viable n) (step t x y)) -> Double
+>       (ps : PolicySeq (S t) n) -> (y : Y t x ** All (Viable n) (step t x y)) -> Double
 > mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
 >   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Double
 >   f = mkf x r v (outl yav) (outr yav) ps
@@ -417,8 +402,8 @@ possible future evolutions from a (viable) initial state:
 
 >   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                    (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
->   stateCtrlTrj {t} {n = Z}   x r v Nil = ret (Nil x)
->   stateCtrlTrj {t} {n = S m} x r v (p :: ps') =
+>   stateCtrlTrj {t} {n = Z}    x r v Nil         = ret (Nil x)
+>   stateCtrlTrj {t} {n = S m}  x r v (p :: ps')  =
 >     fmap g (bind (tagElem mx') f) where
 >       y    :  Y t x
 >       y    =  outl (p x r v)
@@ -451,22 +436,16 @@ It is easy to show that we are indeed modeling reachability of "future"
 states:
 
 > reachableFromLemma : (x'' : X t'') -> (x : X t) -> x'' `ReachableFrom` x -> t'' `GTE` t
-> reachableFromLemma {t'' = Z}    {t = Z}    x'' x prf =
->   LTEZero
-> reachableFromLemma {t'' = Z}    {t = S m}  x'' x (prf1 , prf2) =
->   void (uninhabited u) where
->     u : Z = S m
->     u = trans (sym prf1) Refl
-> reachableFromLemma {t'' = S t'} {t = Z}    x'' x prf =
->   LTEZero
-> reachableFromLemma {t'' = S t'} {t = S t'} x'' x (Left (Refl , prf2)) =
->   eqInLTE (S t') (S t') Refl
-> reachableFromLemma {t'' = S t'} {t = t}    x'' x (Right (Evidence x' (prf1 , prf2))) =
->   s3 where
+> reachableFromLemma {t'' = Z}     {t = Z}     x'' x prf                   = LTEZero
+> reachableFromLemma {t'' = S t'}  {t = Z}     x'' x prf                   = LTEZero
+> reachableFromLemma {t'' = Z}     {t = S m}   x'' x (prf1 , prf2)         = void (uninhabited (sym prf1))
+> reachableFromLemma {t'' = S t'}  {t = S t'}  x'' x (Left (Refl , prf2))  = eqInLTE (S t') (S t') Refl
+> reachableFromLemma {t'' = S t'}  {t = t}     x'' x
+>                                     (Right (Evidence x' (prf1 , prf2)))  = s2 where
 >     s1  :  t' `GTE` t
 >     s1  =  reachableFromLemma x' x prf1
->     s3  :  S t' `GTE` t
->     s3  =  idSuccPreservesLTE t t' s1
+>     s2  :  S t' `GTE` t
+>     s2  =  idSuccPreservesLTE t t' s1
 
 Now we can explain what it means for a state |x'| to be avoidable in a
 decision process starting from a previous state |x|:
