@@ -28,7 +28,7 @@ Authors: Nicola Botta, Cezar Ionescu, and Edwin Brady.
 
 Published in Proceedings of the Conferences on Intelligent Computer
   Mathematics (CICM 2013), "Programming Languages for Mechanized Mathematics
-  Systems Workshop (PLMMS)", volume 1010 of CEUR Workshop Proceedings, 2013
+  Systems Workshop (PLMMS)", volume 1010 of CEUR Workshop Proceedings, 2013.
 
 ### 2014: SDPs, dependent types and generic solutions (in submission)
 
@@ -37,6 +37,7 @@ Title: Sequential decision problems, dependent types and generic solutions
 * 2014-08: Submitted for publication
 * 2015-06: Received referee reports
 * 2015-07: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2015_preprint.pdf).
+* 2015-12: Received 2nd round of referee reports
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edwin Brady
 
@@ -44,7 +45,7 @@ Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edw
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 
-* 2015-12: In submission (aiming at the JFP Special issue on Dependently Typed Programming).
+* 2016-01: In submission (aiming at the JFP Special issue on Dependently Typed Programming).
 
 The work was partially supported by the
 [GRACeFUL project](https://www.graceful-project.eu/)
