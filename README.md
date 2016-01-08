@@ -45,7 +45,8 @@ Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edw
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 
-* 2016-01: In submission (aiming at the JFP Special issue on Dependently Typed Programming).
+* 2016-01-06: Submitted to the Journal of Functional Programming (JFP) Special issue on Dependently Typed Programming. (JFP is a [RoMEO Green journal](http://www.sherpa.ac.uk/romeo/search.php?issn=0956-7968).)
+* [Full text pre-print available](http://www.cse.chalmers.se/~patrikj/papers/CompTheoryPolicyAdviceAvoidability_JFP_2016_preprint.pdf)
 
 The work was partially supported by the
 [GRACeFUL project](https://www.graceful-project.eu/)
