@@ -1,6 +1,7 @@
 > module Main
 
 > import Data.So
+> import Data.Vect
 
 > import BoundedNat.Blt
 > import Vect.Ops

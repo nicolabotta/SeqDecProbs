@@ -1,6 +1,7 @@
 > module ReachabilityViabilityDefaults
 
 > import Data.So
+> import Data.Vect
 
 > import Logic.Properties
 > import Exists.Ops

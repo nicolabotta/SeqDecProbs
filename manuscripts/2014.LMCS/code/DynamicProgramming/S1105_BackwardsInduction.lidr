@@ -1,6 +1,7 @@
 > module BackwardsInduction
 
 > import Data.So
+> import Data.Vect
 
 > import Float.Postulates
 > import Float.Properties
