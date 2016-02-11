@@ -29,8 +29,9 @@
 > %default total
 
 
-We reimplement "S1206_Example3" by taking advantage of non-default
-implemetations for |reachable| and |viable|. 
+We reimplement "S1206_Example3" (a "cylinder" example similar to the one
+illustrated in Figure 2 of the LMCS manuscript) by taking advantage of
+non-default implemetations for |reachable| and |viable|.
 
 
 # The context:
