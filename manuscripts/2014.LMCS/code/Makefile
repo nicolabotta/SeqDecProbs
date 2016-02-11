@@ -13,7 +13,7 @@ run: example
 examples:
 	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1106_KnapsackExample.lidr  -o DynamicProgramming/S1106_KnapsackExample.exe
 	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_CylinderExample1.lidr -o DynamicProgramming/S1206_CylinderExample1.exe
-	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_Example4.lidr -o DynamicProgramming/S1206_Example4.exe
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_CylinderExample4.lidr -o DynamicProgramming/S1206_CylinderExample4.exe
 
 clean:
 	-rm example
