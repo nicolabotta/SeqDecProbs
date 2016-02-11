@@ -161,31 +161,37 @@ For every SDP, we can build the following notions:
 
   Simple minded policies:
 
--- > Policy : (t : Nat) -> Type
--- > Policy t = (x : X t) -> Y t x
+> namespace SimpleMinded
+>
+>   Policy : (t : Nat) -> Type
+>   Policy t = (x : X t) -> Y t x
 
--- > data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
--- >   Nil   :  PolicySeq t Z
--- >   (::)  :  Policy t -> PolicySeq (S t) n -> PolicySeq t (S n)
+>   data PolicySeq : (t : Nat) -> (n : Nat) -> Type where
+>     Nil   :  PolicySeq t Z
+>     (::)  :  Policy t -> PolicySeq (S t) n -> PolicySeq t (S n)
 
+Value of (simple minded) policy sequences:
 
---   Value of (simple minded) policy seqeunces:
+>   val : (x : X t) -> (ps : PolicySeq t n) -> Double
+>   val {t} {n = Z} x ps = 0
+>   val {t} {n = S m} x (p :: ps) = meas (fmap f mx') where
+>     y   : Y t x;;              y    = p x
+>     mx' : M (X (S t));;        mx'  = step t x y
+>     f   : X (S t) -> Double;;  f x' = reward t x y x' + val x' ps
+> -- **TODO: report Idris bug requiring two ";" between declarations on one line
 
--- > val : (x : X t) -> (ps : PolicySeq t n) -> Double
--- > val {t} {n = Z} x ps = 0
--- > val {t} {n = S m} x (p :: ps) = meas (fmap f mx') where
--- >   y : Y t x
--- >   y = p x
--- >   mx' : M (X (S t))
--- >   mx' = step t x y
--- >   f : X (S t) -> Double
--- >   f x' = reward t x y x' + val x' ps
+>   OptPolicySeq : PolicySeq t n -> Prop
+>   OptPolicySeq {t} {n} ps = (ps' : PolicySeq t n) -> (x : X t) -> So (val x ps' <= val x ps)
 
--- > OptPolicySeq : PolicySeq t n -> Prop
--- > OptPolicySeq {t} {n} ps = (ps' : PolicySeq t n) -> (x : X t) -> So (val x ps' <= val x ps)
+>   nilOptPolicySeq : OptPolicySeq Nil
+>   nilOptPolicySeq ps' x = reflexiveDoubleLTE 0
 
--- > nilOptPolicySeq : OptPolicySeq Nil
--- > nilOptPolicySeq ps' x = reflexiveDoubleLTE 0
+> %hide SimpleMinded.Policy
+> %hide SimpleMinded.PolicySeq
+> %hide SimpleMinded.val
+> %hide SimpleMinded.OptPolicySeq
+> %hide SimpleMinded.nilOptPolicySeq
+
 
 
   Viability and reachability:
@@ -230,8 +236,8 @@ For every SDP, we can build the following notions:
 >     v'    =  av x' x'estep
 
 >   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Double
->   val {t} {n = Z} x r v ps = 0
->   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
+>   val {t} {n = Z}    x r v ps         = 0
+>   val {t} {n = S m}  x r v (p :: ps)  = meas (fmap f (tagElem mx')) where
 >     y    :  Y t x
 >     y    =  outl (p x r v)
 >     mx'  :  M (X (S t))
@@ -263,8 +269,8 @@ For every SDP, we can build the following notions:
 
   Bellman's principle of optimality:
 
-> Bellman  :  (ps : PolicySeq (S t) m) -> OptPolicySeq ps ->
->             (p : Policy t (S m)) -> OptExt ps p -> OptPolicySeq (p :: ps)
+> Bellman  :  (ps  : PolicySeq (S t) m)  -> OptPolicySeq ps  ->
+>             (p   : Policy t (S m))     -> OptExt ps p      -> OptPolicySeq (p :: ps)
 > Bellman {t} {m} ps ops p oep = opps where
 >   opps : OptPolicySeq (p :: ps)
 >   opps (p' :: ps') x r v = transitiveDoubleLTE s4 s5 where
@@ -273,7 +279,7 @@ For every SDP, we can build the following notions:
 >     mx'                :  M (X (S t))
 >     mx'                =  step t x y'
 >     av'                :  All (Viable m) mx'
->     av'                =  outr (p' x r v)    
+>     av'                =  outr (p' x r v)
 >     f'                 :  (x' : X (S t) ** x' `Elem` mx') -> Double
 >     f'                 =  mkf x r v y' av' ps'
 >     f                  :  (x' : X (S t) ** x' `Elem` mx') -> Double
@@ -309,23 +315,8 @@ that fulfill the specification
 then we can implement a function that computes machine chackable optimal
 extensions for arbitrary policy sequences:
 
-> {-
-> mkg : (x  : X t) ->
->       (r  : Reachable x) ->
->       (v  : Viable (S n) x) ->
->       (ps : PolicySeq (S t) n) ->
->       (y : Y t x ** All (Viable n) (step t x y)) -> Double
-> -- mkg {t} {n} x r v ps (y ** av) = meas (fmap f (tagElem (step t x y))) where
->   -- f : (x' : X (S t) ** x' `Elem` (step t x y)) -> Double
->   -- f = mkf x r v y av ps
-> mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
->   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Double
->   f = mkf x r v (outl yav) (outr yav) ps
-> -}
-
-> mkg : (x  : X t) -> (r  : Reachable x) ->  (v  : Viable (S n) x) -> 
->       (ps : PolicySeq (S t) n) ->
->       (y : Y t x ** All (Viable n) (step t x y)) -> Double
+> mkg : (x  : X t) -> (r  : Reachable x) ->  (v  : Viable (S n) x) ->
+>       (ps : PolicySeq (S t) n) -> (y : Y t x ** All (Viable n) (step t x y)) -> Double
 > mkg {t} {n} x r v ps yav = meas (fmap f (tagElem (step t x (outl yav)))) where
 >   f : (x' : X (S t) ** x' `Elem` (step t x (outl yav))) -> Double
 >   f = mkf x r v (outl yav) (outr yav) ps
@@ -411,16 +402,16 @@ possible future evolutions from a (viable) initial state:
 
 >   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                    (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
->   stateCtrlTrj {t} {n = Z}   x r v Nil = ret (Nil x)
->   stateCtrlTrj {t} {n = S m} x r v (p :: ps') = 
->     fmap g (bind (tagElem mx') f) where  
+>   stateCtrlTrj {t} {n = Z}    x r v Nil         = ret (Nil x)
+>   stateCtrlTrj {t} {n = S m}  x r v (p :: ps')  =
+>     fmap g (bind (tagElem mx') f) where
 >       y    :  Y t x
 >       y    =  outl (p x r v)
 >       mx'  :  M (X (S t))
 >       mx'  =  step t x y
 >       av   :  All (Viable m) mx'
 >       av   =  outr (p x r v)
->       g    :  StateCtrlSeq (S t) n -> StateCtrlSeq t (S n) 
+>       g    :  StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 >       g    =  ((x ** y) ::)
 >       f    :  (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
 >       f (x' ** x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
@@ -445,35 +436,28 @@ It is easy to show that we are indeed modeling reachability of "future"
 states:
 
 > reachableFromLemma : (x'' : X t'') -> (x : X t) -> x'' `ReachableFrom` x -> t'' `GTE` t
-> reachableFromLemma {t'' = Z}    {t = Z}    x'' x prf =  
->   LTEZero
-> reachableFromLemma {t'' = Z}    {t = S m}  x'' x (prf1 , prf2) = 
->   void (uninhabited u) where
->     u : Z = S m 
->     u = trans (sym prf1) Refl 
-> reachableFromLemma {t'' = S t'} {t = Z}    x'' x prf =  
->   LTEZero
-> reachableFromLemma {t'' = S t'} {t = S t'} x'' x (Left (Refl , prf2)) =  
->   eqInLTE (S t') (S t') Refl 
-> reachableFromLemma {t'' = S t'} {t = t}    x'' x (Right (Evidence x' (prf1 , prf2))) =  
->   s3 where
+> reachableFromLemma {t'' = Z}     {t = Z}     x'' x prf                   = LTEZero
+> reachableFromLemma {t'' = S t'}  {t = Z}     x'' x prf                   = LTEZero
+> reachableFromLemma {t'' = Z}     {t = S m}   x'' x (prf1 , prf2)         = void (uninhabited (sym prf1))
+> reachableFromLemma {t'' = S t'}  {t = S t'}  x'' x (Left (Refl , prf2))  = eqInLTE (S t') (S t') Refl
+> reachableFromLemma {t'' = S t'}  {t = t}     x'' x
+>                                     (Right (Evidence x' (prf1 , prf2)))  = s2 where
 >     s1  :  t' `GTE` t
 >     s1  =  reachableFromLemma x' x prf1
->     s3  :  S t' `GTE` t
->     s3  =  idSuccPreservesLTE t t' s1 
+>     s2  :  S t' `GTE` t
+>     s2  =  idSuccPreservesLTE t t' s1
 
 Now we can explain what it means for a state |x'| to be avoidable in a
 decision process starting from a previous state |x|:
 
-> Alternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Prop
-> -- Alternative x x' m x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
-> Alternative x x' m x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
+> Alternative : (x : X t) -> (m : Nat) -> (x' : X t') -> (x'' : X t') -> Prop
+> Alternative x m x' x'' = (x'' `ReachableFrom` x , Viable m x'' , Not (x'' = x'))
 
-> -- AvoidableFrom  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Prop
-> -- AvoidableFrom {t'} {n} x' x r v = Exists (Alternative x x' n)
+> AvoidableFrom'  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> Viable n x' -> Prop
+> AvoidableFrom' {t'} {n} x' x r v = Exists (Alternative x n x')
 
 > AvoidableFrom  :  (x' : X t') -> (x : X t) -> x' `ReachableFrom` x -> (m : Nat) -> Prop
-> AvoidableFrom {t'} x' x r m = Exists (Alternative x x' m)
+> AvoidableFrom {t'} x' x r m = Exists (Alternative x m x')
 
 A relevant question for applications is under which conditions
 avoidability is decidable. We start by establishing some basic results
@@ -547,6 +531,8 @@ additional assumptions. Sufficient conditions are
 
 > decElem : {A : Type} -> (a : A) -> (as : M A) -> Dec (a `Elem` as)
 > decAll  :  {A : Type} -> (P : A -> Prop) -> Dec1 P -> (as : M A) -> Dec (All P as)
+> -- decElem :  {A : Type} -> Dec2 {A = A} {B = M A} Elem
+> -- decAll  :  {A : Type} -> (P : A -> Prop) -> Dec1 P -> Dec1 {A = M A} (All P)
 
 > decEqX : (x : X t) -> (x' : X t') -> Dec (x = x')
 > finX : (t : Nat) -> Finite (X t)
@@ -558,9 +544,10 @@ specification of monadic containers. Anyway, for decision problems that
 fulfill this specification it is easy to prove decidability of
 |Viable|
 
+> -- decViable : Dec2 {A = Nat} {B = X t} Viable
 > decViable : (n : Nat) -> (x : X t) -> Dec (Viable n x)
-> decViable  Z    x = Yes ()
-> decViable {t} (S m) x = finiteDecLemma fY dAll where
+> decViable      Z      x = Yes ()
+> decViable {t}  (S m)  x = finiteDecLemma fY dAll where
 >   fY      :  Finite (Y t x)
 >   fY      =  finY t x
 >   dAll    :  Dec1 (\ y => All (Viable m) (step t x y))
@@ -599,8 +586,8 @@ of |ReachableFrom|
 
 and, finally of |AvoidableFrom|:
 
-> decAlternative : (x : X t) -> (x' : X t') -> (m : Nat) -> (x'' : X t') -> Dec (Alternative x x' m x'')
-> decAlternative x x' m x'' = decPair p q where
+> decAlternative : (x : X t) -> (m : Nat) -> (x' : X t') -> (x'' : X t') -> Dec (Alternative x m x' x'')
+> decAlternative x m x' x'' = decPair p q where
 >   p : Dec (x'' `ReachableFrom` x)
 >   p = decReachableFrom x'' x
 >   q : Dec (Viable m x'' , Not (x'' = x'))
@@ -614,11 +601,10 @@ and, finally of |AvoidableFrom|:
 > decAvoidableFrom {t'} {t} x' x r m = finiteDecLemma fX dA where
 >   fX : Finite (X t')
 >   fX = finX t'
->   dA : Dec1 (Alternative x x' m)
->   dA x'' = decAlternative x x' m x''
+>   dA : Dec1 (Alternative x m x')
+>   dA x'' = decAlternative x m x' x''
 
 
 > {-
 
 > ---}
- 
