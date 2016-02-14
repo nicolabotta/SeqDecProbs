@@ -206,7 +206,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 > -}
 
 Now Bellman's principle of optimality states that optimal policy
-sequences  extended with optimal extensions are themselves optimal:
+sequences extended with optimal extensions are themselves optimal:
 
 > Bellman  :  (t : Nat) -> (n : Nat) ->
 >             (ps : PolicySeq (S t) n)   -> OptPolicySeq (S t) n ps  ->
