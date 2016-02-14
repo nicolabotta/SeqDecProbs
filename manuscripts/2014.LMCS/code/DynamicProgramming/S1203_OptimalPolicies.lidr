@@ -43,7 +43,7 @@
 ...
 
 > val  :  (t : Nat) -> (n : Nat) ->
->         (x : State t) -> (r : Reachable x) -> (v : Viable n x) -> 
+>         (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
 >         PolicySeq t n -> Float
 > val _  Z      _ _ _ _          =  0
 > val t  (S n)  x r v (p :: ps)  =  reward t x y x' + val (S t) n x' r' v' ps where
@@ -57,8 +57,8 @@ The notion of optimal sequence of policies
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
 > OptPolicySeq t n ps = (ps' : PolicySeq t n) ->
 >                       (x : State t) ->
->                       (r : So (reachable x)) -> 
->                       (v : So (viable n x)) -> 
+>                       (r : So (reachable x)) ->
+>                       (v : So (viable n x)) ->
 >                       So (val t n x r v ps' <= val t n x r v ps)
 
 (Sanity check: Nil is optimal policy sequence

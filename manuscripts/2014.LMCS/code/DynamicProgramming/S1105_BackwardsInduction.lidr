@@ -143,7 +143,7 @@ and a proof of Bellman's principle can be constructed as follows:
 >     step3 = oep p' x
 
 Bellman's principle suggests that the problem of computing an optimal
-sequance of policies of length n (and thus, thank to OptLemma, optimal
+sequence of policies of length n (and thus, thank to OptLemma, optimal
 sequences of controls of the same length) can be solved by computing n
 optimal extensions by backwards induction. The following implementation
 and lemma shows that this is in fact the case:

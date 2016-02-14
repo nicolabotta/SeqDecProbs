@@ -28,4 +28,4 @@ These allow us to introduce the following abbreviations:
 > lemma3 {t} {x} = VectExtensions1.lemma3 (Ctrl t x) Controls.eqeq Controls.eqeqSpec1
 
 > whole : (n : Nat ** Vect n (Ctrl t x)) -> Type
-> whole {t} {x} = VectExtensions1.whole (Ctrl t x) Controls.eqeq Controls.eqeqSpec1 
+> whole {t} {x} = VectExtensions1.whole (Ctrl t x) Controls.eqeq Controls.eqeqSpec1
