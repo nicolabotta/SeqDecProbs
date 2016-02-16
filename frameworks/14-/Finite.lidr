@@ -1,10 +1,13 @@
 > module Finite
+
 > import Prelude.Maybe
 > import Data.Fin
 > import Control.Isomorphism
 > -- import EmbProj
 > 
 > %default total 
+
+> %access public export
 
 
 > ||| Notion of finiteness for types

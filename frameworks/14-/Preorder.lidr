@@ -3,6 +3,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Preorder
 > data Preorder : Type -> Type where

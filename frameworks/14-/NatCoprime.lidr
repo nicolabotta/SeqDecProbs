@@ -6,9 +6,13 @@
 > import Unique
 > import EqualityProperties
 > import NatGCDEuclid
+> import PairsOperations
+> import Sigma
 
 
 > %default total
+
+> %access public export
 
 
 > ||| 

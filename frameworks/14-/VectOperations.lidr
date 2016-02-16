@@ -5,6 +5,7 @@
 > import Data.Fin
 > import Data.So
 
+> import Sigma
 > import Decidable
 > import TotalPreorder
 > import TotalPreorderOperations
@@ -12,6 +13,8 @@
 
 
 > %default total
+
+> %access public export
 
 
 Lookup
@@ -36,13 +39,13 @@ Filtering
 >          {P : A -> Type} ->
 >          Dec1 P ->
 >          Vect n A -> 
->          -- (m : Nat ** Vect m A)
->          Sigma Nat (\m => Vect m A)
-> filter d1P Nil = (Z ** Nil)
+>          Sigma Nat (\ m => Vect m A)
+> filter d1P Nil = MkSigma Z Nil
 > filter d1P (a :: as) with (filter d1P as)
->   | (n ** as') with (d1P a)
->     | (Yes _) = (S n ** a :: as')
->     | (No  _) = (n ** as')
+>   | (MkSigma n as') with (d1P a)
+>     | (Yes _) = MkSigma (S n) (a :: as')
+>     | (No  _) = MkSigma n as'
+
 
 > ||| Filters a vector on a decidable property and pairs elements with proofs
 > filterTagSigma : {A : Type} ->
@@ -50,11 +53,11 @@ Filtering
 >                  Dec1 P ->
 >                  Vect n A -> 
 >                  Sigma Nat (\ m => Vect m (Sigma A P))
-> filterTagSigma d1P Nil = (_ ** Nil)
+> filterTagSigma d1P Nil = MkSigma _ Nil
 > filterTagSigma d1P (a :: as) with (filterTagSigma d1P as)
->   | (_ ** tail) with (d1P a)
->     | (Yes p) = (_ ** (a ** p) :: tail)
->     | (No  _) = (_ ** tail)
+>   | (MkSigma _ tail) with (d1P a)
+>     | (Yes p) = MkSigma _ ((MkSigma a p) :: tail)
+>     | (No  _) = MkSigma _ tail
 
 
 > ||| Filters a vector on a decidable property and pairs elements with proofs
@@ -63,11 +66,11 @@ Filtering
 >                   Dec1 P ->
 >                   Vect n A -> 
 >                   Sigma Nat (\ m => Vect m (Exists {a = A} P))
-> filterTagExists d1P Nil = (_ ** Nil)
+> filterTagExists d1P Nil = MkSigma _ Nil
 > filterTagExists d1P (a :: as) with (filterTagExists d1P as)
->   | (_ ** tail) with (d1P a)
->     | (Yes p) = (_ ** (Evidence a p) :: tail)
->     | (No  _) = (_ ** tail)
+>   | (MkSigma _ tail) with (d1P a)
+>     | (Yes p) = MkSigma _ ((Evidence a p) :: tail)
+>     | (No  _) = MkSigma _ tail
 
 
 > ||| Filters a vector on a decidable property and pairs elements with proofs
@@ -76,11 +79,11 @@ Filtering
 >                   Dec1 P ->
 >                   Vect n A -> 
 >                   Sigma Nat (\ m => Vect m (Subset A P))
-> filterTagSubset d1P Nil = (_ ** Nil)
+> filterTagSubset d1P Nil = MkSigma _ Nil
 > filterTagSubset d1P (a :: as) with (filterTagSubset d1P as)
->   | (_ ** tail) with (d1P a)
->     | (Yes p) = (_ ** (Element a p) :: tail)
->     | (No  _) = (_ ** tail)
+>   | (MkSigma _ tail) with (d1P a)
+>     | (Yes p) = MkSigma _ ((Element a p) :: tail)
+>     | (No  _) = MkSigma _ tail
 
 Searching
 
@@ -157,3 +160,5 @@ Searching
 > max = snd . argmaxMax
 
 > ---}
+ 
+

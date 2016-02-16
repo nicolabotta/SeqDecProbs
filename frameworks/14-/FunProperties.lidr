@@ -2,6 +2,9 @@
 
 > %default total
 
+> %access public export
+
+
 > ||| Injectivity (one direction)
 > Injective1 : {A, B : Type} -> (f : A -> B) -> Type
 > Injective1 {A} f = (a1 : A) -> (a2 : A) -> f a1 = f a2 -> a1 = a2

@@ -12,6 +12,8 @@
 > import NatDivisorProperties
 > import NatProperties
 > import Basics
+> import PairsOperations
+> import Sigma
 
 
 > %default total
@@ -39,12 +41,12 @@ Operations
 > -- %freeze fromNat
 
 > ||| Reduction to normal form (coprime numbers)
-> reduce : ((m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reduce : ((m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >          Fraction -> Fraction
 > reduce alg (n, d) with (decCoprime alg n d)
 >   | (Yes _) = (n, d)
 >   | (No  _) = (n', d') where
->       gcdv : (gcd : Nat ** GCD gcd n d)
+>       gcdv : Sigma Nat (\ gcd => GCD gcd n d)
 >       gcdv = alg n d
 >       gcd : Nat
 >       gcd = getWitness gcdv
@@ -77,13 +79,13 @@ Properties of |num|, |den|:
 Properties of |reduce|:
 
 > ||| First reduce lemma
-> reduceLemmaNum : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reduceLemmaNum : (alg : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >                  (x : Fraction) ->
 >                  Sigma Nat (\ gcd => num x = (num (reduce alg x)) * gcd)
 > reduceLemmaNum alg (n, d) with (decCoprime alg n d)
->   | (Yes _) = (1 ** sym (multOneRightNeutral n))
->   | (No  _) = (gcd ** ?lika)  where
->       gcdv : (gcd : Nat ** GCD gcd n d)
+>   | (Yes _) = MkSigma 1 (sym (multOneRightNeutral n))
+>   | (No  _) = MkSigma gcd ?lika  where
+>       gcdv : Sigma Nat (\ gcd => GCD gcd n d)
 >       gcdv = alg n d
 >       gcd : Nat
 >       gcd = getWitness gcdv
@@ -95,12 +97,12 @@ Properties of |reduce|:
 >       d' = quotient d gcd (gcdDivisorSnd v)
 
 > ||| Second reduce lemma
-> reduceLemmaDen : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reduceLemmaDen : (alg : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >                  (x : Fraction) ->
 >                  Sigma Nat (\ gcd => den x = (den (reduce alg x)) * gcd)
 
 > ||| Reduction of coprime numbers is identity
-> reducePreservesCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reducePreservesCoprimes : (alg : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >                           (x : Fraction) ->
 >                           Coprime (num x) (den x) ->
 >                           reduce alg x = x
@@ -111,7 +113,7 @@ Properties of |reduce|:
 
 
 > ||| Reduction preserves denominator positivity
-> reducePreservesPositivity : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reducePreservesPositivity : (alg : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >                             (x : Fraction) -> Z `LT` den x ->
 >                             Z `LT` den (reduce alg x)
 > reducePreservesPositivity alg (n, d) zLTd with (decCoprime alg n d)
@@ -125,7 +127,7 @@ Properties of |reduce|:
 
 
 > ||| Reduction yields coprime numbers
-> reduceYieldsCoprimes : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reduceYieldsCoprimes : (alg : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >                        (x : Fraction) -> Z `LT` den x ->
 >                        Coprime (num (reduce alg x)) (den (reduce alg x))
 > reduceYieldsCoprimes alg (n, d) zLTdx with (decCoprime alg n d)
@@ -142,22 +144,22 @@ Properties of |reduce|:
 
 
 > ||| Fraction is an instance of Num
-> instance Num Fraction where
+> implementation Num Fraction where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = Fraction.fromNat . fromIntegerNat
 
 
 > ||| Reduction is "linear"
-> reduceLinear : (alg : (m : Nat) -> (n : Nat) -> (d : Nat ** GCD d m n)) ->
+> reduceLinear : (alg : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)) ->
 >                (x : Fraction) -> (y : Fraction) ->
 >                reduce alg (x + y) = reduce alg (reduce alg x + reduce alg y)
 > reduceLinear alg (n1, d1) (n2, d2) =
->   let gcdv1  :  (lala : Nat ** GCD lala n1 d1)
+>   let gcdv1  :  Sigma Nat (\ lala => GCD lala n1 d1)
 >              =  alg n1 d1 in
 >   let gcd1   :  Nat
 >              =  getWitness gcdv1 in
->   let gcdv2  :  (lala : Nat ** GCD lala n2 d2)
+>   let gcdv2  :  Sigma Nat (\ lala => GCD lala n2 d2)
 >              =  alg n2 d2 in
 >   let gcd2   :  Nat
 >              =  getWitness gcdv2 in

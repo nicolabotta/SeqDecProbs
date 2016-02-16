@@ -8,13 +8,16 @@
 > import Unique
 > import SubsetProperties
 > import NatProperties
+> import PairsOperations
 
 
 > %default total
 
+> %access public export
 
-> ||| PNat is an instance of Show
-> instance Show PNat where
+
+> ||| PNat is an implementation of Show
+> implementation Show PNat where
 >   show = show . toNat
 
 

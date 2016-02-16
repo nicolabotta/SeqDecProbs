@@ -8,6 +8,8 @@
 
 > %default total
 
+> %access public export
+
 
 > |||
 > data Positive : Nat -> Type where

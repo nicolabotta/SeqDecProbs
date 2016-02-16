@@ -8,6 +8,8 @@
 > import Decidable
 > import Finite
 > import Unique
+> import Sigma
+> import PairsOperations
 > import SubsetOperations
 > import VectOperations
 > import VectProperties
@@ -21,6 +23,8 @@
 
 
 > %default total
+
+> %access public export
 
 
 Equality of projections:
@@ -126,7 +130,7 @@ We start by deriving two auxiliary results. The first one is
 >                     (d1P : Dec1 P) ->
 >                     (a : A) ->
 >                     (p : P a) ->
->                     Elem a (map Subset.getWitness (getProof (toVectSubset fA d1P)))
+>                     Elem a (map Subset.getWitness (Sigma.getProof (toVectSubset fA d1P)))
 > toVectSubsetLemma {A} {P} fA d1P a p =
 >   filterTagSubsetLemma d1P a (toVect fA) (toVectComplete fA a) p
 
@@ -154,7 +158,7 @@ The second result is
 >                      (a : A) ->
 >                      (p : P a) ->
 >                      (ss : Vect n (Subset A P)) ->
->                      (Elem a (map Prelude.Pairs.Subset.getWitness ss)) ->
+>                      (Elem a (map Subset.getWitness ss)) ->
 >                      Elem (Element a p) ss
 > subsetUniqueLemma1 u1P a p Nil prf = absurd prf
 > subsetUniqueLemma1 u1P a p ((Element a q) :: ss) (Here {x = a}) with (u1P a p q)
@@ -195,7 +199,7 @@ With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 Subset Fin properties:
 
 > using (P : Fin Z -> Type)
->   instance Uninhabited (Subset (Fin Z) P) where
+>   implementation Uninhabited (Subset (Fin Z) P) where
 >     uninhabited (Element k _) = absurd k
 
 

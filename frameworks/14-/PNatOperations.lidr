@@ -5,9 +5,12 @@
 > import NatPositive
 > import NatOperations
 > import NatProperties
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
 
 
 > ||| The predecessor of a PNat

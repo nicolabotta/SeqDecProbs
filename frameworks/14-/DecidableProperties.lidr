@@ -7,6 +7,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| If |P| is decidable, |Not P| is decidable
 > decNot : {P : Prop} -> Dec P -> Dec (Not P)

@@ -13,9 +13,13 @@
 > import Unique
 > import NatPositive
 > import NumRefinements
+> import PairsOperations
+> -- import Sigma
 
 
 > %default total
+
+> %access public export
 
 
 Properties of |toFraction|:
@@ -67,13 +71,13 @@ Properties of |fromFraction| and |toFraction|:
 > %freeze toFractionFromNatLemma
 
 
-> ||| NonNegRational is an instance of Show
-> instance Show NonNegRational where
+> ||| NonNegRational is an implementation of Show
+> implementation Show NonNegRational where
 >   show q = show (num q) ++ "/" ++ show (den q)
 
 
-> ||| NonNegRational is an instance of Num
-> instance Num NonNegRational where
+> ||| NonNegRational is an implementation of Num
+> implementation Num NonNegRational where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = fromNat . fromIntegerNat
@@ -283,27 +287,27 @@ Properties of |fromFraction| and |toFraction|:
 > %freeze multDistributesOverPlusLeft
 
 
-> ||| NonNegRational is an instance of NumPlusZeroNeutral
-> instance NumPlusZeroNeutral NonNegRational where
+> ||| NonNegRational is an implementation of NumPlusZeroNeutral
+> implementation NumPlusZeroNeutral NonNegRational where
 >   plusZeroLeftNeutral = plusZeroLeftNeutral
 >   plusZeroRightNeutral = plusZeroRightNeutral
 
 
-> ||| NonNegRational is an instance of NumPlusAssociative
-> instance NumPlusAssociative NonNegRational where
+> ||| NonNegRational is an implementation of NumPlusAssociative
+> implementation NumPlusAssociative NonNegRational where
 >   plusAssociative = plusAssociative
 
 
-> ||| NonNegRational is an instance of NumMultZeroOne
-> instance NumMultZeroOne NonNegRational where
+> ||| NonNegRational is an implementation of NumMultZeroOne
+> implementation NumMultZeroOne NonNegRational where
 >   multZeroRightZero   = multZeroRightZero
 >   multZeroLeftZero    = multZeroLeftZero
 >   multOneRightNeutral = multOneRightNeutral
 >   multOneLeftNeutral  = multOneLeftNeutral
 
 
-> ||| NonNegRational is an instance NumMultDistributesOverPlus
-> instance NumMultDistributesOverPlus NonNegRational where
+> ||| NonNegRational is an implementation NumMultDistributesOverPlus
+> implementation NumMultDistributesOverPlus NonNegRational where
 >   multDistributesOverPlusRight = multDistributesOverPlusRight
 >   multDistributesOverPlusLeft  = multDistributesOverPlusLeft
 

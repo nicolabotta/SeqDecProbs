@@ -6,6 +6,8 @@
 
 > %default total 
 
+> %access public export
+
 
 > to : {A, B : Type} -> Iso A B -> (A -> B)
 > to (MkIso to from toFrom fromTo) = to

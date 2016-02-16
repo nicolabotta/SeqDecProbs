@@ -3,6 +3,8 @@
 
 > %default total 
 
+> %access public export
+
 
 > Dec0 : Type -> Type
 > Dec0 = Dec

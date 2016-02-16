@@ -11,9 +11,13 @@
 > import NatProperties
 > import NatGCDAlgorithm
 > import NatGCDEuclid
+> import PairsOperations
+> import Sigma
 
 
 > %default total
+
+> %access public export
 
 
 > ||| Coprime is decidable

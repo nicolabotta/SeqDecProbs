@@ -6,6 +6,8 @@
 
 > %default total
 
+> %access public export
+
 
 > |||
 > data GCD : (d : Nat) -> (m : Nat) -> (n : Nat) -> Type where

@@ -5,6 +5,7 @@
 > import Data.Vect.Quantifiers
 > import Control.Isomorphism
 
+> import PairsOperations
 > import Finite
 > import FinOperations
 > import IsomorphismOperations
@@ -12,6 +13,8 @@
 
 
 > %default total
+
+> %access public export
 
 
 Finite types are dependent pairs: an |n : Nat| (the cardinality of the

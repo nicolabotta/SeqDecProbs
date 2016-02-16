@@ -7,6 +7,8 @@
 
 > %default total
 
+> %access public export
+
 
 > |||
 > gcdDivisorFst : GCD d m n -> d `Divisor` m

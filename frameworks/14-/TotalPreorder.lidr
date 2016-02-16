@@ -4,6 +4,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| TotalPreorder
 > data TotalPreorder : Type -> Type where

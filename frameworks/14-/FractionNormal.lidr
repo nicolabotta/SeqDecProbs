@@ -9,9 +9,12 @@
 > import NatGCDEuclid
 > import PNat
 > import NatPositive
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
 
 
 > ||| 

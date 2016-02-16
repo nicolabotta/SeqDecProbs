@@ -8,9 +8,13 @@
 > import NatDivisorProperties
 > import NatProperties
 > import Basics
+> import Sigma
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
 
 
 > ||| 
@@ -32,8 +36,8 @@
 
 
 > ||| If |m| is positive, the greatest common divisor of |m| and |n| is positive
-> gcdPreservesPositivity1 : Z `LT` m -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
-> gcdPreservesPositivity1 {m} zLTm (d ** prf) = multLTZeroLeftLTZero d q zLTdq where
+> gcdPreservesPositivity1 : Z `LT` m -> (dv : Sigma Nat (\ d => GCD d m n)) -> Z `LT` (getWitness dv)
+> gcdPreservesPositivity1 {m} zLTm (MkSigma d prf) = multLTZeroLeftLTZero d q zLTdq where
 >   dDm : d `Divisor` m
 >   dDm = gcdDivisorFst prf
 >   q : Nat
@@ -46,8 +50,8 @@
 > %freeze gcdPreservesPositivity1
 
 > ||| If |n| is positive, the greatest common divisor of |m| and |n| is positive
-> gcdPreservesPositivity2 : Z `LT` n -> (dv : (d : Nat ** GCD d m n)) -> Z `LT` (getWitness dv)
-> gcdPreservesPositivity2 {n} zLTn (d ** prf) = multLTZeroLeftLTZero d q zLTdq where
+> gcdPreservesPositivity2 : Z `LT` n -> (dv : Sigma Nat (\ d => GCD d m n)) -> Z `LT` (getWitness dv)
+> gcdPreservesPositivity2 {n} zLTn (MkSigma d prf) = multLTZeroLeftLTZero d q zLTdq where
 >   dDn : d `Divisor` n
 >   dDn = gcdDivisorSnd prf
 >   q : Nat
@@ -158,9 +162,9 @@
 > |||
 > gcdDivisorLemma : (d : Nat) -> (m : Nat) -> (n : Nat) -> (a : Nat) ->
 >                   GCD d ((S a) * m) ((S a) * n) -> 
->                   (saDd : (S a) `Divisor` d ** GCD (quotient d (S a) saDd) m n)
+>                   Sigma ((S a) `Divisor` d) (\ saDd => GCD (quotient d (S a) saDd) m n)
 
-> gcdDivisorLemma d m n a v = (saDd ** MkGCD qDm qDn qG) where
+> gcdDivisorLemma d m n a v = MkSigma saDd (MkGCD qDm qDn qG) where
 >   dDsam   :  d `Divisor` ((S a) * m)
 >   dDsam   =  gcdDivisorFst v
 >   saDsam  :  S a `Divisor` ((S a) * m)

@@ -9,6 +9,8 @@
 
 > %default total
 
+> %access public export
+
 
 > |||
 > isoEq : {A, B : Type} -> A = B -> Iso A B

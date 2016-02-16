@@ -7,6 +7,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Non negative rational numbers
 > NonNegRational : Type

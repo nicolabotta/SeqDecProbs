@@ -16,9 +16,14 @@
 > import IsomorphismProperties
 > import NatProperties
 > import Basics
+> import FunProperties
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
+
 
 > -- toVectComplete : {A : Type} -> (f : Fin n -> A) -> (k : Fin n) -> Elem (f k) (toVect f)
 

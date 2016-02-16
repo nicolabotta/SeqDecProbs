@@ -4,6 +4,8 @@
 > import Data.Vect
 > import Control.Isomorphism
 
+> import Sigma
+> import PairsOperations
 > import Finite
 > import Decidable
 > import FiniteOperations
@@ -11,6 +13,8 @@
 
 
 > %default total
+
+> %access public export
 
 
 > |||
@@ -28,5 +32,5 @@
 >               {P : A -> Type} ->
 >               Finite A ->
 >               Dec1 P ->
->               (n : Nat ** Vect n (Sigma A P))
+>               Sigma Nat (\ n => Vect n (Sigma A P))
 > toVectSigma fA d1P = filterTagSigma d1P (toVect fA)

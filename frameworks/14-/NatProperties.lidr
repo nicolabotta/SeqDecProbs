@@ -13,13 +13,15 @@
 
 > %default total
 
+> %access public export
 
-> instance Uninhabited (S n = Z) where
+
+> implementation Uninhabited (S n = Z) where
 >   uninhabited Refl impossible
 
 
 > {-
-> instance Uninhabited (LTE (S n) Z) where
+> implementation Uninhabited (LTE (S n) Z) where
 >   uninhabited LTEZero impossible
 >   uninhabited (LTESucc x) impossible
 

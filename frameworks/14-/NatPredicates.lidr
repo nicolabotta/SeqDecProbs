@@ -1,6 +1,9 @@
 > module NatPredicates
 
+
 > %default total
+
+> %access public export
 
 
 Divisor (following an idea from Tim Richter):

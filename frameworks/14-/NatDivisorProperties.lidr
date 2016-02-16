@@ -9,7 +9,9 @@
 > import NatDivisorOperations
 
 
-%default total
+> %default total
+
+> %access public export
 
 
 > ||| Fundamental quotient lemma

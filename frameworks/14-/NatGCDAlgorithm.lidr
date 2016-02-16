@@ -4,22 +4,25 @@
 > import NatGCD
 > import NatGCDProperties
 > import NatGCDEuclid
+> import PairsOperations
+> import Sigma
 
 
 > %default total
 
+> %access public export
 
 > %hide gcd
 
 
 > ||| The GCD algorithm
-> public gcdAlg : Nat -> Nat -> Nat
+> gcdAlg : Nat -> Nat -> Nat
 > gcdAlg m n = getWitness (euclidGCD m n)
 
-> public gcdAlgLemma : (m : Nat) -> (n : Nat) -> GCD (gcdAlg m n) m n
+> gcdAlgLemma : (m : Nat) -> (n : Nat) -> GCD (gcdAlg m n) m n
 > gcdAlgLemma m n = getProof (euclidGCD m n)
 
-> public gcdAlgCommutative : (m : Nat) -> (n : Nat) -> gcdAlg m n = gcdAlg n m
+> gcdAlgCommutative : (m : Nat) -> (n : Nat) -> gcdAlg m n = gcdAlg n m
 > gcdAlgCommutative m n =
 >   let d1  :  Nat
 >           =  gcdAlg m n in

@@ -4,6 +4,9 @@
 
 > %default total
 
+> %access public export
+
+
 > ||| R
 > R : {A : Type} -> TotalPreorder A -> (A -> A -> Type)
 > R (MkTotalPreorder R _ _ _) = R

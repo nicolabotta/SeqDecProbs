@@ -6,6 +6,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Fraction representation
 > Fraction : Type

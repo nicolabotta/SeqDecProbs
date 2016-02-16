@@ -22,6 +22,8 @@
 
 > %default total
 
+> %access public export
+
 
 Equality of projections:
 
@@ -195,7 +197,7 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 Sigma Fin properties:
 
 > using (P : Fin Z -> Type)
->   instance Uninhabited (Sigma (Fin Z) P) where
+>   implementation Uninhabited (Sigma (Fin Z) P) where
 >     uninhabited (MkSigma k _) = absurd k
 
 

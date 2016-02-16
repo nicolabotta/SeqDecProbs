@@ -8,6 +8,11 @@
 > -- import Syntax.PreorderReasoning
 
 > import Prop
+> import Sigma
+> import PairsOperations
+> import SubsetOperations
+> import ExistsOperations
+> import SigmaOperations
 > import VectOperations
 > import Decidable
 > import TotalPreorder
@@ -20,10 +25,14 @@
 
 > %default total
 
+> %access public export
 
-> instance Uninhabited (Elem {a} x Nil) where
+
+> {-
+> implementation Uninhabited (Elem {a} x Nil) where
 >   uninhabited Here impossible
 >   uninhabited (There p) impossible
+> -}
 
 
 Injectivity (of |flip index|):
@@ -179,11 +188,11 @@ Filtering
 >               Elem a (getProof (filter d1P as))
 > filterLemma d1P a   Nil       prf  p = absurd prf
 > filterLemma d1P a1 (a1 :: as) Here p with (filter d1P as)
->   | (n ** as') with (d1P a1)
+>   | (MkSigma n as') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = as'}
 >     | (No  contra) = void (contra p)
 > filterLemma {A} {P} d1P a1 (a2 :: as) (There prf) p with (filter d1P as) proof itsEqual
->   | (n ** as') with (d1P a2)
+>   | (MkSigma n as') with (d1P a2)
 >     | (Yes _) = -- There {x = a1} {xs = as'} {y = a2} (filterLemma d1P a1 as prf p)
 >                 There {x = a1} {xs = as'} {y = a2} $
 >                   replace {P = \rec => Elem a1 (getProof rec)} (sym itsEqual) $
@@ -205,11 +214,11 @@ Filtering
 >                       Elem a (map Sigma.getWitness (Sigma.getProof (filterTagSigma d1P as)))
 > filterTagSigmaLemma d1P a   Nil       prf  p = absurd prf
 > filterTagSigmaLemma d1P a1 (a1 :: as) Here p with (filterTagSigma d1P as)
->   | (n ** aps') with (d1P a1)
+>   | (MkSigma n aps') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
 >     | (No  contra) = void (contra p)
 > filterTagSigmaLemma d1P a1 (a2 :: as) (There prf) p with (filterTagSigma d1P as) proof itsEqual
->   | (n ** aps') with (d1P a2)
+>   | (MkSigma n aps') with (d1P a2)
 >     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagSigmaLemma d1P a1 as prf p)
 >                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
 >                   replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
@@ -231,11 +240,11 @@ Filtering
 >                        Elem a (map Exists.getWitness (Sigma.getProof (filterTagExists d1P as)))
 > filterTagExistsLemma d1P a   Nil       prf  p = absurd prf
 > filterTagExistsLemma d1P a1 (a1 :: as) Here p with (filterTagExists d1P as)
->   | (n ** aps') with (d1P a1)
+>   | (MkSigma n aps') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
 >     | (No  contra) = void (contra p)
 > filterTagExistsLemma d1P a1 (a2 :: as) (There prf) p with (filterTagExists d1P as) proof itsEqual
->   | (n ** aps') with (d1P a2)
+>   | (MkSigma n aps') with (d1P a2)
 >     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagExistsLemma d1P a1 as prf p)
 >                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
 >                   replace {P = \rec => Elem a1 (map Exists.getWitness (getProof rec))} (sym itsEqual) $
@@ -257,11 +266,11 @@ Filtering
 >                        Elem a (map Subset.getWitness (Sigma.getProof (filterTagSubset d1P as)))
 > filterTagSubsetLemma d1P a   Nil       prf  p = absurd prf
 > filterTagSubsetLemma d1P a1 (a1 :: as) Here p with (filterTagSubset d1P as)
->   | (n ** aps') with (d1P a1)
+>   | (MkSigma n aps') with (d1P a1)
 >     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
 >     | (No  contra) = void (contra p)
 > filterTagSubsetLemma d1P a1 (a2 :: as) (There prf) p with (filterTagSubset d1P as) proof itsEqual
->   | (n ** aps') with (d1P a2)
+>   | (MkSigma n aps') with (d1P a2)
 >     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagLemma d1P a1 as prf p)
 >                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
 >                   replace {P = \rec => Elem a1 (map Subset.getWitness (getProof rec))} (sym itsEqual) $
@@ -372,10 +381,22 @@ Max and argmax
 > maxElemLemma {n = S Z}     tp (a :: Nil)          p = Here
 > maxElemLemma {n = S (S m)} tp (a' :: (a'' :: as)) p with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
 >   | (k, max) with (totalPre tp a' max)
->     | (Left   _) = replace {P = \rec => Elem (snd rec) (a' :: (a'' :: as))}
->                            (sym itsEqual)
->                            (There (maxElemLemma tp (a'' :: as) (ltZS m)))
+>     | (Left   _) = replace {P = \ ZUZU => Elem ZUZU (a' :: (a'' :: as))}
+>                            (cong {f = Prelude.Basics.snd} (sym itsEqual))
+>                            (There {y = a'} (maxElemLemma tp (a'' :: as) (ltZS m)))
+> {-
+>     | (Left   _) = s4 where
+>       s1 : Elem (snd (argmaxMax tp (a'' :: as) (ltZS m))) (a' :: (a'' :: as))
+>       s1 = There {y = a'} (maxElemLemma tp (a'' :: as) (ltZS m))
+>       s2 : argmaxMax tp (a'' :: as) (ltZS m) = (k, max)
+>       s2 = sym itsEqual
+>       s3 : snd (argmaxMax tp (a'' :: as) (ltZS m)) = max
+>       s3 = cong {f = Prelude.Basics.snd} s2
+>       s4 : Elem max (a' :: (a'' :: as))
+>       s4 = replace {P = \ ZUZU => Elem ZUZU (a' :: (a'' :: as))} s3 s1
+> -}       
 >     | (Right  _) = Here
+
 
 
 > {-

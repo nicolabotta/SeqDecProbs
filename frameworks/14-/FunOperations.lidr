@@ -3,6 +3,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| 
 > pair : (a -> b, a -> c) -> a -> (b, c)

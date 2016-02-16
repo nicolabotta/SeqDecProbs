@@ -6,6 +6,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| 'Tail' of a finite function
 > tail : {A : Type} -> {n : Nat} ->

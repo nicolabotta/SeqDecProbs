@@ -6,9 +6,13 @@
 > import NatDivisorProperties
 > import NatOperations
 > import NatProperties
+> import Sigma
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
 
 
 Euclid's greatest common divisor algorithm

@@ -3,6 +3,8 @@
 
 > %default total
 
+> %access public export
+
 
 Replace extensions:
 

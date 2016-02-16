@@ -2,6 +2,9 @@
 
 > %default total
 
+> %access public export
+
+
 > Unique : Type -> Type
 > Unique t = (p : t) -> (q : t) -> p = q
 

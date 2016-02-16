@@ -11,6 +11,8 @@
 
 > %default total
 
+> %access public export
+
 
 > -- %hide Prelude.List.tail
 > -- %hide Prelude.Stream.tail

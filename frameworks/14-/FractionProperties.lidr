@@ -21,9 +21,13 @@
 > import NatCoprimeProperties
 > import NatGCDAlgorithm
 > import NatGCDEuclid
+> import PairsOperations
+> import Sigma
 
 
 > %default total
+
+> %access public export
 
 
 > fromNatNormal : {n : Nat} -> Normal (fromNat n)
@@ -39,7 +43,7 @@
 
 
 > ||| Fraction is an instance of Num
-> instance Num Fraction where
+> implementation Num Fraction where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = fromNat . fromIntegerNat
@@ -214,7 +218,7 @@ Basic properties of |normalize|:
 >   let dDn     :  (d `Divisor` n)
 >               =  gcdDivisorSnd dGCDmn in
 >   let zLTd    :  (Z `LT` d)
->               =  gcdPreservesPositivity2 zLTn (d ** dGCDmn) in
+>               =  gcdPreservesPositivity2 zLTn (MkSigma d dGCDmn) in
 >   MkNormal (gcdCoprimeLemma d m n dDm dDn zLTd dGCDmn)
 > %freeze normalNormalize
 
@@ -282,7 +286,7 @@ Basic properties of |normalize|:
 >   let zLTd           :  (Z `LT` d)
 >                      =  toNatLTLemma d' in 
 >   let zLTg           :  (Z `LT` g)
->                      =  gcdPreservesPositivity2 zLTd (g ** gmd) in 
+>                      =  gcdPreservesPositivity2 zLTd (MkSigma g gmd) in 
 >   let zLTqdg         :  (Z `LT` qdg) 
 >                      =  quotientPreservesPositivity d g gDd zLTd in
 >   let e              :  Nat
@@ -329,7 +333,7 @@ Basic properties of |normalize|:
 >   let zLTqedeg       :  (Z `LT` qedeg) 
 >                      =  quotientPreservesPositivity (e * d) (e * g) egDed zLTed' in
 >   let nhEQZ          :  (Not (h = Z))
->                      =  gtZisnotZ (gcdPreservesPositivity2 zLTed (h ** hemed)) in 
+>                      =  gtZisnotZ (gcdPreservesPositivity2 zLTed (MkSigma h hemed)) in 
 >   let negEQZ         :  (Not (e * g = Z))
 >                      =  gtZisnotZ (multZeroLTZeroLT e g zLTe zLTg) in
 >   let qemhEQqemeg    :  (qemh = qemeg)

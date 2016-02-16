@@ -5,9 +5,13 @@
 > import Fraction
 > import FractionOperations
 > import FractionProperties
+> import PairsOperations
+> -- import Sigma
 
 
 > %default total
+
+> %access public export
 
 
 > ||| 
