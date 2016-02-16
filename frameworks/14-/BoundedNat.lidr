@@ -1,6 +1,11 @@
 > module BoundedNat
 
+> import Sigma
+
 > %default total
+
+> %access public export
+
 
 > ||| Natural numbers bounded by LT
 > LTB : Nat -> Type

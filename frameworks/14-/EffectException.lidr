@@ -6,9 +6,13 @@
 
 > import NatProperties
 > import BoundedNat
+> import Sigma
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
 
 
 > ||| Parses a string for a Nat

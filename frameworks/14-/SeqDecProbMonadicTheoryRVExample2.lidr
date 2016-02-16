@@ -41,6 +41,9 @@
 > import EffectException
 > import EffectStdIO
 > import FinOperations
+> import PairsOperations
+> import Sigma
+
 
 > %default total
 

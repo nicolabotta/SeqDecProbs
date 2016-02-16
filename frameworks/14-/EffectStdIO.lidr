@@ -6,9 +6,12 @@
 
 > import EffectException
 > import BoundedNat
-
+> import Sigma
+> import PairsOperations
 
 > %default total
+
+> %access public export
 
 
 > |||

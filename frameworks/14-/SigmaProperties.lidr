@@ -8,6 +8,8 @@
 > import Decidable
 > import Finite
 > import Unique
+> import Sigma
+> import PairsOperations
 > import SigmaOperations
 > import VectOperations
 > import VectProperties
@@ -33,7 +35,7 @@ Equality of projections:
 >                         {s1 : Sigma A P} ->
 >                         {s2 : Sigma A P} ->
 >                         .(s1 = s2) -> (getWitness s1 = getWitness s2)
-> getWitnessPreservesEq {s1 = (a ** p)} {s2 = (a ** p)} Refl = Refl
+> getWitnessPreservesEq {s1 = MkSigma a p} {s2 = MkSigma a p} Refl = Refl
 
 
 > ||| Equality of second projections
@@ -42,7 +44,7 @@ Equality of projections:
 >                       {s1 : Sigma A P} ->
 >                       {s2 : Sigma A P} ->
 >                       .(s1 = s2) -> (getProof s1 = getProof s2)
-> getProofPreservesEq {s1 = (a ** p)} {s2 = (a ** p)} Refl = Refl
+> getProofPreservesEq {s1 = MkSigma a p} {s2 = MkSigma a p} Refl = Refl
 
 
 Equality of Sigma types:
@@ -55,15 +57,15 @@ Equality of Sigma types:
 >                 .(getWitness s1 = getWitness s2) ->
 >                 .(getProof s1 = getProof s2) ->
 >                 s1 = s2
-> sigmaEqLemma2 {A} {P} {s1 = (a ** p)} {s2 = (a ** p)} Refl Refl = Refl
+> sigmaEqLemma2 {A} {P} {s1 = MkSigma a p} {s2 = MkSigma a p} Refl Refl = Refl
 
 
 > ||| Elimination and formation
 > sigmaEqLemma0 : {A : Type} ->
 >                 {P : A -> Type} ->
 >                 .(s: Sigma A P) ->
->                 s = (getWitness s ** getProof s)
-> sigmaEqLemma0 (a ** p) = Refl
+>                 s = MkSigma (getWitness s) (getProof s)
+> sigmaEqLemma0 (MkSigma a p) = Refl
 
 
 > ||| Equality for singleton predicates
@@ -75,8 +77,8 @@ Equality of Sigma types:
 >                 Unique0 (P (getWitness s1)) ->
 >                 s1 = s2
 > -- sigmaEqLemma1 (a ** p) (a ** q) Refl uP = cong (uP p q)
-> sigmaEqLemma1 (a ** p) (a' ** q) prf uP with (prf)
->   sigmaEqLemma1 (a ** p) (a ** q) prf uP | (Refl) = cong (uP p q)
+> sigmaEqLemma1 (MkSigma a p) (MkSigma a' q) prf uP with (prf)
+>   sigmaEqLemma1 (MkSigma a p) (MkSigma a q) prf uP | (Refl) = cong (uP p q)
 
 
 Decidability of Sigma equality:
@@ -89,11 +91,11 @@ Decidability of Sigma equality:
 >                    .(s1 : Sigma A P) ->
 >                    .(s2 : Sigma A P) ->
 >                    Dec (s1 = s2)
-> sigmaDecEqLemma1 da d1p (a1 ** pa1) (a2 ** pa2)     with (da a1 a2)
->   sigmaDecEqLemma1 da d1p (a1 ** pa1) (a1 ** pa2)   | (Yes Refl) with ((d1p a1) pa1 pa2)
->     sigmaDecEqLemma1 da d1p (a1 ** pa1) (a1 ** pa1) | (Yes Refl) | (Yes Refl) = Yes Refl
->     sigmaDecEqLemma1 da d1p (a1 ** pa1) (a1 ** pa2) | (Yes Refl) | (No contra) = No (\ eq => contra (getProofPreservesEq eq))
->   sigmaDecEqLemma1 da d1p (a1 ** pa1) (a2 ** pa2)   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
+> sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a2 pa2)     with (da a1 a2)
+>   sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a1 pa2)   | (Yes Refl) with ((d1p a1) pa1 pa2)
+>     sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a1 pa1) | (Yes Refl) | (Yes Refl) = Yes Refl
+>     sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a1 pa2) | (Yes Refl) | (No contra) = No (\ eq => contra (getProofPreservesEq eq))
+>   sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a2 pa2)   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
 
 
 > ||| Decidability of equality 2
@@ -155,13 +157,13 @@ The second result is
 >                     .(a : A) ->
 >                     .(p : P a) ->
 >                     (ss : Vect n (Sigma A P)) ->
->                     (Elem a (map Prelude.Pairs.Sigma.getWitness ss)) ->
->                     Elem (a ** p) ss
+>                     (Elem a (map Sigma.getWitness ss)) ->
+>                     Elem (MkSigma a p) ss
 > sigmaUniqueLemma1 u1P a p Nil prf = absurd prf
-> sigmaUniqueLemma1 u1P a p ((a ** q) :: ss) (Here {x = a}) with (u1P a p q)
->   sigmaUniqueLemma1 u1P a p ((a ** p) :: ss) (Here {x = a}) | Refl =
->     Here {x = (a ** p)} {xs = ss}
-> sigmaUniqueLemma1 u1P a1 p1 ((a2 ** p2) :: ss) (There prf) =
+> sigmaUniqueLemma1 u1P a p ((MkSigma a q) :: ss) (Here {x = a}) with (u1P a p q)
+>   sigmaUniqueLemma1 u1P a p ((MkSigma a p) :: ss) (Here {x = a}) | Refl =
+>     Here {x = (MkSigma a p)} {xs = ss}
+> sigmaUniqueLemma1 u1P a1 p1 ((MkSigma a2 p2) :: ss) (There prf) =
 >   There (sigmaUniqueLemma1 u1P a1 p1 ss prf)
 
 
@@ -175,10 +177,10 @@ With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 >                       .(Unique1 {t0 = A} P) ->
 >                       .(s   : Sigma A P) ->
 >                       Elem s (getProof (toVectSigma fA d1P))
-> toVectSigmaComplete fA d1P u1P (a ** p) = s1 where
+> toVectSigmaComplete fA d1P u1P (MkSigma a p) = s1 where
 >   s0 : Elem a (map Sigma.getWitness (getProof (toVectSigma fA d1P)))
 >   s0 = toVectSigmaLemma fA d1P a p
->   s1 : Elem (a ** p) (getProof (toVectSigma fA d1P))
+>   s1 : Elem (MkSigma a p) (getProof (toVectSigma fA d1P))
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVectSigma fA d1P)) s0
 
 
@@ -255,64 +257,54 @@ Sigma Fin properties:
 >                  Iso (Sigma A B) (Sigma A' B')
 > sigmaIsoLemma A A' B B' isoA isoBa = MkIso toQ fromQ toFromQ fromToQ
 >   where toQ      : Sigma A  B  -> Sigma A' B'
->         toQ   (a ** b)   = (to isoA a ** to (isoBa a) b)
+>         toQ   (MkSigma a b)   = MkSigma (to isoA a) (to (isoBa a) b)
 >
 >         fromQ    : Sigma A' B' -> Sigma A  B
->         fromQ (a' ** b') = (a ** b) where
+>         fromQ (MkSigma a' b') = (MkSigma a b) where
 >           a : A
 >           a = from isoA a'
 >           b : B a
 >           b = from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')
 >
 >         toFromQ  : (ab' : Sigma A' B') -> toQ (fromQ ab') = ab'
->         toFromQ  (a' ** b') = trans s1 (trans s2 s3) where
->           s1 : toQ (fromQ (a' ** b'))
+>         toFromQ  (MkSigma a' b') = trans s1 (trans s2 s3) where
+>           s1 : toQ (fromQ (MkSigma a' b'))
 >                =
->                toQ (from isoA a' ** from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b'))
+>                toQ (MkSigma (from isoA a') (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')))
 >           s1 = Refl
->           s2 : toQ (from isoA a' ** from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b'))
+>           s2 : toQ (MkSigma (from isoA a') (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')))
 >                =
->                (to isoA (from isoA a')
->                 **
->                 to (isoBa (from isoA a')) (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b'))
->                )
+>                MkSigma (to isoA (from isoA a'))
+>                        (to (isoBa (from isoA a')) (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')))
 >           s2 = Refl
->           s3 : (to isoA (from isoA a')
->                 **
->                 to (isoBa (from isoA a')) (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b'))
->                )
+>           s3 : MkSigma (to isoA (from isoA a'))
+>                        (to (isoBa (from isoA a')) (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')))
 >                =
->                (a' ** b')
->           s3 = sigmaEqLemma2 {s1 = (to isoA (from isoA a')
->                                     **
->                                     to (isoBa (from isoA a')) (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b'))
->                                    )}
->                              {s2 = (a' ** b')}
+>                MkSigma a' b'
+>           s3 = sigmaEqLemma2 {s1 = MkSigma (to isoA (from isoA a'))
+>                                            (to (isoBa (from isoA a')) (from (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')))}
+>                              {s2 = MkSigma a' b'}
 >                              (toFrom isoA a')
 >                              (isoReplaceLemma1 isoA isoBa a' b')
 >
->         fromToQ : (ab  : Sigma A  B) -> fromQ (toQ ab) = ab
->         fromToQ (a ** b) = trans s1 (trans s2 s3) where
->           s1 : fromQ (toQ (a ** b))
+>         fromToQ : (ab  : Sigma A B) -> fromQ (toQ ab) = ab
+>         fromToQ (MkSigma a b) = trans s1 (trans s2 s3) where
+>           s1 : fromQ (toQ (MkSigma a b))
 >                =
->                fromQ (to isoA a ** to (isoBa a) b)
+>                fromQ (MkSigma (to isoA a) (to (isoBa a) b))
 >           s1 = Refl
->           s2 : fromQ (to isoA a ** to (isoBa a) b)
+>           s2 : fromQ (MkSigma (to isoA a) (to (isoBa a) b))
 >                =
->                (from isoA (to isoA a)
->                 **
->                 from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)))
+>                MkSigma (from isoA (to isoA a))
+>                        (from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)))
 >           s2 = Refl
->           s3 : (from isoA (to isoA a)
->                 **
->                 from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)))
+>           s3 : MkSigma (from isoA (to isoA a))
+>                        (from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)))
 >                =
->                (a ** b)
->           s3 = sigmaEqLemma2 {s1 = (from isoA (to isoA a)
->                                     **
->                                     from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b))
->                                    )}
->                              {s2 = (a ** b)}
+>                MkSigma a b
+>           s3 = sigmaEqLemma2 {s1 = MkSigma (from isoA (to isoA a))
+>                                            (from (isoBa (from isoA (to isoA a))) (replace (sym (toFrom isoA (to isoA a))) (to (isoBa a) b)))}
+>                              {s2 = MkSigma a b}
 >                              (fromTo isoA a)
 >                              (isoReplaceLemma2 isoA isoBa a b)
 
@@ -331,17 +323,17 @@ Sigma Fin properties:
 >                    Iso (Sigma (Fin (S n)) P) (Either (P FZ) (Sigma (Fin n) (tail P)))
 > sigmaEitherLemma {n} {P} = MkIso to from toFrom fromTo where
 >   to :   Sigma (Fin (S n)) P -> Either (P FZ) (Sigma (Fin n) (tail P))
->   to (FZ   ** j) = Left j
->   to (FS k ** j) = Right (k ** j)
+>   to (MkSigma FZ     j) = Left j
+>   to (MkSigma (FS k) j) = Right (MkSigma k j)
 >   from : Either (P FZ) (Sigma (Fin n) (tail P)) -> Sigma (Fin (S n)) P
->   from (Left j) = (FZ ** j)
->   from (Right (k ** j)) = (FS k ** j)
+>   from (Left j) = MkSigma FZ j
+>   from (Right (MkSigma k j)) = MkSigma (FS k) j
 >   toFrom : (e : Either (P FZ) (Sigma (Fin n) (tail P))) -> to (from e) = e
 >   toFrom (Left j) = Refl
->   toFrom (Right (k ** j)) = Refl
+>   toFrom (Right (MkSigma k j)) = Refl
 >   fromTo : (s : Sigma (Fin (S n)) P) -> from (to s) = s
->   fromTo (FZ ** j) = Refl
->   fromTo (FS k ** j) = Refl
+>   fromTo (MkSigma  FZ    j) = Refl
+>   fromTo (MkSigma (FS k) j) = Refl
 
 
 > sigmaFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
@@ -454,6 +446,6 @@ Finitess properties
 >   iE = isoTrans (isoSym (sigmaExistsLemma {A} {P})) iS
 
 
-Finite  A           ~= (n ** Iso A (Fin n))
-Finite1 P           ~= (a : A) -> (na ** Iso (P a) (Fin na))
-Finite (Sigma A P)  ~= (sum na ** Iso (Sigma A P) (Fin (sum na)))
+Finite  A           ~= MkSigma n (Iso A (Fin n))
+Finite1 P           ~= (a : A) -> MkSigma na (Iso (P a) (Fin na))
+Finite (Sigma A P)  ~= MkSigma (sum na) (Iso (Sigma A P) (Fin (sum na)))
