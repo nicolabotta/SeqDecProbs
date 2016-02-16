@@ -15,6 +15,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| For decidable and unique predicates, subtypes of finite types are finite
 > ||| (proof suggested my Matteo Acerbi)

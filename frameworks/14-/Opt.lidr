@@ -23,6 +23,8 @@
 
 > %default total 
 
+> %access public export
+
 
 > argmaxMax : {A, B : Type} -> 
 >             TotalPreorder B -> 

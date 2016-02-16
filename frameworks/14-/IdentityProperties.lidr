@@ -11,6 +11,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Id is injective
 > injectiveId : {a : Type} -> {left : a} -> {right : a} -> (Id left) = (Id right) -> left = right

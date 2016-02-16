@@ -9,6 +9,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Mapping |()|s to |Fin|s
 > toFin : () -> Fin (S Z)

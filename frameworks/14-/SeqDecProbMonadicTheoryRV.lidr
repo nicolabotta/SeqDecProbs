@@ -20,9 +20,13 @@
 > import VectProperties
 > import FinOperations
 > import IsomorphismOperations
+> import Sigma
+> import PairsOperations
 
 
 > %default total
+
+> %access public export
 
 
 The theory of monadic sequential decision problems (SDP):
@@ -56,7 +60,7 @@ A SDP is specified in terms of a monad ...
 > Elem     :  {A : Type} -> A -> M A -> Prop
 > All      :  {A : Type} -> (P : A -> Prop) -> M A -> Prop
 > -- All {A} P ma = (a : A) -> a `Elem` ma -> P a
-> tagElem  :  {A : Type} -> (ma : M A) -> M (a : A ** a `Elem` ma)
+> tagElem  :  {A : Type} -> (ma : M A) -> M (Sigma A (\ a => a `Elem` ma))
 
 > -- unused containerMonadSpec1 : a `Elem` (ret a)
 > -- unused containerMonadSpec2 : {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
@@ -138,8 +142,8 @@ For every SDP, we can build the following notions:
 >   mkf : (x  : X t) -> (r  : Reachable x) -> (v  : Viable (S m) x) ->
 >         (y  : Y t x) -> (av : All (Viable m) (step t x y)) ->
 >         (ps : PolicySeq (S t) m) ->
->         (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
->   mkf {t} {m} x r v y av ps (x' ** x'estep) = reward t x y x' + val x' r' v' ps where
+>         Sigma (X (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
+>   mkf {t} {m} x r v y av ps (MkSigma x' x'estep) = reward t x y x' + val x' r' v' ps where
 >     ar : All Reachable (step t x y)
 >     ar = reachableSpec1 x r y
 >     r' : Reachable x'
@@ -156,7 +160,7 @@ For every SDP, we can build the following notions:
 >     mx'  =  step t x y
 >     av   :  All (Viable m) mx'
 >     av   =  getProof (p x r v)
->     f    :  (x' : X (S t) ** x' `Elem` mx') -> Nat
+>     f    :  Sigma (X (S t)) (\ x' => x' `Elem` mx') -> Nat
 >     f    =  mkf x r v y av ps
 
 
@@ -198,15 +202,15 @@ For every SDP, we can build the following notions:
 >     mx' = step t x y'
 >     av' : All (Viable m) mx'
 >     av' = getProof (p' x r v)
->     f' : (x' : X (S t) ** x' `Elem` mx') -> Nat
+>     f' : Sigma (X (S t)) (\ x' => x' `Elem` mx') -> Nat
 >     f' = mkf x r v y' av' ps'
->     f  : (x' : X (S t) ** x' `Elem` mx') -> Nat
+>     f  : Sigma (X (S t)) (\ x' => x' `Elem` mx') -> Nat
 >     f  = mkf x r v y' av' ps
 >     s1 : (x' : X (S t)) -> (r' : Reachable x') -> (v' : Viable m x') ->
 >          (val x' r' v' ps') `LTE` (val x' r' v' ps)
 >     s1 x' r' v' = ops ps' x' r' v'
->     s2 : (z : (x' : X (S t) ** x' `Elem` mx')) -> (f' z) `LTE` (f z)
->     s2 (x' ** x'emx') = monotoneNatPlusLTE (reward t x y' x') (s1 x' r' v') where
+>     s2 : (z : Sigma (X (S t)) (\ x' => x' `Elem` mx')) -> (f' z) `LTE` (f z)
+>     s2 (MkSigma x' x'emx') = monotoneNatPlusLTE (reward t x y' x') (s1 x' r' v') where
 >       ar' : All Reachable mx'
 >       ar' = reachableSpec1 x r y'
 >       r'  : Reachable x'
@@ -268,7 +272,7 @@ extensions for arbitrary policy sequences:
 >       Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 > -- mkg {t} x r v ps yav = meas (fmap f (tagElem (step t x (getWitness yav)))) where
 > mkg {t} x r v ps yav = meas (fmap f (tagElem (step t x (getWitness yav)))) where
->   f : (x' : X (S t) ** x' `Elem` (step t x (getWitness yav))) -> Nat
+>   f : Sigma (X (S t)) (\ x' => x' `Elem` (step t x (getWitness yav))) -> Nat
 >   f = mkf x r v (getWitness yav) (getProof yav) ps
 
 
@@ -302,9 +306,9 @@ extensions for arbitrary policy sequences:
 >   -- g     :  Sigma (Y t x) (\ z => All (Viable n) (step t x z)) -> Nat
 >   g     :  Subset (Y t x) (\ z => All (Viable n) (step t x z)) -> Nat
 >   g     =  mkg x r v ps
->   f     :  (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
+>   f     :  Sigma (X (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
 >   f     =  mkf x r v y av ps
->   f'    :  (x' : X (S t) ** x' `Elem` (step t x y')) -> Nat
+>   f'    :  Sigma (X (S t)) (\ x' => x' `Elem` (step t x y')) -> Nat
 >   f'    =  mkf x r v y' av' ps
 >   s1    :  (g yav') `LTE` (max x v g)
 >   s1    =  maxSpec t x v g yav'
@@ -352,7 +356,7 @@ possible future evolutions from a (viable) initial state:
 
 >   data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
 >     Nil   :  .(x : X t) -> StateCtrlSeq t Z
->     (::)  :  (x : X t ** Y t x) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
+>     (::)  :  Sigma (X t) (Y t) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 
 >   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                    (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
@@ -368,9 +372,9 @@ possible future evolutions from a (viable) initial state:
 >       av  : All (Viable m) mx'
 >       av  = getProof (p x r v)
 >       g : StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
->       g = ((x ** y) ::)
->       f : (x' : X (S t) ** x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
->       f (x' ** x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
+>       g = ((MkSigma x y) ::)
+>       f : Sigma (X (S t)) (\ x' => x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
+>       f (MkSigma x' x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
 >         ar : All Reachable (step t x y)
 >         ar = reachableSpec1 x r y
 >         r' : Reachable x'
@@ -540,8 +544,8 @@ Nat|:
 >          (y  : Y t x) -> 
 >          (av : All (Viable n) (step t x y)) ->
 >          (vt : Vect (cRVX (S t) n) Nat) ->
->          (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
->   mkf' {t} {n} x r v y av vt (x' ** x'estep) = reward t x y x' + index k vt where
+>          Sigma (X (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
+>   mkf' {t} {n} x r v y av vt (MkSigma x' x'estep) = reward t x y x' + index k vt where
 >     rvxs : Vect (cRVX (S t) n) (X (S t))
 >     rvxs = map getWitness (rRVX (S t) n)
 >     ar : All Reachable (step t x y)
@@ -568,7 +572,7 @@ Nat|:
 >         Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >   -- mkg {t} x r v vt (MkSigma y av) = meas (fmap f' (tagElem (step t x y))) where
 >   mkg {t} x r v vt (Element y av) = meas (fmap f' (tagElem (step t x y))) where
->     f' : (x' : X (S t) ** x' `Elem` (step t x y)) -> Nat
+>     f' : Sigma (X (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
 >     f' = mkf' x r v y av vt
 
 >   tabOptExt {t} {n} vt = p where

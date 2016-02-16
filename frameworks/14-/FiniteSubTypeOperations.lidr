@@ -3,3 +3,5 @@
 > import FiniteSubType
 
 > %default total
+
+> %access public export

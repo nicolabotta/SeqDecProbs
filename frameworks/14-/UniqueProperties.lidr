@@ -12,6 +12,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Unique properties are finite
 > uniqueFiniteLemma1 : {P : Type} -> P -> Unique P -> Finite P

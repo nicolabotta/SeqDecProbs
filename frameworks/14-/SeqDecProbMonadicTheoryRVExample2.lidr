@@ -133,7 +133,7 @@ is the identity monad:
 
 > data Action = Left | Ahead | Right
 
-> instance Eq Action where
+> implementation Eq Action where
 >   (==) Left   Left = True
 >   (==) Left      _ = False
 >   (==) Ahead Ahead = True
@@ -141,7 +141,7 @@ is the identity monad:
 >   (==) Right Right = True
 >   (==) Right     _ = False
 
-> instance Show Action where
+> implementation Show Action where
 >   show Left  = "L"
 >   show Ahead = "A"
 >   show Right = "R"
@@ -264,15 +264,15 @@ for each step.
 
 ** Transition function:
 
-> SeqDecProbMonadicTheoryRV.step t (Z   ** prf) (Left  ** aL) =
->   Id (maxColumn ** ltIdS maxColumn)
-> SeqDecProbMonadicTheoryRV.step t (S n ** prf) (Left  ** aL) =
->   Id (n ** ltLemma1 n nColumns prf)
-> SeqDecProbMonadicTheoryRV.step t (n   ** prf) (Ahead ** aA) =
->   Id (n ** prf)
-> SeqDecProbMonadicTheoryRV.step t (n   ** prf) (Right ** aR) with (decLT n maxColumn)
->   | (Yes p)     = Id (S n ** LTESucc p)
->   | (No contra) = Id (Z   ** LTESucc LTEZero)
+> SeqDecProbMonadicTheoryRV.step t (MkSigma Z prf) (MkSigma Left aL) =
+>   Id (MkSigma maxColumn (ltIdS maxColumn))
+> SeqDecProbMonadicTheoryRV.step t (MkSigma (S n) prf) (MkSigma Left aL) =
+>   Id (MkSigma n (ltLemma1 n nColumns prf))
+> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) (MkSigma Ahead aA) =
+>   Id (MkSigma n prf)
+> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) (MkSigma Right aR) with (decLT n maxColumn)
+>   | (Yes p)     = Id (MkSigma (S n) (LTESucc p))
+>   | (No contra) = Id (MkSigma  Z    (LTESucc LTEZero))
 > -- %freeze step
 
 
@@ -546,7 +546,7 @@ and |max|, |argmax|:
 >           Identity (StateCtrlSeq t n) ->
 >           Vect n Action
 > actions _ Z _ = Nil
-> actions t (S n) (Id ((x ** y) :: xys))
+> actions t (S n) (Id ((MkSigma x y) :: xys))
 >   =
 >   (outl y) :: (actions (S t) n (Id xys))
 > -- %freeze actions
@@ -559,13 +559,13 @@ and |max|, |argmax|:
 > showControl y = show (getWitness y)
 > -- %freeze showControl
 
-> showStateControl : (x : X t ** Y t x) -> String
-> showStateControl {t} (x ** y) = showState {t} x ++ " ** " ++ showControl y
+> showStateControl : Sigma (X t) (Y t) -> String
+> showStateControl {t} (MkSigma x y) = showState {t} x ++ " ** " ++ showControl y
 > -- %freeze showStateControl
 
 > showSCS : StateCtrlSeq t n -> String
 > showSCS {t} (Nil x)   = "Nil" ++ showState {t} x
-> showSCS (p :: ps) = showStateControl p ++ " :: " ++ showSCS ps
+> showSCS     (p :: ps) = showStateControl p ++ " :: " ++ showSCS ps
 > -- %freeze showSCS
 
 > showMSCS : Identity (StateCtrlSeq t n) -> String
