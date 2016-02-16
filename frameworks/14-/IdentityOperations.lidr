@@ -4,6 +4,9 @@
 > import Control.Monad.Identity
 
 
+> import Sigma
+
+
 > %default total
 
 > %access public export
@@ -23,9 +26,10 @@
 
 
 > ||| Tagging
-> tagElem  :  {A : Type} -> (ma : Identity A) -> Identity (a : A ** a `Elem` ma)
-> tagElem (Id a) = Id (a ** Refl)
+> tagElem  :  {A : Type} -> (ma : Identity A) -> Identity (Sigma A (\ a => a `Elem` ma))
+> tagElem (Id a) = Id (MkSigma a Refl)
 
 
+> |||
 > unwrapElemLemma : (ma : Identity a) -> Elem (unwrap ma) ma
 > unwrapElemLemma (Id a) = Refl
