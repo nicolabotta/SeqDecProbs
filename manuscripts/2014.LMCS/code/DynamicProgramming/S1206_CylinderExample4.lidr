@@ -31,7 +31,7 @@
 
 We reimplement "S1206_Example3" (a "cylinder" example similar to the one
 illustrated in Figure 2 of the LMCS manuscript) by taking advantage of
-non-default implemetations for |reachable| and |viable|.
+non-default implementations for |reachable| and |viable|.
 
 
 # The context:
@@ -74,12 +74,12 @@ non-default implemetations for |reachable| and |viable|.
 
 > %assert_total
 > admissible : State t -> Action -> Bool
-> admissible {t} x Ahead = 
+> admissible {t} x Ahead =
 >   valid (S t) (outl x)
 > admissible {t} x Left with (Blt.toNat (outl x))
 >   | Z    =  False
 >   | S m  =  valid (S t) (decBlt (outl x))
-> admissible {t} x Right = 
+> admissible {t} x Right =
 >   S (column x) /= nColumns
 >   &&
 >   valid (S t) (incBlt (outl x) (believe_me Oh))
@@ -94,13 +94,13 @@ non-default implemetations for |reachable| and |viable|.
 > --- dummy case, should never be called
 > step' Z     Left  = Z
 
-> step'Lemma : (x : State t) -> 
+> step'Lemma : (x : State t) ->
 >              (a : Action) ->
 >              So (admissible x a) ->
 >              So (step' (column x) a < nColumns)
 > step'Lemma x a q = believe_me Oh
 
-> 
+>
 > -- step : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t)
 > Context.step t x y = ((i' ** p') ** (believe_me Oh)) where
 >   a : Action
@@ -128,53 +128,53 @@ non-default implemetations for |reachable| and |viable|.
 > ReachabilityViability.reachable {t} x =
 >   not (t > 3 && column x < 7 - t )
 
-> -- ReachabilityViability.reachableSpec0 : 
-> --   (x : State Z) -> 
+> -- ReachabilityViability.reachableSpec0 :
+> --   (x : State Z) ->
 > --   So (reachable x)
 > ReachabilityViability.reachableSpec0 x = Oh
 
-> -- ReachabilityViability.reachableSpec1 : 
+> -- ReachabilityViability.reachableSpec1 :
 > --   (x : State t) ->
 > --   So (reachable x) ->
 > --   (y : Ctrl t x) ->
 > --   So (reachable {t = S t} (step t x y))
 > ReachabilityViability.reachableSpec1 {t} x r y = believe_me Oh
 
-> -- ReachabilityViability.reachableSpec2 : 
-> --   (x : State (S t)) -> 
+> -- ReachabilityViability.reachableSpec2 :
+> --   (x : State (S t)) ->
 > --   So (reachable {t = S t} x) ->
 > --   (x' : State t ** (y : Ctrl t x' ** (So (reachable x'), x = step t x' y)))
 > ReachabilityViability.reachableSpec2 {t} x rx = believe_me Oh
 
 > -- ReachabilityViability.viable : (n : Nat) -> State t -> Bool
-> ReachabilityViability.viable {t} n x = 
+> ReachabilityViability.viable {t} n x =
 >   (n == Z)
 >   ||
 >   (n == 1 && not (t == 2 && column x < 3))
 >   ||
->   (n == 2 && not ((t == 2 && column x < 3) 
->                   || 
+>   (n == 2 && not ((t == 2 && column x < 3)
+>                   ||
 >                   (t == 1 && column x < 2)))
 >   ||
->   (n >= 3 && not ((t == 2 && column x < 3) 
->                   || 
+>   (n >= 3 && not ((t == 2 && column x < 3)
+>                   ||
 >                   (t == 1 && column x < 2)
->                   || 
+>                   ||
 >                   (t == 0 && column x < 1)))
 
-> -- ReachabilityViability.viableSpec0 : 
-> --   (x : State t) -> 
+> -- ReachabilityViability.viableSpec0 :
+> --   (x : State t) ->
 > --   So (viable Z x)
 > ReachabilityViability.viableSpec0 x = Oh
 
-> -- ReachabilityViability.viableSpec1 : 
-> --   (x : State t) -> 
-> --   So (viable (S n) x) -> 
+> -- ReachabilityViability.viableSpec1 :
+> --   (x : State t) ->
+> --   So (viable (S n) x) ->
 > --   (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 > ReachabilityViability.viableSpec1 {t} {n} x v = believe_me Oh
 
-> -- ReachabilityViability.viableSpec2 : 
-> --   (x : State t) -> 
+> -- ReachabilityViability.viableSpec2 :
+> --   (x : State t) ->
 > --   (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) ->
 > --   So (viable (S n) x)
 > ReachabilityViability.viableSpec2 {t} {n} x (y ** v) = believe_me Oh
@@ -207,7 +207,7 @@ non-default implemetations for |reachable| and |viable|.
 > eqeq Right _     = False
 
 > eqeqSpec1 : reflexive Action eqeq
-> eqeqSpec1 = believe_me Oh 
+> eqeqSpec1 = believe_me Oh
 
 > isIn : Action -> (n : Nat ** Vect n Action) -> Bool
 > isIn = VectExtensions1.isIn Action eqeq eqeqSpec1
@@ -220,8 +220,8 @@ non-default implemetations for |reachable| and |viable|.
 >          So (isAnyBy p as)
 > lemma3 = VectExtensions1.lemma3 Action eqeq eqeqSpec1
 
-> admissiblesP : (x : State t) -> 
->                (v : So (viable (S n) x)) -> 
+> admissiblesP : (x : State t) ->
+>                (v : So (viable (S n) x)) ->
 >                (k : Nat ** Vect (S k) (Ctrl t x))
 > admissiblesP {t = t} {n = n} x v = filterTagP (admissible x) (outr s1) s6 where
 >   s1 : (n : Nat ** Vect n Action)
@@ -231,21 +231,21 @@ non-default implemetations for |reachable| and |viable|.
 >   s3 : Action
 >   s3 = outl (outl s2)
 >   postulate s4 : So (s3 `isIn` s1)
->   -- s4 = really_believe_me {b = So (s3 `isIn` s1)} Oh 
+>   -- s4 = really_believe_me {b = So (s3 `isIn` s1)} Oh
 >   -- |Action| should be in |Enum| and |s1| should be set to |[toEnum 0
 >   -- ..]|. Then |s4| would follow from a lemma of the kind:
 >   -- (Enum alpha) => (a : alpha) -> So (a `isIn` toVect [toEnum 0 ..])
 >   s5 : So (admissible x s3)
 >   s5 = outr (outl s2)
 >   s6 : So (isAnyBy (admissible x) s1)
->   s6 = lemma3 s3 (admissible x) s1 s5 s4 
+>   s6 = lemma3 s3 (admissible x) s1 s5 s4
 
 > yfysP : (n : Nat) ->
->         (x : State t) -> 
+>         (x : State t) ->
 >         (v : So (viable (S n) x)) ->
->         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) -> 
->         (k : Nat 
->          ** 
+>         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
+>         (k : Nat
+>          **
 >          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Float)
 >         )
 > yfysP {t} n x v f = fmapP (pair (id,f)) s5 where
@@ -265,28 +265,28 @@ non-default implemetations for |reachable| and |viable|.
 
 > MaxArgmax.argmax n x r v f = fst (maxP (outr (yfysP n x v f)))
 
-> MaxArgmax.maxSpec n x r v f yv = 
->   really_believe_me {b = So (f yv <= max n x r v f)} Oh 
+> MaxArgmax.maxSpec n x r v f yv =
+>   really_believe_me {b = So (f yv <= max n x r v f)} Oh
 >   -- this should be granted by |maxP|
 
-> MaxArgmax.argmaxSpec n x r v f = 
->   really_believe_me {b = So (f (argmax n x r v f) == max n x r v f)} Oh 
+> MaxArgmax.argmaxSpec n x r v f =
+>   really_believe_me {b = So (f (argmax n x r v f) == max n x r v f)} Oh
 >   -- this should be granted by |maxP|
 
 
-> controls : (t : Nat) -> 
->            (n : Nat) -> 
->            (x : State t) -> 
->            (r : So (reachable x)) -> 
+> controls : (t : Nat) ->
+>            (n : Nat) ->
+>            (x : State t) ->
+>            (r : So (reachable x)) ->
 >            (v : So (viable n x)) ->
->            PolicySeq t n -> 
+>            PolicySeq t n ->
 >            Vect n Action
 > controls _ Z _ _ _ _ = Nil
 > controls t (S n) x r v (p :: ps) =
 >   ((outl y) :: (controls (S t) n x' r' v' ps)) where
 >     yq : (a : Ctrl t x ** So (viable {t = S t} n (step t x a)))
 >     yq = p x r v
->     y : Ctrl t x    
+>     y : Ctrl t x
 >     y = outl yq
 >     x' : State (S t)
 >     x' = step t x y

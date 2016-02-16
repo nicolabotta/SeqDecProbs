@@ -38,7 +38,7 @@
 > capacity : Float
 > capacity = 2.0
 
-> Context.State = ((load  : Float ** So (load <= capacity)), 
+> Context.State = ((load  : Float ** So (load <= capacity)),
 >              Blt nItems
 >             )
 
@@ -57,12 +57,12 @@
 > admissible : Action -> State -> Bool
 > admissible Take x = load x + weight (item x) <= capacity
 > admissible Drop x = True
-          
+
 > Context.Ctrl x = (a : Action ** So (admissible a x))
 
 > max' : (x : State) -> (Ctrl x -> Float) -> (Ctrl x , Float)
 > max' x f with (admissible Take x)
->   | True  = max2' ((Take ** believe_me Oh), f (Take ** believe_me Oh)) 
+>   | True  = max2' ((Take ** believe_me Oh), f (Take ** believe_me Oh))
 >                   ((Drop ** Oh), f (Drop ** Oh))
 >   | False = ((Drop ** Oh), f (Drop ** Oh))
 
@@ -100,7 +100,7 @@
 
 > controls : (n : Nat) -> State -> Vect n Policy -> Vect n Action
 > controls Z _ _  = Nil
-> controls (S m) x (p :: ps) = 
+> controls (S m) x (p :: ps) =
 >   ((getWitness (p x)) :: (controls m (step x (p x)) ps))
 
 > x0 : State
