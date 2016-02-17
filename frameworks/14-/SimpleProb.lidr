@@ -5,20 +5,25 @@
 > import Data.Vect
 > import Data.Sign
 
-> import Rational
 > import NonNegRational
-> import SignProperties
+> import NonNegRationalOperations
+> import NonNegRationalProperties
+> -- import SignProperties
 
 > %default total
 
+> %access public export
 
+
+> |||
 > data SimpleProb : Type -> Type where
 >   MkSimpleProb : {A : Type} -> 
 >                  (as : Vect n A) ->
->                  (ps : Vect n NonNegQ) ->
->                  sum ps = oneNonNegQ ->
+>                  (ps : Vect n NonNegRational) ->
+>                  sum ps = 1 ->
 >                  SimpleProb A
 
+> {-
 
 * Operations
 
