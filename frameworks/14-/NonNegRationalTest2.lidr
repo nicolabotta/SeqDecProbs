@@ -1,9 +1,10 @@
 > module Main
+
 > import NonNegRational2
 > import PNatOperations
 
-
 > %default total
+
 
 > x : NonNegRational
 > x = fromFraction (25, PNat.fromNat 56 (LTESucc LTEZero))

@@ -9,8 +9,9 @@
 > import NumRefinements
 > import NumOperations
 
-
 > %default total
+
+> %access public export
 
 
 The following

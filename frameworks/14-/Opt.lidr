@@ -4,15 +4,11 @@
 > import Control.Isomorphism
 > import Data.Fin
 > import Data.Vect
-> -- import Decidable.Order
 > import Syntax.PreorderReasoning
 
 > import Finite
 > import FiniteOperations
 > import FiniteProperties
-> -- import Order
-> -- import OrderOperations
-> -- import OrderProperties
 > import TotalPreorder
 > import TotalPreorderOperations
 > import VectOperations

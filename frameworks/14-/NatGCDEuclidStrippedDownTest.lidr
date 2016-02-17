@@ -2,8 +2,8 @@
 
 > import NatGCDEuclidStrippedDown
 
-
 > %default total
+
 
 > m : Nat
 > n : Nat

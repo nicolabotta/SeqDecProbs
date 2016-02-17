@@ -6,6 +6,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Scalar-vector "multiplication"
 > multSV : (Num t) => t -> Vect m t -> Vect m t
