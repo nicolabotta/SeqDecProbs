@@ -28,7 +28,6 @@
 > import FiniteProperties
 > import Unique
 > import UniqueProperties
-> import SoProperties
 > import SubType
 > import Decidable
 > import DecidableProperties
@@ -43,7 +42,6 @@
 > import FinOperations
 > import PairsOperations
 > import Sigma
-
 
 > %default total
 
