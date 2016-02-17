@@ -5,7 +5,6 @@
 > import NonNegRationalProperties
 > import Fraction
 > import FractionOperations
-> -- import FractionProperties
 > import PNat
 > import PNatOperations
 > import PNatProperties

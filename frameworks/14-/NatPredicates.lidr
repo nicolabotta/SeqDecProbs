@@ -1,7 +1,11 @@
 > module NatPredicates
 
+> import Sigma
+> import PairsOperations
 
 > %default total
+
+> %access public export
 
 > %access public export
 
@@ -24,7 +28,7 @@ Greatest common divisor (following an idea from Tim Richter):
 >           ((d' : Nat) -> d' `Divisor` m -> d' `Divisor` n -> d' `Divisor` d) ->
 >           GCD d m n
 
-> gcd : (d : Nat ** GCD d m n) -> Nat
+> gcd : Sigma Nat (\ d => GCD d m n) -> Nat
 > gcd = getWitness
 
 > gcdDivisorFst : GCD d m n -> d `Divisor` m

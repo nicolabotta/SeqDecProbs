@@ -7,6 +7,8 @@
 > import NatProperties
 > import NatDivisor
 > import NatDivisorOperations
+> import Sigma
+> import PairsOperations
 
 
 > %default total

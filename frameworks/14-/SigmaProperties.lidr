@@ -19,8 +19,6 @@
 > import IsomorphismOperations
 > import IsomorphismProperties
 > import Basics
-> import LambdaPostulates
-
 
 > %default total
 

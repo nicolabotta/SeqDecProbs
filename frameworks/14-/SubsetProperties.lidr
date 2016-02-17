@@ -4,7 +4,6 @@
 > import Data.Vect
 > import Control.Isomorphism
 
-
 > import Decidable
 > import Finite
 > import Unique
@@ -19,8 +18,6 @@
 > import IsomorphismOperations
 > import IsomorphismProperties
 > import Basics
-> import LambdaPostulates
-
 
 > %default total
 
