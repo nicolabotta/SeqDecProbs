@@ -9,6 +9,7 @@
 
 > %default total
 
+
 > x : Fraction
 > x = (2067, fromNat 616 (LTESucc LTEZero)) 
 > %freeze x
