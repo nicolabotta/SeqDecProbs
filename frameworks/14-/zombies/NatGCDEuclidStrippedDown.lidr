@@ -7,8 +7,6 @@
 
 > %default total
 
-> %access public export
-
 
 Euclid's greatest common divisor algorithm
 

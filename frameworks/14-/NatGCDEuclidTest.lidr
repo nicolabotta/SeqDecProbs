@@ -6,8 +6,12 @@
 > import NatGCDEuclid
 > import NatDivisor
 > import NatDivisorOperations
+> import Sigma
+> import PairsOperations
+
 
 > %default total
+
 
 > m : Nat
 > n : Nat

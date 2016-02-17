@@ -14,6 +14,7 @@
 
 > %default total
 
+
 > m  : Nat
 > m  = 42449
 > %freeze m

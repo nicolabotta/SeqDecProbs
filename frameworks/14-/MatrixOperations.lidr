@@ -7,6 +7,8 @@
 
 > %default total
 
+> %access public export
+
 
 > row : (Fin m) -> Matrix m n t -> Vect n t
 > row k xss = index k xss
