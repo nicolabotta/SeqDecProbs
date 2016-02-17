@@ -1,9 +1,14 @@
 > module SplitQuotient
 
 > import Syntax.PreorderReasoning
+
+
 > import KernelQuotient as KQ
 
 > %default total
+
+> %access public export
+
 
 Given a type |Base| and a binary relation |~| on Base:
 

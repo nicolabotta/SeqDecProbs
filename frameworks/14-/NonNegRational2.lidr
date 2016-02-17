@@ -12,8 +12,11 @@
 
 > %default total
 
+> %access public export
+
+
 > SQ.Base = F.Fraction
-> KQ.KBase = F.Fraction -- Num instance of KBase not found without this
+> KQ.KBase = F.Fraction -- Num implementation of KBase not found without this
 > SQ.Relation = FO.Eq
 > SQ.normalize = FO.normalize
 > SQ.normalizeMapsRelatedToEQ = FP.normalizeEqLemma2
@@ -22,12 +25,12 @@
 > NonNegRational : Type
 > NonNegRational = KQ.KQuot
 
-> instance Num NonNegRational where
+> implementation Num NonNegRational where
 >   (+) = KQ.liftBinop (+)
 >   (*) = KQ.liftBinop (*)
 >   fromInteger = KQ.classOf . fromInteger
 
-> instance Show NonNegRational where
+> implementation Show NonNegRational where
 >   show (Class (n,(Element d _)) _) = show n ++ "/" ++ show d
 
 > Fraction : Type
@@ -205,27 +208,27 @@ Properties of |mult|:
 >     ( x * z + z * y ) ={ cong {f = \w => x * z + w} (multCommutative z y) }=
 >     ( x * z + y * z ) QED  
 
-> ||| NonNegRational is an instance of NumPlusZeroNeutral
-> instance NumPlusZeroNeutral NonNegRational where
+> ||| NonNegRational is an implementation of NumPlusZeroNeutral
+> implementation NumPlusZeroNeutral NonNegRational where
 >   plusZeroLeftNeutral = plusZeroLeftNeutral
 >   plusZeroRightNeutral = plusZeroRightNeutral
 
 
-> ||| NonNegRational is an instance of NumPlusAssociative
-> instance NumPlusAssociative NonNegRational where
+> ||| NonNegRational is an implementation of NumPlusAssociative
+> implementation NumPlusAssociative NonNegRational where
 >   plusAssociative = plusAssociative
 
 
-> ||| NonNegRational is an instance of NumMultZeroOne
-> instance NumMultZeroOne NonNegRational where
+> ||| NonNegRational is an implementation of NumMultZeroOne
+> implementation NumMultZeroOne NonNegRational where
 >   multZeroRightZero   = multZeroRightZero
 >   multZeroLeftZero    = multZeroLeftZero
 >   multOneRightNeutral = multOneRightNeutral
 >   multOneLeftNeutral  = multOneLeftNeutral
 
 
-> ||| NonNegRational is an instance NumMultDistributesOverPlus
-> instance NumMultDistributesOverPlus NonNegRational where
+> ||| NonNegRational is an implementation NumMultDistributesOverPlus
+> implementation NumMultDistributesOverPlus NonNegRational where
 >   multDistributesOverPlusRight = multDistributesOverPlusRight
 >   multDistributesOverPlusLeft  = multDistributesOverPlusLeft
 

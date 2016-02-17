@@ -7,6 +7,8 @@
 
 > %default total
 
+> %access public export
+
 
 An idempotent endomap c of a type A can be thought of as
 a choice function for representatives of the kernel of c :
