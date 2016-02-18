@@ -1,14 +1,28 @@
 > module SimpleProb
 
-> import Data.So
-> import Data.Fin
 > import Data.Vect
-> import Data.Sign
 
 > import NonNegRational
 > import NonNegRationalOperations
 > import NonNegRationalProperties
-> -- import SignProperties
+
+-- > import Syntax.PreorderReasoning
+-- > import NatPositive
+-- > import Fraction
+-- > import FractionNormal
+-- > import FractionOperations
+-- > import FractionProperties
+-- > import PairsOperations
+-- > import NatOperations
+-- > import NatProperties
+-- > import NatCoprime
+-- > import NatDivisor
+-- > import NatDivisorOperations
+-- > import NatDivisorProperties
+-- > import NatGCD
+-- > import NatGCDOperations
+-- > import NatGCDEuclid
+-- > import Sigma
 
 > %default total
 
@@ -23,14 +37,15 @@
 >                  sum ps = 1 ->
 >                  SimpleProb A
 
-> {-
 
 * Operations
 
-> prob : (Eq alpha) => SimpleProb alpha -> alpha -> NonNegQ
-> prob (MkSimpleProb as pa _) a = foldr f zeroNonNegQ (zip as pa) where
->   f : (alpha, NonNegQ) -> NonNegQ -> NonNegQ
+> prob : (Eq alpha) => SimpleProb alpha -> alpha -> NonNegRational
+> prob (MkSimpleProb as pa _) a = foldr f 0 (zip as pa) where
+>   f : (alpha, NonNegRational) -> NonNegRational -> NonNegRational
 >   f (a', p') p = if (a == a') then p + p' else p
+
+> {-
 
 
 * Properties
