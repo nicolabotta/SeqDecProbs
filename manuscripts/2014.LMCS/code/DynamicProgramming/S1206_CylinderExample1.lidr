@@ -11,8 +11,8 @@
 > import Util.VectExtensions1
 > import Logic.Postulates
 > import Logic.Properties
-> import Float.Postulates
-> import Float.Properties
+> import Double.Postulates
+> import Double.Properties
 > import Util.Opt
 > import Util.Util
 > import Exists.Ops
@@ -84,7 +84,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 >                                         then (Z ** Oh)
 >                                         else (S n ** believe_me Oh)
 
-> -- reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Float
+> -- reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Double
 > Context.reward t x y x' = if column {t = S t} x' == Z
 >                           then 1.0
 >                           else if S (column {t = S t} x') == nColumns
@@ -211,10 +211,10 @@ We implement the case outlined in Fig. 6 of "S1200":
 > yfysP : (n : Nat) ->
 >         (x : State t) ->
 >         (v : So (viable {t} (S n) x)) ->
->         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
+>         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Double) ->
 >         (k : Nat
 >          **
->          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Float)
+>          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Double)
 >         )
 > yfysP {t} n x v f = fmapP (pair (id,f)) s5 where
 >   s1 : (k : Nat ** Vect (S k) (Ctrl t x))

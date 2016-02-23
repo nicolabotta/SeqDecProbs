@@ -41,7 +41,7 @@ terms of:
 
 # A reward function:
 
-> reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Float
+> reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Double
 
 For |M = Id|, |M = List| and |M = SimpleProb| one recovers the
 deterministic case, the non-deterministic case and the stochastic
@@ -64,10 +64,10 @@ state is contained in |M|-structure (on states):
 > toSub      :  (ma : M alpha) -> M (a : alpha ** So (a `MisIn` ma))
 > -- unused toSubSpec  :  (ma : M alpha) -> Mmap outl (toSub ma) = ma
 
-> Mmeas     :  M Float -> Float
-> MmeasMon  :  (f : State t -> Float) -> (g : State t -> Float) ->
+> Mmeas     :  M Double -> Double
+> MmeasMon  :  (f : State t -> Double) -> (g : State t -> Double) ->
 >              ((x : State t) -> So (f x <= g x)) ->
 >              (mx : M (State t)) -> So (Mmeas (Mmap f mx) <= Mmeas (Mmap g mx))
 
-> Mreward        :  (t : Nat) -> (x : State t) -> Ctrl t x -> M Float
+> Mreward        :  (t : Nat) -> (x : State t) -> Ctrl t x -> M Double
 > Mreward t x y  =  Mmap (\ x' => reward t x y x') (step t x y)

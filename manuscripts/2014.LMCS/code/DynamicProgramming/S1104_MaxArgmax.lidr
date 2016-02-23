@@ -7,14 +7,14 @@
 > %default total
 
 
-> max     :  (x : State) -> (Ctrl x -> Float) -> Float
-> argmax  :  (x : State) -> (Ctrl x -> Float) -> Ctrl x
+> max     :  (x : State) -> (Ctrl x -> Double) -> Double
+> argmax  :  (x : State) -> (Ctrl x -> Double) -> Ctrl x
 
 > MaxSpec     :  Type
-> MaxSpec     =  (x : State) -> (f : Ctrl x -> Float) -> (y : Ctrl x) ->
+> MaxSpec     =  (x : State) -> (f : Ctrl x -> Double) -> (y : Ctrl x) ->
 >                So (f y <= max x f)
 > ArgmaxSpec  :  Type
-> ArgmaxSpec  =  (x : State) -> (f : Ctrl x -> Float) ->
+> ArgmaxSpec  =  (x : State) -> (f : Ctrl x -> Double) ->
 >                So (f (argmax x f) == max x f)
 
 Thas is, we assume to be able to define |maxSpec| and |argmaxSpec| of

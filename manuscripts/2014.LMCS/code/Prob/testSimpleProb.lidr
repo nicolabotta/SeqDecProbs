@@ -2,8 +2,8 @@
 
 > import Prob.SimpleProb
 
-> castN2F : Nat -> Float
-> castN2F = cast {to = Float} {from = Int} . cast
+> castN2D : Nat -> Double
+> castN2D = cast {to = Double} {from = Int} . cast
 
 > n1 : Nat
 > n1 = 1
@@ -13,35 +13,35 @@
 
 --
 
-> d1 : Float
-> d1 = 1.0 / (castN2F n1)
+> d1 : Double
+> d1 = 1.0 / (castN2D n1)
 
-> xp1 : List (Float, Float)
-> xp1 = [(castN2F i, d1) | i <- [1..n1]]
+> xp1 : List (Double, Double)
+> xp1 = [(castN2D i, d1) | i <- [1..n1]]
 
-> sp1 : SimpleProb Float
+> sp1 : SimpleProb Double
 > sp1 = SP xp1
 
-> ssp1 : List Float
+> ssp1 : List Double
 > ssp1 = supp sp1
 
 --
 
-> d2 : Float
-> d2 = 1.0 / (castN2F n2)
+> d2 : Double
+> d2 = 1.0 / (castN2D n2)
 
-> xp2 : List (Float, Float)
-> xp2 = [(castN2F i, d2) | i <- [1..n2]]
+> xp2 : List (Double, Double)
+> xp2 = [(castN2D i, d2) | i <- [1..n2]]
 
-> sp2 : SimpleProb Float
+> sp2 : SimpleProb Double
 > sp2 = SP xp2
 
-> ssp2 : List Float
+> ssp2 : List Double
 > ssp2 = supp sp2
 
 --
 
-> sp : SimpleProb Float
+> sp : SimpleProb Double
 > sp = convComb eps sp1 sp2 where
 >   eps = 0.1
 

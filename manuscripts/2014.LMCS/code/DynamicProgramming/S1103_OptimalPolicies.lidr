@@ -7,7 +7,7 @@
 > import Fun.Ops
 > import Rel.DecEq
 > import Rel.ReflDecEq
-> import Float.Properties
+> import Double.Properties
 > import DynamicProgramming.S1101_Context
 > import DynamicProgramming.S1102_OptimalControls
 
@@ -19,7 +19,7 @@
 > PolicySeq : Nat -> Type
 > PolicySeq n = Vect n Policy
 
-> val : (x : State) -> {n : Nat} -> PolicySeq n -> Float
+> val : (x : State) -> {n : Nat} -> PolicySeq n -> Double
 > val _  {n = Z}    _          =  0
 > val x  {n = S m}  (p :: ps)  =  reward x (p x) x' + val x' ps where
 >   x'  :  State
@@ -122,7 +122,7 @@ The notion of optimal sequence of policies:
 > OptPolicySeq n ps = (x : State) -> (ps' : PolicySeq n) -> So (val x ps' <= val x ps)
 
 > nilIsOptPolicySeq : OptPolicySeq Z Nil
-> nilIsOptPolicySeq x ps' = reflexive_Float_lte 0
+> nilIsOptPolicySeq x ps' = reflexive_Double_lte 0
 
 > OptLemma : (ReflDecEq State) =>
 >            (n : Nat) ->

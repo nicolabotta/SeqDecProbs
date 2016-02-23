@@ -2,7 +2,7 @@
 
 > import Data.So
 
-> import Float.Properties
+> import Double.Properties
 > import Exists.Ops
 
 > import DynamicProgramming.S1201_Context
@@ -29,7 +29,7 @@ viable |0| steps. This holds, per definition, for every feasible control.
 
 The sum of the rewards obtained in |n| steps when starting in |x| is
 
-> val  :  (x : State t) -> (n : Nat) -> CtrlSeq x n -> Float
+> val  :  (x : State t) -> (n : Nat) -> CtrlSeq x n -> Double
 > val      _   Z      _           =  0
 > val {t}  x   (S n)  (yv :: ys)  =  reward t x y x' + val x' n ys where
 >   y   :  Ctrl t x;;      y   =  outl yv
@@ -45,4 +45,4 @@ other sequence of feasible controls of the same length yield a better
 Sanity check: |Nil| is optimal control sequence
 
 > nilIsOptCtrlSeq        :  (x : State t) -> OptCtrlSeq x Z Nil
-> nilIsOptCtrlSeq x Nil  =  reflexive_Float_lte 0
+> nilIsOptCtrlSeq x Nil  =  reflexive_Double_lte 0

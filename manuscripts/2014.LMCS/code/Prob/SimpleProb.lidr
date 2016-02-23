@@ -9,10 +9,10 @@ countable) support, so what we want is something like the following:
 
 < type Supp a = [a]
 
-to represent the support, and 
+to represent the support, and
 
 < Prob : Type
-< Prob = Float
+< Prob = Double
 
 < newtype SimpleProb a = SP (a -> Prob, Supp a)
 
@@ -26,20 +26,20 @@ of the |Monad| type class.)
 Therefore, we shall adopt the representation used by Erwig in
 \cite{Erwig:pfp}:
 
-> data SimpleProb a = SP (List (a, Float)) -- deriving Show
+> data SimpleProb a = SP (List (a, Double)) -- deriving Show
 
-> toList         : SimpleProb a -> List (a, Float)
+> toList         : SimpleProb a -> List (a, Double)
 > toList (SP ds) = ds
 
 The support of a simple probability distribution |ds| is the set of
 values in the list |map fst ds|, but now we need to ensure that there
 are no values associated to zero probability:
 
-> suppBy : (alpha -> alpha -> Bool) -> 
->          SimpleProb alpha -> 
+> suppBy : (alpha -> alpha -> Bool) ->
+>          SimpleProb alpha ->
 >          List alpha
-> suppBy p (SP ds) = nubBy p (map fst (filter notz ds)) where 
->  notz : (alpha, Float) -> Bool
+> suppBy p (SP ds) = nubBy p (map fst (filter notz ds)) where
+>  notz : (alpha, Double) -> Bool
 >  notz (x, px) = px /= 0
 
 > supp : Eq a => SimpleProb a -> List a
@@ -53,14 +53,14 @@ to introduce a function that normalizes the representation:
 
 -- > normalizeSP : Eq a => SimpleProb a -> SimpleProb a
 -- > normalizeSP (SP ds) = SP (map (pair (id, f)) (supp (SP ds))) where
--- >   f : a -> Float
+-- >   f : a -> Double
 -- >   f a = sum [p | (x, p) <- ds, x == a]
 
-> normalizeBy : (alpha -> alpha -> Bool) -> 
->               SimpleProb alpha -> 
+> normalizeBy : (alpha -> alpha -> Bool) ->
+>               SimpleProb alpha ->
 >               SimpleProb alpha
 > normalizeBy {alpha} p (SP ds) = SP (map f (suppBy p (SP ds))) where
->   f : alpha -> (alpha, Float)
+>   f : alpha -> (alpha, Double)
 >   f a = (a, sum (map snd (filter (\ xpx => p (fst xpx) a) ds)))
 
 > normalize : Eq alpha => SimpleProb alpha -> SimpleProb alpha
@@ -68,35 +68,35 @@ to introduce a function that normalizes the representation:
 
 == (Nicola 22.01.2013)
 
-> eqeqBy : (alpha -> alpha -> Bool) -> 
->          SimpleProb alpha -> 
->          SimpleProb alpha -> 
+> eqeqBy : (alpha -> alpha -> Bool) ->
+>          SimpleProb alpha ->
+>          SimpleProb alpha ->
 >          Bool
 > eqeqBy {alpha} p sp1 sp2
 >   =
->   (length ps1 == length ps2 
->    && 
+>   (length ps1 == length ps2
+>    &&
 >    and (map (\ xp => elemBy p' xp ps2) ps1)
->   ) where 
->     p' : (alpha, Float) -> (alpha, Float) -> Bool
+>   ) where
+>     p' : (alpha, Double) -> (alpha, Double) -> Bool
 >     p' (a,pa) (a',pa') = (p a a') && (pa == pa')
->     ps1 : List (alpha, Float)
+>     ps1 : List (alpha, Double)
 >     ps1 = toList (normalizeBy p sp1)
->     ps2 : List (alpha, Float)
->     ps2 = toList (normalizeBy p sp2)  
+>     ps2 : List (alpha, Double)
+>     ps2 = toList (normalizeBy p sp2)
 
 > eqeq : Eq alpha => SimpleProb alpha -> SimpleProb alpha -> Bool
 > eqeq {alpha} sp1 sp2
 >   =
->   (length ps1 == length ps2 
->    && 
+>   (length ps1 == length ps2
+>    &&
 >    and (map (\ xp => xp `elem` ps2) ps1)
->   ) where 
->     ps1 : List (alpha, Float)
+>   ) where
+>     ps1 : List (alpha, Double)
 >     ps1 = toList (normalize sp1)
->     ps2 : List (alpha, Float)
->     ps2 = toList (normalize sp2)  
-  
+>     ps2 : List (alpha, Double)
+>     ps2 = toList (normalize sp2)
+
 return (Nicola 22.01.2013)
 
 > return : alpha -> SimpleProb alpha
@@ -104,13 +104,13 @@ return (Nicola 22.01.2013)
 
 bind (Nicola 22.01.2013)
 
-> bind : SimpleProb alpha -> 
->        (alpha -> SimpleProb beta) -> 
+> bind : SimpleProb alpha ->
+>        (alpha -> SimpleProb beta) ->
 >        SimpleProb beta
 > bind {alpha} {beta} sp f = SP (concat (map g (toList sp))) where
->   g : (alpha, Float) -> List (beta, Float)
+>   g : (alpha, Double) -> List (beta, Double)
 >   g (a, p) = map h (toList (f a)) where
->     h : (beta, Float) -> (beta, Float)
+>     h : (beta, Double) -> (beta, Double)
 >     h (x, p') = (x, p' * p)
 
 We can now define |SimpleProb| as an instance of the typeclasses |Eq|
@@ -119,7 +119,7 @@ and |Monad|.
 -- > instance Eq a => Eq (SimpleProb a) where
 -- >   sp1 == sp2 = length ps1 == length ps2 &&
 -- >                and (map (`elem` ps2) ps1)
--- >                where 
+-- >                where
 -- >                ps1 = toList (normalizeSP sp1)
 -- >                ps2 = toList (normalizeSP sp2)
 
@@ -160,30 +160,29 @@ Construction
 -- > concentrated = return
 
 -- > uniform : [a] -> SimpleProb a
--- > uniform xs = SP [(x, p) | x <- xs] where 
+-- > uniform xs = SP [(x, p) | x <- xs] where
 -- >   p = 1.0 / (realToFrac (length xs))
 
-> convComb : Float -> 
->            SimpleProb alpha -> 
->            SimpleProb alpha -> 
+> convComb : Double ->
+>            SimpleProb alpha ->
+>            SimpleProb alpha ->
 >            SimpleProb alpha
 > convComb {alpha} t sp1 sp2 = SP (aps1 ++ aps2) where
->   aps1 : List (alpha, Float)
+>   aps1 : List (alpha, Double)
 >   aps1 = rescale t (toList sp1)
->   aps2 : List (alpha, Float)
+>   aps2 : List (alpha, Double)
 >   aps2 = rescale (1.0 - t) (toList sp2)
 
 
 Evaluation:
 
-> eval : Eq a => SimpleProb a -> a -> Float
+> eval : Eq a => SimpleProb a -> a -> Double
 > -- eval (SP xps) x = sum ([p | (x', p) <- xps, x' == x])
 > eval (SP xps) x = foldl (+) 0 ([p | (x', p) <- xps, x' == x])
 
 Expected value:
 
-> eValue : SimpleProb Float -> Float
+> eValue : SimpleProb Double -> Double
 > eValue (SP xps) = foldl f 0 xps where
->   f : Float -> (Float, Float) -> Float
+>   f : Double -> (Double, Double) -> Double
 >   f e (x,p) = e + x * p
-

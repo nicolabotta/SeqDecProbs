@@ -3,8 +3,8 @@
 > import Data.So
 > import Data.Vect
 
-> import Float.Postulates
-> import Float.Properties
+> import Double.Postulates
+> import Double.Properties
 > import Logic.Properties
 
 > import DynamicProgramming.S1101_Context
@@ -15,13 +15,13 @@
 > %default total
 
 
-> valCtrl : {n : Nat} -> (x : State) -> (ps : PolicySeq n) -> Ctrl x -> Float
+> valCtrl : {n : Nat} -> (x : State) -> (ps : PolicySeq n) -> Ctrl x -> Double
 > valCtrl x ps y = reward x y x' + val x' ps where
 >   x' : State
 >   x' = step x y
 
 
-If, for all |x : State| and for all |f : Ctrl x -> Float|, we are able to
+If, for all |x : State| and for all |f : Ctrl x -> Double|, we are able to
 select a control |y : Ctrl x| which maximises |f|, optimal sequences of
 policies can be computed with Bellman's backwards induction algorithm.
 This, in turns, follows from Bellman's optimality principle.
@@ -38,7 +38,7 @@ compute optimal extensions for arbitrary sequences of policies:
 > optExt : {n : Nat} -> PolicySeq n -> Policy
 > optExt ps x = argmax x (valCtrl x ps)-- where
 > {-
->   f : Ctrl x -> Float
+>   f : Ctrl x -> Double
 >   f y = reward x y x' + val x' ps where
 >     x' : State
 >     x' = step x y
@@ -82,16 +82,16 @@ reward x (optExt ps x) x'' + val x'' ps
 val x (p' :: ps) <= val x ((optExt ps) :: ps)
 
 > OptExtLemma ps p' x = step6 where
->   f : Ctrl x -> Float
+>   f : Ctrl x -> Double
 >   f = valCtrl x ps
 >   step1 : So (f (p' x) <= max x f)
 >   step1 = maxSpec x f (p' x)
 >   step2 : So (max x f == f (argmax x f))
->   step2 = symmetric_Float_eqeq (argmaxSpec x f)
+>   step2 = symmetric_Double_eqeq (argmaxSpec x f)
 >   step3 : So (max x f <= f (argmax x f))
->   step3 = sub_Float_eqeq_lte step2
+>   step3 = sub_Double_eqeq_lte step2
 >   step4 : So (f (p' x) <= f (argmax x f))
->   step4 = transitive_Float_lte step1 step3
+>   step4 = transitive_Double_lte step1 step3
 >   step5 : argmax x f = (optExt ps) x
 >   step5 = believe_me Oh
 >   step6 : So (f (p' x) <= f ((optExt ps) x))
@@ -134,11 +134,11 @@ and a proof of Bellman's principle can be constructed as follows:
 > Bellman {n} ps ops p oep = opps where
 >   %assert_total
 >   opps : OptPolicySeq (S n) (p :: ps)
->   opps x (p' :: ps') = transitive_Float_lte step2 step3 where
+>   opps x (p' :: ps') = transitive_Double_lte step2 step3 where
 >     step1 : So (val (step x (p' x)) ps' <= val (step x (p' x)) ps)
 >     step1 = ops (step x (p' x)) ps'
 >     step2 : So (val x (p' :: ps') <= val x (p' :: ps))
->     step2 = monotone_Float_plus_lte (reward x (p' x) (step x (p' x))) step1
+>     step2 = monotone_Double_plus_lte (reward x (p' x) (step x (p' x))) step1
 >     step3 : So (val x (p' :: ps) <= val x (p :: ps))
 >     step3 = oep p' x
 

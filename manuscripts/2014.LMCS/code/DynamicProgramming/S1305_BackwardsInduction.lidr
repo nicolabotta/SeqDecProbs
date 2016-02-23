@@ -2,7 +2,7 @@
 
 > import Data.So
 
-> import Float.Postulates
+> import Double.Postulates
 
 > import DynamicProgramming.S1301_Context
 > import DynamicProgramming.S1302_Reachability
@@ -12,7 +12,7 @@
 
 
 If, for all reachable and viable |x : State t| and for all
-|f : (y : Ctrl t x ** So (viable n (step t x y)))  ->  Float|,
+|f : (y : Ctrl t x ** So (viable n (step t x y)))  ->  Double|,
 we are able to select a control which maximises |f|, optimal sequences
 of policies can be computed with Bellman's backwards induction
 algorithm. This, in turn, follows from Bellman's optimality principle.
@@ -47,7 +47,7 @@ compute optimal extensions for arbitrary sequences of policies:
 >   p x r v = yq where
 >     yq : (y : Ctrl t x ** So (Mfeasible n x y))
 >     yq = argmax n x r v f where
->       f' : (y : Ctrl t x ** So (Mfeasible n x y)) -> State (S t) -> Float
+>       f' : (y : Ctrl t x ** So (Mfeasible n x y)) -> State (S t) -> Double
 >       f' ycy x' = reward t x y x' + Mval (S t) n x' r' v' ps where
 >         y : Ctrl t x
 >         y = getWitness ycy
@@ -56,7 +56,7 @@ compute optimal extensions for arbitrary sequences of policies:
 >         r' = reachableSpec1 x r y x' x'ins
 >         v' : So (viable {t = S t} n x')
 >         v' = Mspec2 (step t x y) (viable n) (getProof ycy) x' x'ins
->       f : (y : Ctrl t x ** So (Mfeasible n x y)) -> Float
+>       f : (y : Ctrl t x ** So (Mfeasible n x y)) -> Double
 >       f ycy = Mmeas (Mmap (f' ycy) (step t x (getWitness ycy)))
 
 > postulate OptExtensionLemma :
@@ -121,7 +121,7 @@ reward t x oy ox' + Mval (S t) n ox' or' ov' ps
 Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v ((optExtension t n ps) :: ps)
 
 -- > OptExtensionLemma t n ps p' x r v = step7 where
--- >   f : (y : Ctrl t x ** So (viable n (step t x y))) -> Float
+-- >   f : (y : Ctrl t x ** So (viable n (step t x y))) -> Double
 -- >   f (y ** v') = reward t x y x' + Mval (S t) n x' r' v' ps where
 -- >     x' : State (S t)
 -- >     x' = step t x y
@@ -131,12 +131,12 @@ Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v ((optExtension t n ps) :: ps
 -- >   -- step1 = maxSpec n x r v f (p' x r v)
 -- >   step1 = ?lala1 -- Can't verify injectivity ...
 -- >   step2 : So (max n x r v f == f (argmax n x r v f))
--- >   -- step2 = symmetric_Float_eqeq (argmaxSpec n x r v f)
+-- >   -- step2 = symmetric_Double_eqeq (argmaxSpec n x r v f)
 -- >   step2 = ?lala2 -- Can't verify injectivity ...
 -- >   step3 : So (max n x r v f <= f (argmax n x r v f))
--- >   step3 = sub_Float_eqeq_lte step2
+-- >   step3 = sub_Double_eqeq_lte step2
 -- >   step4 : So (f (p' x r v) <= f (argmax n x r v f))
--- >   step4 = transitive_Float_lte step1 step3
+-- >   step4 = transitive_Double_lte step1 step3
 -- >   step4'' : argmax n x r v f = argmax n x r v f
 -- >   step4'' = Refl
 -- >   step4' : argmax n x r v f = (optExtension t n ps) x r v
@@ -225,7 +225,7 @@ and a proof of Bellman's principle can be constructed as follows:
 
 > Bellman t n ps ops p oep = opps where
 >   opps : OptPolicySeq t (S n) (p :: ps)
->   opps (p' :: ps') x r v = transitive_Float_lte step4 step5 where
+>   opps (p' :: ps') x r v = transitive_Double_lte step4 step5 where
 >     ycy : (lala : Ctrl t x ** So (Mfeasible n x lala))
 >     ycy = p' x r v
 >     y : Ctrl t x
@@ -241,12 +241,12 @@ and a proof of Bellman's principle can be constructed as follows:
 >                                   <=
 >                                   Mval (S t) n x' (r' x') (v' x') ps)
 >     step1 x' = ops ps' x' (r' x') (v' x')
->     f : State (S t) -> Float
+>     f : State (S t) -> Double
 >     f x' = reward t x y x' + Mval (S t) n x' (r' x') (v' x') ps'
->     g : State (S t) -> Float
+>     g : State (S t) -> Double
 >     g x' = reward t x y x' + Mval (S t) n x' (r' x') (v' x') ps
 >     step2 : (x' : State (S t)) -> So (f x' <= g x')
->     step2 x' = monotone_Float_plus_lte
+>     step2 x' = monotone_Double_plus_lte
 >                -- {a1 = Mval (S t) n x' (r' x') (v' x') ps'}
 >                -- {a2 = Mval (S t) n x' (r' x') (v' x') ps}
 >                (reward t x y x')
@@ -265,7 +265,7 @@ Trying to define |f| and |g| in terms of the same global |val| function
 
 -- > Bellman t n ps ops p oep = opps where
 -- >   opps : OptPolicySeq t (S n) (p :: ps)
--- >   opps (p' :: ps') x r v = transitive_Float_lte step4 step5 where
+-- >   opps (p' :: ps') x r v = transitive_Double_lte step4 step5 where
 -- >     ycy : (lala : Ctrl t x ** So (Mfeasible n x lala))
 -- >     ycy = p' x r v
 -- >     y : Ctrl t x
@@ -281,12 +281,12 @@ Trying to define |f| and |g| in terms of the same global |val| function
 -- >                                   <=
 -- >                                   Mval (S t) n x' (r' x') (v' x') ps)
 -- >     step1 x' = ops ps' x' (r' x') (v' x')
--- >     f : State (S t) -> Float
+-- >     f : State (S t) -> Double
 -- >     f = val t n x r v p' ps'
--- >     g : State (S t) -> Float
+-- >     g : State (S t) -> Double
 -- >     g = val t n x r v p' ps
 -- >     step2 : (x' : State (S t)) -> So (f x' <= g x')
--- >     step2 x' = monotone_Float_plus_lte (reward t x y x') (step1 x')
+-- >     step2 x' = monotone_Double_plus_lte (reward t x y x') (step1 x')
 -- >     step3 : So (Mmeas (Mmap f (step t x y)) <= Mmeas (Mmap g (step t x y)))
 -- >     step3 = MmeasMon f g step2 (step t x y)
 -- >     step4 : So (Mval t (S n) x r v (p' :: ps') <= Mval t (S n) x r v (p' :: ps))

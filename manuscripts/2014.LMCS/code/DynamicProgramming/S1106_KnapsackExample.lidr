@@ -23,26 +23,26 @@
 > nItems : Nat
 > nItems = S lastItem
 
-> values : Vect nItems Float
+> values : Vect nItems Double
 
 > %assert_total
-> value : Blt nItems -> Float
+> value : Blt nItems -> Double
 > value = idx values
 
-> weights : Vect nItems Float
+> weights : Vect nItems Double
 
 > %assert_total
-> weight : Blt nItems -> Float
+> weight : Blt nItems -> Double
 > weight = idx weights
 
-> capacity : Float
+> capacity : Double
 > capacity = 2.0
 
-> Context.State = ((load  : Float ** So (load <= capacity)),
+> Context.State = ((load  : Double ** So (load <= capacity)),
 >              Blt nItems
 >             )
 
-> load : State -> Float
+> load : State -> Double
 > load ((l ** _), _) = l
 
 > item : State -> Blt nItems
@@ -60,7 +60,7 @@
 
 > Context.Ctrl x = (a : Action ** So (admissible a x))
 
-> max' : (x : State) -> (Ctrl x -> Float) -> (Ctrl x , Float)
+> max' : (x : State) -> (Ctrl x -> Double) -> (Ctrl x , Double)
 > max' x f with (admissible Take x)
 >   | True  = max2' ((Take ** believe_me Oh), f (Take ** believe_me Oh))
 >                   ((Drop ** Oh), f (Drop ** Oh))
@@ -77,7 +77,7 @@
 > partial
 > step' : (x : State) -> Ctrl x -> So (Blt.toNat (item x) < lastItem) -> State
 > step' x (Take ** at) q = (x', incBlt {b = S lastItem} (snd x) (believe_me Oh)) where
->   x' : (load : Float ** So (load <= capacity))
+>   x' : (load : Double ** So (load <= capacity))
 >   x' = (load x + weight (item x) ** at)
 > step' x (Drop ** ad) q = (fst x, incBlt {b = S lastItem} (snd x) (believe_me Oh))
 

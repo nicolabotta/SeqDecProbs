@@ -4,8 +4,8 @@
 
 > import Logic.Properties
 > import Exists.Ops
-> import Float.Postulates
-> import Float.Properties
+> import Double.Postulates
+> import Double.Properties
 
 > import DynamicProgramming.S1201_Context
 > import DynamicProgramming.S1202_ReachabilityViability
@@ -22,7 +22,7 @@
 > depPairId (x ** y) = Refl
 
 If, for all reachable and viable |x : State t| and for all
-|f : (y : Ctrl t x ** So (viable n (step t x y))) -> Float|,
+|f : (y : Ctrl t x ** So (viable n (step t x y))) -> Double|,
 we are able to select a control which maximises |f|, optimal sequences
 of policies can be computed with Bellman's backwards induction
 algorithm. This, in turn, follows from Bellman's optimality principle.
@@ -56,7 +56,7 @@ compute optimal extensions for arbitrary sequences of policies:
 >   p x r v = yq where
 >     yq : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 >     yq = argmax n x r v f where
->       f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float
+>       f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Double
 >       f (y ** v') = reward t x y x' + val (S t) n x' r' v' ps where
 >         x' : State (S t)
 >         x' = step t x y
@@ -126,7 +126,7 @@ reward t x oy ox' + val (S t) n ox' or' ov' ps
 val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 
 > OptExtensionLemma t n ps p' x r v = step6 where
->   f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Float
+>   f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) -> Double
 >   f (y ** v') = reward t x y x' + val (S t) n x' r' v' ps where
 >     x' : State (S t)
 >     x' = step t x y
@@ -135,11 +135,11 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >   step1 : So (f (p' x r v) <= max n x r v f)
 >   step1 = maxSpec n x r v f (p' x r v)
 >   step2 : So (max n x r v f == f (argmax n x r v f))
->   step2 = symmetric_Float_eqeq (argmaxSpec n x r v f)
+>   step2 = symmetric_Double_eqeq (argmaxSpec n x r v f)
 >   step3 : So (max n x r v f <= f (argmax n x r v f))
->   step3 = sub_Float_eqeq_lte step2
+>   step3 = sub_Double_eqeq_lte step2
 >   step4 : So (f (p' x r v) <= f (argmax n x r v f))
->   step4 = transitive_Float_lte step1 step3
+>   step4 = transitive_Double_lte step1 step3
 >   step4'' : argmax n x r v f = argmax n x r v f
 >   step4'' = Refl
 >   step4' : argmax n x r v f = (optExtension t n ps) x r v
@@ -258,7 +258,7 @@ and a proof of Bellman's principle can be constructed as follows:
 >     opps : OptPolicySeq t (S n) (p :: ps)
 >     opps Nil x r v impossible
 >     opps (p' :: ps') x r v =
->       transitive_Float_lte step2 step3 where
+>       transitive_Double_lte step2 step3 where
 >         y      :  Ctrl t x;;      y   =  outl (p' x r v)
 >         x'     :  State (S t);;   x'  =  step t x y
 >         r'     :  Reachable x';;  r'  =  reachableSpec1 x r y
@@ -266,7 +266,7 @@ and a proof of Bellman's principle can be constructed as follows:
 >         step1  :  So (val (S t) n x' r' v' ps' <= val (S t) n x' r' v' ps)
 >         step1  =  ops ps' x' r' v'
 >         step2  :  So (val t (S n) x r v (p' :: ps') <= val t (S n) x r v (p' :: ps))
->         step2  =  monotone_Float_plus_lte (reward t x y x') step1
+>         step2  =  monotone_Double_plus_lte (reward t x y x') step1
 >         step3  :  So (val t (S n) x r v (p' :: ps) <= val t (S n) x r v (p :: ps))
 >         step3  =  oep p' x r v
 

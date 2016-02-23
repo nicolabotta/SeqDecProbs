@@ -11,8 +11,8 @@
 > import Util.VectExtensions1
 > import Logic.Postulates
 > import Logic.Properties
-> import Float.Postulates
-> import Float.Properties
+> import Double.Postulates
+> import Double.Properties
 > import Util.Opt
 > import Util.Util
 > import Exists.Ops
@@ -114,7 +114,7 @@ non-default implementations for |reachable| and |viable|.
 >   -- q' : So (valid t (i' ** p'))
 >   -- q' = ?step1
 
-> -- reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Float
+> -- reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Double
 > Context.reward t x y x' = if column {t = S t} x' == Z
 >                           then 2.0
 >                           else if S (column {t = S t} x') == nColumns
@@ -243,10 +243,10 @@ non-default implementations for |reachable| and |viable|.
 > yfysP : (n : Nat) ->
 >         (x : State t) ->
 >         (v : So (viable (S n) x)) ->
->         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Float) ->
+>         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Double) ->
 >         (k : Nat
 >          **
->          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Float)
+>          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Double)
 >         )
 > yfysP {t} n x v f = fmapP (pair (id,f)) s5 where
 >   s1 : (k : Nat ** Vect (S k) (Ctrl t x))

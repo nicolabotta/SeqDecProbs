@@ -2,7 +2,7 @@
 
 > import Data.So
 
-> import Float.Properties
+> import Double.Properties
 > import Exists.Ops
 
 > import DynamicProgramming.S1201_Context
@@ -44,7 +44,7 @@
 
 > val  :  (t : Nat) -> (n : Nat) ->
 >         (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
->         PolicySeq t n -> Float
+>         PolicySeq t n -> Double
 > val _  Z      _ _ _ _          =  0
 > val t  (S n)  x r v (p :: ps)  =  reward t x y x' + val (S t) n x' r' v' ps where
 >   y   :  Ctrl t x;;       y   =  outl (p x r v)
@@ -64,7 +64,7 @@ The notion of optimal sequence of policies
 (Sanity check: Nil is optimal policy sequence
 
 > nilIsOptPolicySeq : OptPolicySeq t Z Nil
-> nilIsOptPolicySeq _ _ _ _ = reflexive_Float_lte 0
+> nilIsOptPolicySeq _ _ _ _ = reflexive_Double_lte 0
 
 ) is interesting because of the following lemma
 
