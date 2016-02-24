@@ -44,13 +44,13 @@
 > -- %freeze fromNat
 
 
-> ||| Addition of non-negarive rational numbers
+> ||| Addition of non-negative rational numbers
 > plus : NonNegRational -> NonNegRational -> NonNegRational
 > plus x y = fromFraction (toFraction x + toFraction y)
 > -- %freeze plus
 
 
-> ||| Multiplication of non-negarive rational numbers
+> ||| Multiplication of non-negative rational numbers
 > mult : NonNegRational -> NonNegRational -> NonNegRational
 > mult x y = fromFraction (toFraction x * toFraction y)
 > -- %freeze mult

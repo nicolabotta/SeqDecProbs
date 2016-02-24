@@ -14,4 +14,3 @@
 > NonNegRational : Type
 > NonNegRational = Subset Fraction Normal
 
-

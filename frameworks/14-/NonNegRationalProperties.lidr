@@ -14,7 +14,6 @@
 > import NatPositive
 > import NumRefinements
 > import PairsOperations
-> -- import Sigma
 
 
 > %default total

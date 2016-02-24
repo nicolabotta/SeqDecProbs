@@ -6,27 +6,29 @@
 > import NonNegRationalOperations
 > import NonNegRationalProperties
 
--- > import Syntax.PreorderReasoning
--- > import NatPositive
--- > import Fraction
--- > import FractionNormal
--- > import FractionOperations
--- > import FractionProperties
--- > import PairsOperations
--- > import NatOperations
--- > import NatProperties
--- > import NatCoprime
--- > import NatDivisor
--- > import NatDivisorOperations
--- > import NatDivisorProperties
--- > import NatGCD
--- > import NatGCDOperations
--- > import NatGCDEuclid
--- > import Sigma
+> -- import Syntax.PreorderReasoning
+> import NatPositive
+> -- import Fraction
+> import FractionNormal
+> -- import FractionOperations
+> -- import FractionProperties
+> -- import PairsOperations
+> -- import NatOperations
+> -- import NatProperties
+> -- import NatCoprime
+> -- import NatDivisor
+> -- import NatDivisorOperations
+> -- import NatDivisorProperties
+> -- import NatGCD
+> -- import NatGCDOperations
+> -- import NatGCDEuclid
+> -- import Sigma
 
 > %default total
 
 > %access public export
+
+> -- %freeze NonNegRational
 
 
 > |||
@@ -44,6 +46,8 @@
 > prob (MkSimpleProb as pa _) a = foldr f 0 (zip as pa) where
 >   f : (alpha, NonNegRational) -> NonNegRational -> NonNegRational
 >   f (a', p') p = if (a == a') then p + p' else p
+> -- %freeze prob
+
 
 > {-
 
