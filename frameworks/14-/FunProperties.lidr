@@ -1,5 +1,10 @@
 > module FunProperties
 
+> import Syntax.PreorderReasoning
+
+> import FunOperations
+
+
 > %default total
 
 > %access public export
@@ -49,3 +54,15 @@ Properties of constructive proofs
 > nonSurjectiveNotSurjective : {A, B : Type} -> (f : A -> B) -> NonSurjective f -> Not (Surjective f)
 > nonSurjectiveNotSurjective f (Evidence b faanfab) =
 >   \ surjectivef => let a = (getWitness (surjectivef b)) in (faanfab a) (getProof (surjectivef b))
+
+
+Properties of cross
+
+> |||
+> crossAnyIdLemma : snd ((cross f Prelude.Basics.id) (a,b)) = snd (a,b)
+> crossAnyIdLemma {a} {b} {f} = Refl
+
+
+> |||
+> crossIdAnyLemma : fst ((cross Prelude.Basics.id f) (a,b)) = fst (a,b)
+> crossIdAnyLemma {a} {b} {f} = Refl

@@ -1,4 +1,4 @@
-> module Num
+> module NumProperties
 
 > import Data.Fin
 > import Data.Vect
@@ -127,6 +127,14 @@ of append (because it is not defined in terms of |foldrImpl|)
 
 > sumOne : Num t => (xs : Vect m t) -> Type
 > sumOne = sumsTo (fromInteger 1)
+
+
+> lemma0 : (NumPlusZeroNeutral t) => (x : t) -> sum (Data.Vect.(::) x Nil) = x
+> lemma0 x = ( x + 0 )
+>          ={ plusZeroRightNeutral x }=
+>            ( x )
+>          QED
+
 
 > lemma1 :  (NumMultDistributesOverPlus t) =>
 >           (x : t) -> (xs : Vect n t) ->
