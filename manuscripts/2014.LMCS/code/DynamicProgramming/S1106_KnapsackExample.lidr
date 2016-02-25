@@ -50,7 +50,7 @@
 
 > data Action = Take | Drop
 
-> instance Show Action where
+> Show Action where
 >   show Take = "T"
 >   show Drop = "D"
 

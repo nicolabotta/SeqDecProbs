@@ -1,30 +1,30 @@
 > module Main
 
-> import Data.So
-> import Data.Vect
-> import Effects
-> import Effect.Exception
-> import Effect.StdIO
+> import Data.So                -- So
+> import Data.Vect              -- Vect
+> import Effects                -- { [  ] } effects syntax
+> -- import Effect.Exception
+> import Effect.StdIO           -- STDIO, Eff
 
-> import BoundedNat.Blt
-> import Vect.Ops
-> import Util.VectExtensions1
-> import Logic.Postulates
-> import Logic.Properties
-> import Double.Postulates
-> import Double.Properties
-> import Util.Opt
-> import Util.Util
-> import Exists.Ops
-> import EffectException
-> import EffectStdIO
+> import BoundedNat.Blt         -- Blt
+> -- import Vect.Ops
+> import Util.VectExtensions1   -- isEmpty
+> -- import Logic.Postulates
+> -- import Logic.Properties
+> -- import Double.Postulates
+> -- import Double.Properties
+> import Util.Opt               -- maxP
+> import Util.Util              -- pair
+> import Exists.Ops             -- outl
+> -- import EffectException
+> import EffectStdIO            -- getNat
 
 > import DynamicProgramming.S1201_Context
-> import DynamicProgramming.S1202_ReachabilityViability
-> import DynamicProgramming.S1203_OptimalPolicies
-> import DynamicProgramming.S1204_MaxArgmax
-> import DynamicProgramming.S1205_BackwardsInduction
-> import DynamicProgramming.S1202_ReachabilityViabilityDefaults
+> -- import DynamicProgramming.S1202_ReachabilityViability -- reachable
+> import DynamicProgramming.S1203_OptimalPolicies       -- PolicySeq
+> import DynamicProgramming.S1204_MaxArgmax             -- max
+> import DynamicProgramming.S1205_BackwardsInduction    -- backwardsInduction
+> import DynamicProgramming.S1202_ReachabilityViabilityDefaults -- eqeq
 
 > %default total
 
@@ -58,12 +58,12 @@ We implement the case outlined in Fig. 6 of "S1200":
 > column : State t -> Nat
 > column = outl
 
-> states : (t : Nat) -> Vect nColumns (State t)
+> states : (t : Nat) -> Vect Main.nColumns (State t)
 > states t = toVect (\ i => i)
 
 > data Action = Left | Ahead | Right
 
-> instance Show Action where
+> Show Action where
 >   show Left = "L"
 >   show Ahead = "A"
 >   show Right = "R"
@@ -242,7 +242,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 > controls : (t : Nat) ->
 >            (n : Nat) ->
 >            (x : State t) ->
->            (r : So (reachable {t} x)) ->
+>            (r : So (reachable {t} x)) -> -- DynamicProgramming.S1202_ReachabilityViability
 >            (v : So (viable {t} n x)) ->
 >            PolicySeq t n ->
 >            Vect n Action

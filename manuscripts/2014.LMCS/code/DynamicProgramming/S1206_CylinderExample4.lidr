@@ -67,7 +67,7 @@ non-default implementations for |reachable| and |viable|.
 
 > data Action = Left | Ahead | Right
 
-> instance Show Action where
+> Show Action where
 >   show Left = "L"
 >   show Ahead = "A"
 >   show Right = "R"
