@@ -25,11 +25,11 @@
 > toDouble i = cast {from = Int} {to = Double} (cast {from = Nat} {to = Int} (Blt.toNat i))
 
 > using (p : Nat -> Type)
->   instance Prelude.Show.Show (n : Nat ** p n) where
+>   Prelude.Show.Show (n : Nat ** p n) where
 >     show (n ** _) = show n
 
 > using (p : Nat -> Type)
->   instance Eq (n : Nat ** p n) where
+>   Eq (n : Nat ** p n) where
 >     (==) (n ** _) (n' ** _) = n == n'
 
 > partial

@@ -13,7 +13,7 @@
 > data NonNegDouble : Type where
 >   MkNonNegDouble : (x : Double) -> So (x >= 0.0) -> NonNegDouble
 
-> instance Cast NonNegDouble Double where
+> Cast NonNegDouble Double where
 >   cast (MkNonNegDouble x _) = x
 
 
@@ -23,7 +23,7 @@
 >                 (x : Double) -> So (a <= x) -> So (x <= b) -> GeLeDouble a b
 
 > using (a, b : Double)
->   instance Cast (GeLeDouble a b) Double where
+>   Cast (GeLeDouble a b) Double where
 >     cast (MkGeLeDouble x _ _) = x
 
 
@@ -32,7 +32,7 @@
 >   MkGeDouble : {a : Double} -> (x : Double) -> So (a <= x) -> GeDouble a
 
 > using (a : Double)
->   instance Cast (GeDouble a) Double where
+>   Cast (GeDouble a) Double where
 >     cast (MkGeDouble x _) = x
 
 
@@ -41,15 +41,15 @@
 >   MkLeDouble : {a : Double} -> (x : Double) -> So (x <= a) -> LeDouble a
 
 > using (a : Double)
->   instance Cast (LeDouble a) Double where
+>   Cast (LeDouble a) Double where
 >     cast (MkLeDouble x _) = x
 
 
 
 > using (p : Double -> Type)
->   instance Show (x : Double ** p x) where
+>   Show (x : Double ** p x) where
 >     show (x ** _) = show x
 
 > using (p : Double -> Type)
->   instance Eq (x : Double ** p x) where
+>   Eq (x : Double ** p x) where
 >     (==) (x ** _) (y ** _) = x == y

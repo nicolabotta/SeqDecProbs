@@ -5,9 +5,7 @@
 > import Util.VectExtensions1
 > import DynamicProgramming.S1201_Context
 
-
 > %default total
-
 
 > reachable       :  State t -> Bool
 > Reachable       :  State t -> Type

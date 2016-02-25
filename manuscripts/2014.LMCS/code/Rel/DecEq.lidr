@@ -3,8 +3,7 @@
 > -- import Logic.Ops
 
 
-> class DecEq alpha where
->   dec_eq : (a : alpha) -> 
+> interface DecEq alpha where
+>   dec_eq : (a : alpha) ->
 >            (a' : alpha) ->
 >            Either (a = a') (Not (a = a'))
-
