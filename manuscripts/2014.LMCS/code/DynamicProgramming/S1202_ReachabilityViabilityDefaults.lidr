@@ -13,6 +13,9 @@
 
 > %default total
 
+> ReachabilityViability.Reachable x = So (reachable x)
+> ReachabilityViability.Viable n x = So (viable n x)
+
 We provide default implementation for |reachable| and |viable| that
 fulfill the specifications required by "S1202_ReachabilityViability" on
 the basis of the notions of successors and predecessors. These can be

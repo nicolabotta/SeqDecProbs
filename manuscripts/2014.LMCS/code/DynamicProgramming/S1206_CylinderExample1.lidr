@@ -20,7 +20,7 @@
 > import EffectStdIO            -- getNat
 
 > import DynamicProgramming.S1201_Context
-> import DynamicProgramming.S1202_ReachabilityViability -- reachable
+> -- import DynamicProgramming.S1202_ReachabilityViability -- reachable
 > import DynamicProgramming.S1203_OptimalPolicies       -- PolicySeq
 > import DynamicProgramming.S1204_MaxArgmax             -- max
 > import DynamicProgramming.S1205_BackwardsInduction    -- backwardsInduction
