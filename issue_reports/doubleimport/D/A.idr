@@ -1,0 +1,2 @@
+module A
+x : Bool
