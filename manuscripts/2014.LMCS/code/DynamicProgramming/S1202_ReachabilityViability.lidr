@@ -5,14 +5,12 @@
 > import Util.VectExtensions1
 > import DynamicProgramming.S1201_Context
 
-
 > %default total
-
 
 > reachable       :  State t -> Bool
 > Reachable       :  State t -> Type
 
-> Reachable x = So (reachable x)
+> -- Reachable x = So (reachable x)
 
 > reachableSpec0  :  (x : State Z) -> Reachable x
 > reachableSpec1  :  (x : State t) -> Reachable x -> (y : Ctrl t x) -> Reachable (step t x y)
@@ -22,7 +20,7 @@
 > viable       :  (n : Nat) -> State t -> Bool
 
 > Viable : (n : Nat) -> State t -> Type
-> Viable n x = So (viable n x)
+> -- Viable n x = So (viable n x)
 
 > GoodCtrl : (t : Nat) -> (n : Nat) -> State t -> Type
 > GoodCtrl t n x = (y : Ctrl t x ** Viable n (step t x y))

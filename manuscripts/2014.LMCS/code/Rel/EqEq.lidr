@@ -1,4 +1,4 @@
 > module EqEq
 
 
-> class Eq alpha => EqEq alpha where
+> interface Eq alpha => EqEq alpha where

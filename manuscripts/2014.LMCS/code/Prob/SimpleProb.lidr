@@ -116,17 +116,17 @@ bind (Nicola 22.01.2013)
 We can now define |SimpleProb| as an instance of the typeclasses |Eq|
 and |Monad|.
 
--- > instance Eq a => Eq (SimpleProb a) where
+-- > Eq a => Eq (SimpleProb a) where
 -- >   sp1 == sp2 = length ps1 == length ps2 &&
 -- >                and (map (`elem` ps2) ps1)
 -- >                where
 -- >                ps1 = toList (normalizeSP sp1)
 -- >                ps2 = toList (normalizeSP sp2)
 
-> instance Eq alpha => Eq (SimpleProb alpha) where
+> Eq alpha => Eq (SimpleProb alpha) where
 >   (==) = eqeq
 
--- > instance Monad SimpleProb where
+-- > Monad SimpleProb where
 -- >   return a = SP [(a, 1.0)]
 -- >   SP (ds1) >>= f = SP (concat (map g ds1))
 -- >                    where
@@ -134,14 +134,14 @@ and |Monad|.
 -- >                               where
 -- >                               h (x, p') = (x, p'*p)
 
-> instance Functor SimpleProb where
+> Functor SimpleProb where
 >   map f sp = bind sp (SimpleProb.return . f)
 
-> instance Applicative SimpleProb where
+> Applicative SimpleProb where
 >   pure = SimpleProb.return
 >   sp1 <*> sp2 = bind sp1 (\f => bind sp2 (SimpleProb.return . f))
 
-> instance Monad SimpleProb where
+> Monad SimpleProb where
 >   -- return = SimpleProb.return
 >   (>>=) = bind
 

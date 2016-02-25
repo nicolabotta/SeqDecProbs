@@ -13,6 +13,9 @@
 
 > %default total
 
+> ReachabilityViability.Reachable x = So (reachable x)
+> ReachabilityViability.Viable n x = So (viable n x)
+
 We provide default implementation for |reachable| and |viable| that
 fulfill the specifications required by "S1202_ReachabilityViability" on
 the basis of the notions of successors and predecessors. These can be
@@ -71,7 +74,7 @@ These are:
 >              (x : State t) ->
 >              So (x `isIn` preds x') ->
 >              (y : Ctrl t x ** x' = step t x y)
-> 
+>
 
 If |succs| and |preds| fulfill the above specifications, default
 definitions of |reachable| and |viable| can be given as follows:
@@ -86,12 +89,12 @@ definitions of |reachable| and |viable| can be given as follows:
 
 With the above definitions we have:
 
-> -- ReachabilityViability.reachableSpec0 : 
-> --   (x : State Z) -> 
+> -- ReachabilityViability.reachableSpec0 :
+> --   (x : State Z) ->
 > --   So (reachable x)
 > ReachabilityViability.reachableSpec0 x = Oh
 
-> -- ReachabilityViability.reachableSpec1 : 
+> -- ReachabilityViability.reachableSpec1 :
 > --   (x : State t) ->
 > --   So (reachable x) ->
 > --   (y : Ctrl t x) ->
@@ -99,15 +102,15 @@ With the above definitions we have:
 > ReachabilityViability.reachableSpec1 {t} x rmx y = step3 where
 >   step1 : So (x `isIn` (preds (step t x y)))
 >   step1 = predsSpec1 x y
->   step2 : So (isAnyBy reachable (preds (step t x y)))
+>   step2 : So (isAnyBy ReachabilityViability.reachable (preds (step t x y)))
 >   step2 = lemma3 x reachable (preds (step t x y)) rmx step1
 >   step3 : So (reachable (step t x y))
 >   step3 = step2
 
-> -- ReachabilityViability.reachableSpec2 :  
+> -- ReachabilityViability.reachableSpec2 :
 > --   (x' : State (S t)) -> Reachable x' ->
 > --   (x : State t ** (Reachable x , (y : Ctrl t x ** x' = step t x y)))
-> ReachabilityViability.reachableSpec2 {t = t} x' rx' = 
+> ReachabilityViability.reachableSpec2 {t = t} x' rx' =
 >   (x ** (xr, (y ** x'eq))) where
 >     xrinpx' : (xx : State t ** (So (reachable xx), So (xx `isIn` (preds x'))))
 >     xrinpx' = lemma6 reachable (preds x') rx'
@@ -128,17 +131,17 @@ and
 
 > -- ReachabilityViability.viableSpec0 : (x : State t) -> So (viable Z x)
 > ReachabilityViability.viableSpec0 x = Oh
-                                        
 
-> -- ReachabilityViability.viableSpec1 : (x : State t) -> 
-> --                                     So (viable (S n) x) -> 
+
+> -- ReachabilityViability.viableSpec1 : (x : State t) ->
+> --                                     So (viable (S n) x) ->
 > --                                     (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
 
 The idea is:
 
 viable (S n) x
   = { def. }
-isAnyBy (viable n) (succs x)  
+isAnyBy (viable n) (succs x)
   => { lemma6 }
 (x' : State (S t) ** x' `isIn` (succs x) && viable n x')
   => { succsSpec2 }
@@ -149,8 +152,8 @@ isAnyBy (viable n) (succs x)
 > ReachabilityViability.viableSpec1 {t} {n} x v = s11 where
 >   s1 : So (isAnyBy (viable n) (succs x))
 >   s1 = v
->   s2 : (xx : State (S t) ** 
->         (So (viable n xx), 
+>   s2 : (xx : State (S t) **
+>         (So (viable n xx),
 >          So (xx `isIn` succs x)
 >         )
 >        )
@@ -172,8 +175,8 @@ isAnyBy (viable n) (succs x)
 >   s11 : (yy : Ctrl t x ** So (viable {t = S t} n (step t x yy)))
 >   s11 = (s6 ** s9)
 
-> -- ReachabilityViability.viableSpec2 : 
-> --   (x : State t) -> 
+> -- ReachabilityViability.viableSpec2 :
+> --   (x : State t) ->
 > --   (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) ->
 > --   So (viable (S n) x)
 > ReachabilityViability.viableSpec2 {t} {n} x yv = step5 where

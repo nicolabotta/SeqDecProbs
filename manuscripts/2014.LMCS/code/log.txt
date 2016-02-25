@@ -1,0 +1,102 @@
+2016-02-25: Started upgrading paper code to Idris 0.10
+
+  Started by trying to load
+    S1206_CylinderExample1.lidr
+  commented out all imports (to minimize noice)
+  let error messages guide the insertion of imports
+  noted that visibility rules must have changed: some confusion between
+    reachable (from ReachabilityViability) and a very local implicit
+    variable.
+  Finally when it loads it indicates that many holes remains (see below).
+    This is despite the attempt to "fill" those holes by importing
+    ReachabilityViabilityDefaults
+
+  TODO: continue adding the examples.
+
+================================================================
+Holes
+
+This buffer displays the unsolved holes from the currently-loaded code. Press
+the [P] buttons to solve the holes interactively in the prover.
+
+- + ReachabilityViability.reachable [P]
+ `--                                t : Nat
+                             __pi_arg : State t
+     -------------------------------------------
+      ReachabilityViability.reachable : Bool
+
+- + ReachabilityViability.reachableSpec0 [P]
+ `--                                     x : State 0
+     ----------------------------------------------------
+      ReachabilityViability.reachableSpec0 : Reachable x
+
+- + ReachabilityViability.reachableSpec1 [P]
+ `--                                     t : Nat
+                                         x : State t
+                                  __pi_arg : Reachable x
+                                         y : Ctrl t x
+     ---------------------------------------------------------------
+      ReachabilityViability.reachableSpec1 : Reachable (step t x y)
+
+- + ReachabilityViability.reachableSpec2 [P]
+ `--                                     t : Nat
+                                        x' : State (S t)
+                                  __pi_arg : Reachable x'
+     ----------------------------------------------------------------------------------------------------------
+      ReachabilityViability.reachableSpec2 : (x : State t ** (Reachable x, (y : Ctrl t x ** x' = step t x y)))
+
+- + ReachabilityViability.viable [P]
+ `--                             t : Nat
+                                 n : Nat
+                          __pi_arg : State t
+     ----------------------------------------
+      ReachabilityViability.viable : Bool
+
+- + ReachabilityViability.viableSpec0 [P]
+ `--                                  t : Nat
+                                      x : State t
+     ------------------------------------------------
+      ReachabilityViability.viableSpec0 : Viable 0 x
+
+- + ReachabilityViability.viableSpec1 [P]
+ `--                                  n : Nat
+                                      t : Nat
+                                      x : State t
+                               __pi_arg : Viable (S n) x
+     ----------------------------------------------------
+      ReachabilityViability.viableSpec1 : GoodCtrl t n x
+
+- + ReachabilityViability.viableSpec2 [P]
+ `--                                  n : Nat
+                                      t : Nat
+                                      x : State t
+                               __pi_arg : GoodCtrl t n x
+     ----------------------------------------------------
+      ReachabilityViability.viableSpec2 : Viable (S n) x
+
+================================================================
+
+
+2015-06-09: First LMCS revision round.
+
+This is the outcome of the first revision round triggered by the LMCS
+reviews. What we have done so far is some renaming
+
+- |X| to |State|
+- |Y| to |Ctrl|, |YV| to |GoodCtrl|
+- |val|, |Val|, |MVal| to |value|, |val|, |Mval|
+- ...
+
+to comply with the reccomendations of Reviewer 1 and make sure that the
+code type checks under 0.9.18.1-git:84bca25. This will allow us to refer
+to this GitHub directory in the rebuttal and hopefully provide the
+Editor with an additional argument for accepting the revised manuscript.
+
+
+2015-06-08: "make" shoud work now.
+
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ idris --version
+0.9.18.1-git:84bca25
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$ make
+find . -name '*.lidr' | xargs -n 1 idris -i .. -p contrib -p effects --check
+nicola@cirrus:~/github/SeqDecProbs/manuscripts/2014.LMCS/code$
