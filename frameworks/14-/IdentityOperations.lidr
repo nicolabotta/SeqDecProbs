@@ -14,8 +14,7 @@
 
 > |||
 > unwrap : Identity a -> a
-> unwrap (Id x) = x
-
+> unwrap {a} (Id x) = x
 
 
 |Identity| is a container monad:
