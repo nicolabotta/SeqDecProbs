@@ -2,7 +2,7 @@
 
 > import NatPositive
 > import PNat
-> import Fraction as F
+> import Fraction -- as F
 > import FractionOperations as FO
 > import FractionProperties as FP
 > import SplitQuotient as SQ
@@ -15,8 +15,8 @@
 > %access public export
 
 
-> SQ.Base = F.Fraction
-> KQ.KBase = F.Fraction -- Num implementation of KBase not found without this
+> SQ.Base = Fraction -- F.Fraction
+> KQ.KBase = Fraction -- F.Fraction -- Num implementation of KBase not found without this
 > SQ.Relation = FO.Eq
 > SQ.normalize = FO.normalize
 > SQ.normalizeMapsRelatedToEQ = FP.normalizeEqLemma2
@@ -33,10 +33,10 @@
 > implementation Show NonNegRational where
 >   show (Class (n,(Element d _)) _) = show n ++ "/" ++ show d
 
-> Fraction : Type
-> Fraction = F.Fraction
+> -- Fraction : Type
+> -- Fraction = F.Fraction
 
-> fromFraction : NonNegRational2.Fraction -> NonNegRational
+> fromFraction : Fraction -> NonNegRational -- NonNegRational2.Fraction -> NonNegRational
 > fromFraction = KQ.classOf
 
 > plusInvariant : (x, x' : SQ.Base) -> (x `SQ.Relation` x') -> 

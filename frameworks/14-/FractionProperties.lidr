@@ -28,6 +28,7 @@
 > %default total
 
 > %access public export
+> -- %access export
 
 
 > fromNatNormal : {n : Nat} -> Normal (fromNat n)

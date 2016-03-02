@@ -27,5 +27,4 @@
 > %freeze prob
 
 > fmap : {A, B : Type} -> (A -> B) -> SimpleProb A -> SimpleProb B
-> fmap f (MkSimpleProb aps p) = ?lala
->   -- MkSimpleProb (map (cross f id) aps) ?lula 
+> fmap f (MkSimpleProb aps p) = MkSimpleProb (map (cross f id) aps) ?lula 
