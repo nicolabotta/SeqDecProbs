@@ -38,6 +38,7 @@ Title: Sequential decision problems, dependent types and generic solutions
 * 2015-06: Received referee reports
 * 2015-07: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2015_preprint.pdf).
 * 2015-12: Received 2nd round of referee reports
+* 2016-02: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2016_preprint.pdf).
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edwin Brady
 
