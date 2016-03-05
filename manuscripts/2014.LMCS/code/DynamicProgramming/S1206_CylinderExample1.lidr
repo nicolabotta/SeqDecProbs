@@ -144,7 +144,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 > succsTh : (x : State t) -> So (not (isEmpty (succs {t} x)))
 > succsTh x = believe_me Oh -- this should be more or less trivial
 
-> viability : (n : Nat) -> (x : State t) -> So (viable {t} n x)
+> viability : (n : Nat) -> (x : State t) -> Viable {t} n x
 > viability {t}    Z x = viableSpec0 {t} x
 > viability {t} (S n) k = step3 where
 >   step0 : So (not (isEmpty (succs {t} k)))
@@ -155,11 +155,11 @@ We implement the case outlined in Fig. 6 of "S1200":
 >   step2 = lemma3 x' (viable {t = S t} n) (succs k) vnx' x'inCsuccsx where
 >     x' : State (S t)
 >     x' = outl step1
->     vnx' : So (viable {t = S t} n x')
+>     vnx' : Viable {t = S t} n x'
 >     vnx' = viability {t = S t} n x' -- induction step
 >     x'inCsuccsx : So (isIn {t = S t} x' (succs {t} k))
 >     x'inCsuccsx = outr step1
->   step3 : So (viable {t} (S n) k)
+>   step3 : Viable {t} (S n) k
 >   step3 = believe_me step2
 
 # Max, argmax
@@ -187,12 +187,12 @@ We implement the case outlined in Fig. 6 of "S1200":
 > lemma3 = VectExtensions1.lemma3 Action eqeq eqeqSpec1
 
 > admissiblesP : (x : State t) ->
->                (v : So (viable {t} (S n) x)) ->
+>                (v : Viable {t} (S n) x) ->
 >                (k : Nat ** Vect (S k) (Ctrl t x))
 > admissiblesP {t = t} {n = n} x v = filterTagP (admissible x) (outr s1) s6 where
 >   s1 : (n : Nat ** Vect n Action)
 >   s1 = (_ ** [Left, Right, Ahead])
->   s2 : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
+>   s2 : (y : Ctrl t x ** Viable {t = S t} n (step t x y))
 >   s2 = viableSpec1 {t} {n} x v
 >   -- removing |{t}| and |{n}| from the definition of |s2| makes the
 >   -- type checker eat-up the whole memory and stall
@@ -210,11 +210,11 @@ We implement the case outlined in Fig. 6 of "S1200":
 
 > yfysP : (n : Nat) ->
 >         (x : State t) ->
->         (v : So (viable {t} (S n) x)) ->
->         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Double) ->
+>         (v : Viable {t} (S n) x) ->
+>         (f : (y : Ctrl t x ** Viable {t = S t} n (step t x y))-> Double) ->
 >         (k : Nat
 >          **
->          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Double)
+>          Vect (S k) ((y : Ctrl t x ** Viable {t = S t} n (step t x y)), Double)
 >         )
 > yfysP {t} n x v f = fmapP (pair (id,f)) s5 where
 >   s1 : (k : Nat ** Vect (S k) (Ctrl t x))
@@ -242,22 +242,22 @@ We implement the case outlined in Fig. 6 of "S1200":
 > controls : (t : Nat) ->
 >            (n : Nat) ->
 >            (x : State t) ->
->            (r : So (reachable {t} x)) -> -- DynamicProgramming.S1202_ReachabilityViability
->            (v : So (viable {t} n x)) ->
+>            (r : Reachable {t} x) -> -- DynamicProgramming.S1202_ReachabilityViability
+>            (v : Viable {t} n x) ->
 >            PolicySeq t n ->
 >            Vect n Action
 > controls _ Z _ _ _ _ = Nil
 > controls t (S n) x r v (p :: ps) =
 >   ((outl y) :: (controls (S t) n x' r' v' ps)) where
->     yq : (a : Ctrl t x ** So (viable {t = S t} n (step t x a)))
+>     yq : (a : Ctrl t x ** Viable {t = S t} n (step t x a))
 >     yq = p x r v
 >     y : Ctrl t x
 >     y = outl yq
 >     x' : State (S t)
 >     x' = step t x y
->     r' : So (reachable {t = S t} x')
+>     r' : Reachable {t = S t} x'
 >     r' = reachableSpec1 x r y
->     v' : So (viable {t = S t} n x')
+>     v' : Viable {t = S t} n x'
 >     v' = outr yq
 
 
@@ -275,10 +275,10 @@ We implement the case outlined in Fig. 6 of "S1200":
 > x0 : State Z
 > x0 = (2 ** Oh)
 
-> r0 : So (reachable {t = Z} x0)
+> r0 : Reachable {t = Z} x0
 > r0 = Oh
 
-> v0 : So (viable {t = Z} nSteps x0)
+> v0 : Viable {t = Z} nSteps x0
 > v0 = viability {t = Z} nSteps x0
 
 > as : Vect nSteps Action
