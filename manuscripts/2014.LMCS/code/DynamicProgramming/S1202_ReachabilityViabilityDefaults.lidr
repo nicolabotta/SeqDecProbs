@@ -91,20 +91,20 @@ With the above definitions we have:
 
 > -- ReachabilityViability.reachableSpec0 :
 > --   (x : State Z) ->
-> --   So (reachable x)
+> --   Reachable x
 > ReachabilityViability.reachableSpec0 x = Oh
 
 > -- ReachabilityViability.reachableSpec1 :
 > --   (x : State t) ->
-> --   So (reachable x) ->
+> --   Reachable x ->
 > --   (y : Ctrl t x) ->
-> --   So (reachable {t = S t} (step t x y))
+> --   Reachable {t = S t} (step t x y)
 > ReachabilityViability.reachableSpec1 {t} x rmx y = step3 where
 >   step1 : So (x `isIn` (preds (step t x y)))
 >   step1 = predsSpec1 x y
 >   step2 : So (isAnyBy ReachabilityViability.reachable (preds (step t x y)))
 >   step2 = lemma3 x reachable (preds (step t x y)) rmx step1
->   step3 : So (reachable (step t x y))
+>   step3 : Reachable (step t x y)
 >   step3 = step2
 
 > -- ReachabilityViability.reachableSpec2 :
@@ -112,11 +112,11 @@ With the above definitions we have:
 > --   (x : State t ** (Reachable x , (y : Ctrl t x ** x' = step t x y)))
 > ReachabilityViability.reachableSpec2 {t = t} x' rx' =
 >   (x ** (xr, (y ** x'eq))) where
->     xrinpx' : (xx : State t ** (So (reachable xx), So (xx `isIn` (preds x'))))
+>     xrinpx' : (xx : State t ** (Reachable xx, So (xx `isIn` (preds x'))))
 >     xrinpx' = lemma6 reachable (preds x') rx'
 >     x  : State t
 >     x  = outl xrinpx'
->     xr : So (reachable x)
+>     xr : Reachable x
 >     xr = fst (outr xrinpx')
 >     xinpx' : So (x `isIn` (preds x'))
 >     xinpx' = snd (outr xrinpx')
@@ -129,13 +129,13 @@ With the above definitions we have:
 
 and
 
-> -- ReachabilityViability.viableSpec0 : (x : State t) -> So (viable Z x)
+> -- ReachabilityViability.viableSpec0 : (x : State t) -> Viable Z x
 > ReachabilityViability.viableSpec0 x = Oh
 
 
 > -- ReachabilityViability.viableSpec1 : (x : State t) ->
-> --                                     So (viable (S n) x) ->
-> --                                     (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
+> --                                     Viable (S n) x ->
+> --                                     (y : Ctrl t x ** Viable {t = S t} n (step t x y))
 
 The idea is:
 
@@ -153,7 +153,7 @@ isAnyBy (viable n) (succs x)
 >   s1 : So (isAnyBy (viable n) (succs x))
 >   s1 = v
 >   s2 : (xx : State (S t) **
->         (So (viable n xx),
+>         (Viable n xx,
 >          So (xx `isIn` succs x)
 >         )
 >        )
@@ -166,19 +166,19 @@ isAnyBy (viable n) (succs x)
 >   s5 = succsSpec2 x s3 s4
 >   s6 : Ctrl t x
 >   s6 = outl s5
->   s7 : So (viable n s3)
+>   s7 : Viable n s3
 >   s7 = fst (outr s2)
 >   s8 : s3 = step t x s6
 >   s8 = outr s5
->   s9 : So (viable {t = S t} n (step t x s6))
->   s9 = leibniz (\ xSt => So (viable {t = S t} n xSt)) s8 s7
->   s11 : (yy : Ctrl t x ** So (viable {t = S t} n (step t x yy)))
+>   s9 : Viable {t = S t} n (step t x s6)
+>   s9 = leibniz (\ xSt => Viable {t = S t} n xSt) s8 s7
+>   s11 : (yy : Ctrl t x ** Viable {t = S t} n (step t x yy))
 >   s11 = (s6 ** s9)
 
 > -- ReachabilityViability.viableSpec2 :
 > --   (x : State t) ->
-> --   (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) ->
-> --   So (viable (S n) x)
+> --   (y : Ctrl t x ** Viable {t = S t} n (step t x y)) ->
+> --   Viable (S n) x
 > ReachabilityViability.viableSpec2 {t} {n} x yv = step5 where
 >   y : Ctrl t x
 >   y = outl yv
@@ -186,7 +186,7 @@ isAnyBy (viable n) (succs x)
 >   x' = step t x y
 >   p : State (S t) -> Bool
 >   p = viable n
->   px' : So (viable n x')
+>   px' : Viable n x'
 >   px' = outr yv
 >   xs' : (n : Nat ** Vect n (State (S t)))
 >   xs' = succs x
@@ -194,5 +194,5 @@ isAnyBy (viable n) (succs x)
 >   x'isInxs' = succsSpec1 x y
 >   step4 : So (isAnyBy (viable n) xs')
 >   step4 = lemma3 x' p (succs x) px' x'isInxs'
->   step5 : So (viable (S n) x)
+>   step5 : Viable (S n) x
 >   step5 = step4

@@ -38,8 +38,8 @@
 >     f     :  State (S t) -> M (StateCtrlSeq (S t) n)
 >     f x'  =  stateCtrlTrj (S t) n x' r' v' ps' where
 >       postulate x'inmx' : So (x' `MisIn` mx')
->       r'  :  So (reachable x')
+>       r'  :  Reachable x'
 >       r'  =  reachableSpec1 x r y x' x'inmx'
->       v'  :  So (viable n x')
+>       v'  :  Viable n x'
 >       v'  =  MisInMareAllTrueSpec mx' (viable n) (getProof (p x r v)) x' x'inmx'
 > -}

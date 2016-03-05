@@ -12,7 +12,7 @@
 
 
 If, for all reachable and viable |x : State t| and for all
-|f : (y : Ctrl t x ** So (viable n (step t x y)))  ->  Double|,
+|f : (y : Ctrl t x ** Viable n (step t x y))  ->  Double|,
 we are able to select a control which maximises |f|, optimal sequences
 of policies can be computed with Bellman's backwards induction
 algorithm. This, in turn, follows from Bellman's optimality principle.
@@ -29,8 +29,8 @@ sequences of policies:
 > OptExtension t n ps p =
 >   (p' : Policy t (S n)) ->
 >   (x : State t) ->
->   (r : So (reachable x)) ->
->   (v : So (viable (S n) x)) ->
+>   (r : Reachable x) ->
+>   (v : Viable (S n) x) ->
 >   So (Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v (p :: ps))
 
 
@@ -52,9 +52,9 @@ compute optimal extensions for arbitrary sequences of policies:
 >         y : Ctrl t x
 >         y = getWitness ycy
 >         postulate x'ins : So (x' `MisIn` (step t x y))
->         r' : So (reachable {t = S t} x')
+>         r' : Reachable {t = S t} x'
 >         r' = reachableSpec1 x r y x' x'ins
->         v' : So (viable {t = S t} n x')
+>         v' : Viable {t = S t} n x'
 >         v' = Mspec2 (step t x y) (viable n) (getProof ycy) x' x'ins
 >       f : (y : Ctrl t x ** So (Mfeasible n x y)) -> Double
 >       f ycy = Mmeas (Mmap (f' ycy) (step t x (getWitness ycy)))
@@ -121,11 +121,11 @@ reward t x oy ox' + Mval (S t) n ox' or' ov' ps
 Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v ((optExtension t n ps) :: ps)
 
 -- > OptExtensionLemma t n ps p' x r v = step7 where
--- >   f : (y : Ctrl t x ** So (viable n (step t x y))) -> Double
+-- >   f : (y : Ctrl t x ** Viable n (step t x y)) -> Double
 -- >   f (y ** v') = reward t x y x' + Mval (S t) n x' r' v' ps where
 -- >     x' : State (S t)
 -- >     x' = step t x y
--- >     r' : So (reachable x')
+-- >     r' : Reachable x'
 -- >     r' = reachability1 x r y
 -- >   step1 : So (f (p' x r v) <= max n x r v f)
 -- >   -- step1 = maxSpec n x r v f (p' x r v)
@@ -147,17 +147,17 @@ Mval t (S n) x r v (p' :: ps) <= Mval t (S n) x r v ((optExtension t n ps) :: ps
 -- >   y1 = getWitness (p' x r v)
 -- >   x1' : State (S t)
 -- >   x1' = step t x y1
--- >   r1' : So (reachable x1')
+-- >   r1' : Reachable x1'
 -- >   r1' = reachability1 x r y1
--- >   v1' : So (viable n x1')
+-- >   v1' : Viable n x1'
 -- >   v1' = getProof (p' x r v)
 -- >   oy : Ctrl t x
 -- >   oy = getWitness ((optExtension t n ps) x r v)
 -- >   ox' : State (S t)
 -- >   ox' = step t x oy
--- >   or' : So (reachable ox')
+-- >   or' : Reachable ox'
 -- >   or' = reachability1 x r oy
--- >   ov' : So (viable n ox')
+-- >   ov' : Viable n ox'
 -- >   ov' = getProof ((optExtension t n ps) x r v)
 -- >   step6 : So (reward t x y1 x1' + Mval (S t) n x1' r1' v1' ps
 -- >               <=
@@ -233,9 +233,9 @@ and a proof of Bellman's principle can be constructed as follows:
 >     cy : So (Mfeasible n x y)
 >     cy = getProof ycy
 >     postulate x'ins : (x' : State (S t)) -> So (x' `MisIn` (step t x y))
->     r' : (x' : State (S t)) -> So (reachable {t = S t} x')
+>     r' : (x' : State (S t)) -> Reachable {t = S t} x'
 >     r' x' = reachableSpec1 x r y x' (x'ins x')
->     v' : (x' : State (S t)) -> So (viable {t = S t} n x')
+>     v' : (x' : State (S t)) -> Viable {t = S t} n x'
 >     v' x' = Mspec2 (step t x y) (viable n) cy x' (x'ins x')
 >     step1 : (x' : State (S t)) -> So (Mval (S t) n x' (r' x') (v' x') ps'
 >                                   <=
@@ -273,9 +273,9 @@ Trying to define |f| and |g| in terms of the same global |val| function
 -- >     cy : So (Mfeasible n x y)
 -- >     cy = getProof ycy
 -- >     postulate x'ins : (x' : State (S t)) -> So (x' `MisIn` (step t x y))
--- >     r' : (x' : State (S t)) -> So (reachable x')
+-- >     r' : (x' : State (S t)) -> Reachable x'
 -- >     r' x' = reachability1 x r y x' (x'ins x')
--- >     v' : (x' : State (S t)) -> So (viable n x')
+-- >     v' : (x' : State (S t)) -> Viable n x'
 -- >     v' x' = Mspec2 (step t x y) (viable n) cy x' (x'ins x')
 -- >     step1 : (x' : State (S t)) -> So (Mval (S t) n x' (r' x') (v' x') ps'
 -- >                                   <=

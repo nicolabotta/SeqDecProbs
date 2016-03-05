@@ -130,20 +130,20 @@ non-default implementations for |reachable| and |viable|.
 
 > -- ReachabilityViability.reachableSpec0 :
 > --   (x : State Z) ->
-> --   So (reachable x)
+> --   Reachable x
 > ReachabilityViability.reachableSpec0 x = Oh
 
 > -- ReachabilityViability.reachableSpec1 :
 > --   (x : State t) ->
-> --   So (reachable x) ->
+> --   Reachable x ->
 > --   (y : Ctrl t x) ->
-> --   So (reachable {t = S t} (step t x y))
+> --   Reachable {t = S t} (step t x y)
 > ReachabilityViability.reachableSpec1 {t} x r y = believe_me Oh
 
 > -- ReachabilityViability.reachableSpec2 :
 > --   (x : State (S t)) ->
-> --   So (reachable {t = S t} x) ->
-> --   (x' : State t ** (y : Ctrl t x' ** (So (reachable x'), x = step t x' y)))
+> --   Reachable {t = S t} x ->
+> --   (x' : State t ** (y : Ctrl t x' ** (Reachable x'), x = step t x' y))
 > ReachabilityViability.reachableSpec2 {t} x rx = believe_me Oh
 
 > -- ReachabilityViability.viable : (n : Nat) -> State t -> Bool
@@ -164,19 +164,19 @@ non-default implementations for |reachable| and |viable|.
 
 > -- ReachabilityViability.viableSpec0 :
 > --   (x : State t) ->
-> --   So (viable Z x)
+> --   Viable Z x
 > ReachabilityViability.viableSpec0 x = Oh
 
 > -- ReachabilityViability.viableSpec1 :
 > --   (x : State t) ->
-> --   So (viable (S n) x) ->
-> --   (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
+> --   Viable (S n) x ->
+> --   (y : Ctrl t x ** Viable {t = S t} n (step t x y))
 > ReachabilityViability.viableSpec1 {t} {n} x v = believe_me Oh
 
 > -- ReachabilityViability.viableSpec2 :
 > --   (x : State t) ->
-> --   (y : Ctrl t x ** So (viable {t = S t} n (step t x y))) ->
-> --   So (viable (S n) x)
+> --   (y : Ctrl t x ** Viable {t = S t} n (step t x y)) ->
+> --   Viable (S n) x
 > ReachabilityViability.viableSpec2 {t} {n} x (y ** v) = believe_me Oh
 
 
@@ -221,12 +221,12 @@ non-default implementations for |reachable| and |viable|.
 > lemma3 = VectExtensions1.lemma3 Action eqeq eqeqSpec1
 
 > admissiblesP : (x : State t) ->
->                (v : So (viable (S n) x)) ->
+>                (v : Viable (S n) x) ->
 >                (k : Nat ** Vect (S k) (Ctrl t x))
 > admissiblesP {t = t} {n = n} x v = filterTagP (admissible x) (outr s1) s6 where
 >   s1 : (n : Nat ** Vect n Action)
 >   s1 = (_ ** [Left, Ahead, Right])
->   s2 : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
+>   s2 : (y : Ctrl t x ** Viable {t = S t} n (step t x y))
 >   s2 = viableSpec1 {t} {n} x v
 >   s3 : Action
 >   s3 = outl (outl s2)
@@ -242,11 +242,11 @@ non-default implementations for |reachable| and |viable|.
 
 > yfysP : (n : Nat) ->
 >         (x : State t) ->
->         (v : So (viable (S n) x)) ->
->         (f : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))-> Double) ->
+>         (v : Viable (S n) x) ->
+>         (f : (y : Ctrl t x ** Viable {t = S t} n (step t x y))-> Double) ->
 >         (k : Nat
 >          **
->          Vect (S k) ((y : Ctrl t x ** So (viable {t = S t} n (step t x y))), Double)
+>          Vect (S k) ((y : Ctrl t x ** Viable {t = S t} n (step t x y)), Double)
 >         )
 > yfysP {t} n x v f = fmapP (pair (id,f)) s5 where
 >   s1 : (k : Nat ** Vect (S k) (Ctrl t x))
@@ -277,22 +277,22 @@ non-default implementations for |reachable| and |viable|.
 > controls : (t : Nat) ->
 >            (n : Nat) ->
 >            (x : State t) ->
->            (r : So (reachable x)) ->
->            (v : So (viable n x)) ->
+>            (r : Reachable x) ->
+>            (v : Viable n x) ->
 >            PolicySeq t n ->
 >            Vect n Action
 > controls _ Z _ _ _ _ = Nil
 > controls t (S n) x r v (p :: ps) =
 >   ((outl y) :: (controls (S t) n x' r' v' ps)) where
->     yq : (a : Ctrl t x ** So (viable {t = S t} n (step t x a)))
+>     yq : (a : Ctrl t x ** Viable {t = S t} n (step t x a))
 >     yq = p x r v
 >     y : Ctrl t x
 >     y = outl yq
 >     x' : State (S t)
 >     x' = step t x y
->     r' : So (reachable {t = S t} x')
+>     r' : Reachable {t = S t} x'
 >     r' = reachableSpec1 x r y
->     v' : So (viable {t = S t} n x')
+>     v' : Viable {t = S t} n x'
 >     v' = outr yq
 
 
@@ -307,10 +307,10 @@ non-default implementations for |reachable| and |viable|.
 > x0 : State Z
 > x0 = ((1 ** Oh) ** Oh)
 
-> r0 : So (reachable {t = Z} x0)
+> r0 : Reachable {t = Z} x0
 > r0 = Oh
 
-> v0 : So (viable {t = Z} nSteps x0)
+> v0 : Viable {t = Z} nSteps x0
 > v0 = Oh
 
 > as : Vect nSteps Action
