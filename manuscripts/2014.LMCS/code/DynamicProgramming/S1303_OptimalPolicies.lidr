@@ -32,8 +32,8 @@
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
 > OptPolicySeq t n ps = (ps' : PolicySeq t n) ->
 >                       (x : State t) ->
->                       (r : So (reachable x)) ->
->                       (v : So (viable n x)) ->
+>                       (r : Reachable x) ->
+>                       (v : Viable n x) ->
 >                       So (Mval t n x r v ps' <= Mval t n x r v ps)
 
 > nilIsOptPolicySeq : OptPolicySeq t Z Nil

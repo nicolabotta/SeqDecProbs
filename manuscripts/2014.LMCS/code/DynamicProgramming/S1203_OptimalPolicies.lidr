@@ -25,21 +25,21 @@
 
 > ctrl : (x : State t) ->
 >        (n : Nat) ->
->        (r : So (reachable x)) ->
->        (v : So (viable n x)) ->
+>        (r : Reachable x) ->
+>        (v : Viable n x) ->
 >        PolicySeq t n ->
 >        CtrlSeq x n
 
 > ctrl _ _ _ _ Nil = Nil
 
 > ctrl {t} x (S n) r v (p :: ps) = (yv :: ctrl {t = S t} x' n r' v' ps) where
->   yv : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
+>   yv : (y : Ctrl t x ** Viable {t = S t} n (step t x y))
 >   yv = p x r v
 >   x' : State (S t)
 >   x' = step t x (outl yv)
->   r' : So (reachable {t = S t} x')
+>   r' : Reachable {t = S t} x'
 >   r' = reachableSpec1 x r (outl yv)
->   v' : So (viable {t = S t} n x')
+>   v' : Viable {t = S t} n x'
 >   v' = outr yv
 
 ...
@@ -59,8 +59,8 @@ The notion of optimal sequence of policies
 > OptPolicySeq : (t : Nat) -> (n : Nat) -> PolicySeq t n -> Type
 > OptPolicySeq t n ps = (ps' : PolicySeq t n) ->
 >                       (x : State t) ->
->                       (r : So (reachable x)) ->
->                       (v : So (viable n x)) ->
+>                       (r : Reachable x) ->
+>                       (v : Viable n x) ->
 >                       So (val t n x r v ps' <= val t n x r v ps)
 
 (Sanity check: Nil is optimal policy sequence
@@ -74,8 +74,8 @@ The notion of optimal sequence of policies
 >              (ps : PolicySeq t n) ->
 >              OptPolicySeq t n ps ->
 >              (x : State t) ->
->              (r : So (reachable x)) ->
->              (v : So (viable n x)) ->
+>              (r : Reachable x) ->
+>              (v : Viable n x) ->
 >              OptCtrlSeq x n (ctrl x n r v ps)
 
 > -- OptLemma Z Nil _ x r (viableSpec0 x) = nilIsOptCtrlSeq x
