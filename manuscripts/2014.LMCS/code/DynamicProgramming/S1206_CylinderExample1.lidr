@@ -136,8 +136,8 @@ We implement the case outlined in Fig. 6 of "S1200":
 > --              (y : Ctrl t x) ->
 > --              So ((step t x y) `isIn` (succs x))
 > ReachabilityViabilityDefaults.succsSpec1 {t} x y = 
->   believe_me Oh -- ?
->   -- really_believe_me {b = So ((step t x y) `isIn` (succs x))} Oh -- ?
+>   -- believe_me Oh -- ?
+>   really_believe_me {b = So ((step t x y) `isIn` (succs x))} Oh -- ?
 
 > -- succsSpec2 : (x : State t) ->
 > --              (x' : State (S t)) ->
