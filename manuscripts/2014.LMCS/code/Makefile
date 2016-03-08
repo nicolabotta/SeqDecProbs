@@ -1,5 +1,5 @@
 IDRIS = idris
-IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects
+IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects -V
 
 all:
 	find . -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} -i .. --check

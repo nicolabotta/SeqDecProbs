@@ -5,6 +5,8 @@
 
 > %default total
 
+> %access public export
+
 
 > -- postulate Sid_preserves_LT : So (S left < right) -> So (left < right)
 > Sid_preserves_LT : So (S left < right) -> So (left < right)

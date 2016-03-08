@@ -11,6 +11,8 @@
 
 > %default total
   
+> %access public export
+
 
 > isEmpty : (n : Nat ** Vect n alpha) -> Bool
 > isEmpty (_ ** Nil) = True
@@ -113,7 +115,7 @@ deduce that there is at least one element in |bs| that fulfills |p|. See
 S1206_Example2 for an application.
 
 > normalize : (m : Nat ** Vect (S m) alpha) -> (n : Nat ** Vect n alpha)
-> normalize as = (S (getWitness as) ** getProof as)
+> normalize as = (S (fst as) ** snd as)
 
 > fmap : (alpha -> beta) -> 
 >        (n : Nat ** Vect n alpha) -> 
@@ -140,7 +142,7 @@ S1206_Example2 for an application.
 >             (n : Nat ** Vect n beta)
 > mapFilter f p Nil = (_ ** Nil)
 > mapFilter f p (a :: as) with (p a)
->   | True  = (_  ** (f a) :: (getProof (mapFilter f p as)))
+>   | True  = (_  ** (f a) :: (snd (mapFilter f p as)))
 >   | False = mapFilter f p as
 
 
@@ -151,7 +153,7 @@ S1206_Example2 for an application.
 > filterP p (a :: Nil) q = (_ ** a :: Nil) 
 > filterP p (a :: (a' :: as)) q = 
 >   if (p a) 
->   then (_ ** (a :: getProof (filter p (a' :: as))))
+>   then (_ ** (a :: snd (filter p (a' :: as))))
 >   else filterP p (a' :: as) (believe_me Oh)
 
 total filter : (a -> Bool) -> Vect a n -> (p ** Vect a p)
@@ -170,7 +172,7 @@ filter p (x::xs) with (filter p xs)
 >            (m : Nat ** (Vect m alpha, So (m > Z)))
 > filterP' p (a :: as) q = 
 >   if (p a) 
->   then (_ ** (a :: (getProof (filter p as)), Oh))
+>   then (_ ** (a :: (snd (filter p as)), Oh))
 >   else filterP' p as (believe_me Oh)
 
 
@@ -181,7 +183,7 @@ filter p (x::xs) with (filter p xs)
 > filterTag p (a :: as) with (p a)
 >   | True  = (_ 
 >              ** 
->              (a ** believe_me Oh) :: (getProof (filterTag p as))
+>              (a ** believe_me Oh) :: (snd (filterTag p as))
 >             )
 >   | False = filterTag p as
 
@@ -196,7 +198,7 @@ filter p (x::xs) with (filter p xs)
 >               :: 
 >               map 
 >               (\ a'' => (a'' ** believe_me (p a''))) 
->               (getProof (filter p (a' :: as)))
+>               (snd (filter p (a' :: as)))
 >              )
 >        )
 >   else filterTagP p (a' :: as) (believe_me Oh)
@@ -213,7 +215,7 @@ filter p (x::xs) with (filter p xs)
 >               ::
 >               map 
 >               (\ a'' => (a'' ** believe_me (p a''))) 
->               (getProof (filter p as)), Oh))
+>               (snd (filter p as)), Oh))
 >   else filterTagP' p as (believe_me Oh)
 
 

@@ -63,7 +63,8 @@ non-default implementations for |reachable| and |viable|.
 >   zs : (n : Nat ** Vect n (State t))
 >   zs = (_ ** map f (outr ys)) where
 >     f : Blt nColumns -> State t
->     f i = (i ** believe_me (valid t i))
+>     f i = (i ** believe_me Oh) -- (i ** really_believe_me {b = So (valid t i)} Oh)
+
 
 > data Action = Left | Ahead | Right
 
@@ -255,16 +256,16 @@ non-default implementations for |reachable| and |viable|.
 >   s2 = (_ ** outr s1)
 >   s3 : Ctrl t x -> Bool
 >   s3 y = viable {t = S t} n (step t x y)
->   %assert_total
->   s4 : So (isAnyBy s3 s2)
->   s4 = believe_me Oh -- this should be more or less trivial
+>   -- %assert_total
+>   postulate s4 : So (isAnyBy s3 s2)
+>   -- s4 = believe_me Oh -- this should be more or less trivial
 >   s5 : (k : Nat ** Vect (S k) (y : Ctrl t x ** So (s3 y)))
 >   s5 = filterTagP s3 (outr s1) s4
 
 > MaxArgmax.max n x r v f = snd (maxP (outr (yfysP n x v f)))
-
+ 
 > MaxArgmax.argmax n x r v f = fst (maxP (outr (yfysP n x v f)))
-
+ 
 > MaxArgmax.maxSpec n x r v f yv =
 >   really_believe_me {b = So (f yv <= max n x r v f)} Oh
 >   -- this should be granted by |maxP|
@@ -300,21 +301,22 @@ non-default implementations for |reachable| and |viable|.
 
 > nSteps : Nat
 > nSteps = 4
-
+ 
 > ps : PolicySeq Z nSteps
 > ps = backwardsInduction Z nSteps
-
+ 
 > x0 : State Z
 > x0 = ((1 ** Oh) ** Oh)
-
+ 
 > r0 : So (reachable {t = Z} x0)
 > r0 = Oh
-
+ 
 > v0 : So (viable {t = Z} nSteps x0)
 > v0 = Oh
-
+ 
 > as : Vect nSteps Action
 > as = controls Z nSteps x0 r0 v0 ps
-
+ 
 > main : IO ()
 > main = putStrLn (show as)
+ 

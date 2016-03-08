@@ -11,6 +11,8 @@
 
 > %default total
 
+> %access public export
+
 
 Sequences of feasible controls of length |n| starting in |x : State t| can
 be represented by values of type

@@ -11,6 +11,8 @@
 
 > %default total
 
+> %access public export
+
 
 > ||| Parses a string for a Nat
 > parseNat : String -> { [EXCEPTION String] } Eff Nat
@@ -26,7 +28,7 @@
 >   = if all (\x => isDigit x) (unpack str)
 >     then let n = cast {to = Nat} (cast {to = Int} str) in
 >          case (n < b) of
->            True  => pure (MkSigma n (believe_me Oh))
+>            True  => pure (MkDPair n (believe_me Oh))
 >            False => raise "Out of bound!"
 >     else raise "Not a Nat!"
 

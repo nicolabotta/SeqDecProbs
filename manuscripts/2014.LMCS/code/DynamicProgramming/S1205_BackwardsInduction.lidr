@@ -15,10 +15,12 @@
 
 > %default total
 
+> %access public export
+
 
 > depPairId : {State : Type, P : State -> Type} ->
 >             (dep_pair : (x : State ** P x)) ->
->             dep_pair = (outl dep_pair ** getProof dep_pair)
+>             dep_pair = (fst dep_pair ** snd dep_pair)
 > depPairId (x ** y) = Refl
 
 If, for all reachable and viable |x : State t| and for all
@@ -163,7 +165,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >   ov' : So (viable {t = S t} n ox')
 >   ov' = outr ((optExtension t n ps) x r v)
 >   step1234 : p' x r v =
->               MkSigma
+>               MkDPair
 >               {P = \ fresh_y  =>
 >                      So (viable {t = S t} n (step t x fresh_y))}
 >               y1 v1'
@@ -174,7 +176,7 @@ val t (S n) x r v (p' :: ps) <= val t (S n) x r v ((optExtension t n ps) :: ps)
 >   step122 = cong {f = f} step1234
 >
 >   step120 : optExtension t n ps x r v =
->               MkSigma
+>               MkDPair
 >               {P = \ fresh_y  =>
 >                      So (viable {t = S t} n (step t x fresh_y))}
 >               oy ov'

@@ -5,8 +5,10 @@
 
 > import Logic.Properties
 
-
 > %default total
+
+> %access public export
+
 
 > max2' : (alpha, Double) ->
 >         (alpha, Double) ->

@@ -132,7 +132,6 @@ With the above definitions we have:
 
 and
 
-
 > -- ReachabilityViability.viableSpec0 : (x : State t) -> So (viable Z x)
 > ReachabilityViability.viableSpec0 x = Oh
 

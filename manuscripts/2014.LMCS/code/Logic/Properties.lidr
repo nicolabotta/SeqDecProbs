@@ -2,6 +2,9 @@
 
 > import Data.So
 
+> %default total
+> %access public export
+
 
 > leibniz : (P : alpha -> Type) -> a1 = a2 -> P a1 -> P a2
 > leibniz P Refl p = p

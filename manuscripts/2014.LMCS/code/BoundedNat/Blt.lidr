@@ -3,20 +3,22 @@
 > import Data.So
 > import Data.Vect
 
-> import Nat.Postulates
+> import Nat.Properties
 > import Logic.Properties
 > import Exists.Ops
 
 
 > %default total
 
+> %access public export
+
+
 
 > Blt : Nat -> Type
-> Blt b = (n : Nat ** So (n < b))
+> Blt b = (n : Nat ** LT n b)
 
 > BltLemma0 : Blt Z -> alpha
-> BltLemma0 (Z ** p)    =  soFalseElim p
-> BltLemma0 (S n ** p)  =  soFalseElim p
+> BltLemma0 (n ** p) = absurd p
 
 > toNat : Blt b -> Nat
 > toNat = outl
@@ -34,13 +36,13 @@
 
 > partial
 > decBlt : Blt b -> Blt b
-> decBlt (S k ** q) = (k ** Sid_preserves_LT q)
+> decBlt {b} (S k ** q) = (k ** ltLemma1 k b q)
 
-> incBlt : (n : Blt b) -> So (S (Blt.toNat n) < b) -> Blt b
+> incBlt : (n : Blt b) -> LT (S (Blt.toNat n)) b -> Blt b
 > incBlt (k ** _) q = (S k ** q)
 
 > toVect : {b : Nat} -> (Blt b -> a) -> Vect b a
 > toVect {b = Z} _ = Nil
-> toVect {b = S b'} {a = a} f = ((f (Z ** Oh)) :: toVect f') where
+> toVect {b = S b'} {a = a} f = ((f (Z ** ltZS b')) :: toVect f') where
 >   f' : Blt b' -> a
->   f' (k ** q) = f (S k ** monotoneS q)
+>   f' (k ** q) = f (S k ** LTESucc q)

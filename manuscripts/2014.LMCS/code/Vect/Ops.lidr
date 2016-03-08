@@ -11,13 +11,15 @@
 
 > %default total
 
+> %access public export
+
 
 > nubbedBy : (alpha -> alpha -> Bool) -> Vect n alpha -> Bool
-> nubbedBy {n} p v = n == (getWitness (nubBy p v))
+> nubbedBy {n} p v = n == (fst (nubBy p v))
 
 > idx : Vect n alpha -> Blt n -> alpha
-> idx {n = Z} Nil b = void (ltZ_bot (getProof b))
-> idx (a :: as) (Z ** _) = a
+> idx {n = Z}    Nil       b = void (ltZ_bot (snd b))
+> idx {n = S m} (a :: as) (Z ** _) = a
 > idx {n = S m} (a :: as) (S k ** q) = idx {n = m} as (k ** lemma5  q)
 
 > idx1 : Vect n alpha -> Blt n -> alpha

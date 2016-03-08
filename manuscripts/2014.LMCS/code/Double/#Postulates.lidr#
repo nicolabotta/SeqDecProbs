@@ -4,6 +4,7 @@
 
 > import Rel.Syntax
 
+
 > %default total
 
 > %access public export

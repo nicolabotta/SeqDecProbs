@@ -8,6 +8,8 @@
 
 > %default total
 
+> %access public export
+
 
 > max : (n : Nat) ->
 >       (x : State t) ->

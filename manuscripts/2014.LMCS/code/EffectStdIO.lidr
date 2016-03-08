@@ -11,6 +11,8 @@
 
 > %default total
 
+> %access public export
+
 
 > |||
 > %assert_total -- termination not required

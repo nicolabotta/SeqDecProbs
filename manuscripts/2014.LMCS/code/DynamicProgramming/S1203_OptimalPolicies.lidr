@@ -12,6 +12,8 @@
 
 > %default total
 
+> %access public export
+
 
 > Policy : Nat -> Nat -> Type
 > Policy t Z      =  ()

@@ -7,6 +7,7 @@
 > import Effect.StdIO           -- STDIO, Eff
 
 > import BoundedNat.Blt         -- Blt
+> import Nat.Properties
 > -- import Vect.Ops
 > import Util.VectExtensions1   -- isEmpty
 > -- import Logic.Postulates
@@ -20,13 +21,14 @@
 > import EffectStdIO            -- getNat
 
 > import DynamicProgramming.S1201_Context
-> -- import DynamicProgramming.S1202_ReachabilityViability -- reachable
+> import DynamicProgramming.S1202_ReachabilityViability -- reachable
 > import DynamicProgramming.S1203_OptimalPolicies       -- PolicySeq
 > import DynamicProgramming.S1204_MaxArgmax             -- max
 > import DynamicProgramming.S1205_BackwardsInduction    -- backwardsInduction
 > import DynamicProgramming.S1202_ReachabilityViabilityDefaults -- eqeq
 
 > %default total
+
 
 
 We implement the case outlined in Fig. 6 of "S1200":
@@ -45,18 +47,23 @@ We implement the case outlined in Fig. 6 of "S1200":
 
 > maxColumnO2 : Nat
 > maxColumnO2 = 2
+> -- %freeze maxColumnO2
 
 > maxColumn : Nat
 > maxColumn = maxColumnO2 + maxColumnO2
+> -- %freeze maxColumn
 
 > nColumns : Nat
 > nColumns = S maxColumn
+
+> maxColumnLTnColumns : Main.maxColumn `LT` Main.nColumns
+> maxColumnLTnColumns = ltIdS maxColumn
 
 > -- State : Nat -> Type
 > Context.State t = Blt nColumns
 
 > column : State t -> Nat
-> column = outl
+> column = fst
 
 > states : (t : Nat) -> Vect Main.nColumns (State t)
 > states t = toVect (\ i => i)
@@ -64,7 +71,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 > data Action = Left | Ahead | Right
 
 > Show Action where
->   show Left = "L"
+>   show Left  = "L"
 >   show Ahead = "A"
 >   show Right = "R"
 
@@ -72,17 +79,22 @@ We implement the case outlined in Fig. 6 of "S1200":
 > admissible {t = t} x Ahead = column {t} x == Z || column {t} x == maxColumn
 > admissible {t = t} x Left  = column {t} x <= maxColumnO2
 > admissible {t = t} x Right = column {t} x >= maxColumnO2
+> %freeze admissible
 
 > -- Ctrl : (t : Nat) -> State t -> Type
 > Context.Ctrl t x = (a : Action ** So (admissible {t} x a))
 
 > -- step : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t)
-> Context.step t (Z   ** q) (Left ** aL) = (maxColumn ** Oh)
-> Context.step t (S n ** q) (Left ** aL) = (n ** believe_me Oh) -- trivial
-> Context.step t (n ** q) (Ahead ** aA) = (n ** q)
-> Context.step t (n ** q) (Right ** aR) = if n == maxColumn
->                                         then (Z ** Oh)
->                                         else (S n ** believe_me Oh)
+> Context.step t (Z   ** q) (Left ** aL) = 
+>   (maxColumn ** maxColumnLTnColumns)
+> Context.step t (S n ** q) (Left ** aL) = 
+>   (n ** ltLemma1 n nColumns q)
+> Context.step t (n ** q) (Ahead ** aA) = 
+>   (n ** q)
+> Context.step t (n ** q) (Right ** aR) with (decLT n maxColumn)
+>   | (Yes p)     = (S n ** LTESucc p)
+>   | (No contra) = (Z   ** LTESucc LTEZero)
+
 
 > -- reward : (t : Nat) -> (x : State t) -> Ctrl t x -> State (S t) -> Double
 > Context.reward t x y x' = if column {t = S t} x' == Z
@@ -90,6 +102,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 >                           else if S (column {t = S t} x') == nColumns
 >                                then 2.0
 >                                else 0.0
+
 
 # Reachability, viability:
 
@@ -122,27 +135,33 @@ We implement the case outlined in Fig. 6 of "S1200":
 > -- succsSpec1 : (x : State t) ->
 > --              (y : Ctrl t x) ->
 > --              So ((step t x y) `isIn` (succs x))
-> ReachabilityViabilityDefaults.succsSpec1 x y = believe_me Oh -- ?
+> ReachabilityViabilityDefaults.succsSpec1 {t} x y = 
+>   believe_me Oh -- ?
+>   -- really_believe_me {b = So ((step t x y) `isIn` (succs x))} Oh -- ?
 
 > -- succsSpec2 : (x : State t) ->
 > --              (x' : State (S t)) ->
 > --              So (x' `isIn` (succs x)) ->
 > --              (y : Ctrl t x ** x' = step t x y)
-> ReachabilityViabilityDefaults.succsSpec2 x x' x'inCsuccsx = believe_me Oh -- ?
+> ReachabilityViabilityDefaults.succsSpec2 x x' x'inCsuccsx = 
+>   believe_me Oh -- ?
 
 > -- predsSpec1 : (x : State t) ->
 > --              (y : Ctrl t x) ->
 > --              So (x `isIn` (preds (step t x y)))
-> ReachabilityViabilityDefaults.predsSpec1 x y = believe_me Oh -- ?
+> ReachabilityViabilityDefaults.predsSpec1 x y = 
+>   believe_me Oh -- ?
 
 > -- predsSpec2 : (x' : State (S t)) ->
 > --              (x : State t) ->
 > --              So (x `isIn` (preds x')) ->
 > --              (y : Ctrl t x ** x' = step t x y)
-> ReachabilityViabilityDefaults.predsSpec2 x' x xinCpredsx' = believe_me Oh -- ?
+> ReachabilityViabilityDefaults.predsSpec2 x' x xinCpredsx' = 
+>   believe_me Oh -- ?
 
 > succsTh : (x : State t) -> So (not (isEmpty (succs {t} x)))
-> succsTh x = believe_me Oh -- this should be more or less trivial
+> succsTh {t} x = 
+>   really_believe_me {b = So (not (isEmpty (succs {t} x)))} Oh -- this should be more or less trivial
 
 > viability : (n : Nat) -> (x : State t) -> So (viable {t} n x)
 > viability {t}    Z x = viableSpec0 {t} x
@@ -151,16 +170,16 @@ We implement the case outlined in Fig. 6 of "S1200":
 >   step0 = succsTh k
 >   step1 : (x' : State (S t) ** So (isIn {t = S t} x' (succs {t} k)))
 >   step1 = lemma2 (succs k) step0
->   step2 : So (isAnyBy (viable {t = S t} n) (succs {t} k))
+>   step2 : So (isAnyBy (viable {t = S t} n) (succs {t = t} k))
 >   step2 = lemma3 x' (viable {t = S t} n) (succs k) vnx' x'inCsuccsx where
 >     x' : State (S t)
->     x' = outl step1
+>     x' = fst step1
 >     vnx' : So (viable {t = S t} n x')
 >     vnx' = viability {t = S t} n x' -- induction step
 >     x'inCsuccsx : So (isIn {t = S t} x' (succs {t} k))
->     x'inCsuccsx = outr step1
+>     x'inCsuccsx = snd {a = State (S t)} {P = \ ZUZU => So (isIn {t = S t} ZUZU (succs {t} k))} step1
 >   step3 : So (viable {t} (S n) k)
->   step3 = believe_me step2
+>   step3 = really_believe_me {b = So (viable {t} (S n) k)} step2
 
 # Max, argmax
 
@@ -189,7 +208,7 @@ We implement the case outlined in Fig. 6 of "S1200":
 > admissiblesP : (x : State t) ->
 >                (v : So (viable {t} (S n) x)) ->
 >                (k : Nat ** Vect (S k) (Ctrl t x))
-> admissiblesP {t = t} {n = n} x v = filterTagP (admissible x) (outr s1) s6 where
+> admissiblesP {t = t} {n = n} x v = filterTagP (admissible x) (snd s1) s6 where
 >   s1 : (n : Nat ** Vect n Action)
 >   s1 = (_ ** [Left, Right, Ahead])
 >   s2 : (y : Ctrl t x ** So (viable {t = S t} n (step t x y)))
@@ -197,14 +216,14 @@ We implement the case outlined in Fig. 6 of "S1200":
 >   -- removing |{t}| and |{n}| from the definition of |s2| makes the
 >   -- type checker eat-up the whole memory and stall
 >   s3 : Action
->   s3 = outl (outl s2)
+>   s3 = fst (fst s2)
 >   s4 : So (s3 `isIn` s1)
->   s4 = believe_me Oh
+>   s4 = really_believe_me {b = So (s3 `isIn` s1)} Oh
 >   -- |Action| should be in |Enum| and |s1| should be set to |[toEnum 0
 >   -- ..]|. Then |s4| would follow from a lemma of the kind:
 >   -- (Enum alpha) => (a : alpha) -> So (a `isIn` toVect [toEnum 0 ..])
 >   s5 : So (admissible {t} x s3)
->   s5 = outr (outl s2)
+>   s5 = snd (fst s2)
 >   s6 : So (isAnyBy (admissible {t} x) s1)
 >   s6 = lemma3 s3 (admissible x) s1 s5 s4
 
@@ -220,17 +239,18 @@ We implement the case outlined in Fig. 6 of "S1200":
 >   s1 : (k : Nat ** Vect (S k) (Ctrl t x))
 >   s1 = admissiblesP x v
 >   s2 : (k : Nat ** Vect k (Ctrl t x))
->   s2 = (_ ** outr s1)
+>   s2 = (_ ** snd s1)
 >   s3 : Ctrl t x -> Bool
 >   s3 y = viable {t = S t} n (step t x y)
 >   s4 : So (isAnyBy s3 s2)
->   s4 = believe_me Oh -- this should be more or less trivial
+>   s4 = really_believe_me {b = So (isAnyBy s3 s2)} Oh -- this should be more or less trivial
 >   s5 : (k : Nat ** Vect (S k) (y : Ctrl t x ** So (s3 y)))
->   s5 = filterTagP s3 (outr s2) s4
+>   s5 = filterTagP {alpha = Ctrl t x} {n = fst s1} s3 (snd s2) s4
+> %freeze yfysP
 
-> MaxArgmax.max n x r v f = snd (maxP (outr (yfysP n x v f)))
+> MaxArgmax.max n x r v f = snd (maxP (snd (yfysP n x v f)))
 
-> MaxArgmax.argmax n x r v f = fst (maxP (outr (yfysP n x v f)))
+> MaxArgmax.argmax n x r v f = fst (maxP (snd (yfysP n x v f)))
 
 > MaxArgmax.maxSpec n x r v f yv = believe_me Oh -- this should be
 >                                                -- granted by |maxP|
@@ -248,17 +268,17 @@ We implement the case outlined in Fig. 6 of "S1200":
 >            Vect n Action
 > controls _ Z _ _ _ _ = Nil
 > controls t (S n) x r v (p :: ps) =
->   ((outl y) :: (controls (S t) n x' r' v' ps)) where
+>   ((fst y) :: (controls (S t) n x' r' v' ps)) where
 >     yq : (a : Ctrl t x ** So (viable {t = S t} n (step t x a)))
 >     yq = p x r v
 >     y : Ctrl t x
->     y = outl yq
+>     y = fst yq
 >     x' : State (S t)
 >     x' = step t x y
 >     r' : So (reachable {t = S t} x')
 >     r' = reachableSpec1 x r y
 >     v' : So (viable {t = S t} n x')
->     v' = outr yq
+>     v' = snd yq
 
 
 
@@ -306,3 +326,9 @@ We implement the case outlined in Fig. 6 of "S1200":
 
 > main : IO ()
 > main = run computation
+
+
+> {-
+
+> ---} 
+ 

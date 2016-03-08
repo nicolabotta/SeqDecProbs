@@ -3,6 +3,8 @@
 
 > %default total
 
+> %access public export
+
 
 > State   :  (t : Nat) -> Type
 > Ctrl    :  (t : Nat) -> State t -> Type

@@ -9,6 +9,8 @@
 
 > %default total
 
+> %access public export
+
 
 > eqeq : Ctrl t x -> Ctrl t x -> Bool
 
