@@ -7,6 +7,9 @@ all:
 example2: SeqDecProbMonadicTheoryRVExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample2.lidr -o example2
 
+issue3001: NonNegRational3001.lidr
+	${IDRIS} ${IDRISFLAGS} NonNegRational3001.lidr
+
 run: example2
 	echo "3\n1" | ./example2
 
