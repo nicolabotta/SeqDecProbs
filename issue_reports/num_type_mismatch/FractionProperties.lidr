@@ -7,10 +7,11 @@
 
 
 > %default total
+> %access public export
 
 
 > ||| Fraction is an instance of Num
-> instance Num Fraction where
+> implementation Num Fraction where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = fromNat . fromIntegerNat

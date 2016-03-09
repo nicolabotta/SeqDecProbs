@@ -6,9 +6,10 @@
 
 
 > %default total
+> %access public export
 
 
 > ||| PNat is an instance of Show
-> instance Show PNat where
+> implementation Show PNat where
 >   show = show . toNat
 

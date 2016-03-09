@@ -9,15 +9,16 @@
 
 
 > %default total
+> %access public export
 
 
-> ||| NonNegRational is an instance of Show
-> instance Show NonNegRational where
+> ||| NonNegRational is an implementation of Show
+> implementation Show NonNegRational where
 >   show q = show (num q) ++ "/" ++ show (den q)
 
 
-> ||| NonNegRational is an instance of Num
-> instance Num NonNegRational where
+> ||| NonNegRational is an implementation of Num
+> implementation Num NonNegRational where
 >   (+) = plus
 >   (*) = mult
 >   fromInteger = fromNat . fromIntegerNat

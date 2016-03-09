@@ -9,6 +9,7 @@
 
 
 > %default total
+> %access public export
 
 
 > ||| The numerator of a fraction

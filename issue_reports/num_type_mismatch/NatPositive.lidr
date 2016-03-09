@@ -3,6 +3,8 @@
 
 > %default total
 
+> %access public export
+
 
 > data Positive : Nat -> Type where
 >   MkPositive  : {n : Nat} -> Positive (S n)

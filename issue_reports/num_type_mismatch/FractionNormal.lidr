@@ -4,6 +4,7 @@
 
 
 > %default total
+> %access public export
 
 
 > data Normal : Fraction -> Type where

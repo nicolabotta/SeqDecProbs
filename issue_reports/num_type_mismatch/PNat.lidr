@@ -7,6 +7,7 @@
 
 
 > %default total
+> %access public export
 
 
 > ||| Positive natural numbers as sigma types 
