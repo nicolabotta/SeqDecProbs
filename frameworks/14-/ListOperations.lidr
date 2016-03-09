@@ -4,6 +4,7 @@
 > import Data.List
 > import Data.List.Quantifiers
 
+> import Sigma
 
 > %default total
 
@@ -31,9 +32,9 @@
 |List| is a container monad:
 
 > ||| Tagging
-> tagElem  :  {A : Type} -> (as : List A) -> List (a : A ** a `Elem` as)
+> tagElem  :  {A : Type} -> (as : List A) -> List (Sigma A (\ a => a `Elem` as))
 > tagElem Nil = Nil
-> tagElem {A} (x :: xs) = (x ** Here) :: (map f (tagElem xs)) where
->   f : (a : A ** a `Elem` xs) -> (a : A ** a `Elem` (x :: xs))
->   f (a ** p) = (a ** There p)
+> tagElem {A} (x :: xs) = (MkSigma x Here) :: (map f (tagElem xs)) where
+>   f : Sigma A (\ a => a `Elem` xs) -> Sigma A (\ a => a `Elem` (x :: xs))
+>   f (MkSigma a p) = MkSigma a (There p)
 

@@ -20,8 +20,8 @@
 > import BoundedNatProperties
 > import SigmaOperations
 > import SigmaProperties
-> import SubsetOperations
-> import SubsetProperties
+> -- import SubsetOperations
+> -- import SubsetProperties
 > import NatProperties
 > import Finite
 > import FiniteOperations
@@ -97,7 +97,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 5
+> maxColumnO2 = 50
 > -- %freeze maxColumnO2
 
 > maxColumn : Nat
@@ -171,7 +171,7 @@ is the identity monad:
 > -- %freeze fromTo
 
 > fAction : Finite Action
-> fAction = Evidence 3 (MkIso to from toFrom fromTo)
+> fAction = MkSigma 3 (MkIso to from toFrom fromTo)
 > %freeze fAction
 
 ** Controls (admissible actions):
@@ -382,7 +382,7 @@ non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
 we have finiteness
 
 > fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable {t = t} (S n) x ->
->        Finite (Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+>        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
 > -- %freeze fYAV
 
 non-emptiness is straightforward:
@@ -391,14 +391,14 @@ non-emptiness is straightforward:
 >         NonEmpty (fYAV t n x v)
 > {- 
 > neYAV t n x (Evidence y v) =
->   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
 >                 (fYAV t n x (Evidence y v))
 >                 (Element y v)
 > ---}
 > --{-
 > neYAV t n x v = 
->   nonEmptyLemma {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
->                 (fYAV t n x v) (Element y av) where
+>   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>                 (fYAV t n x v) (MkSigma y av) where
 >     yav : Exists {a = Y t x} (\ y => All (Viable {t = S t} n) (step t x y))
 >     yav = viableSpec1 {t = t} {n = n} x v            
 >     y   : Y t x
@@ -428,7 +428,7 @@ and
 >   fViable t  Z    x  = finiteSingleton
 >   fViable t (S m) x  = s3 where
 >     s3 : Finite (Exists {a = Y t x} (\ y => All (Viable {t = S t} m) (step t x y)))
->     s3 = SubsetProperties.finiteExistsLemma (fY t x) (f1AllViable t m x)
+>     s3 = SigmaProperties.finiteExistsLemma (fY t x) (f1AllViable t m x)
 >   ---}
 >   --{
 >   fViable t  n    x  = finiteSingleton
@@ -443,27 +443,27 @@ and
 
 With |f1AllViable| we can finally implement |fYAV|
 
-> fYAV t n x v = finiteSubsetLemma0 (fY t x) (f1AllViable t n x)
+> fYAV t n x v = finiteSigmaLemma0 (fY t x) (f1AllViable t n x)
 > -- %freeze fYAV
 
 and |max|, |argmax|:
 
 > SeqDecProbMonadicTheoryRV.max  {t} {n} x v =
->   Opt.max {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>   Opt.max {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
 >           {B = Nat} 
 >           totalPreorderNatLTE 
 >           (fYAV t n x v) 
 >           (neYAV t n x v)
 
 > SeqDecProbMonadicTheoryRV.argmax  {t} {n} x v  =
->   Opt.argmax {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>   Opt.argmax {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
 >              {B = Nat}
 >              totalPreorderNatLTE 
 >              (fYAV t n x v) 
 >              (neYAV t n x v)
 
 > SeqDecProbMonadicTheoryRV.maxSpec {n} t x v =
->   Opt.maxSpec {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>   Opt.maxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
 >               {B = Nat}
 >               totalPreorderNatLTE 
 >               (fYAV t n x v) 
@@ -471,11 +471,11 @@ and |max|, |argmax|:
 > -- %freeze maxSpec
 
 > SeqDecProbMonadicTheoryRV.argmaxSpec {n} t x v =
->   Opt.argmaxSpec {A = Subset (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->               {B = Nat}
->               totalPreorderNatLTE 
->               (fYAV t n x v) 
->               (neYAV t n x v)
+>   Opt.argmaxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+>                  {B = Nat}
+>                  totalPreorderNatLTE 
+>                  (fYAV t n x v) 
+>                  (neYAV t n x v)
 > -- %freeze argmaxSpec
 
 

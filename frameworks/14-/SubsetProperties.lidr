@@ -249,9 +249,9 @@ Subset Fin properties:
 
 
 > subsetIsoLemma :  (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) ->
->                  (isoA : Iso A A') ->
->                  (isoBa  : (a : A) -> Iso (B a) (B' (to isoA a)) ) ->
->                  Iso (Subset A B) (Subset A' B')
+>                   (isoA : Iso A A') ->
+>                   (isoBa  : (a : A) -> Iso (B a) (B' (to isoA a)) ) ->
+>                   Iso (Subset A B) (Subset A' B')
 > subsetIsoLemma A A' B B' isoA isoBa = MkIso toQ fromQ toFromQ fromToQ
 >   where toQ      : Subset A  B  -> Subset A' B'
 >         toQ   (Element a b)   = (Element (to isoA a) (to (isoBa a) b))
@@ -401,8 +401,8 @@ Finitess properties
 
 > ||| For finite predicates, Subset types of finite types are finite
 > finiteSubsetLemma0 : {A : Type} -> {P : A -> Type} ->
->                     Finite A -> Finite1 P -> Finite (Subset A P)
-> finiteSubsetLemma0 {A} {P} (Evidence n isoA) f1P = Evidence sumf (isoTrans step1 step2)
+>                      Finite A -> Finite1 P -> Finite (Subset A P)
+> finiteSubsetLemma0 {A} {P} (MkSigma n isoA) f1P = MkSigma sumf (isoTrans step1 step2)
 >   where  f' : A     -> Nat
 >          f' a = card (f1P a)
 >          f  : Fin n -> Nat
@@ -431,7 +431,7 @@ Finitess properties
 
 > finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Exists {a = A} P)
-> finiteExistsLemma {A} {P} fA f1P = Evidence n iE where
+> finiteExistsLemma {A} {P} fA f1P = MkSigma n iE where
 >   fS : Finite (Subset A P)
 >   fS = finiteSubsetLemma0 fA f1P
 >   n  : Nat

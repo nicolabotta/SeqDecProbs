@@ -404,7 +404,7 @@ Finitess properties
 > ||| For finite predicates, Sigma types of finite types are finite
 > finiteSigmaLemma0 : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Sigma A P)
-> finiteSigmaLemma0 {A} {P} (Evidence n isoA) f1P = Evidence sumf (isoTrans step1 step2)
+> finiteSigmaLemma0 {A} {P} (MkSigma n isoA) f1P = MkSigma sumf (isoTrans step1 step2)
 >   where  f' : A     -> Nat
 >          f' a = card (f1P a)
 >          f  : Fin n -> Nat
@@ -433,7 +433,7 @@ Finitess properties
 
 > finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Exists {a = A} P)
-> finiteExistsLemma {A} {P} fA f1P = Evidence n iE where
+> finiteExistsLemma {A} {P} fA f1P = MkSigma n iE where
 >   fS : Finite (Sigma A P)
 >   fS = finiteSigmaLemma0 fA f1P
 >   n  : Nat

@@ -8,7 +8,8 @@
 > import Unique
 > import Decidable
 > import Finite
-
+> import Sigma
+> import PairsOperations
 
 > %default total
 
@@ -17,7 +18,7 @@
 
 > ||| Unique properties are finite
 > uniqueFiniteLemma1 : {P : Type} -> P -> Unique P -> Finite P
-> uniqueFiniteLemma1 {P} p uP = Evidence n (MkIso to from toFrom fromTo) where
+> uniqueFiniteLemma1 {P} p uP = MkSigma n (MkIso to from toFrom fromTo) where
 >   n : Nat
 >   n = S Z
 >   to : P -> Fin n
@@ -34,7 +35,7 @@
 
 > ||| Unique properties are finite
 > uniqueFiniteLemma2 : {P : Type} -> Not P -> Finite P
-> uniqueFiniteLemma2 {P} contra = Evidence n (MkIso to from toFrom fromTo) where
+> uniqueFiniteLemma2 {P} contra = MkSigma n (MkIso to from toFrom fromTo) where
 >   n : Nat
 >   n = Z
 >   to : P -> Fin n

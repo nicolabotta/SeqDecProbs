@@ -192,10 +192,20 @@ LT, LTE properties
 >   mLTn = strengthenLT m n mLTsn mNEQn
 > %freeze strengthenLT
 
-> monotoneNatPlusLTE : {x : Nat} -> {y : Nat} ->
->                      (z : Nat) -> LTE x y -> LTE (z + x) (z + y)
-> monotoneNatPlusLTE {x} {y}  Z    xLTEy = xLTEy
-> monotoneNatPlusLTE {x} {y} (S n) xLTEy = LTESucc (monotoneNatPlusLTE {x} {y} n xLTEy)
+> idAnyPlusPreservsLTE : {a, b, c : Nat} -> LTE a b -> LTE a (c + b)
+> idAnyPlusPreservsLTE {a} {b} {c = Z}   aLTEb = aLTEb
+> idAnyPlusPreservsLTE {a} {b} {c = S m} aLTEb = idSuccPreservesLTE a (m + b) (idAnyPlusPreservsLTE {a = a} {b = b} {c = m} aLTEb)  
+
+> monotoneNatPlusLTE : {a, b, c, d  : Nat} ->
+>                      LTE a b -> LTE c d -> LTE (a + c) (b + d)
+> monotoneNatPlusLTE {a = Z}   {b = Z}   {c} {d} _           cLTEd = 
+>   cLTEd
+> monotoneNatPlusLTE {a = Z}   {b = S n} {c} {d} _           cLTEd = 
+>   idAnyPlusPreservsLTE {a = c} {b = d} {c = S n} cLTEd
+> monotoneNatPlusLTE {a = S m} {b = Z}   {c} {d} aLTEb       _     = 
+>   absurd aLTEb
+> monotoneNatPlusLTE {a = S m} {b = S n} {c} {d} (LTESucc p) cLTEd = 
+>   LTESucc (monotoneNatPlusLTE {a = m} {b = n} {c = c} {d = d} p cLTEd)
 > --%freeze monotoneNatPlusLTE
 
 > reflexiveLTE : (n : Nat) -> LTE n n
@@ -631,6 +641,28 @@ Properties of |mult|: elimination rules
 > %freeze multOneRightNeutralPlusMultZeroLeftZero
 
 
+Properties of |sum|:
+
+> ||| |sum| is monotone
+> sumMon : {A : Type} ->
+>          (f : A -> Nat) -> (g : A -> Nat) ->
+>          (p : (a : A) -> f a `LTE` g a) ->
+>          (as : List A) ->
+>          sum (map f as) `LTE` sum (map g as) 
+> sumMon f g p Nil = LTEZero
+> sumMon f g p (a :: as) = s5 where
+>   s1 : sum (map f (a :: as)) = f a + sum (map f as)
+>   s1 = Refl
+>   s2 : sum (map g (a :: as)) = g a + sum (map g as)
+>   s2 = Refl
+>   s3 : f a `LTE` g a
+>   s3 = p a
+>   s4 : sum (map f as) `LTE` sum (map g as)
+>   s4 = sumMon f g p as
+>   s5 : sum (map f (a :: as)) `LTE` sum (map g (a :: as))
+>   s5 = monotoneNatPlusLTE s3 s4
+
+
 Decidability:
 
 > ||| LTE is decidable
@@ -670,5 +702,6 @@ Uniqueness
 > uniqueLT' : m1 = m2 -> n1 = n2 -> (p1 : LT m1 n1) -> (p2 : LT m2 n2) -> p1 = p2
 > uniqueLT' Refl Refl p1 p2 = uniqueLT p1 p2
 > %freeze uniqueLT'
+
 
 > ---}

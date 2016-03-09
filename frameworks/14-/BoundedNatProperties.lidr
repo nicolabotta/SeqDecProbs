@@ -194,7 +194,7 @@ Finitness properties
 
 > ||| Bounded |Nat|s are finite:
 > finiteLTB : (b : Nat) -> Finite (LTB b)
-> finiteLTB b = Evidence b iso where
+> finiteLTB b = MkSigma b iso where
 >   iso : Iso (LTB b) (Fin b)
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma
 

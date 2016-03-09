@@ -10,7 +10,7 @@
 > import Prop
 > import Sigma
 > import PairsOperations
-> import SubsetOperations
+> -- import SubsetOperations
 > import ExistsOperations
 > import SigmaOperations
 > import VectOperations

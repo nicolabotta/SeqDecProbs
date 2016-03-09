@@ -17,6 +17,7 @@
 > import NatProperties
 > import Basics
 > import FunProperties
+> import Sigma
 > import PairsOperations
 
 
@@ -30,7 +31,7 @@
 
 > ||| |toVect| representations of finite types are complete
 > toVectComplete : {A : Type} -> (fA : Finite A) -> (a : A) -> Elem a (toVect fA)
-> toVectComplete (Evidence _ iso) a = s3 where
+> toVectComplete (MkSigma _ iso) a = s3 where
 >   s1  :  Elem (from iso (to iso a)) (toVect (from iso))
 >   s1  =  toVectComplete (from iso) (to iso a)
 >   s2  :  from iso (to iso a) = a
@@ -50,7 +51,7 @@
 
 > ||| |toVect| representations of finite types are injective
 > toVectInjective1 : {A : Type} -> (fA : Finite A) -> Injective1 (toVect fA)
-> toVectInjective1 {A} (Evidence n iso) i j p = s3 where
+> toVectInjective1 {A} (MkSigma _ iso) i j p = s3 where
 >   s1 : index i (toVect (from iso)) = index j (toVect (from iso))
 >   s1 = p
 >   s2 : (from iso) i = (from iso) j
@@ -103,9 +104,10 @@ Finiteness of products
 
 > ||| If |P| and |Q| are finite, |(P , Q)| is finite
 > finiteProduct : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
-> finiteProduct {A} {B} (Evidence m isoA) (Evidence n isoB) =
->   Evidence (m * n) (isoTrans (pairCong isoA isoB) finPairTimes)
-
+> -- finiteProduct {A} {B} (Evidence m isoA) (Evidence n isoB) =
+> --   Evidence (m * n) (isoTrans (pairCong isoA isoB) finPairTimes)
+> finiteProduct {A} {B} (MkSigma _ isoA) (MkSigma _ isoB) =
+>   MkSigma _ (isoTrans (pairCong isoA isoB) finPairTimes)
 
 > finitePair : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
 > finitePair = finiteProduct

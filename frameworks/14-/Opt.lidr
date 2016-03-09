@@ -25,7 +25,7 @@
 > argmaxMax : {A, B : Type} -> 
 >             TotalPreorder B -> 
 >             (fA : Finite A) -> 
->             .(ne : NonEmpty fA) -> 
+>             (ne : NonEmpty fA) -> 
 >             (f : A -> B) -> (A,B)
 > argmaxMax {A} {B} tp fA nefA f = max (fromTotalPreorder2 tp) abs ltZn where
 >   n    : Nat

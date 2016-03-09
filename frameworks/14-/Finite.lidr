@@ -4,7 +4,9 @@
 > import Data.Fin
 > import Control.Isomorphism
 > -- import EmbProj
-> 
+
+> import Sigma
+ 
 > %default total 
 
 > %access public export
@@ -12,7 +14,8 @@
 
 > ||| Notion of finiteness for types
 > Finite : Type -> Type
-> Finite A = Exists (\ n => Iso A (Fin n))
+> -- Finite A = Exists (\ n => Iso A (Fin n))
+> Finite A = Sigma Nat (\ n => Iso A (Fin n))
 
 > Finite0 : Type -> Type
 > Finite0 = Finite

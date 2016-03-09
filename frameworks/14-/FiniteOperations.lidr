@@ -10,6 +10,8 @@
 > import FinOperations
 > import IsomorphismOperations
 > import NatProperties
+> import Sigma
+> import PairsOperations
 
 
 > %default total
@@ -63,7 +65,7 @@ elements of type |A| of length |n|. This can be done by calling
 
 > ||| Maps a finite type |A| of cardinality |n| to a vector of |A|-values of length |n|
 > toVect : {A : Type} -> (fA : Finite A) -> Vect (card fA) A
-> toVect (Evidence n iso) = toVect (from iso)
+> toVect (MkSigma _ iso) = toVect (from iso)
 > -- toVect fA = toVect (from (iso fA))
 > -- toVect fA = toVect (fromFin fA)
 

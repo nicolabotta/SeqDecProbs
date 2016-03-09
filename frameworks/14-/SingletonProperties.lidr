@@ -5,6 +5,8 @@
 > import Control.Isomorphism
 
 > import Finite
+> import Sigma
+> import PairsOperations
 
 
 > %default total
@@ -36,6 +38,6 @@
 
 > ||| Singleton is finite
 > finiteSingleton : Finite ()
-> finiteSingleton = Evidence (S Z) iso where
+> finiteSingleton = MkSigma (S Z) iso where
 >   iso : Iso () (Fin (S Z))
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma
