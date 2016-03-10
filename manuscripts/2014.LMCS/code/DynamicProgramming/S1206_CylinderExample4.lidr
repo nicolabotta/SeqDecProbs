@@ -124,7 +124,7 @@ non-default implementations for |reachable| and |viable|.
 >   ((Z ** p) ** believe_me Oh) -- should never happen
 
 > Context.step t ((S i ** p) ** v) (Left ** a) = x' where
->   n' : Blt nColumns
+>   n' : Blt Main.nColumns
 >   n' = (i ** ltLemma1 i nColumns p)
 >   x' : State (S t)
 >   x' = (n' ** believe_me Oh)
@@ -345,7 +345,7 @@ non-default implementations for |reachable| and |viable|.
 > nSteps : Nat
 > nSteps = 4
  
-> ps : PolicySeq Z nSteps
+> ps : PolicySeq Z Main.nSteps
 > ps = backwardsInduction Z nSteps
  
 > x0 : State Z
@@ -355,7 +355,7 @@ non-default implementations for |reachable| and |viable|.
 > r0 : So (reachable {t = Z} x0)
 > r0 = Oh
  
-> v0 : So (viable {t = Z} nSteps x0)
+> v0 : So (viable {t = Z} Main.nSteps x0)
 > v0 = Oh
  
 > as : Vect nSteps Action
