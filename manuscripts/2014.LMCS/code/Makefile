@@ -10,10 +10,14 @@ example:
 run: example
 	echo "3\n1" | ./example
 
-examples:
-	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1106_KnapsackExample.lidr  -o DynamicProgramming/S1106_KnapsackExample.exe
-	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_CylinderExample1.lidr -o DynamicProgramming/S1206_CylinderExample1.exe
-	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_CylinderExample4.lidr -o DynamicProgramming/S1206_CylinderExample4.exe
+knapsack:
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1106_KnapsackExample.lidr  -o DynamicProgramming/knapsack.exe
+
+cylinder1:
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_CylinderExample1.lidr -o DynamicProgramming/cylinder1.exe
+
+cylinder4:
+	${IDRIS} ${IDRISFLAGS} DynamicProgramming/S1206_CylinderExample4.lidr -o DynamicProgramming/cylinder4.exe
 
 clean:
 	-rm example

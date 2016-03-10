@@ -349,8 +349,8 @@ non-default implementations for |reachable| and |viable|.
 > ps = backwardsInduction Z Main.nSteps
  
 > x0 : State Z
-> -- x0 = ((1 ** LTESucc (LTESucc LTEZero)) ** Oh)
-> x0 = ((0 ** LTESucc LTEZero) ** Oh)
+> x0 = ((1 ** LTESucc (LTESucc LTEZero)) ** Oh)
+> -- x0 = ((0 ** LTESucc LTEZero) ** Oh)
  
 > r0 : So (reachable {t = Z} x0)
 > r0 = Oh
