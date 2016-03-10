@@ -53,7 +53,7 @@ non-default implementations for |reachable| and |viable|.
 >   | (No  _) = True
 
 > -- State : Nat -> Set
-> Context.State t = (i : Blt Main.nColumns ** So (valid t i))
+> Context.State t = (i : Blt nColumns ** So (valid t i))
 
 > column : {t : Nat} -> State t -> Nat
 > column x = fst (fst x)
@@ -124,8 +124,8 @@ non-default implementations for |reachable| and |viable|.
 >   ((Z ** p) ** believe_me Oh) -- should never happen
 
 > Context.step t ((S i ** p) ** v) (Left ** a) = x' where
->   n' : Blt Main.nColumns
->   n' = (i ** ltLemma1 i Main.nColumns p)
+>   n' : Blt nColumns
+>   n' = (i ** ltLemma1 i nColumns p)
 >   x' : State (S t)
 >   x' = (n' ** believe_me Oh)
 
@@ -346,7 +346,7 @@ non-default implementations for |reachable| and |viable|.
 > nSteps = 4
  
 > ps : PolicySeq Z nSteps
-> ps = backwardsInduction Z Main.nSteps
+> ps = backwardsInduction Z nSteps
  
 > x0 : State Z
 > x0 = ((1 ** LTESucc (LTESucc LTEZero)) ** Oh)

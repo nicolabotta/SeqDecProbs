@@ -43,13 +43,10 @@ as defined at line 352 of DynamicProgramming/S1206_CylinderExample4.lidr
 
 the program type checks and compiles. Running the code
 (DynamicProgramming/cylinder4.exe from the command line) should yield
-
-[R, R, R, A]
-
-which is interpreted as three moves to the right (from "b" to "e") and
-one ahead. In contrast, if one attempts at computing an optimal sequence
-of controls for 4 decision steps starting from "a" by replacing line 352
-with
+`[R, R, R, A]` which is interpreted as three moves to the right (from
+"b" to "e") and one ahead. In contrast, if one attempts at computing an
+optimal sequence of controls for 4 decision steps starting from "a" by
+replacing line 352 with
 
 ```
 > x0 = ((0 ** LTESucc LTEZero) ** Oh)
