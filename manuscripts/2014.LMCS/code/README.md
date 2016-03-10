@@ -37,7 +37,9 @@ controls for 4 steps for a decision problem similar to the one
 illustrated in Figure 2 of the manuscript. If the initial state is "b"
 as defined at line 352 of DynamicProgramming/S1206_CylinderExample4.lidr
 
+```
 > x0 = ((1 ** LTESucc (LTESucc LTEZero)) ** Oh)
+```
 
 the program type checks and compiles. Running the code
 (DynamicProgramming/cylinder4.exe from the command line) should yield
