@@ -54,21 +54,21 @@ with
 the type checker should detect that "a" is not viable for 4 steps and
 the program should fail to compile with:
 
-Type checking ./DynamicProgramming/S1206_CylinderExample4.lidr
-./DynamicProgramming/S1206_CylinderExample4.lidr:359:6-8:
-When checking right hand side of v0 with expected type
-        So (viable nSteps x0)
+> Type checking ./DynamicProgramming/S1206_CylinderExample4.lidr
+> ./DynamicProgramming/S1206_CylinderExample4.lidr:359:6-8:
+> When checking right hand side of v0 with expected type
+>         So (viable nSteps x0)
 
-Type mismatch between
-        So True (Type of Oh)
-and
-        So False (Expected type)
+> Type mismatch between
+>         So True (Type of Oh)
+> and
+>         So False (Expected type)
 
-Specifically:
-        Type mismatch between
-                True
-        and
-                False
-Makefile:20: recipe for target 'cylinder4' failed
-make: *** [cylinder4] Error 1
+> Specifically:
+>         Type mismatch between
+>                 True
+>         and
+>                 False
+> Makefile:20: recipe for target 'cylinder4' failed
+> make: *** [cylinder4] Error 1
 
