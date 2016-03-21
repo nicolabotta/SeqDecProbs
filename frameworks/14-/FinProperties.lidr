@@ -2,6 +2,7 @@
 
 > import Data.Fin
 > import Data.Vect
+> import Control.Isomorphism
 
 > import FunProperties
 > import FinOperations
@@ -32,6 +33,21 @@
 > fin1Lemma FZ     (FS k) = absurd k
 > fin1Lemma (FS k)  FZ    = absurd k
 > fin1Lemma (FS k) (FS j) = absurd k
+
+
+> ||| Fin 1 is isomorphic to Unit
+> isoFin1Unit : Iso (Fin (S Z)) Unit
+> isoFin1Unit = MkIso to from toFrom fromTo where
+>   to : Fin (S Z) -> Unit
+>   to FZ = ()
+>   to (FS k) = absurd k
+>   from : Unit -> Fin (S Z)
+>   from () = FZ
+>   toFrom : (u : Unit) -> to (from u) = u
+>   toFrom () = Refl
+>   fromTo : (k : Fin (S Z)) -> from (to k) = k
+>   fromTo FZ = Refl
+>   fromTo (FS k) = absurd k
 
 
 Injectivity of FS

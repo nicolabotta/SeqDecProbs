@@ -211,3 +211,6 @@ Decidability properties
 > decEqLTB {b} (MkSigma m p) (MkSigma n q) with (decEq m n)
 >   | (Yes prf)   = Yes (sigmaEqLemma1 (MkSigma m p) (MkSigma n q) prf (uniqueLT))
 >   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
+
+> implementation DecEq (LTB b) where
+>   decEq {b} i j = decEqLTB {b} i j

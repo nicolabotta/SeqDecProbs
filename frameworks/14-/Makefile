@@ -7,6 +7,9 @@ all:
 example2: SeqDecProbMonadicTheoryRVExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample2.lidr -o example2
 
+example3: SeqDecProbMonadicTheoryRVExample3.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample3.lidr -o example3
+
 issue3001: NonNegRational3001.lidr
 	${IDRIS} ${IDRISFLAGS} NonNegRational3001.lidr
 
@@ -18,10 +21,4 @@ profile: profexample
 	gprof profexample gmon.out > profile.txt
 
 clean:
-	-rm -f example
-	-rm -f rv_example
-	-rm -f small_example
-	-rm -f small_rv_example
-	-rm -f small_v_example
-	-rm -f profexample
 	-find . -name '*.ibc' -delete
