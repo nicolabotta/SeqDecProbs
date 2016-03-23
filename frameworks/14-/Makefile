@@ -4,6 +4,12 @@ IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects --warnreach -V
 all:
 	find . -not \( -path "./zombies" -prune \) -not \( -path "./unused" -prune \) -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check
 
+example1: SeqDecProbMonadicTheoryRVExample1.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample1.lidr -o example1
+
+example1.1: SeqDecProbMonadicTheoryRVExample1.1.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample1.1.lidr -o example1.1
+
 example2: SeqDecProbMonadicTheoryRVExample2.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryRVExample2.lidr -o example2
 

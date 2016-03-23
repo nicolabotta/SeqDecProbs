@@ -51,6 +51,7 @@
 > containerMonadSpec3 : {A : Type} -> {P : A -> Type} -> (a : A) -> (as : List A) ->
 >                       All P as -> a `Elem` as -> P a
 > containerMonadSpec3 a'  Nil       _           eprf        = absurd eprf
+> containerMonadSpec3 a' (a :: as)  Nil         _           impossible
 > containerMonadSpec3 a  (a :: as) (pa :: pas)  Here        = pa
 > containerMonadSpec3 a' (a :: as) (pa :: pas) (There eprf) = containerMonadSpec3 a' as pas eprf
 > %freeze containerMonadSpec3

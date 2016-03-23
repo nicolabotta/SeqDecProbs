@@ -137,7 +137,8 @@ For every SDP, we can build the following notions:
 
 > mutual
 
->   mkf : (x  : X t) -> (r  : Reachable x) -> (v  : Viable (S m) x) ->
+>   mkf : {t : Nat} -> {m : Nat} -> 
+>         (x  : X t) -> (r  : Reachable x) -> (v  : Viable (S m) x) ->
 >         (y  : Y t x) -> (av : All (Viable m) (step t x y)) ->
 >         (ps : PolicySeq (S t) m) ->
 >         Sigma (X (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
@@ -149,7 +150,8 @@ For every SDP, we can build the following notions:
 >     v' : Viable m x'
 >     v' = containerMonadSpec3 x' (step t x y) av x'estep
 
->   val : (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Nat
+>   val : {t : Nat} -> {n : Nat} -> 
+>         (x : X t) -> Reachable x -> Viable n x -> PolicySeq t n -> Nat
 >   val {t} {n = Z} x r v ps = Z
 >   val {t} {n = S m} x r v (p :: ps) = meas (fmap f (tagElem mx')) where
 >     y    :  Y t x
@@ -267,7 +269,8 @@ that fulfill the specification
 then we can implement a function that computes machine checkable optimal
 extensions for arbitrary policy sequences:
 
-> mkg : (x  : X t) ->
+> mkg : {t : Nat} -> {n : Nat} ->
+>       (x  : X t) ->
 >       (r  : Reachable x) ->
 >       (v  : Viable (S n) x) ->
 >       (ps : PolicySeq (S t) n) ->
@@ -358,7 +361,7 @@ possible future evolutions from a (viable) initial state:
 > namespace MonadicTrajectories
 
 >   data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
->     Nil   :  .(x : X t) -> StateCtrlSeq t Z
+>     Nil   :  (x : X t) -> StateCtrlSeq t Z
 >     (::)  :  Sigma (X t) (Y t) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
 
 >   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
@@ -545,8 +548,8 @@ Nat|:
 
 >   mkf' : {t : Nat} -> {n : Nat} ->
 >          (x  : X t) -> 
->          .(r  : Reachable x) -> 
->          .(v  : Viable (S n) x) ->
+>          (r  : Reachable x) -> 
+>          (v  : Viable (S n) x) ->
 >          (y  : Y t x) -> 
 >          (av : All (Viable n) (step t x y)) ->
 >          (vt : Vect (cRVX (S t) n) Nat) ->
@@ -572,8 +575,8 @@ Nat|:
 
 >   mkg : {t : Nat} -> {n : Nat} ->
 >         (x  : X t) ->
->         .(r  : Reachable x) ->
->         .(v  : Viable (S n) x) ->
+>         (r  : Reachable x) ->
+>         (v  : Viable (S n) x) ->
 >         (vt : Vect (cRVX (S t) n) Nat) -> 
 >         Sigma (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
 >         -- Subset (Y t x) (\ y => All (Viable n) (step t x y)) -> Nat
@@ -639,7 +642,7 @@ of |trbi|:
 
 
 > ||| Tabulated tail-recursive backwards induction
-> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> .(LTE c n) ->
+> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> (LTE c n) ->
 >          PolicySeq (c + t) (n - c) ->
 >          (vt : Vect (cRVX (c + t) (n - c)) Nat) ->
 >          PolicySeq t n

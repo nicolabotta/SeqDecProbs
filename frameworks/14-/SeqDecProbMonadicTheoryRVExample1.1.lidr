@@ -47,7 +47,7 @@
 
 > -- %logging 5
 
-We reimplement the Example2 with |M = List|:
+We reimplement the Example1 with |M = List|:
 
 
 * The monad M (List):
@@ -89,12 +89,8 @@ We reimplement the Example2 with |M = List|:
 
 * The decision process:
 
-> maxColumnO2 : Nat
-> maxColumnO2 = 5
-> -- %freeze maxColumnO2
-
 > maxColumn : Nat
-> maxColumn = maxColumnO2 + maxColumnO2
+> maxColumn = 10
 > -- %freeze maxColumn
 
 > nColumns : Nat
@@ -108,14 +104,6 @@ We reimplement the Example2 with |M = List|:
 > column : {t : Nat} -> X t -> Nat
 > column = outl
 > -- %freeze column
-
-> data Pos = L | R
-
-> pos : (t : Nat) -> X t -> Pos
-> pos t x with (decLTE (column {t} x) maxColumnO2)
->   | (Yes _) = L
->   | (No  _) = R
-> -- %freeze pos
 
 > SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.fX t = finiteLTB _
 > -- %freeze fX
@@ -144,17 +132,17 @@ We reimplement the Example2 with |M = List|:
 > to Ahead =     FS FZ
 > to Right = FS (FS FZ)
 
-> %assert_total
 > from : Fin 3 -> Action
-> from         FZ   = Left
-> from     (FS FZ)  = Ahead
-> from (FS (FS FZ)) = Right
+> from             FZ   = Left
+> from         (FS FZ)  = Ahead
+> from     (FS (FS FZ)) = Right
+> from (FS (FS (FS k))) = absurd k
 
-> %assert_total
 > toFrom : (k : Fin 3) -> to (from k) = k
-> toFrom         FZ   = Refl
-> toFrom     (FS FZ)  = Refl
-> toFrom (FS (FS FZ)) = Refl
+> toFrom             FZ   = Refl
+> toFrom         (FS FZ)  = Refl
+> toFrom     (FS (FS FZ)) = Refl
+> toFrom (FS (FS (FS k))) = absurd k
 > -- %freeze toFrom
 
 > fromTo : (a : Action) -> from (to a) = a
@@ -169,99 +157,30 @@ We reimplement the Example2 with |M = List|:
 
 ** Controls (admissible actions):
 
-*** Admissibility:
-
-> Admissible : (t : Nat) -> X t -> Action -> Type
-> Admissible t x Ahead with (decEq (column {t} x) Z)
->   | (Yes _) = Unit
->   | (No  _) with (decEq (column {t} x) maxColumn)
->     | (Yes _) = Unit
->     | (No  _) = Void
-> Admissible t x Left with (pos t x) 
->   | L = Unit
->   | R = Void
-> Admissible t x Right with (pos t x) 
->   | L = Void
->   | R = Unit
-
-> admissibleLemma : (t : Nat) -> (x : X t) -> Either (Admissible t x Left) (Admissible t x Right)
-> admissibleLemma t x with (pos t x) 
->   | L = Left ()
->   | R = Right ()
-> -- %freeze admissibleLemma
-
-> existsAdmissible : (t : Nat) -> (x : X t) -> Sigma Action (Admissible t x)
-> existsAdmissible t x with (admissibleLemma t x)
->   | (Left al)  = MkSigma Left al
->   | (Right ar) = MkSigma Right ar
-> -- %freeze existsAdmissible
-
-If starting in the middle (with x = maxColumnO2) there is a genuine
-choice between Left and Right. For Z < x < maxColumnO2 only Left is
-allowed and for maxColumnO2 < x < maxColumn only Right. Finally in the
-two "extreme" cases it is admitted to move Ahead or wrap around to the
-other end. The system will then after a possible first transient
-(moving just Left or just Right) end up in one extreme case and can
-then move freely between those two states (and only those two states)
-for each step.
-
-*** Admissible is decidable and unique:
-
-> d1Admissible : (t : Nat) -> (x : X t) -> Dec1 (Admissible t x)
-> d1Admissible t x Ahead with (decEq (column {t} x) Z)
->   | (Yes _) = Yes ()
->   | (No  _) with (decEq (column {t} x) maxColumn)
->     | (Yes _) = Yes ()
->     | (No  _) = No void 
-> d1Admissible t x Left with (pos t x) 
->   | L = Yes ()
->   | R = No void
-> d1Admissible t x Right with (pos t x) 
->   | L = No void
->   | R = Yes ()
-> -- %freeze d1Admissible
-
-> u1Admissible : (t : Nat) -> (x : X t) -> Unique1 (Admissible t x)
-> u1Admissible t x Ahead p q with (decEq (column {t} x) Z)
->   u1Admissible t x Ahead () () | (Yes _) = Refl
->   u1Admissible t x Ahead p q   | (No  _) with (decEq (column {t} x) maxColumn)
->     u1Admissible t x Ahead () ()   | (No  _) | (Yes _) = Refl
->     u1Admissible t x Ahead p q     | (No  _) | (No  _) = void p
-> u1Admissible t x Left p q with (pos t x) 
->   u1Admissible t x Left () () | L = Refl
->   u1Admissible t x Left p q   | R = void p
-> u1Admissible t x Right p q with (pos t x) 
->   u1Admissible t x Right p q   | L = void p
->   u1Admissible t x Right () () | R = Refl
-> -- %freeze u1Admissible
-
-
-*** Controls proper:
-
-> SeqDecProbMonadicTheoryRV.Y t x = SubType Action (Admissible t x) (u1Admissible t x)
+> SeqDecProbMonadicTheoryRV.Y t x = Action
 
 *** Controls are finite:
 
 > fY : (t : Nat) -> (x : X t) -> Finite (Y t x)
-> fY t x = finiteSubTypeLemma0 fAction (d1Admissible t x) (u1Admissible t x)
+> fY t x = fAction
 > -- %freeze fY
 
 *** Controls are not empty:
 
 > nefY : (t : Nat) -> (x : X t) -> NonEmpty (fY t x)
-> nefY t x = nonEmptyLemma (fY t x) (existsAdmissible t x)
+> nefY t x = nonEmptyLemma (fY t x) Left
 > -- %freeze nefY
 
 
 ** Transition function:
 
-> SeqDecProbMonadicTheoryRV.step t (MkSigma Z prf) (MkSigma Left aL) =
+> SeqDecProbMonadicTheoryRV.step t (MkSigma Z prf) Left =
 >   [MkSigma maxColumn (ltIdS maxColumn)]
-> SeqDecProbMonadicTheoryRV.step t (MkSigma (S n) prf) (MkSigma Left aL) =
+> SeqDecProbMonadicTheoryRV.step t (MkSigma (S n) prf) Left =
 >   [MkSigma n (ltLemma1 n nColumns prf)]
-> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) (MkSigma Ahead aA) =
+> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) Ahead =
 >   [MkSigma n prf]
-> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) (MkSigma Right aR) with (decLT n maxColumn)
+> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) Right with (decLT n maxColumn)
 >   | (Yes p)     = [MkSigma (S n) (LTESucc p)]
 >   | (No contra) = [MkSigma  Z    (LTESucc LTEZero)]
 > -- %freeze step
@@ -278,18 +197,15 @@ for each step.
 > -- %freeze reward
 
 
-* Predecessor, Viable and Reachable
-
-> Pred : {t : Nat} -> X t -> X (S t) -> Prop
-> Pred {t} x x'  =  Exists (\ y => x' `SeqDecProbMonadicTheoryRV.Elem` step t x y)
+* Viable and Reachable
 
 > -- Viable : (n : Nat) -> X t -> Prop
-> SeqDecProbMonadicTheoryRV.Viable {t}  n    _  =  Unit
+> SeqDecProbMonadicTheoryRV.Viable _ _ = Unit
 
 > -- viableSpec1 : (x : X t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
 > SeqDecProbMonadicTheoryRV.viableSpec1 {t} {n} x _ = s3 where
 >   y : Y t x
->   y = existsAdmissible t x
+>   y = Left
 >   mx' : List (X (S t))
 >   mx' = step t x y 
 >   s2  : SeqDecProbMonadicTheoryRV.All (Viable {t = S t} n) mx'
@@ -301,35 +217,16 @@ for each step.
 >   s3  = Evidence y s2
 > -- %freeze viableSpec1
 
-
 > -- Reachable : X t' -> Prop
-> SeqDecProbMonadicTheoryRV.Reachable {t' = Z}   _  =  Unit
-> SeqDecProbMonadicTheoryRV.Reachable {t' = S t} x' with (pos (S t) x')
->   | L with (decEq (column {t = (S t)} x') Z)
->     | Yes _ = Unit
->     | No  _ with (decLTE ((S t) + column {t = (S t)} x') maxColumnO2)
->       | Yes _ = Unit
->       | No  _ = Void
->   | R with (decEq (column {t = (S t)} x') maxColumn)
->     | Yes _ = Unit
->     | No  _ with (decLTE ((S t) + maxColumnO2) (column {t = (S t)} x'))
->       | Yes _ = Unit
->       | No  _ = Void
+> SeqDecProbMonadicTheoryRV.Reachable _ = Unit
 
 > -- reachableSpec1 : (x : X t) -> Reachable {t' = t} x -> (y : Y t x) -> All (Reachable {t' = S t}) (step t x y)
-> SeqDecProbMonadicTheoryRV.reachableSpec1 {t} (MkSigma Z prf) r (MkSigma Left aL) = () :: Nil
-> -- SeqDecProbMonadicTheoryRV.reachableSpec1 {t} (MkSigma (S n) prf) r (MkSigma Left aL) = () :: Nil
-> -- %freeze reachableSpec1
+> SeqDecProbMonadicTheoryRV.reachableSpec1 {t} x r y = all (step t x y) where
+>   all : (xs : List (X (S t))) -> SeqDecProbMonadicTheoryRV.All (Reachable {t' = S t}) xs
+>   all Nil = Nil
+>   all (x :: xs) = () :: (all xs)
 
-SeqDecProbMonadicTheoryRV.step t (MkSigma Z prf) (MkSigma Left aL) =
-  [MkSigma maxColumn (ltIdS maxColumn)]
-SeqDecProbMonadicTheoryRV.step t (MkSigma (S n) prf) (MkSigma Left aL) =
-  [MkSigma n (ltLemma1 n nColumns prf)]
-SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) (MkSigma Ahead aA) =
-  [MkSigma n prf]
-SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) (MkSigma Right aR) with (decLT n maxColumn)
-  | (Yes p)     = [MkSigma (S n) (LTESucc p)]
-  | (No contra) = [MkSigma  Z    (LTESucc LTEZero)]
+> -- %freeze reachableSpec1
 
 
 * Max and argmax
@@ -439,31 +336,8 @@ and |max|, |argmax|:
 > dElem x mx = Data.List.isElem x mx
 > -- %freeze dElem
 
-> dPred : {t : Nat} -> (x : X t) -> (x' : X (S t)) -> Dec (Pred {t = t} x x')
-> dPred {t} x x' = finiteDecLemma (fY t x) d1Elem where
->   d1Elem : Dec1 (\ y => x' `SeqDecProbMonadicTheoryRV.Elem` (step t x y))
->   d1Elem y = dElem {t = S t} x' (step t x y)
-> -- %freeze dPred
-
 > -- dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
-> {-
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dReachable {t' = Z}   x' = Yes ()
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dReachable {t' = S t} x' = s1 where
->   s1 : Dec (Exists (\ x => (Reachable x, Pred x x')))
->   s1 = finiteDecLemma (fX t) (\x => decPair (dReachable x) (dPred x x'))
-> ---}
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dReachable {t' = Z}   x' = Yes ()
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dReachable {t' = S t} x' with (pos (S t) x')
->   | L with (decEq (column {t = (S t)} x') Z)
->     | Yes _ = Yes ()
->     | No  _ with (decLTE ((S t) + column {t = (S t)} x') maxColumnO2)
->       | Yes _ = Yes ()
->       | No  _ = No void
->   | R with (decEq (column {t = (S t)} x') maxColumn)
->     | Yes _ = Yes ()
->     | No  _ with (decLTE ((S t) + maxColumnO2) (column {t = (S t)} x'))
->       | Yes _ = Yes ()
->       | No  _ = No void
+> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dReachable {t'} x' = Yes ()
 > -- %freeze dReachable
 
 > dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (SeqDecProbMonadicTheoryRV.All P mx)
@@ -471,49 +345,22 @@ and |max|, |argmax|:
 > -- %freeze dAll
 
 > -- dViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Dec (Viable n x)
-> {-
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dViable {t}  Z    x = Yes ()
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dViable {t} (S m) x = s3 where
->     s1    :  Dec1 (\ y => All (Viable {t = S t} m) (step t x y))
->     s1 y  =  dAll {t = S t} (Viable {t = S t} m) (dViable {t = S t} m) (step t x y)
->     s2    :  Dec (Exists (\ y => All (Viable {t = S t} m) (step t x y)))
->     s2    =  finiteDecLemma (fY t x) s1
->     s3    :  Dec (Viable {t = t} (S m) x)
->     s3    =  s2
-> ---}
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dViable {t}  n    x = Yes ()
+> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dViable {t} n x = Yes ()
 > -- %freeze dViable
 
 
 * The computation:
-
-** Actions of state/control sequences
-
-> lala : (t : Nat) ->
->        (n : Nat) ->
->        StateCtrlSeq t n ->
->        Vect n Action
-> lala _ Z _ = Nil
-> lala t (S n) ((MkSigma x y) :: xys) = (outl y) :: (lala (S t) n xys)
-> -- %freeze lala
-
-> actions : (t : Nat) ->
->           (n : Nat) ->
->           List (StateCtrlSeq t n) ->
->           List (Vect n Action)
-> actions t n scss = map (lala t n) scss
-> -- %freeze actions
 
 > showState : {t : Nat} -> X t -> String
 > showState {t} x = show (column {t} x)
 > -- %freeze showState
 
 > showControl : {t : Nat} -> {x : X t} -> Y t x -> String
-> showControl y = show (getWitness y)
+> showControl = show
 > -- %freeze showControl
 
 > showStateControl : {t : Nat} -> Sigma (X t) (Y t) -> String
-> showStateControl {t} (MkSigma x y) = "(" ++ showState {t} x ++ " ** " ++ showControl y ++ ")"
+> showStateControl {t} (MkSigma x y) = "(" ++ showState {t} x ++ " ** " ++ showControl {t} {x} y ++ ")"
 > -- %freeze showStateControl
 
 > showSCS : {t : Nat} -> {n : Nat} -> StateCtrlSeq t n -> String
@@ -533,32 +380,6 @@ and |max|, |argmax|:
 >   show' acc (scs :: scss) = show' (acc ++ showSCS scs ++ ", ") scss
 > -- %freeze showMSCS
 
-
-** Computation
-
-> showSeq : {t : Nat} -> {n : Nat} -> PolicySeq t n -> String
-> showSeq Nil = "Nil"
-> showSeq (p :: ps) = "? :: " ++ showSeq ps
-> -- %freeze showSeq
-
-> %assert_total
-> bie : (t : Nat) -> (n : Nat) -> ({ [STDIO] } Eff (PolicySeq t n))
-> bie t  Z     =  pure Nil
-> bie t (S n)  =  do ps <- bie (S t) n
->                    putStrLn (showSeq ps)
->                    pure (optExt ps :: ps)
-> -- %freeze bie
-
-> %assert_total
-> firstControl : (t : Nat) -> (n : Nat) -> 
->                (x : X t) -> (r : Reachable {t' = t} x) -> (v : Viable {t = t} n x) -> 
->                PolicySeq t n -> { [STDIO] } Eff ()
-> firstControl t  Z    x r v Nil       = putStr ("void policy sequence\n")
-> firstControl t (S m) x r v (p :: ps) = do yav <- pure (p x r v)
->                                           a <- pure (getWitness (getWitness yav))
->                                           putStr ("first control: " ++ (show a) ++ "\n")
-> -- %freeze firstControl
-
 > computation : { [STDIO] } Eff ()
 > computation =
 >   do putStr ("enter number of steps:\n")
@@ -570,13 +391,10 @@ and |max|, |argmax|:
 >                       ps   <- pure (bi Z nSteps)
 >                       -- ps   <- pure (fst (biT Z nSteps))
 >                       -- ps   <- pure (tabtrbi Z nSteps)
->                       -- firstControl Z nSteps x0 () v0 ps
 >                       putStr ("computing optimal controls ...\n")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       putStr ("done ...\n")
->                       -- as   <- pure (actions Z nSteps mxys)
->                       -- putStrLn (show as)
->                       -- putStrLn (showMSCS mxys)
+>                       putStrLn (showMSCS mxys)
+>                       putStr ("done!\n")
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 > -- %freeze computation
 

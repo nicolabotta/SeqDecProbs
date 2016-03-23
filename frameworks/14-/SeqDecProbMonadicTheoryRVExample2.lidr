@@ -97,7 +97,7 @@ is the identity monad:
 * The decision process:
 
 > maxColumnO2 : Nat
-> maxColumnO2 = 50
+> maxColumnO2 = 5
 > -- %freeze maxColumnO2
 
 > maxColumn : Nat
@@ -558,17 +558,22 @@ and |max|, |argmax|:
 > -- %freeze showControl
 
 > showStateControl : Sigma (X t) (Y t) -> String
-> showStateControl {t} (MkSigma x y) = showState {t} x ++ " ** " ++ showControl y
+> showStateControl {t} (MkSigma x y) = "(" ++ showState {t} x ++ " ** " ++ showControl y ++ ")"
 > -- %freeze showStateControl
 
-> showSCS : StateCtrlSeq t n -> String
-> showSCS {t} (Nil x)   = "Nil" ++ showState {t} x
-> showSCS     (p :: ps) = showStateControl p ++ " :: " ++ showSCS ps
+> showSCS : {t : Nat} -> {n : Nat} -> StateCtrlSeq t n -> String
+> showSCS scs = "[" ++ show' "" scs ++ "]" where
+>   show' : {t' : Nat} -> {n' : Nat} -> String -> StateCtrlSeq t' n' -> String
+>   show' {t'} {n' =   Z}      acc (Nil x)      =
+>     acc ++ "(" ++ showState {t = t'} x ++ " ** " ++ " " ++ ")" 
+>   show' {t'} {n' = S m'} acc (p :: ps)    = 
+>     show' {t' = S t'} {n' = m'} (acc ++ showStateControl p ++ ", ") ps
 > -- %freeze showSCS
 
 > showMSCS : Identity (StateCtrlSeq t n) -> String
 > showMSCS (Id scs) = showSCS scs
 > -- %freeze showMSCS
+
 
 ** Computation
 
@@ -609,9 +614,9 @@ and |max|, |argmax|:
 >                       -- firstControl Z nSteps x0 () v0 ps
 >                       putStr ("computing optimal controls ...\n")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       as   <- pure (actions Z nSteps mxys)
->                       putStrLn (show as)
->                       -- putStrLn (showMSCS mxys)
+>                       -- as   <- pure (actions Z nSteps mxys)
+>                       -- putStrLn (show as)
+>                       putStrLn (showMSCS mxys)
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 > -- %freeze computation
 
