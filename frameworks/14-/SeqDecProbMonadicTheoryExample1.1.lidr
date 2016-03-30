@@ -4,24 +4,23 @@
 
 > import Data.Fin
 > import Data.Vect
+> import Data.List
+> import Data.List.Quantifiers
 > import Data.So
-> import Control.Monad.Identity
 > import Control.Isomorphism
 > import Effects
 > import Effect.Exception
 > import Effect.StdIO
 > import Syntax.PreorderReasoning
 
-> import SeqDecProbMonadicTheoryRV
-> import IdentityOperations
-> import IdentityProperties
+> import SeqDecProbMonadicTheory
+> import ListOperations
+> import ListProperties
 > import BoundedNat
 > import BoundedNatOperations
 > import BoundedNatProperties
 > import SigmaOperations
 > import SigmaProperties
-> -- import SubsetOperations
-> -- import SubsetProperties
 > import NatProperties
 > import Finite
 > import FiniteOperations
@@ -46,54 +45,45 @@
 > %default total
 > %auto_implicits off
 
-
 > -- %logging 5
 
-The possibly simplest "cylinder" problem. |M| is the identity monad, the
-state space is constant and we can move to the left, ahead or to the
-right as we wish.
+We reimplement the Example1 with |M = List|:
 
 
-
-* The monad M (Identity):
+* The monad M (List):
 
 
 ** M is a monad:
 
-> SeqDecProbMonadicTheoryRV.M = Identity
+> SeqDecProbMonadicTheory.M = List
 
-> SeqDecProbMonadicTheoryRV.fmap = map
+> SeqDecProbMonadicTheory.fmap = ListOperations.fmap
 
-> SeqDecProbMonadicTheoryRV.ret = return
+> SeqDecProbMonadicTheory.ret = ListOperations.ret
 > -- %freeze ret
 
-> SeqDecProbMonadicTheoryRV.bind = (>>=)
+> SeqDecProbMonadicTheory.bind = ListOperations.bind
 > -- %freeze bind
 
 
 ** M is a container monad:
 
-> SeqDecProbMonadicTheoryRV.Elem = IdentityOperations.Elem
+> SeqDecProbMonadicTheory.Elem = Data.List.Elem
 
-> -- SeqDecProbMonadicTheoryRV.All P (Id a) = P a
-> -- SeqDecProbMonadicTheoryRV.All P (Id a) = P (unwrap (Id a))
-> SeqDecProbMonadicTheoryRV.All P = P . unwrap
+> SeqDecProbMonadicTheory.All = Data.List.Quantifiers.All
 
-> SeqDecProbMonadicTheoryRV.tagElem = IdentityOperations.tagElem
+> SeqDecProbMonadicTheory.tagElem = ListOperations.tagElem
 > -- %freeze tagElem
 
-> SeqDecProbMonadicTheoryRV.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
->   replace (sym a1eqa2) pa2
+> SeqDecProbMonadicTheory.containerMonadSpec3 = ListProperties.containerMonadSpec3
 > -- %freeze containerMonadSpec3
-
-> -- SeqDecProbMonadicTheoryRV.containerMonadSpec3 {ma = Id a} pa Refl = pa
 
 
 ** M is measurable:
 
-> SeqDecProbMonadicTheoryRV.meas (Id x) = x
+> SeqDecProbMonadicTheory.meas = sum
 
-> SeqDecProbMonadicTheoryRV.measMon f g prf (Id x) = prf x
+> SeqDecProbMonadicTheory.measMon = sumMon
 > -- %freeze measMon
 
 
@@ -109,13 +99,13 @@ right as we wish.
 
 ** States:
 
-> SeqDecProbMonadicTheoryRV.X t = LTB nColumns
+> SeqDecProbMonadicTheory.X t = LTB nColumns
 
 > column : {t : Nat} -> X t -> Nat
 > column = outl
 > -- %freeze column
 
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.fX t = finiteLTB _
+> SeqDecProbMonadicTheory.TabulatedBackwardsInduction.fX t = finiteLTB _
 > -- %freeze fX
 
 ** Actions:
@@ -165,9 +155,9 @@ right as we wish.
 > fAction = MkSigma 3 (MkIso to from toFrom fromTo)
 > %freeze fAction
 
-** Controls:
+** Controls (admissible actions):
 
-> SeqDecProbMonadicTheoryRV.Y t x = Action
+> SeqDecProbMonadicTheory.Y t x = Action
 
 *** Controls are finite:
 
@@ -184,21 +174,21 @@ right as we wish.
 
 ** Transition function:
 
-> SeqDecProbMonadicTheoryRV.step t (MkSigma Z prf) Left =
->   Id (MkSigma maxColumn (ltIdS maxColumn))
-> SeqDecProbMonadicTheoryRV.step t (MkSigma (S n) prf) Left =
->   Id (MkSigma n (ltLemma1 n nColumns prf))
-> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) Ahead =
->   Id (MkSigma n prf)
-> SeqDecProbMonadicTheoryRV.step t (MkSigma n prf) Right with (decLT n maxColumn)
->   | (Yes p)     = Id (MkSigma (S n) (LTESucc p))
->   | (No contra) = Id (MkSigma  Z    (LTESucc LTEZero))
+> SeqDecProbMonadicTheory.step t (MkSigma Z prf) Left =
+>   [MkSigma maxColumn (ltIdS maxColumn)]
+> SeqDecProbMonadicTheory.step t (MkSigma (S n) prf) Left =
+>   [MkSigma n (ltLemma1 n nColumns prf)]
+> SeqDecProbMonadicTheory.step t (MkSigma n prf) Ahead =
+>   [MkSigma n prf]
+> SeqDecProbMonadicTheory.step t (MkSigma n prf) Right with (decLT n maxColumn)
+>   | (Yes p)     = [MkSigma (S n) (LTESucc p)]
+>   | (No contra) = [MkSigma  Z    (LTESucc LTEZero)]
 > -- %freeze step
 
 
 ** Reward function:
 
-> SeqDecProbMonadicTheoryRV.reward t x y x' =
+> SeqDecProbMonadicTheory.reward t x y x' =
 >   if column {t = S t} x' == Z
 >   then (S Z)
 >   else if S (column {t = S t} x') == nColumns
@@ -207,38 +197,36 @@ right as we wish.
 > -- %freeze reward
 
 
-* Predecessor, Viable and Reachable
-
-> Pred : {t : Nat} -> X t -> X (S t) -> Prop
-> Pred {t} x x'  =  Exists (\ y => x' `SeqDecProbMonadicTheoryRV.Elem` step t x y)
+* Viable and Reachable
 
 > -- Viable : (n : Nat) -> X t -> Prop
-> SeqDecProbMonadicTheoryRV.Viable {t}  n    _  =  Unit
+> SeqDecProbMonadicTheory.Viable _ _ = Unit
 
 > -- viableSpec1 : (x : X t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
-> SeqDecProbMonadicTheoryRV.viableSpec1 {t} {n} x _ = s3 where
+> SeqDecProbMonadicTheory.viableSpec1 {t} {n} x _ = s3 where
 >   y : Y t x
 >   y = Left
->   mx' : M (X (S t))
+>   mx' : List (X (S t))
 >   mx' = step t x y 
->   x'  : X (S t)
->   x'  = unwrap mx'
->   s1  : Viable {t = S t} n x'
->   s1  = ()
->   s2  : All (Viable {t = S t} n) mx'
->   s2  = s1
->   s3  : Exists {a = Y t x} (\ y => All (Viable {t = S t} n) mx')
+>   s2  : SeqDecProbMonadicTheory.All (Viable {t = S t} n) mx'
+>   s2  = all mx' where
+>     all : (xs : List (X (S t))) -> SeqDecProbMonadicTheory.All (Viable {t = S t} n) xs
+>     all Nil = Nil
+>     all (x :: xs) = () :: (all xs)
+>   s3  : Exists {a = Y t x} (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))
 >   s3  = Evidence y s2
 > -- %freeze viableSpec1
 
-
 > -- Reachable : X t' -> Prop
-> SeqDecProbMonadicTheoryRV.Reachable {t'} _ = Unit
+> SeqDecProbMonadicTheory.Reachable _ = Unit
 
 > -- reachableSpec1 : (x : X t) -> Reachable {t' = t} x -> (y : Y t x) -> All (Reachable {t' = S t}) (step t x y)
-> SeqDecProbMonadicTheoryRV.reachableSpec1 x r y = ()
-> -- %freeze reachableSpec1
+> SeqDecProbMonadicTheory.reachableSpec1 {t} x r y = all (step t x y) where
+>   all : (xs : List (X (S t))) -> SeqDecProbMonadicTheory.All (Reachable {t' = S t}) xs
+>   all Nil = Nil
+>   all (x :: xs) = () :: (all xs)
 
+> -- %freeze reachableSpec1
 
 
 * Max and argmax
@@ -262,7 +250,7 @@ non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
 we have finiteness
 
 > fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable {t = t} (S n) x ->
->        Finite (Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+>        Finite (Sigma (Y t x) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y)))
 > -- %freeze fYAV
 
 non-emptiness is straightforward:
@@ -270,13 +258,13 @@ non-emptiness is straightforward:
 > neYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> (v : Viable {t = t} (S n) x) ->
 >         NonEmpty (fYAV t n x v)
 > neYAV t n x v = 
->   nonEmptyLemma {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))}
+>   nonEmptyLemma {A = Sigma (Y t x) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))}
 >                 (fYAV t n x v) (MkSigma y av) where
->     yav : Exists {a = Y t x} (\ y => All (Viable {t = S t} n) (step t x y))
+>     yav : Exists {a = Y t x} (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))
 >     yav = viableSpec1 {t = t} {n = n} x v            
 >     y   : Y t x
 >     y   = getWitness yav
->     av  : All (Viable {t = S t} n) (step t x y)
+>     av  : SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y)
 >     av  = getProof yav
 > -- %freeze neYAV
 
@@ -286,10 +274,9 @@ n) (step t x y)| is also finite, we can apply |finiteSigmaLemma| from
 |SigmaProperties| and we are done. We show the result in two steps
 
 > fAll : {t : Nat} -> {P : X t -> Type} ->
->        Finite1 P -> (mx : Identity (X t)) -> Finite (All P mx)
-> fAll f1P (Id x) = f1P x
+>        Finite1 P -> (xs : List (X t)) -> Finite (SeqDecProbMonadicTheory.All P xs)
+> fAll = finiteAllLemma
 > -- %freeze fAll
-
 
 and
 
@@ -299,11 +286,11 @@ and
 >   fViable t  n    x  = finiteSingleton
 >   -- %freeze fViable
 
-
 >   f1AllViable : (t : Nat) -> (n : Nat) -> (x : X t) ->
->                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
+>                 Finite1 (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))
 >   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (fViable (S t) n) (step t x y)
 >   -- %freeze f1AllViable
+
 
 With |f1AllViable| we can finally implement |fYAV|
 
@@ -312,30 +299,30 @@ With |f1AllViable| we can finally implement |fYAV|
 
 and |max|, |argmax|:
 
-> SeqDecProbMonadicTheoryRV.max  {t} {n} x v =
->   Opt.max {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+> SeqDecProbMonadicTheory.max  {t} {n} x v =
+>   Opt.max {A = Sigma (Y t x) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))} 
 >           {B = Nat} 
 >           totalPreorderNatLTE 
 >           (fYAV t n x v) 
 >           (neYAV t n x v)
 
-> SeqDecProbMonadicTheoryRV.argmax  {t} {n} x v  =
->   Opt.argmax {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+> SeqDecProbMonadicTheory.argmax  {t} {n} x v  =
+>   Opt.argmax {A = Sigma (Y t x) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))} 
 >              {B = Nat}
 >              totalPreorderNatLTE 
 >              (fYAV t n x v) 
 >              (neYAV t n x v)
 
-> SeqDecProbMonadicTheoryRV.maxSpec {n} t x v =
->   Opt.maxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+> SeqDecProbMonadicTheory.maxSpec {n} t x v =
+>   Opt.maxSpec {A = Sigma (Y t x) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))} 
 >               {B = Nat}
 >               totalPreorderNatLTE 
 >               (fYAV t n x v) 
 >               (neYAV t n x v)
 > -- %freeze maxSpec
 
-> SeqDecProbMonadicTheoryRV.argmaxSpec {n} t x v =
->   Opt.argmaxSpec {A = Sigma (Y t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
+> SeqDecProbMonadicTheory.argmaxSpec {n} t x v =
+>   Opt.argmaxSpec {A = Sigma (Y t x) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S t} n) (step t x y))} 
 >                  {B = Nat}
 >                  totalPreorderNatLTE 
 >                  (fYAV t n x v) 
@@ -345,26 +332,20 @@ and |max|, |argmax|:
 
 * Decidability of Viable and Reachable
 
-> dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `SeqDecProbMonadicTheoryRV.Elem` mx)
-> dElem x (Id x') = decEqLTB x x'
+> dElem : {t : Nat} -> (x : X t) -> (mx : M (X t)) -> Dec (x `SeqDecProbMonadicTheory.Elem` mx)
+> dElem x mx = Data.List.isElem x mx
 > -- %freeze dElem
 
-> dPred : {t : Nat} -> (x : X t) -> (x' : X (S t)) -> Dec (Pred {t = t} x x')
-> dPred {t} x x' = finiteDecLemma (fY t x) d1Elem where
->   d1Elem : Dec1 (\ y => x' `SeqDecProbMonadicTheoryRV.Elem` (step t x y))
->   d1Elem y = dElem {t = S t} x' (step t x y)
-> -- %freeze dPred
-
 > -- dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dReachable {t'} x' = Yes ()
+> SeqDecProbMonadicTheory.TabulatedBackwardsInduction.dReachable {t'} x' = Yes ()
 > -- %freeze dReachable
 
-> dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (All P mx)
-> dAll P dP (Id x) = dP x
+> dAll : {t : Nat} -> (P : X t -> Prop) -> Dec1 P -> (mx : M (X t)) -> Dec (SeqDecProbMonadicTheory.All P mx)
+> dAll P dP mx = all dP mx
 > -- %freeze dAll
 
 > -- dViable : {t : Nat} -> (n : Nat) -> (x : X t) -> Dec (Viable n x)
-> SeqDecProbMonadicTheoryRV.TabulatedBackwardsInduction.dViable {t} n x = Yes ()
+> SeqDecProbMonadicTheory.TabulatedBackwardsInduction.dViable {t} n x = Yes ()
 > -- %freeze dViable
 
 
@@ -391,8 +372,12 @@ and |max|, |argmax|:
 >     show' {t' = S t'} {n' = m'} (acc ++ showStateControl p ++ ", ") ps
 > -- %freeze showSCS
 
-> showMSCS : {t : Nat} -> {n : Nat} -> Identity (StateCtrlSeq t n) -> String
-> showMSCS (Id scs) = showSCS scs
+> showMSCS : {t : Nat} -> {n : Nat} -> List (StateCtrlSeq t n) -> String
+> showMSCS scss = "[" ++ show' "" scss ++ "]" where
+>   show' :  {t' : Nat} -> {n' : Nat} -> String -> List (StateCtrlSeq t' n') -> String
+>   show' acc [] = acc
+>   show' acc [scs] = acc ++ showSCS scs
+>   show' acc (scs :: scss) = show' (acc ++ showSCS scs ++ ", ") scss
 > -- %freeze showMSCS
 
 > computation : { [STDIO] } Eff ()
@@ -403,12 +388,13 @@ and |max|, |argmax|:
 >      x0 <- getLTB nColumns
 >      case (dViable {t = Z} nSteps x0) of
 >        (Yes v0) => do putStr ("computing optimal policies ...\n")
->                       -- ps   <- pure (bi Z nSteps)
+>                       ps   <- pure (bi Z nSteps)
 >                       -- ps   <- pure (fst (biT Z nSteps))
->                       ps   <- pure (tabtrbi Z nSteps)
+>                       -- ps   <- pure (tabtrbi Z nSteps)
 >                       putStr ("computing optimal controls ...\n")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       putStrLn (showMSCS mxys)
+>                       putStr ("done!\n")
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 > -- %freeze computation
 
@@ -416,8 +402,12 @@ and |max|, |argmax|:
 > main = run computation
 > -- %freeze main
 
+> {-
+
 > ---}
+
 
 -- Local Variables:
 -- idris-packages: ("effects")
 -- End:
+ 

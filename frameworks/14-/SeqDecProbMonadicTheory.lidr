@@ -1,4 +1,4 @@
-> module SeqDecProbMonadicTheoryRV
+> module SeqDecProbMonadicTheory
 
 > import Data.Fin
 > import Data.Vect
@@ -363,19 +363,6 @@ possible future evolutions from a (viable) initial state:
 >   data StateCtrlSeq : (t : Nat) -> (n : Nat) -> Type where
 >     Nil   :  (x : X t) -> StateCtrlSeq t Z
 >     (::)  :  Sigma (X t) (Y t) -> StateCtrlSeq (S t) n -> StateCtrlSeq t (S n)
-
->   using (t : Nat, n : Nat)
->     implementation (Show (Sigma (X t) (Y t))) => Show (StateCtrlSeq t n) where
->       show = show' where
->         show' : {t : Nat} -> {n : Nat} -> StateCtrlSeq t n -> String
->         show' scs = "[" ++ show'' "" scs ++ "]" where
->           show'' : {t' : Nat} -> {n' : Nat} -> String -> StateCtrlSeq t' n' -> String
->           show'' {t'} {n' =   Z}      acc (Nil x)      =
->             acc ++ "(" ++ show {t = t'} x ++ " ** " ++ " " ++ ")" 
->           show'' {t'} {n' = S m'} acc (p :: ps)    = 
->             show'' {t' = S t'} {n' = m'} (acc ++ show p ++ ", ") ps
-
-
 
 >   stateCtrlTrj  :  (x : X t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                    (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
