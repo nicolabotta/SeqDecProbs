@@ -4,17 +4,17 @@ IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects --warnreach -V
 all:
 	find . -not \( -path "./zombies" -prune \) -not \( -path "./unused" -prune \) -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check
 
-example1: SeqDecProbMonadicTheoryExample1.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryExample1.lidr -o example1
+example1: SeqDecProbMonadicExample1.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample1.lidr -o example1
 
-example1.1: SeqDecProbMonadicTheoryExample1.1.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryExample1.1.lidr -o example1.1
+example1.1: SeqDecProbMonadicExample1.1.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample1.1.lidr -o example1.1
 
-example2: SeqDecProbMonadicTheoryExample2.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryExample2.lidr -o example2
+example2: SeqDecProbMonadicExample2.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample2.lidr -o example2
 
-example3: SeqDecProbMonadicTheoryExample3.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicTheoryExample3.lidr -o example3
+example3: SeqDecProbMonadicExample3.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample3.lidr -o example3
 
 issue3001: NonNegRational3001.lidr
 	${IDRIS} ${IDRISFLAGS} NonNegRational3001.lidr
