@@ -1,5 +1,5 @@
 module C
-import A
+--import A
 import B
 z : Bool
 z = x

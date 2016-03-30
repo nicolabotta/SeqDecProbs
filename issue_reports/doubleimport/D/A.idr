@@ -1,2 +1,2 @@
 module A
-x : Bool
+export x : Bool
