@@ -6,7 +6,7 @@
 > import FractionOperations
 > import FractionProperties
 > import PairsOperations
-> -- import Sigma
+> import Sigma
 
 
 > %default total
@@ -16,7 +16,7 @@
 
 > ||| 
 > toFraction : NonNegRational -> Fraction
-> toFraction = getWitness
+> toFraction = PairsOperations.Subset.getWitness
 > -- %freeze toFraction
 
 

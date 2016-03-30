@@ -5,11 +5,11 @@
 > import Data.Fin
 > import Data.So
 
-> import Sigma
 > import Decidable
 > import TotalPreorder
 > import TotalPreorderOperations
 > import NatProperties
+> import Sigma
 
 
 > %default total
@@ -110,6 +110,16 @@ Searching
 > max tp as p = snd (argmaxMax tp as p)
 
 
+Show
+
+> implementation Show (Elem a as) where
+>   show = show' where
+>     show' : {n : Nat} -> {A : Type} -> {a : A} -> {as : Vect n A} -> Elem a as -> String 
+>     show'  Here     = "Here"
+>     show' (There p) = "There" ++ show' p
+
+
+
 > {-
 
 > |||
@@ -161,4 +171,5 @@ Searching
 
 > ---}
  
+> ---}
 

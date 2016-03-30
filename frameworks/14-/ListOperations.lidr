@@ -38,3 +38,11 @@
 >   f : Sigma A (\ a => a `Elem` xs) -> Sigma A (\ a => a `Elem` (x :: xs))
 >   f (MkSigma a p) = MkSigma a (There p)
 
+
+Show
+
+> implementation Show (Elem a as) where
+>   show = show' where
+>     show' : {A : Type} -> {a : A} -> {as : List A} -> Elem a as -> String 
+>     show'  Here     = "Here"
+>     show' (There p) = "There" ++ show' p
