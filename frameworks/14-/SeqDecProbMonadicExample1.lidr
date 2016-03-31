@@ -13,6 +13,7 @@
 > import Syntax.PreorderReasoning
 
 > import SeqDecProbMonadicTheory
+> import SeqDecProbMonadicUtils
 > import IdentityOperations
 > import IdentityProperties
 > import BoundedNat
@@ -370,29 +371,16 @@ and |max|, |argmax|:
 
 * The computation:
 
-> showState : {t : Nat} -> X t -> String
-> showState {t} x = show (column {t} x)
+> -- showState : {t : Nat} -> X t -> String
+> SeqDecProbMonadicUtils.showState {t} x = show (column {t} x)
 > -- %freeze showState
 
-> showControl : {t : Nat} -> {x : X t} -> Y t x -> String
-> showControl = show
+> -- showControl : {t : Nat} -> {x : X t} -> Y t x -> String
+> SeqDecProbMonadicUtils.showCtrl = show
 > -- %freeze showControl
 
-> showStateControl : {t : Nat} -> Sigma (X t) (Y t) -> String
-> showStateControl {t} (MkSigma x y) = "(" ++ showState {t} x ++ " ** " ++ showControl {t} {x} y ++ ")"
-> -- %freeze showStateControl
-
-> showSCS : {t : Nat} -> {n : Nat} -> StateCtrlSeq t n -> String
-> showSCS scs = "[" ++ show' "" scs ++ "]" where
->   show' : {t' : Nat} -> {n' : Nat} -> String -> StateCtrlSeq t' n' -> String
->   show' {t'} {n' =   Z}      acc (Nil x)      =
->     acc ++ "(" ++ showState {t = t'} x ++ " ** " ++ " " ++ ")" 
->   show' {t'} {n' = S m'} acc (p :: ps)    = 
->     show' {t' = S t'} {n' = m'} (acc ++ showStateControl p ++ ", ") ps
-> -- %freeze showSCS
-
 > showMSCS : {t : Nat} -> {n : Nat} -> Identity (StateCtrlSeq t n) -> String
-> showMSCS (Id scs) = showSCS scs
+> showMSCS (Id scs) = show scs
 > -- %freeze showMSCS
 
 > computation : { [STDIO] } Eff ()
