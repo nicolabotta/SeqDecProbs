@@ -14,6 +14,7 @@
 > import Syntax.PreorderReasoning
 
 > import SeqDecProbMonadicTheory
+> import SeqDecProbMonadicUtils
 > import ListOperations
 > import ListProperties
 > import BoundedNat
@@ -351,34 +352,48 @@ and |max|, |argmax|:
 
 * The computation:
 
-> showState : {t : Nat} -> X t -> String
-> showState {t} x = show (column {t} x)
+> -- showState : {t : Nat} -> X t -> String
+> SeqDecProbMonadicUtils.showState {t} x = show (column {t} x)
 > -- %freeze showState
 
-> showControl : {t : Nat} -> {x : X t} -> Y t x -> String
-> showControl = show
+> -- showControl : {t : Nat} -> {x : X t} -> Y t x -> String
+> SeqDecProbMonadicUtils.showCtrl = show
 > -- %freeze showControl
 
-> showStateControl : {t : Nat} -> Sigma (X t) (Y t) -> String
-> showStateControl {t} (MkSigma x y) = "(" ++ showState {t} x ++ " ** " ++ showControl {t} {x} y ++ ")"
-> -- %freeze showStateControl
+> nSteps : Nat
+> nSteps = S Z
 
-> showSCS : {t : Nat} -> {n : Nat} -> StateCtrlSeq t n -> String
-> showSCS scs = "[" ++ show' "" scs ++ "]" where
->   show' : {t' : Nat} -> {n' : Nat} -> String -> StateCtrlSeq t' n' -> String
->   show' {t'} {n' =   Z}      acc (Nil x)      =
->     acc ++ "(" ++ showState {t = t'} x ++ " ** " ++ " " ++ ")" 
->   show' {t'} {n' = S m'} acc (p :: ps)    = 
->     show' {t' = S t'} {n' = m'} (acc ++ showStateControl p ++ ", ") ps
-> -- %freeze showSCS
+> x0 : X Z
+> x0 = MkSigma (S Z) (LTESucc (LTESucc LTEZero))
 
-> showMSCS : {t : Nat} -> {n : Nat} -> List (StateCtrlSeq t n) -> String
-> showMSCS scss = "[" ++ show' "" scss ++ "]" where
->   show' :  {t' : Nat} -> {n' : Nat} -> String -> List (StateCtrlSeq t' n') -> String
->   show' acc [] = acc
->   show' acc [scs] = acc ++ showSCS scs
->   show' acc (scs :: scss) = show' (acc ++ showSCS scs ++ ", ") scss
-> -- %freeze showMSCS
+> r0 : Reachable {t' = Z} x0
+> r0 = ()
+
+> v0 : Viable {t = Z} nSteps x0
+> v0 = ()
+
+> ps : PolicySeq Z nSteps
+> ps = bi Z nSteps
+
+
+> lala : {t : Nat} -> {n : Nat} -> 
+>        (x : X t) -> Reachable {t' = t} x -> Viable {t = t} n x -> PolicySeq t n -> Z `LT` n -> Y t x
+> lala {t} {n = Z}   _ _ _  Nil      ZLTZ = absurd ZLTZ
+> lala {t} {n = S m} x r v (p :: ps) _    = Sigma.getWitness (p x r v) 
+
+
+> y0 : Y Z x0
+> y0 = lala {t = Z} x0 r0 v0 ps ltZS'
+
+> a0 : Action
+> a0 = y0
+
+> main : IO ()
+> main = do putStr (showState {t = Z} x0)
+>           putStr (show a0)
+>           putStr ("done!\n")
+
+> {-
 
 > computation : { [STDIO] } Eff ()
 > computation =
@@ -393,7 +408,7 @@ and |max|, |argmax|:
 >                       -- ps   <- pure (tabtrbi Z nSteps)
 >                       putStr ("computing optimal controls ...\n")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       putStrLn (showMSCS mxys)
+>                       putStrLn (show mxys)
 >                       putStr ("done!\n")
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 > -- %freeze computation
@@ -401,8 +416,6 @@ and |max|, |argmax|:
 > main : IO ()
 > main = run computation
 > -- %freeze main
-
-> {-
 
 > ---}
 

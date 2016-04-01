@@ -379,10 +379,6 @@ and |max|, |argmax|:
 > SeqDecProbMonadicUtils.showCtrl = show
 > -- %freeze showControl
 
-> showMSCS : {t : Nat} -> {n : Nat} -> Identity (StateCtrlSeq t n) -> String
-> showMSCS (Id scs) = show scs
-> -- %freeze showMSCS
-
 > computation : { [STDIO] } Eff ()
 > computation =
 >   do putStr ("enter number of steps:\n")
@@ -396,7 +392,7 @@ and |max|, |argmax|:
 >                       ps   <- pure (tabtrbi Z nSteps)
 >                       putStr ("computing optimal controls ...\n")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       putStrLn (showMSCS mxys)
+>                       putStrLn (show mxys)                       
 >        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
 > -- %freeze computation
 

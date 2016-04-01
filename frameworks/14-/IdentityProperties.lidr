@@ -46,3 +46,9 @@ Container monad uniqueness:
 > ||| |Elem| is unique
 > uniqueElem : {A : Type} -> UniqueEq0 A -> (a : A) -> (ma : Identity A) -> Unique (a `Elem` ma)
 > uniqueElem unique a1 (Id a2) p q = unique a1 a2 p q
+
+Show
+
+> using (A : Type)
+>   implementation (Show A) => Show (Identity A) where
+>     show (Id a) = show a

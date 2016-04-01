@@ -156,6 +156,12 @@ LT, LTE properties
 > ltZS (S m) = idSuccPreservesLTE (S Z) (S m) (ltZS m)
 > %freeze ltZS
 
+> ||| Zero is smaller than any successor
+> ltZS' : {n : Nat} -> LT Z (S n)
+> ltZS' {n = Z}   = LTESucc LTEZero
+> ltZS' {n = S m} = idSuccPreservesLTE (S Z) (S m) ltZS'
+> %freeze ltZS'
+
 > ||| Any number is smaller than its successor
 > ltIdS : (m : Nat) -> LT m (S m)
 > ltIdS  Z    = LTESucc LTEZero

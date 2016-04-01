@@ -8,6 +8,7 @@
 > %access public export
 > %auto_implicits off
 
+
 > |||
 > showState : {t : Nat} -> X t -> String
 
