@@ -386,14 +386,15 @@ and |max|, |argmax|:
 >      putStr ("enter initial column:\n")
 >      x0 <- getLTB nColumns
 >      case (dViable {t = Z} nSteps x0) of
->        (Yes v0) => do putStr ("computing optimal policies ...\n")
+>        (Yes v0) => do putStrLn ("computing optimal policies ...")
 >                       -- ps   <- pure (bi Z nSteps)
 >                       -- ps   <- pure (fst (biT Z nSteps))
 >                       ps   <- pure (tabtrbi Z nSteps)
->                       putStr ("computing optimal controls ...\n")
+>                       putStrLn ("computing optimal controls ...")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       putStrLn (show mxys)                       
->        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
+>                       putStrLn (show mxys)
+>                       putStrLn ("done!")                       
+>        (No _)   => putStrLn ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps")
 > -- %freeze computation
 
 > main : IO ()

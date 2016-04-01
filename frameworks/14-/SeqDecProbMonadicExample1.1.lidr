@@ -360,8 +360,36 @@ and |max|, |argmax|:
 > SeqDecProbMonadicUtils.showCtrl = show
 > -- %freeze showControl
 
+> computation : { [STDIO] } Eff ()
+> computation =
+>   do putStr ("enter number of steps:\n")
+>      nSteps <- getNat
+>      putStr ("enter initial column:\n")
+>      x0 <- getLTB nColumns
+>      case (dViable {t = Z} nSteps x0) of
+>        (Yes v0) => do putStrLn ("computing optimal policies ...")
+>                       -- ps   <- pure (bi Z nSteps)
+>                       -- ps   <- pure (fst (biT Z nSteps))
+>                       ps   <- pure (tabtrbi Z nSteps)
+>                       putStrLn ("computing optimal controls ...")
+>                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       putStrLn (show mxys)
+>                       putStrLn ("done!")
+>        (No _)   => putStrLn ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps")
+> -- %freeze computation
+
+> main : IO ()
+> main = run computation
+> -- %freeze main
+
+
+> {-
+
+> pnSteps : Nat
+> pnSteps = Z
+
 > nSteps : Nat
-> nSteps = S Z
+> nSteps = S pnSteps
 
 > x0 : X Z
 > x0 = MkSigma (S Z) (LTESucc (LTESucc LTEZero))
@@ -375,47 +403,24 @@ and |max|, |argmax|:
 > ps : PolicySeq Z nSteps
 > ps = bi Z nSteps
 
+> policy : {t : Nat} -> {n : Nat} -> PolicySeq t n -> Policy t n 
+> policy {n = Z}   Nil = ()
+> policy {n = S m} (p :: _) = p
 
-> lala : {t : Nat} -> {n : Nat} -> 
->        (x : X t) -> Reachable {t' = t} x -> Viable {t = t} n x -> PolicySeq t n -> Z `LT` n -> Y t x
-> lala {t} {n = Z}   _ _ _  Nil      ZLTZ = absurd ZLTZ
-> lala {t} {n = S m} x r v (p :: ps) _    = Sigma.getWitness (p x r v) 
-
+> yp0 : Sigma (Y Z x0) (\ y => SeqDecProbMonadicTheory.All (Viable {t = S Z} pnSteps) (step Z x0 y))
+> yp0 = (policy ps) x0 r0 v0
 
 > y0 : Y Z x0
-> y0 = lala {t = Z} x0 r0 v0 ps ltZS'
+> y0 = getWitness yp0
 
-> a0 : Action
-> a0 = y0
-
-> main : IO ()
-> main = do putStr (showState {t = Z} x0)
->           putStr (show a0)
->           putStr ("done!\n")
-
-> {-
-
-> computation : { [STDIO] } Eff ()
-> computation =
->   do putStr ("enter number of steps:\n")
->      nSteps <- getNat
->      putStr ("enter initial column:\n")
->      x0 <- getLTB nColumns
->      case (dViable {t = Z} nSteps x0) of
->        (Yes v0) => do putStr ("computing optimal policies ...\n")
->                       ps   <- pure (bi Z nSteps)
->                       -- ps   <- pure (fst (biT Z nSteps))
->                       -- ps   <- pure (tabtrbi Z nSteps)
->                       putStr ("computing optimal controls ...\n")
->                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
->                       putStrLn (show mxys)
->                       putStr ("done!\n")
->        (No _)   => putStr ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps\n")
-> -- %freeze computation
+> s0 : String
+> s0 = showCtrl {t = Z} {x = x0} y0
 
 > main : IO ()
-> main = run computation
-> -- %freeze main
+> main = do putStrLn (showState {t = Z} x0)
+>           -- putStrLn (showCtrl {t = Z} {x = x0} y0)
+>           putStrLn s0
+>           putStrLn ("done!")
 
 > ---}
 
