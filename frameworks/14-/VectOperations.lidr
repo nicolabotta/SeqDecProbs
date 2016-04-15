@@ -119,6 +119,16 @@ Show
 >     show' (There p) = "There" ++ show' p
 
 
+Pointwise modify
+
+> |||
+> modifyVect : {n : Nat} -> {a : Type} ->
+>              Vect n a -> Fin n -> a -> Vect n a
+> modifyVect {n = Z}    Nil          k  _  = absurd k
+> modifyVect {n = S m} (a :: as)  FZ    a' = a' :: as
+> modifyVect {n = S m} (a :: as) (FS k) a' = a :: (modifyVect as k a')
+
+
 
 > {-
 
@@ -173,3 +183,4 @@ Show
  
 > ---}
 
+ 

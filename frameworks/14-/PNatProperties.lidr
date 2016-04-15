@@ -83,7 +83,8 @@
 >     ( (Element m pm) * (Element (n * o) pno) )
 >   ={ Refl }=
 >     ( Element (m * (n * o)) pmno )
->   ={ toNatEqLemma (multAssociative m n o) }=
+>   -- ={ toNatEqLemma (multAssociative m n o) }=
+>   ={ toNatEqLemma (Prelude.Nat.multAssociative m n o) }=
 >     ( Element ((m * n) * o) pmno' )
 >   ={ Refl }=
 >     ( (Element (m * n) pmn) * (Element o po) )

@@ -25,11 +25,20 @@
 
 > ||| Parses a string for a bounded Nat
 > parseLTB : (b : Nat) -> String -> { [EXCEPTION String] } Eff (LTB b)
+> {-
 > parseLTB b str
 >   = if all (\x => isDigit x) (unpack str)
 >     then let n = cast {to = Nat} (cast {to = Int} str) in
 >          case (decLT n b) of
 >            (Yes p) => pure (MkSigma n p)
+>            (No _)  => raise "Out of bound!"
+>     else raise "Not a Nat!"
+> -}
+> parseLTB b str
+>   = if all (\x => isDigit x) (unpack str)
+>     then let m = cast {to = Nat} (cast {to = Int} str) in
+>          case (decLT m b) of
+>            (Yes p) => pure (MkSigma m p)
 >            (No _)  => raise "Out of bound!"
 >     else raise "Not a Nat!"
 
