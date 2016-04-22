@@ -1,7 +1,5 @@
 > module NatProperties
 
-
-> import Decidable.Order
 > import Syntax.PreorderReasoning
 
 > import NatPredicates
@@ -12,8 +10,8 @@
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 > implementation Uninhabited (S n = Z) where
