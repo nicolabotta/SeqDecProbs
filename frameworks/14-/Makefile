@@ -15,11 +15,14 @@ example1: SeqDecProbsExample1.lidr
 example1tab: SeqDecProbsExample1tab.lidr
 	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample1tab.lidr -o example1tab
 
+example2: SeqDecProbsExample2.lidr
+	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample2.lidr -o example2
+
 example1.1: SeqDecProbMonadicExample1.1.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample1.1.lidr -o example1.1
 
-example2: SeqDecProbMonadicExample2.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample2.lidr -o example2
+example2old: SeqDecProbMonadicExample2.lidr
+	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample2.lidr -o example2old
 
 example3: SeqDecProbMonadicExample3.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample3.lidr -o example3

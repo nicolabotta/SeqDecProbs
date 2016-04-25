@@ -186,7 +186,7 @@ computation, running out of fuel, being shot dead.
 >                         (x : State t) -> Viable Z x
 > viableSpec1 : {t : Nat} -> {n : Nat} -> 
 >               (x : State t) -> Viable (S n) x -> 
->               Exists {a = Ctrl t x} (\ y => All (Viable n) (step t x y))
+>               Exists {a = Ctrl t x} (\ y => All (Viable {t = S t} n) (step t x y))
 > postulate viableSpec2 : {t : Nat} -> {n : Nat} -> 
 >                         (x : State t) -> Exists (\ y => All (Viable n) (step t x y)) -> 
 >                         Viable (S n) x

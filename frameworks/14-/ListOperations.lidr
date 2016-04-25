@@ -7,8 +7,8 @@
 > import Sigma
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 |List| is a functor:
