@@ -5,7 +5,6 @@
 > import Control.Isomorphism
 
 > import Sigma
-> import PairsOperations
 > import Finite
 > import Decidable
 > import FiniteOperations
@@ -19,12 +18,12 @@
 
 > |||
 > outl : {A : Type} -> {P : A -> Type} -> Sigma A P -> A
-> outl = getWitness
+> outl (MkSigma a _) = a
 
 
 > |||
 > outr : {A : Type} -> {P : A -> Type} -> (s : Sigma A P) -> P (outl s)
-> outr = getProof
+> outr (MkSigma _ p) = p
 
 
 > ||| Maps a finite type |A| and a decidable predicate |P| to a vector |Sigma A P| values

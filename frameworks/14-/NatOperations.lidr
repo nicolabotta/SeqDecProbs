@@ -1,13 +1,9 @@
 > module NatOperations
 
-
 > import NatPredicates
 
-
 > %default total
-
 > %access public export
-
 > %hide (-)
 
 
