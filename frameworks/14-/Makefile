@@ -12,6 +12,9 @@ coreTheory: SeqDecProbsCoreTheory.lidr
 example1: SeqDecProbsExample1.lidr
 	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample1.lidr -o example1
 
+example1tab: SeqDecProbsExample1tab.lidr
+	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample1tab.lidr -o example1tab
+
 example1.1: SeqDecProbMonadicExample1.1.lidr
 	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample1.1.lidr -o example1.1
 

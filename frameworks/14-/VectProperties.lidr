@@ -2,30 +2,25 @@
 
 
 > import Data.Vect
-> -- import Data.VectType
 > import Data.Vect.Quantifiers
 > import Data.Fin
-> -- import Syntax.PreorderReasoning
 
-> import Prop
 > import Sigma
-> import PairsOperations
-> -- import SubsetOperations
-> import ExistsOperations
 > import SigmaOperations
+> import PairsOperations
+> import ExistsOperations
 > import VectOperations
 > import Decidable
 > import TotalPreorder
 > import TotalPreorderOperations
 > import NatProperties
-> -- import FinOperations
 > import FinProperties
 > import FunOperations
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 > {-
@@ -145,16 +140,16 @@ Membership, quantifiers:
 > elemLemma {n = S m} a as  p = ltZS m
 
 
-> AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> {as : Vect n A} ->
+> AnyExistsLemma : {A : Type} -> {P : A -> Type} -> {as : Vect n A} ->
 >                  Any P as -> Exists P
 > AnyExistsLemma (Here px) = Evidence _ px
 > AnyExistsLemma (There prf) = AnyExistsLemma prf
 
-> ElemAnyLemma : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
+> ElemAnyLemma : {A : Type} -> {P : A -> Type} -> P a -> Elem a as -> Any P as
 > ElemAnyLemma p Here = Here p
 > ElemAnyLemma p (There e) = There (ElemAnyLemma p e)
 
-> decAny : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
+> decAny : {A : Type} -> {P : A -> Type} -> Dec1 P -> Dec1 (Any P)
 > decAny d1P = any d1P
 
 
@@ -211,20 +206,20 @@ Filtering
 >                       (as : Vect n A) ->
 >                       Elem a as ->
 >                       (p : P a) ->
->                       Elem a (map Sigma.getWitness (Sigma.getProof (filterTagSigma d1P as)))
+>                       Elem a (map SigmaOperations.outl (SigmaOperations.outr (filterTagSigma d1P as)))
 > filterTagSigmaLemma d1P a   Nil       prf  p = absurd prf
 > filterTagSigmaLemma d1P a1 (a1 :: as) Here p with (filterTagSigma d1P as)
 >   | (MkSigma n aps') with (d1P a1)
->     | (Yes _) = Here {x = a1} {xs = map getWitness aps'}
+>     | (Yes _) = Here {x = a1} {xs = map SigmaOperations.outl aps'}
 >     | (No  contra) = void (contra p)
 > filterTagSigmaLemma d1P a1 (a2 :: as) (There prf) p with (filterTagSigma d1P as) proof itsEqual
 >   | (MkSigma n aps') with (d1P a2)
->     | (Yes _) = -- There {x = a1} {xs = map getWitness aps'} {y = a2} (filterTagSigmaLemma d1P a1 as prf p)
->                 There {x = a1} {xs = map getWitness aps'} {y = a2} $
->                   replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
+>     | (Yes _) = -- There {x = a1} {xs = map SigmaOperations.outl aps'} {y = a2} (filterTagSigmaLemma d1P a1 as prf p)
+>                 There {x = a1} {xs = map SigmaOperations.outl aps'} {y = a2} $
+>                   replace {P = \rec => Elem a1 (map SigmaOperations.outl (getProof rec))} (sym itsEqual) $
 >                     filterTagSigmaLemma d1P a1 as prf p
 >     | (No  _) = -- filterTagSigmaLemma d1P a1 as prf p
->                 replace {P = \rec => Elem a1 (map Sigma.getWitness (getProof rec))} (sym itsEqual) $
+>                 replace {P = \rec => Elem a1 (map SigmaOperations.outl (getProof rec))} (sym itsEqual) $
 >                   filterTagSigmaLemma d1P a1 as prf p
 
 
@@ -455,9 +450,3 @@ Max and argmax
 >     s3 = transitive (snd af) (VectOperations.max (af'' :: afs)) (snd af') s1 s2
 
 > -}
-
-
-
-
-
-Decidability

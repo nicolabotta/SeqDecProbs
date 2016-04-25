@@ -5,7 +5,6 @@
 > import Data.Vect.Quantifiers
 > import Control.Isomorphism
 
-> import Prop
 > import Finite
 > import FiniteOperations
 > import Decidable
@@ -71,21 +70,21 @@ Non empty finite types
 
 
 We want to show that, for a finite type |A| and a decidable predicate |P
-: A -> Prop|, |Exists P| is decidable
+: A -> Type|, |Exists P| is decidable
 
-< finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
+< finiteDecLemma : {A : Type} -> {P : A -> Type} -> Finite A -> Dec1 P -> Dec (Exists P)
 
 (See also |finiteDecLemma2| which is a proof without using vectors.)
 
 It is useful to recall (see "VectProperties.lidr") that
 
-< decAny         : {A : Type} -> {P : A -> Prop} -> Dec1 P -> Dec1 (Any P)
-< AnyExistsLemma : {A : Type} -> {P : A -> Prop} -> Any P as -> Exists P
-< ElemAnyLemma   : {A : Type} -> {P : A -> Prop} -> P a -> Elem a as -> Any P as
+< decAny         : {A : Type} -> {P : A -> Type} -> Dec1 P -> Dec1 (Any P)
+< AnyExistsLemma : {A : Type} -> {P : A -> Type} -> Any P as -> Exists P
+< ElemAnyLemma   : {A : Type} -> {P : A -> Type} -> P a -> Elem a as -> Any P as
 
 With these premises, proving |finiteDecLemma| is almost straightforward:
 
-> finiteDecLemma : {A : Type} -> {P : A -> Prop} -> Finite A -> Dec1 P -> Dec (Exists P)
+> finiteDecLemma : {A : Type} -> {P : A -> Type} -> Finite A -> Dec1 P -> Dec (Exists P)
 > finiteDecLemma fA dP with (decAny dP (toVect fA))
 >   | (Yes prf)   = Yes (AnyExistsLemma prf)
 >   | (No contra) = No (\ e => contra (ElemAnyLemma (getProof e) (toVectComplete fA (getWitness e))))
@@ -137,11 +136,11 @@ In fact, Iso is not needed - we can map already with just any pair of functions:
 
 This |lemma| is roughly where we want to end up:
 
-< lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> {P : A -> Prop} -> Dec1 P -> Dec (Exists P)
+< lemma : (n : Nat) -> {A : Type} -> FiniteN n A -> {P : A -> Type} -> Dec1 P -> Dec (Exists P)
 
 But let's start with a simpler version, ignoring A for now:
 
-< decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> (dP : Dec1 P) -> Dec (Exists P)
+< decExistsFin : (n : Nat) -> (P : Fin n -> Type) -> (dP : Dec1 P) -> Dec (Exists P)
 
 Dec (Exists P) is either Yes (an index (i : Fin n) and a proof (p : P
 i)) or No (a function showing that any such "index+proof-pair" is
@@ -175,7 +174,7 @@ We defined |decCons| to combine decidability tests for the "head" and
 the "tail" of a predicate |P| into decidability for the full
 predicate. (Pick the lowest index with a |Yes|.)
 
-> using (n : Nat, P : Fin (S n) -> Prop)
+> using (n : Nat, P : Fin (S n) -> Type)
 >   exiCons  :                    Exists (tail P)  ->      Exists P
 >   exiCons (Evidence i p) = Evidence (FS i) p
 
@@ -190,7 +189,7 @@ predicate. (Pick the lowest index with a |Yes|.)
 
 Find the lowest index for which |dP| says |Yes|.
 
-> decExistsFin : (n : Nat) -> (P : Fin n -> Prop) -> Dec1 P -> Dec (Exists P)
+> decExistsFin : (n : Nat) -> (P : Fin n -> Type) -> Dec1 P -> Dec (Exists P)
 > decExistsFin Z     P dP = decNil
 > decExistsFin (S n) P dP = decCons (dP FZ) (decExistsFin n (tail P)
 >                                                           (tailDec1 dP))
@@ -213,7 +212,7 @@ With the simpler case out of the way we can return to the more general case:
 This is the core result:
 
 > finiteDecHelper : (n : Nat) -> {A : Type} -> FiniteN n A ->
->                   (P : A -> Prop) -> Dec1 P -> Dec (Exists P)
+>                   (P : A -> Type) -> Dec1 P -> Dec (Exists P)
 > finiteDecHelper n iso P dP = decIso' (existsIsoTo   iso P)
 >                                      (existsIsoFrom iso P)
 >                                      (decExistsFin n  (P . (from iso))
@@ -221,7 +220,7 @@ This is the core result:
 
 which can be packaged up as what we aimed for at the beginning:
 
-> finiteDecLemma2 : {A : Type} -> {P : A -> Prop} ->
+> finiteDecLemma2 : {A : Type} -> {P : A -> Type} ->
 >                   Finite A -> Dec1 P -> Dec (Exists P)
 > finiteDecLemma2 {P} (Evidence n iso) dP = finiteDecHelper n iso P dP
 
