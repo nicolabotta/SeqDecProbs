@@ -24,15 +24,6 @@ example2tab: SeqDecProbsExample2tab.lidr
 example3tab: SeqDecProbsExample3tab.lidr
 	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample3tab.lidr -o example3tab
 
-example1.1: SeqDecProbMonadicExample1.1.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample1.1.lidr -o example1.1
-
-example2old: SeqDecProbMonadicExample2.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample2.lidr -o example2old
-
-example3: SeqDecProbMonadicExample3.lidr
-	${IDRIS} ${IDRISFLAGS} SeqDecProbMonadicExample3.lidr -o example3
-
 issue3001: NonNegRational3001.lidr
 	${IDRIS} ${IDRISFLAGS} NonNegRational3001.lidr
 
