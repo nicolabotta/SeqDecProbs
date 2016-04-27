@@ -21,6 +21,7 @@
 > import BoundedNat
 > import BoundedNatOperations
 > import BoundedNatProperties
+> import LeftAheadRight
 > import Sigma
 > import SigmaOperations
 > import SigmaProperties
@@ -42,8 +43,6 @@
 > %auto_implicits off
 
 
-> -- %logging 5
-
 The possibly simplest "cylinder" problem. |M| is the identity monad, the
 state space is constant and we can move to the left, ahead or to the
 right as we wish.
@@ -56,22 +55,16 @@ right as we wish.
 ** M is a monad:
 
 > SeqDecProbsCoreAssumptions.M = Identity
-
 > SeqDecProbsCoreAssumptions.fmap = map
-
 > SeqDecProbsCoreAssumptions.ret = return
-
 > SeqDecProbsCoreAssumptions.bind = (>>=)
 
 
 ** M is a container monad:
 
 > SeqDecProbsCoreAssumptions.Elem = IdentityOperations.Elem
-
 > SeqDecProbsCoreAssumptions.All P = P . unwrap
-
 > SeqDecProbsCoreAssumptions.tagElem = IdentityOperations.tagElem
-
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
 >   replace (sym a1eqa2) pa2
 
@@ -79,7 +72,6 @@ right as we wish.
 ** M is measurable:
 
 > SeqDecProbsCoreAssumptions.meas (Id x) = x
-
 > SeqDecProbsCoreAssumptions.measMon f g prf (Id x) = prf x
 
 
@@ -97,69 +89,15 @@ right as we wish.
 
 > SeqDecProbsCoreAssumptions.State t = LTB nColumns
 
-> column : {t : Nat} -> State t -> Nat
-> column = outl
-
-
-** Actions:
-
-> data Action = Left | Ahead | Right
-
-> implementation Eq Action where
->   (==) Left   Left = True
->   (==) Left      _ = False
->   (==) Ahead Ahead = True
->   (==) Ahead     _ = False
->   (==) Right Right = True
->   (==) Right     _ = False
-
-> implementation Show Action where
->   show Left  = "L"
->   show Ahead = "A"
->   show Right = "R"
-
-*** Action is finite:
-
-> to : Action -> Fin 3
-> to Left  =        FZ
-> to Ahead =     FS FZ
-> to Right = FS (FS FZ)
-
-> from : Fin 3 -> Action
-> from             FZ   = Left
-> from         (FS FZ)  = Ahead
-> from     (FS (FS FZ)) = Right
-> from (FS (FS (FS k))) = absurd k
-
-> toFrom : (k : Fin 3) -> to (from k) = k
-> toFrom             FZ   = Refl
-> toFrom         (FS FZ)  = Refl
-> toFrom     (FS (FS FZ)) = Refl
-> toFrom (FS (FS (FS k))) = absurd k
-
-> fromTo : (a : Action) -> from (to a) = a
-> fromTo Left  = Refl
-> fromTo Ahead = Refl
-> fromTo Right = Refl
-
-> fAction : Finite Action
-> fAction = MkSigma 3 (MkIso to from toFrom fromTo)
-> %freeze fAction
-
-
 ** Controls:
 
-> SeqDecProbsCoreAssumptions.Ctrl t x = Action
+> SeqDecProbsCoreAssumptions.Ctrl t x = LeftAheadRight
 
 *** Controls are finite:
 
-> fCtrl : (t : Nat) -> (x : State t) -> Finite (Ctrl t x)
-> fCtrl t x = fAction
-
-*** Controls are not empty:
-
-> nefCtrl : (t : Nat) -> (x : State t) -> NonEmpty (fCtrl t x)
-> nefCtrl t x = nonEmptyLemma (fCtrl t x) Left
+> fCtrl : {t : Nat} -> {x : State t} -> Finite (Ctrl t x)
+> fCtrl = finiteLeftAheadRight
+> %freeze fCtrl
 
 
 ** Transition function:
@@ -177,10 +115,10 @@ right as we wish.
 
 ** Reward function:
 
-> SeqDecProbsCoreAssumptions.reward t x y x' =
->   if column {t = S t} x' == Z
+> SeqDecProbsCoreAssumptions.reward t x y (MkSigma c _) =
+>   if c == Z
 >   then (S Z)
->   else if S (column {t = S t} x') == nColumns
+>   else if (S c) == nColumns
 >        then (S (S Z))
 >        else Z
 
@@ -189,25 +127,13 @@ right as we wish.
 * Viable and Reachable
 
 > -- Viable : (n : Nat) -> State t -> Type
-> SeqDecProbsCoreAssumptions.Viable {t}  n    _  =  Unit
+> SeqDecProbsCoreAssumptions.Viable n x =  Unit
 
-> -- viableSpec1 : (x : State t) -> Viable (S n) x -> Exists (\ y => All (Viable n) (step t x y))
-> SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x _ = s3 where
->   y : Ctrl t x
->   y = Left
->   mx' : M (State (S t))
->   mx' = step t x y 
->   x'  : State (S t)
->   x'  = unwrap mx'
->   s1  : Viable {t = S t} n x'
->   s1  = ()
->   s2  : All (Viable {t = S t} n) mx'
->   s2  = s1
->   s3  : Exists {a = Ctrl t x} (\ y => All (Viable {t = S t} n) mx')
->   s3  = Evidence y s2
+> -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
+> SeqDecProbsCoreAssumptions.viableSpec1 x v = MkSigma Left ()
 
 > -- Reachable : State t' -> Type
-> SeqDecProbsCoreAssumptions.Reachable {t'} _ = Unit
+> SeqDecProbsCoreAssumptions.Reachable x' = Unit
 
 > -- reachableSpec1 : (x : State t) -> Reachable {t' = t} x -> (y : Ctrl t x) -> All (Reachable {t' = S t}) (step t x y)
 > SeqDecProbsCoreAssumptions.reachableSpec1 x r y = ()
@@ -216,44 +142,27 @@ right as we wish.
 
 * Max and argmax
 
-We want to implement
+We want to implement |max|, |argmax|, |maxSpec| and |argmaxSpec|. This
+can be easily done in terms of |Opt.max| and |Opt.argmax| if we can show
+that |GoodCtrl t x n| is finite and non-empty for every |t : Nat|, |x :
+State t| such that |Viable (S n) x|. If we have finiteness
 
-< max    : {t : Nat} -> {n : Nat} -> 
-<          (x : State t) -> 
-<          .(Viable (S n) x) ->
-<          (f : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
-<          Nat
-< argmax : {t : Nat} -> {n : Nat} -> 
-<          (x : State t) -> 
-<          .(Viable (S n) x) ->
-<          (f : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
-<          Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y))
-
-This can be easily done using |Opt.max| and |Opt.argmax| if we can show
-that |Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y))| is finite and
-non-empty for every |t : Nat|, |x : State t| such that |Viable (S n) x|. If
-we have finiteness
-
-> fCtrlAV : (t : Nat) -> (n : Nat) -> (x : State t) -> Viable {t = t} (S n) x ->
->        Finite (Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y)))
+> fGoodCtrl : {t : Nat} -> {n : Nat} -> 
+>             (x : State t) -> Viable {t = t} (S n) x ->
+>             Finite (GoodCtrl t x n) 
 
 non-emptiness is straightforward:
 
-> neCtrlAV : (t : Nat) -> (n : Nat) -> (x : State t) -> (v : Viable {t = t} (S n) x) ->
->         NonEmpty (fCtrlAV t n x v)
-> neCtrlAV t n x v = 
->   nonEmptyLemma {A = Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y))}
->                 (fCtrlAV t n x v) (MkSigma y av) where
->     yav : Exists {a = Ctrl t x} (\ y => All (Viable {t = S t} n) (step t x y))
->     yav = viableSpec1 {t = t} {n = n} x v            
->     y   : Ctrl t x
->     y   = getWitness yav
->     av  : All (Viable {t = S t} n) (step t x y)
->     av  = getProof yav
+> neGoodCtrl : {t : Nat} -> {n : Nat} -> 
+>              (x : State t) -> (v : Viable {t = t} (S n) x) ->
+>              NonEmpty (fGoodCtrl {t} {n} x v)
+> neGoodCtrl {t} {n} x v = nonEmptyLemma {A = GoodCtrl t x n} (fGoodCtrl x v) gy where
+>   gy : GoodCtrl t x n 
+>   gy = viableSpec1 x v            
 
-Thus, the problem is that of implementing |fCtrlAV|. We already know that
-|Ctrl t x| is finite. If we manage to show that for every |y|, |All (Viable
-n) (step t x y)| is also finite, we can apply |finiteSigmaLemma| from
+Thus, the problem is that of implementing |fGoodCtrl|. We already know
+that |Ctrl t x| is finite. If we manage to show that for every |y|,
+|Good t x n| is also finite, we can apply |finiteSigmaLemma| from
 |SigmaProperties| and we are done. We show the result in two steps
 
 > fAll : {t : Nat} -> {P : State t -> Type} ->
@@ -262,62 +171,43 @@ n) (step t x y)| is also finite, we can apply |finiteSigmaLemma| from
 
 and
 
-> mutual
+> fViable : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite (Viable {t} n x)
+> fViable _ = finiteSingleton
 
->   fViable : (t : Nat) -> (n : Nat) -> (x : State t) -> Finite (Viable {t} n x)
->   fViable t  n    x  = finiteSingleton
+> f1Good : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite1 (Good t x n)
+> f1Good {t} {n} x y = fAll {t} (fViable {t = S t} {n}) (step t x y)
 
->   f1AllViable : (t : Nat) -> (n : Nat) -> (x : State t) ->
->                 Finite1 (\ y => All (Viable {t = S t} n) (step t x y))
->   f1AllViable t n x y = fAll {t = t} {P = (Viable {t = S t} n)} (fViable (S t) n) (step t x y)
+With |f1Good| we can finally implement |fGoodCtrl|
 
-With |f1AllViable| we can finally implement |fCtrlAV|
+> fGoodCtrl {t} {n} x v = finiteSigmaLemma0 (fCtrl {t} {x}) (f1Good {t} {n} x)
 
-> fCtrlAV t n x v = finiteSigmaLemma0 (fCtrl t x) (f1AllViable t n x)
+and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 
-and |max|, |argmax|:
+> SeqDecProbsCoreAssumptions.max x v =
+>   Opt.max totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
 
-> SeqDecProbsCoreAssumptions.max  {t} {n} x v =
->   Opt.max {A = Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->           {B = Nat} 
->           totalPreorderNatLTE 
->           (fCtrlAV t n x v) 
->           (neCtrlAV t n x v)
+> SeqDecProbsCoreAssumptions.argmax x v  =
+>   Opt.argmax totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
 
-> SeqDecProbsCoreAssumptions.argmax  {t} {n} x v  =
->   Opt.argmax {A = Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->              {B = Nat}
->              totalPreorderNatLTE 
->              (fCtrlAV t n x v) 
->              (neCtrlAV t n x v)
+> SeqDecProbsCoreAssumptions.maxSpec x v =
+>   Opt.maxSpec totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
 
-> SeqDecProbsCoreAssumptions.maxSpec {n} t x v =
->   Opt.maxSpec {A = Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->               {B = Nat}
->               totalPreorderNatLTE 
->               (fCtrlAV t n x v) 
->               (neCtrlAV t n x v)
-
-> SeqDecProbsCoreAssumptions.argmaxSpec {n} t x v =
->   Opt.argmaxSpec {A = Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y))} 
->                  {B = Nat}
->                  totalPreorderNatLTE 
->                  (fCtrlAV t n x v) 
->                  (neCtrlAV t n x v)
+> SeqDecProbsCoreAssumptions.argmaxSpec x v =
+>   Opt.argmaxSpec totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
 
 
 
 * Decidability of Viable
 
 > dViable : {t : Nat} -> (n : Nat) -> (x : State t) -> Dec (Viable {t} n x)
-> dViable {t} n x = Yes ()
+> dViable n x = Yes ()
 
 
 
 * The computation:
 
 > -- showState : {t : Nat} -> State t -> String
-> SeqDecProbsCoreUtils.showState {t} x = show (column {t} x)
+> SeqDecProbsCoreUtils.showState = show
 
 > -- showControl : {t : Nat} -> {x : State t} -> Ctrl t x -> String
 > SeqDecProbsCoreUtils.showCtrl = show

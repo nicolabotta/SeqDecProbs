@@ -20,8 +20,8 @@
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 No natural number is smaller than zero
@@ -204,6 +204,7 @@ Finitness properties
 > finiteSubLTB b P dP uP = finiteSubTypeLemma0 {A = LTB b} {P} (finiteLTB b) dP uP
 > -}
 
+
 Decidability properties
 
 > ||| Equality of bounded |Nat|s is decidable
@@ -214,3 +215,11 @@ Decidability properties
 
 > implementation DecEq (LTB b) where
 >   decEq {b} i j = decEqLTB {b} i j
+
+
+Show
+
+> using (b : Nat)
+>   implementation Show (LTB b) where
+>     show (MkSigma i _) = show i
+

@@ -46,3 +46,8 @@ Show
 >     show' : {A : Type} -> {a : A} -> {as : List A} -> Elem a as -> String 
 >     show'  Here     = "Here"
 >     show' (There p) = "There" ++ show' p
+
+
+Reduction operators
+
+> -- maxList : {A : Type} -> TotalPreorder A -> (as : List A) -> nonEmpty as -> A

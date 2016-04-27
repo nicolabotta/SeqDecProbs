@@ -14,7 +14,6 @@
 
 > ||| Notion of finiteness for types
 > Finite : Type -> Type
-> -- Finite A = Exists (\ n => Iso A (Fin n))
 > Finite A = Sigma Nat (\ n => Iso A (Fin n))
 
 > Finite0 : Type -> Type

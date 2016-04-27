@@ -10,13 +10,13 @@
 > %auto_implicits off
 
 
+* Show states and controls
+
 > |||
 > showState : {t : Nat} -> State t -> String
 
-
 > |||
 > showCtrl : {t : Nat} -> {x : State t} -> Ctrl t x -> String
-
 
 > |||
 > showStateCtrl : {t : Nat} -> Sigma (State t) (Ctrl t) -> String

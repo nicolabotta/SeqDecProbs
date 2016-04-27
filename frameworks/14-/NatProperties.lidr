@@ -667,6 +667,16 @@ Properties of |sum|:
 >   s5 = monotoneNatPlusLTE s3 s4
 
 
+> {-
+> ||| |min| is monotone
+> postulate minMon : {A : Type} ->
+>                    (f : A -> Nat) -> (g : A -> Nat) ->
+>                    (p : (a : A) -> f a `LTE` g a) ->
+>                    (as : List A) ->
+>                    min (map f as) `LTE` min (map g as) 
+> -}
+
+
 Decidability:
 
 > ||| LTE is decidable

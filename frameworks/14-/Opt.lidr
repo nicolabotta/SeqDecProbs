@@ -36,6 +36,7 @@
 >   abs  = map (pair (id, f)) (toVect fA)
 
 
+
 > max : {A, B : Type} ->
 >       TotalPreorder B -> 
 >       (fA : Finite A) -> 

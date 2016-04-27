@@ -23,6 +23,7 @@
 
 > %default total
 > %access public export
+> %auto_implicits on
 
 
 The major disadvantage of |bi|
@@ -171,22 +172,23 @@ just replacing |ps : PolicySeq (S t) n| with |vt : Vect (cRVState (S t) n)
 Nat|:
 
 > mkf' : {t : Nat} -> {n : Nat} ->
->        (x  : State t) -> 
->        (r  : Reachable x) -> 
->        (v  : Viable (S n) x) ->
->        (y  : Ctrl t x) -> 
->        (av : All (Viable n) (step t x y)) ->
+>        (x  : State t) -> (r  : Reachable x) -> (v  : Viable (S n) x) ->
+>        (gy  : GoodCtrl t x n) -> 
 >        (vt : Vect (cRVState (S t) n) Nat) ->
->        Sigma (State (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
-> mkf' {t} {n} x r v y av vt (MkSigma x' x'estep) = reward t x y x' + index k vt where
+>        PossibleState x (ctrl gy) -> Nat
+> mkf' {t} {n} x r v gy vt (MkSigma x' x'estep) = reward t x y x' + index k vt where
+>   y   : Ctrl t x
+>   y   = ctrl gy
+>   ar' : All Reachable (step t x y)
+>   ar' = reachableSpec1 x r y
+>   av' : All (Viable n) (step t x y)
+>   av' = allViable {y = y} gy
+>   r' : Reachable x'
+>   r' = containerMonadSpec3 x' (step t x y) ar' x'estep
+>   v' : Viable n x'
+>   v' = containerMonadSpec3 x' (step t x y) av' x'estep
 >   rvxs : Vect (cRVState (S t) n) (State (S t))
 >   rvxs = map outl (rRVState (S t) n)
->   ar : All Reachable (step t x y)
->   ar = reachableSpec1 x r y
->   r' : Reachable x'
->   r' = containerMonadSpec3 x' (step t x y) ar x'estep
->   v' : Viable n x'
->   v' = containerMonadSpec3 x' (step t x y) av x'estep
 >   k    : Fin (cRVState (S t) n)
 >   k    = lookup x' rvxs prf' where
 >     dRV : Dec1 (ReachableViable n)
@@ -196,21 +198,22 @@ Nat|:
 >     prf' : Elem x' rvxs
 >     prf' = filterTagSigmaLemma {P = ReachableViable n} dRV x' (rState (S t)) prf (r',v')
 
-> mkg : {t : Nat} -> {n : Nat} ->
->       (x  : State t) ->
->       (r  : Reachable x) ->
->       (v  : Viable (S n) x) ->
->       (vt : Vect (cRVState (S t) n) Nat) -> 
->       Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat
-> mkg {t} x r v vt (MkSigma y av) = meas (fmap f' (tagElem (step t x y))) where
->   f' : Sigma (State (S t)) (\ x' => x' `Elem` (step t x y)) -> Nat
->   f' = mkf' x r v y av vt
+> tcval : {t : Nat} -> {n : Nat} ->
+>         (x  : State t) ->
+>         (r  : Reachable x) ->
+>         (v  : Viable (S n) x) ->
+>         (vt : Vect (cRVState (S t) n) Nat) -> 
+>         GoodCtrl t x n -> Nat
+> tcval {t} x r v vt gy = meas (fmap (mkf' x r v gy vt) (tagElem mx')) where
+>   y    : Ctrl t x
+>   y    = ctrl gy
+>   mx'  :  M (State (S t))
+>   mx'  =  step t x y
+
 
 > tabOptExt {t} {n} vt = p where
 >   p : Policy t (S n)
->   p x r v = argmax x v g where
->     g : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat
->     g = mkg x r v vt
+>   p x r v = argmax x v (tcval x r v vt)
 
 With |tabOptExt| in place, it is easy to implement a tabulated version
 of |trbi|:
@@ -227,11 +230,11 @@ of |trbi|:
 
 
 > ||| Tabulated backwards induction
-> biT : (t : Nat) -> (n : Nat) -> PolicySeqAndTab t n
-> biT t  Z     =  (Nil, zeroVec _)
-> biT t (S n)  =  (p :: ps , vt') where
+> tbi : (t : Nat) -> (n : Nat) -> PolicySeqAndTab t n
+> tbi t  Z     =  (Nil, zeroVec _)
+> tbi t (S n)  =  (p :: ps , vt') where
 >      psvt : PolicySeqAndTab (S t) n
->      psvt = biT (S t) n
+>      psvt = tbi (S t) n
 >      ps : PolicySeq (S t) n
 >      ps = fst psvt
 >      vt : ValueTable (S t) n
@@ -241,7 +244,7 @@ of |trbi|:
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
 >         vtf : Fin (cRVState t (S n)) -> Nat
->         vtf k = g yav where
+>         vtf k = tcval x r v vt (p x r v) where
 >           xrv : Sigma (State t) (ReachableViable (S n))
 >           xrv = index k (rRVState t (S n))
 >           x   : State t
@@ -252,21 +255,17 @@ of |trbi|:
 >           r   = fst rv
 >           v   : Viable (S n) x
 >           v   = snd rv
->           g   : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat
->           g   = mkg x r v vt
->           yav : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y))
->           yav = p x r v
 
 
-> ||| Tabulated tail-recursive backwards induction
-> tabibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> (LTE c n) ->
+> ||| Tabulated tail-recursive backwards induction iteration
+> ttrbii : (t : Nat) -> (n : Nat) -> (c : Nat) -> (LTE c n) ->
 >          PolicySeq (c + t) (n - c) ->
 >          (vt : Vect (cRVState (c + t) (n - c)) Nat) ->
 >          PolicySeq t n
 >
-> tabibi t n  Z     prf ps vt = replace {P = \ z => PolicySeq t z} (minusZeroRight n) ps
+> ttrbii t n  Z     prf ps vt = replace {P = \ z => PolicySeq t z} (minusZeroRight n) ps
 >
-> tabibi t n (S c') prf ps vt = tabibi t n c' prf' ps' vt'' where
+> ttrbii t n (S c') prf ps vt = ttrbii t n c' prf' ps' vt'' where
 >   bic  : S (n - S c') = n - c'
 >   bic  = minusLemma4 prf
 >   prf' : LTE c' n
@@ -278,7 +277,7 @@ of |trbi|:
 >   vt'  : Vect (cRVState (c' + t) (S (n - S c'))) Nat
 >   vt'  = toVect vt'f where
 >     vt'f : Fin (cRVState (c' + t) (S (n - S c'))) -> Nat
->     vt'f k = g yav where
+>     vt'f k = tcval x r v vt (p x r v) where
 >       xrv : Sigma (State (c' + t)) (ReachableViable (S (n - S c')))
 >       xrv = index k (rRVState (c' + t) (S (n - S c')))
 >       x   : State (c' + t)
@@ -287,17 +286,13 @@ of |trbi|:
 >       r   = fst (outr xrv)
 >       v   : Viable {t = c' + t} (S (n - S c')) x
 >       v   = snd (outr xrv)
->       g   : Sigma (Ctrl (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y)) -> Nat
->       g   = mkg x r v vt
->       yav : Sigma (Ctrl (c' + t) x) (\ y => All (Viable (n - (S c'))) (step (c' + t) x y))
->       yav = p x r v
 >   vt''  : Vect (cRVState (c' + t) (n - c')) Nat
 >   vt''  = replace {P = \z => Vect (cRVState (c' + t) z) Nat} bic vt'
 
 
-> |||
-> tabtrbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
-> tabtrbi t n = tabibi t n n (reflexiveLTE n) zps (zeroVec _) where
+> ||| Tabulated tail-recursive backwards induction
+> ttrbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
+> ttrbi t n = ttrbii t n n (reflexiveLTE n) zps (zeroVec _) where
 >   zps : PolicySeq (n + t) (n - n)
 >   zps = replace {P = \ z => PolicySeq (n + t) z} (minusZeroN n) Nil
 

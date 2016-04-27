@@ -6,6 +6,7 @@
 > %default total
 > %access public export
 > %auto_implicits off
+> -- %hide NonEmpty
 
 > decl syntax "unused" {n} ":" [t] = postulate n : t
 
@@ -154,10 +155,19 @@ additional assumptions. In particular, we need |M| to be a "monad":
 
 and, more specifically, a "container" monad:
 
-> Elem     :  {A : Type} -> A -> M A -> Type
-> All      :  {A : Type} -> (P : A -> Type) -> M A -> Type
-> tagElem  :  {A : Type} -> (ma : M A) -> M (Sigma A (\ a => a `Elem` ma))
+> Elem     : {A : Type} -> A -> M A -> Type
+> -- NonEmpty : {A : Type} -> M A -> Type
+> All      : {A : Type} -> (P : A -> Type) -> M A -> Type
+> tagElem  : {A : Type} -> (ma : M A) -> M (Sigma A (\ a => a `Elem` ma))
 
+> {-
+> postulate elemNonEmptySpec0 : {A : Type} ->
+>                               (a : A) -> (ma : M A) ->
+>                               a `Elem` ma -> SeqDecProbsCoreAssumptions.NonEmpty ma
+> postulate elemNonEmptySpec1 : {A : Type} ->
+>                               (ma : M A) -> SeqDecProbsCoreAssumptions.NonEmpty ma -> 
+>                               Sigma A (\ a => a `Elem` ma)                                
+> -}
 > postulate containerMonadSpec1 : {A : Type} -> {a : A} -> 
 >                                 a `Elem` (ret a)
 > postulate containerMonadSpec2 : {A : Type} -> 
@@ -180,16 +190,23 @@ are states for which no controls are available. In concrete decision
 problems, they could represent exceptional outcomes: aborting a
 computation, running out of fuel, being shot dead.
 
-> Viable : {t : Nat} -> 
->          (n : Nat) -> State t -> Type
+> Viable : {t : Nat} -> (n : Nat) -> State t -> Type
+
+> Good : (t : Nat) -> (x : State t) -> (n : Nat) -> (Ctrl t x) -> Type
+> Good t x n y = All (Viable {t = S t} n) (step t x y)
+> -- Good t x n y = (SeqDecProbsCoreAssumptions.NonEmpty (step t x y), All (Viable {t = S t} n) (step t x y))
+
+> GoodCtrl : (t : Nat) -> (x : State t) -> (n : Nat) -> Type
+> GoodCtrl t x n = Sigma (Ctrl t x) (Good t x n)
+
 > postulate viableSpec0 : {t : Nat} -> 
 >                         (x : State t) -> Viable Z x
+                         
 > viableSpec1 : {t : Nat} -> {n : Nat} -> 
->               (x : State t) -> Viable (S n) x -> 
->               Exists {a = Ctrl t x} (\ y => All (Viable {t = S t} n) (step t x y))
+>               (x : State t) -> Viable (S n) x -> GoodCtrl t x n
+
 > postulate viableSpec2 : {t : Nat} -> {n : Nat} -> 
->                         (x : State t) -> Exists (\ y => All (Viable n) (step t x y)) -> 
->                         Viable (S n) x
+>                         (x : State t) -> GoodCtrl t x n -> Viable (S n) x
 
 A somehow orthogonal notion to viability is that of reachability. Even
 though reachability is not needed for formalizing the last core
@@ -199,10 +216,13 @@ state to that state. Thus, tautologically, every initial state is
 reachable:
 
 > Reachable : {t' : Nat} -> State t' -> Type
+
 > postulate reachableSpec0 : (x : State Z) -> Reachable x
+
 > reachableSpec1 : {t : Nat} -> 
 >                  (x : State t) -> Reachable {t' = t} x -> (y : Ctrl t x) -> 
 >                  All (Reachable {t' = S t}) (step t x y)
+
 > postulate reachableSpec2 : {t : Nat} -> 
 >                            (x' : State (S t)) -> Reachable x' -> 
 >                            Exists (\ x => (Reachable x , Exists (\ y => x' `Elem` (step t x y)))) 
@@ -223,29 +243,45 @@ are viable for a certain number of steps. Thus, we assume that users
 that want to apply the theory are able to implement two functions
 
 > max    : {t : Nat} -> {n : Nat} -> 
->          (x : State t) -> 
->          (Viable (S n) x) ->
->          (f : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
->          Nat
+>          (x : State t) -> (Viable (S n) x) ->
+>          (f : GoodCtrl t x n -> Nat) -> Nat
 
 > argmax : {t : Nat} -> {n : Nat} -> 
->          (x : State t) -> 
->          (Viable (S n) x) ->
->          (f : Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y)) -> Nat) ->
->          Sigma (Ctrl t x) (\ y => All (Viable n) (step t x y))
+>          (x : State t) -> (Viable (S n) x) ->
+>          (f : GoodCtrl t x n -> Nat) -> GoodCtrl t x n
 
 that fulfill
 
-> maxSpec : {n : Nat} ->
->           (t : Nat) -> (x : State t) -> (v : Viable {t = t} (S n) x) ->
->           (f : Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
->           (s : Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y))) ->
->           (f s) `LTE` (max x v f)
+> maxSpec : {t : Nat} -> {n : Nat} -> 
+>           (x : State t) -> (v : Viable (S n) x) ->
+>           (f : GoodCtrl t x n -> Nat) -> (y : GoodCtrl t x n) ->
+>           (f y) `LTE` (max x v f)
 
-> argmaxSpec : {n : Nat} ->
->              (t : Nat) -> (x : State t) -> (v : Viable {t = t} (S n) x) ->
->              (f : Sigma (Ctrl t x) (\ y => All (Viable {t = S t} n) (step t x y)) -> Nat) ->
+> argmaxSpec : {t : Nat} -> {n : Nat} -> 
+>              (x : State t) -> (v : Viable (S n) x) ->
+>              (f : GoodCtrl t x n -> Nat) ->
 >              max x v f = f (argmax x v f)
+
+
+* Auxiliary functions
+
+> |||
+> ctrl : {t : Nat} -> {x : State t} -> {n : Nat} -> 
+>        GoodCtrl t x n -> Ctrl t x
+> ctrl (MkSigma y _) = y          
+
+> |||
+> good : {t : Nat} -> {x : State t} -> {n : Nat} -> 
+>        (y : GoodCtrl t x n) -> Good t x n (ctrl y)
+> good (MkSigma _ p) = p
+
+> |||
+> allViable : {t : Nat} -> {x : State t} -> {n : Nat} -> {y : Ctrl t x} ->
+>             (y : GoodCtrl t x n) -> All (Viable {t = S t} n) (step t x (ctrl y)) 
+> allViable = good
+
+
+
 
 
 * References
