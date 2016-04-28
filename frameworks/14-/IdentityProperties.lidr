@@ -7,6 +7,8 @@
 > import Sigma
 > import Decidable
 > import Unique
+> import Finite
+> import SingletonProperties
 
 
 > %default total
@@ -34,11 +36,19 @@ Id is a container monad:
 >                  Sigma A (\ a => a `Elem` ia)
 > elemEmptySpec1 (Id a) _ = (MkSigma a Refl)
 
-> ||| Values of type |Identity A| are never empty
-> notEmptyLemma : {A : Type} -> 
->                 (ia : Identity A) -> 
->                 Not (Empty ia)
-> notEmptyLemma (Id a) = elemEmptySpec0 a (Id a) Refl                
+> |||
+> elemNonEmptySpec0 : {A : Type} ->
+>                     (a : A) -> (ia : Identity A) ->
+>                     a `Elem` ia -> NonEmpty ia
+> elemNonEmptySpec0 a (Id a) Refl = ()   
+
+> ||| 
+> elemNonEmptySpec1 : {A : Type} ->
+>                     (ia : Identity A) ->
+>                     NonEmpty ia -> 
+>                     Sigma A (\ a => a `Elem` ia)
+> elemNonEmptySpec1 (Id a) _ = (MkSigma a Refl)
+
 
 Container monad decidability:
 
@@ -48,14 +58,41 @@ Container monad decidability:
 >   | (Yes prf)   = Yes prf
 >   | (No contra) = No contra
 
+
 Container monad uniqueness:
 
 > ||| |Elem| is unique
 > uniqueElem : {A : Type} -> UniqueEq0 A -> (a : A) -> (ma : Identity A) -> Unique (a `Elem` ma)
 > uniqueElem unique a1 (Id a2) p q = unique a1 a2 p q
 
+
 Show
 
 > using (A : Type)
 >   implementation (Show A) => Show (Identity A) where
 >     show (Id a) = show a
+
+
+Specific container monad properties
+
+> ||| Values of type |Identity A| are never empty
+> notEmptyLemma : {A : Type} -> 
+>                 (ia : Identity A) -> 
+>                 Not (Empty ia)
+> notEmptyLemma (Id a) = elemEmptySpec0 a (Id a) Refl                
+
+> ||| Values of type |Identity A| are never empty
+> nonEmptyLemma : {A : Type} -> 
+>                 (ia : Identity A) -> 
+>                 NonEmpty ia
+> nonEmptyLemma (Id a) = elemNonEmptySpec0 a (Id a) Refl                
+
+> ||| All is finite
+> finiteAll : {A : Type} -> {P : A -> Type} ->
+>             Finite1 P -> (ia : Identity A) -> Finite (All P ia)
+> finiteAll f1P (Id a) = f1P a
+
+
+> ||| NotEmpty is finite
+> finiteNonEmpty : {A : Type} -> (ia : Identity A) -> Finite (NonEmpty ia)
+> finiteNonEmpty _ = finiteSingleton

@@ -15,12 +15,12 @@
 
 
 > ||| Mapping |()|s to |Fin|s
-> toFin : () -> Fin (S Z)
+> toFin : Unit -> Fin (S Z)
 > toFin () = FZ
 
 
 > ||| Mapping |Fin (S Z)|s to |()|s
-> fromFin : Fin (S Z) -> ()
+> fromFin : Fin (S Z) -> Unit
 > fromFin  FZ = ()
 > fromFin (FS k) = absurd k
 
@@ -32,12 +32,12 @@
 
 
 > ||| |fromFin| is the left-inverse of |toFin|
-> fromFinToFinLemma : (e : ()) -> fromFin (toFin e) = e
+> fromFinToFinLemma : (e : Unit) -> fromFin (toFin e) = e
 > fromFinToFinLemma () = Refl
 
 
 > ||| Singleton is finite
-> finiteSingleton : Finite ()
+> finiteSingleton : Finite Unit
 > finiteSingleton = MkSigma (S Z) iso where
->   iso : Iso () (Fin (S Z))
+>   iso : Iso Unit (Fin (S Z))
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma

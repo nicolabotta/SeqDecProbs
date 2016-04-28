@@ -39,11 +39,11 @@
 > stateCtrlTrj {t} {n = S m} x r v (p :: ps') =
 >   fmap g (bind (tagElem mx') f) where
 >     y : Ctrl t x
->     y = outl (p x r v)
+>     y = ctrl (p x r v)
 >     mx' : M (State (S t))
 >     mx' = step t x y
 >     av  : All (Viable m) mx'
->     av  = outr (p x r v)
+>     av  = allViable {y = y} (p x r v)
 >     g : StateCtrlSeq (S t) m -> StateCtrlSeq t (S m)
 >     g = ((MkSigma x y) ::)
 >     f : Sigma (State (S t)) (\ x' => x' `Elem` mx') -> M (StateCtrlSeq (S t) m)

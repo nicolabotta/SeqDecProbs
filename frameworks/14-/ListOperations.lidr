@@ -36,6 +36,11 @@
 > Empty  Nil      = Unit
 > Empty (a :: as) = Void
 
+> ||| 
+> NonEmpty    : {A : Type} -> List A -> Type
+> NonEmpty  Nil      = Void
+> NonEmpty (a :: as) = Unit
+
 > ||| Tagging
 > tagElem  :  {A : Type} -> (as : List A) -> List (Sigma A (\ a => a `Elem` as))
 > tagElem Nil = Nil

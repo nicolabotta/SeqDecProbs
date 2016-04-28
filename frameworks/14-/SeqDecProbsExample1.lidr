@@ -64,7 +64,7 @@ right as we wish.
 
 > SeqDecProbsCoreAssumptions.Elem = IdentityOperations.Elem
 > SeqDecProbsCoreAssumptions.Empty = IdentityOperations.Empty
-> SeqDecProbsCoreAssumptions.All P = P . unwrap
+> SeqDecProbsCoreAssumptions.All = IdentityOperations.All
 > SeqDecProbsCoreAssumptions.elemEmptySpec0 = IdentityProperties.elemEmptySpec0
 > SeqDecProbsCoreAssumptions.elemEmptySpec1 = IdentityProperties.elemEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = IdentityOperations.tagElem
@@ -167,19 +167,17 @@ non-emptiness is straightforward:
 Thus, the problem is that of implementing |fGoodCtrl|. We already know
 that |Ctrl t x| is finite. If we manage to show that for every |y|,
 |Good t x n| is also finite, we can apply |finiteSigmaLemma| from
-|SigmaProperties| and we are done. We show the result in two steps
-
-> fAll : {t : Nat} -> {P : State t -> Type} ->
->        Finite1 P -> (mx : Identity (State t)) -> Finite (All P mx)
-> fAll f1P (Id x) = f1P x
-
-and
+|SigmaProperties| and we are done. Showing that |Good t x n| is finite
+is not difficult given that |Viable| is finite
 
 > fViable : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite (Viable {t} n x)
 > fViable _ = finiteSingleton
 
+and that for the identity monad and for a finite property |P|, |All P|
+is also finite:
+
 > f1Good : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite1 (Good t x n)
-> f1Good {t} {n} x y = fAll {t} (fViable {t = S t} {n}) (step t x y)
+> f1Good {t} {n} x y = finiteAll (fViable {t = S t} {n}) (step t x y)
 
 With |f1Good| we can finally implement |fGoodCtrl|
 

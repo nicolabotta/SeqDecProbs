@@ -16,6 +16,8 @@
 > import Basics
 > import IsomorphismOperations
 > import FinProperties
+> import VoidProperties
+> import SingletonProperties
 
 
 > %default total
@@ -56,6 +58,20 @@
 > elemEmptySpec1  Nil      c = void (c ())
 > elemEmptySpec1 (a :: as) _ = MkSigma a Here 
 
+> |||
+> elemNonEmptySpec0 : {A : Type} ->
+>                     (a : A) -> (as : List A) ->
+>                     a `Elem` as -> ListOperations.NonEmpty as
+> elemNonEmptySpec0 _  Nil      p = absurd p
+> elemNonEmptySpec0 _ (a :: as) _ = ()
+
+> |||
+> elemNonEmptySpec1 : {A : Type} ->
+>                     (as : List A) ->
+>                     ListOperations.NonEmpty as -> Sigma A (\ a => a `Elem` as)
+> elemNonEmptySpec1  Nil      c = void c
+> elemNonEmptySpec1 (a :: as) _ = MkSigma a Here 
+
 > -- containerMonadSpec1 : a `Elem` (ret a)
 
 > -- containerMonadSpec2 : {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
@@ -72,7 +88,7 @@
 > -- containerMonadSpec4 : {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
 
-Quantifiers properties:
+Specific container monad properties
 
 > uniqueAllLemma : {A : Type} -> {P : A -> Type} -> 
 >                  Unique1 P -> (as : List A) -> Unique (All P as)
@@ -144,6 +160,11 @@ Quantifiers properties:
 >   iso3 = finPairTimes
 >   iso  : Iso (All P (a :: as)) (Fin n)
 >   iso  = isoTrans iso1 (isoTrans iso2 iso3)
+
+> ||| NotEmpty is finite
+> finiteNonEmpty : {A : Type} -> (as : List A) -> Finite (ListOperations.NonEmpty as)
+> finiteNonEmpty  Nil      = finiteVoid
+> finiteNonEmpty (a :: as) = finiteSingleton
 
 
 Fusion-related properties:
