@@ -15,8 +15,7 @@
 
 > import SeqDecProbsCoreAssumptions
 > import SeqDecProbsCoreTheory
-> import SeqDecProbsCoreUtils
-> import SeqDecProbsTabulatedBackwardsInduction
+> import SeqDecProbsUtils
 
 > import ListOperations
 > import ListProperties
@@ -57,22 +56,19 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 ** M is a monad:
 
 > SeqDecProbsCoreAssumptions.M = List
-
 > SeqDecProbsCoreAssumptions.fmap = ListOperations.fmap
-
 > SeqDecProbsCoreAssumptions.ret = ListOperations.ret
-
 > SeqDecProbsCoreAssumptions.bind = ListOperations.bind
 
 
 ** M is a container monad:
 
 > SeqDecProbsCoreAssumptions.Elem = Data.List.Elem
-
+> SeqDecProbsCoreAssumptions.Empty = ListOperations.Empty
 > SeqDecProbsCoreAssumptions.All = Data.List.Quantifiers.All
-
+> SeqDecProbsCoreAssumptions.elemEmptySpec0 = ListProperties.elemEmptySpec0
+> SeqDecProbsCoreAssumptions.elemEmptySpec1 = ListProperties.elemEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = ListOperations.tagElem
-
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 = ListProperties.containerMonadSpec3
 
 
@@ -218,25 +214,20 @@ and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 
 
 
-* Finiteness of |State|, decidability of |Viable| and |Reachable|
+* Decidability of Viable
 
-> SeqDecProbsTabulatedBackwardsInduction.fState t = finiteLTB _
-
-> -- dReachable : {t' : Nat} -> (x' : X t') -> Dec (Reachable x')
-> SeqDecProbsTabulatedBackwardsInduction.dReachable {t'} x' = Yes ()
-
-> -- dViable : {t : Nat} -> (n : Nat) -> (x : State t) -> Dec (Viable {t} n x)
-> SeqDecProbsTabulatedBackwardsInduction.dViable {t} n x = Yes ()
+> dViable : {t : Nat} -> (n : Nat) -> (x : State t) -> Dec (Viable {t} n x)
+> dViable {t} n x = Yes ()
 
 
 
 * The computation:
 
 > -- showState : {t : Nat} -> State t -> String
-> SeqDecProbsCoreUtils.showState = show
+> SeqDecProbsUtils.showState = show
 
 > -- showControl : {t : Nat} -> {x : State t} -> Ctrl t x -> String
-> SeqDecProbsCoreUtils.showCtrl = show
+> SeqDecProbsUtils.showCtrl = show
 
 > computation : { [STDIO] } Eff ()
 > computation =
@@ -246,7 +237,7 @@ and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 >      x0 <- getLTB nColumns
 >      case (dViable {t = Z} nSteps x0) of
 >        (Yes v0) => do putStrLn ("computing optimal policies ...")
->                       ps   <- pure (ttrbi Z nSteps)
+>                       ps   <- pure (bi Z nSteps)
 >                       putStrLn ("computing optimal controls ...")
 >                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
 >                       putStrLn (show mxys)

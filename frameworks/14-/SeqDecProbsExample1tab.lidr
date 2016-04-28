@@ -14,7 +14,7 @@
 
 > import SeqDecProbsCoreAssumptions
 > import SeqDecProbsCoreTheory
-> import SeqDecProbsCoreUtils
+> import SeqDecProbsUtils
 > import SeqDecProbsTabulatedBackwardsInduction
 
 > import IdentityOperations
@@ -56,22 +56,19 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 ** M is a monad:
 
 > SeqDecProbsCoreAssumptions.M = Identity
-
 > SeqDecProbsCoreAssumptions.fmap = map
-
 > SeqDecProbsCoreAssumptions.ret = return
-
 > SeqDecProbsCoreAssumptions.bind = (>>=)
 
 
 ** M is a container monad:
 
 > SeqDecProbsCoreAssumptions.Elem = IdentityOperations.Elem
-
+> SeqDecProbsCoreAssumptions.Empty = IdentityOperations.Empty
 > SeqDecProbsCoreAssumptions.All P = P . unwrap
-
+> SeqDecProbsCoreAssumptions.elemEmptySpec0 = IdentityProperties.elemEmptySpec0
+> SeqDecProbsCoreAssumptions.elemEmptySpec1 = IdentityProperties.elemEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = IdentityOperations.tagElem
-
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
 >   replace (sym a1eqa2) pa2
 
@@ -221,10 +218,10 @@ and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 * The computation:
 
 > -- showState : {t : Nat} -> State t -> String
-> SeqDecProbsCoreUtils.showState = show
+> SeqDecProbsUtils.showState = show
 
 > -- showControl : {t : Nat} -> {x : State t} -> Ctrl t x -> String
-> SeqDecProbsCoreUtils.showCtrl = show
+> SeqDecProbsUtils.showCtrl = show
 
 > computation : { [STDIO] } Eff ()
 > computation =

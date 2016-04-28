@@ -4,7 +4,7 @@
 > import Control.Monad.Identity
 
 > import IdentityOperations
-> -- import ContainerMonad
+> import Sigma
 > import Decidable
 > import Unique
 
@@ -18,20 +18,27 @@
 > injectiveId : {a : Type} -> {left : a} -> {right : a} -> (Id left) = (Id right) -> left = right
 > injectiveId Refl = Refl
 
-> {-
 
-> ||| Identity is a container monad
-> instance ContainerMonad Identity where
->   Elem a1 (Id a2) = a1 = a2
->   tagElem (Id a) = Id (a ** Refl)
->   All P (Id a) = P a
->   spec1 = Refl
->   spec2 {x = x1} {mx = Id x2} {mmx = Id (Id x3)} x1eqx2 idx2eqidx3 =
->     trans x1eqx2 (injectiveId idx2eqidx3)
->   spec3 {mx = Id x} = Refl
->   spec4  {x = x1} {mx = Id x2} {P = P} px2 x1eqx2 = replace (sym x1eqx2) px2
+Id is a container monad:
 
-> -}
+> |||
+> elemEmptySpec0 : {A : Type} ->
+>                  (a : A) -> (ia : Identity A) ->
+>                  a `Elem` ia -> Not (Empty ia)
+> elemEmptySpec0 a (Id a) Refl = id   
+
+> ||| 
+> elemEmptySpec1 : {A : Type} ->
+>                  (ia : Identity A) ->
+>                  Not (Empty ia) -> 
+>                  Sigma A (\ a => a `Elem` ia)
+> elemEmptySpec1 (Id a) _ = (MkSigma a Refl)
+
+> ||| Values of type |Identity A| are never empty
+> notEmptyLemma : {A : Type} -> 
+>                 (ia : Identity A) -> 
+>                 Not (Empty ia)
+> notEmptyLemma (Id a) = elemEmptySpec0 a (Id a) Refl                
 
 Container monad decidability:
 

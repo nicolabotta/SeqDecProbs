@@ -6,6 +6,7 @@
 > import Control.Isomorphism
 > import Syntax.PreorderReasoning
 
+> import ListOperations
 > import FunOperations
 > import Unique
 > import Finite
@@ -42,6 +43,18 @@
 
 
 |List| is a container monad:
+
+> elemEmptySpec0 : {A : Type} ->
+>                  (a : A) -> (as : List A) ->
+>                  a `Elem` as -> Not (Empty as)
+> elemEmptySpec0 _  Nil      p = absurd p
+> elemEmptySpec0 _ (a :: as) _ = id
+
+> elemEmptySpec1 : {A : Type} ->
+>                  (as : List A) ->
+>                  Not (Empty as) -> Sigma A (\ a => a `Elem` as)
+> elemEmptySpec1  Nil      c = void (c ())
+> elemEmptySpec1 (a :: as) _ = MkSigma a Here 
 
 > -- containerMonadSpec1 : a `Elem` (ret a)
 

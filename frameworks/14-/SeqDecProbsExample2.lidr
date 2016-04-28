@@ -15,7 +15,7 @@
 
 > import SeqDecProbsCoreAssumptions
 > import SeqDecProbsCoreTheory
-> import SeqDecProbsCoreUtils
+> import SeqDecProbsUtils
 
 > import ListOperations
 > import ListProperties
@@ -56,22 +56,19 @@ We reimplement "SeqDecProbsExample1.lidr", this time with |M = List|.
 ** M is a monad:
 
 > SeqDecProbsCoreAssumptions.M = List
-
 > SeqDecProbsCoreAssumptions.fmap = ListOperations.fmap
-
 > SeqDecProbsCoreAssumptions.ret = ListOperations.ret
-
 > SeqDecProbsCoreAssumptions.bind = ListOperations.bind
 
 
 ** M is a container monad:
 
 > SeqDecProbsCoreAssumptions.Elem = Data.List.Elem
-
+> SeqDecProbsCoreAssumptions.Empty = ListOperations.Empty
 > SeqDecProbsCoreAssumptions.All = Data.List.Quantifiers.All
-
+> SeqDecProbsCoreAssumptions.elemEmptySpec0 = ListProperties.elemEmptySpec0
+> SeqDecProbsCoreAssumptions.elemEmptySpec1 = ListProperties.elemEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = ListOperations.tagElem
-
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 = ListProperties.containerMonadSpec3
 
 
@@ -226,10 +223,10 @@ and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 * The computation:
 
 > -- showState : {t : Nat} -> State t -> String
-> SeqDecProbsCoreUtils.showState = show
+> SeqDecProbsUtils.showState = show
 
 > -- showControl : {t : Nat} -> {x : State t} -> Ctrl t x -> String
-> SeqDecProbsCoreUtils.showCtrl = show
+> SeqDecProbsUtils.showCtrl = show
 
 > computation : { [STDIO] } Eff ()
 > computation =

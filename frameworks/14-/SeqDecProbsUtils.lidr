@@ -1,4 +1,4 @@
-> module SeqDecProbsCoreUtils
+> module SeqDecProbsUtils
 
 > import SeqDecProbsCoreAssumptions
 > import SeqDecProbsCoreTheory

@@ -31,6 +31,11 @@
 
 |List| is a container monad:
 
+> ||| 
+> Empty    : {A : Type} -> List A -> Type
+> Empty  Nil      = Unit
+> Empty (a :: as) = Void
+
 > ||| Tagging
 > tagElem  :  {A : Type} -> (as : List A) -> List (Sigma A (\ a => a `Elem` as))
 > tagElem Nil = Nil
