@@ -21,8 +21,8 @@ example2: SeqDecProbsExample2.lidr
 example2tab: SeqDecProbsExample2tab.lidr
 	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample2tab.lidr -o example2tab
 
-example3tab: SeqDecProbsExample3tab.lidr
-	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample3tab.lidr -o example3tab
+example3: SeqDecProbsExample3.lidr
+	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample3tab.lidr -o example3
 
 issue3001: NonNegRational3001.lidr
 	${IDRIS} ${IDRISFLAGS} NonNegRational3001.lidr
