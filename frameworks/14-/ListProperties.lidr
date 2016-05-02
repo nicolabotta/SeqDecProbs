@@ -17,7 +17,7 @@
 > import IsomorphismOperations
 > import FinProperties
 > import VoidProperties
-> import SingletonProperties
+> import UnitProperties
 
 
 > %default total
@@ -158,7 +158,7 @@ Specific container monad properties
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (as : List A) -> Finite (ListOperations.NonEmpty as)
 > finiteNonEmpty  Nil      = finiteVoid
-> finiteNonEmpty (a :: as) = finiteSingleton
+> finiteNonEmpty (a :: as) = finiteUnit
 
 
 

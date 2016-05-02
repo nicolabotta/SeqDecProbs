@@ -32,7 +32,7 @@
 > import FiniteProperties
 > import Unique
 > import Decidable
-> import SingletonProperties
+> import UnitProperties
 > import Opt
 > import TotalPreorder
 > import EffectException
@@ -167,7 +167,7 @@ follow from finiteness of |All|
 
 > -- finiteViable : {t : Nat} -> {n : Nat} -> 
 > --                (x : State t) -> Finite (Viable {t} n x)
-> SeqDecProbsHelpers.finiteViable _ = finiteSingleton
+> SeqDecProbsHelpers.finiteViable _ = finiteUnit
 
 , finiteness of |NonEmpty|
 

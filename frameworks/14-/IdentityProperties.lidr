@@ -8,7 +8,7 @@
 > import Decidable
 > import Unique
 > import Finite
-> import SingletonProperties
+> import UnitProperties
 
 
 > %default total
@@ -76,4 +76,4 @@ Specific container monad properties
 
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (ia : Identity A) -> Finite (NonEmpty ia)
-> finiteNonEmpty _ = finiteSingleton
+> finiteNonEmpty _ = finiteUnit
