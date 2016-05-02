@@ -1,4 +1,4 @@
-> module SingletonProperties
+> module UnitProperties
 
 
 > import Data.Fin
@@ -36,8 +36,8 @@
 > fromFinToFinLemma () = Refl
 
 
-> ||| Singleton is finite
-> finiteSingleton : Finite Unit
-> finiteSingleton = MkSigma (S Z) iso where
+> ||| Unit is finite
+> finiteUnit : Finite Unit
+> finiteUnit = MkSigma (S Z) iso where
 >   iso : Iso Unit (Fin (S Z))
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma

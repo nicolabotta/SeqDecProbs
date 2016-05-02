@@ -32,11 +32,6 @@
 |List| is a container monad:
 
 > ||| 
-> Empty    : {A : Type} -> List A -> Type
-> Empty  Nil      = Unit
-> Empty (a :: as) = Void
-
-> ||| 
 > NonEmpty    : {A : Type} -> List A -> Type
 > NonEmpty  Nil      = Void
 > NonEmpty (a :: as) = Unit

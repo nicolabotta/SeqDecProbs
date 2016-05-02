@@ -46,18 +46,6 @@
 
 |List| is a container monad:
 
-> elemEmptySpec0 : {A : Type} ->
->                  (a : A) -> (as : List A) ->
->                  a `Elem` as -> Not (Empty as)
-> elemEmptySpec0 _  Nil      p = absurd p
-> elemEmptySpec0 _ (a :: as) _ = id
-
-> elemEmptySpec1 : {A : Type} ->
->                  (as : List A) ->
->                  Not (Empty as) -> Sigma A (\ a => a `Elem` as)
-> elemEmptySpec1  Nil      c = void (c ())
-> elemEmptySpec1 (a :: as) _ = MkSigma a Here 
-
 > |||
 > elemNonEmptySpec0 : {A : Type} ->
 >                     (a : A) -> (as : List A) ->
@@ -161,10 +149,18 @@ Specific container monad properties
 >   iso  : Iso (All P (a :: as)) (Fin n)
 >   iso  = isoTrans iso1 (isoTrans iso2 iso3)
 
+> |||
+> finiteAll : {A : Type} -> {P : A -> Type} -> 
+>             Finite1 P -> (as : List A) -> Finite (All P as)
+> finiteAll = finiteAllLemma
+
+
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (as : List A) -> Finite (ListOperations.NonEmpty as)
 > finiteNonEmpty  Nil      = finiteVoid
 > finiteNonEmpty (a :: as) = finiteSingleton
+
+
 
 
 Fusion-related properties:

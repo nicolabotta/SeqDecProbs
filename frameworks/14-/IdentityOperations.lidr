@@ -23,10 +23,6 @@ Identity is a container monad:
 > Elem : {A : Type} -> A -> Identity A -> Type
 > Elem a1 (Id a2) = a1 = a2
 
-> ||| Emptiness
-> Empty : {A : Type} -> Identity A -> Type
-> Empty (Id a2) = Void
-
 > ||| Non emptiness
 > NonEmpty : {A : Type} -> Identity A -> Type
 > NonEmpty _ = Unit

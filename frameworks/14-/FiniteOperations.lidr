@@ -71,11 +71,11 @@ elements of type |A| of length |n|. This can be done by calling
 
 
 > |||
-> Empty : {A : Type} -> Finite A -> Type
-> Empty fA = card fA = Z
+> CardZ : {A : Type} -> Finite A -> Type
+> CardZ fA = card fA = Z
 
 
 > |||
-> NonEmpty : {A : Type} -> Finite A -> Type
-> NonEmpty = Not . Empty
-> -- NonEmpty fA = LT Z (card fA)
+> CardNotZ : {A : Type} -> Finite A -> Type
+> CardNotZ = Not . CardZ
+> -- CardNotZ fA = LT Z (card fA)

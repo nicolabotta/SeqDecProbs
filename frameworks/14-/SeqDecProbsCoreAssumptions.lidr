@@ -156,17 +156,17 @@ additional assumptions. In particular, we need |M| to be a "monad":
 and, more specifically, a "container" monad:
 
 > Elem     : {A : Type} -> A -> M A -> Type
-> Empty    : {A : Type} -> M A -> Type
+> NonEmpty : {A : Type} -> M A -> Type
 > All      : {A : Type} -> (P : A -> Type) -> M A -> Type
 > tagElem  : {A : Type} -> (ma : M A) -> M (Sigma A (\ a => a `Elem` ma))
 
-> postulate elemEmptySpec0 : {A : Type} ->
->                            (a : A) -> (ma : M A) ->
->                            a `Elem` ma -> Not (Empty ma)
+> postulate elemNonEmptySpec0 : {A : Type} ->
+>                               (a : A) -> (ma : M A) ->
+>                               a `Elem` ma -> SeqDecProbsCoreAssumptions.NonEmpty ma
 
-> postulate elemEmptySpec1 : {A : Type} ->
->                            (ma : M A) -> Not (Empty ma) -> 
->                            Sigma A (\ a => a `Elem` ma)
+> postulate elemNonEmptySpec1 : {A : Type} ->
+>                               (ma : M A) -> SeqDecProbsCoreAssumptions.NonEmpty ma -> 
+>                               Sigma A (\ a => a `Elem` ma)
 
 > postulate containerMonadSpec1 : {A : Type} -> {a : A} -> 
 >                                 a `Elem` (ret a)
@@ -196,8 +196,9 @@ computation, running out of fuel, being shot dead.
 > Viable : {t : Nat} -> (n : Nat) -> State t -> Type
 
 > Good : (t : Nat) -> (x : State t) -> (n : Nat) -> (Ctrl t x) -> Type
-> Good t x n y = All (Viable {t = S t} n) (step t x y)
-> -- Good t x n y = (Not (Empty (step t x y)), All (Viable {t = S t} n) (step t x y))
+> -- Good t x n y = All (Viable {t = S t} n) (step t x y)
+> Good t x n y = (SeqDecProbsCoreAssumptions.NonEmpty (step t x y), 
+>                 All (Viable {t = S t} n) (step t x y))
 
 > GoodCtrl : (t : Nat) -> (x : State t) -> (n : Nat) -> Type
 > GoodCtrl t x n = Sigma (Ctrl t x) (Good t x n)
@@ -281,8 +282,8 @@ that fulfill
 > |||
 > allViable : {t : Nat} -> {x : State t} -> {n : Nat} -> {y : Ctrl t x} ->
 >             (y : GoodCtrl t x n) -> All (Viable {t = S t} n) (step t x (ctrl y)) 
-> allViable = good
-> -- allViable (MkSigma y p) = snd p
+> -- allViable = good
+> allViable (MkSigma y p) = snd p
 
 
 

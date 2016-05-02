@@ -15,6 +15,7 @@
 > import SeqDecProbsCoreAssumptions
 > import SeqDecProbsCoreTheory
 > import SeqDecProbsUtils
+> import SeqDecProbsHelpers
 > import SeqDecProbsTabulatedBackwardsInduction
 
 > import IdentityOperations
@@ -64,10 +65,10 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 ** M is a container monad:
 
 > SeqDecProbsCoreAssumptions.Elem = IdentityOperations.Elem
-> SeqDecProbsCoreAssumptions.Empty = IdentityOperations.Empty
+> SeqDecProbsCoreAssumptions.NonEmpty = IdentityOperations.NonEmpty
 > SeqDecProbsCoreAssumptions.All P = P . unwrap
-> SeqDecProbsCoreAssumptions.elemEmptySpec0 = IdentityProperties.elemEmptySpec0
-> SeqDecProbsCoreAssumptions.elemEmptySpec1 = IdentityProperties.elemEmptySpec1
+> SeqDecProbsCoreAssumptions.elemNonEmptySpec0 = IdentityProperties.elemNonEmptySpec0
+> SeqDecProbsCoreAssumptions.elemNonEmptySpec1 = IdentityProperties.elemNonEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = IdentityOperations.tagElem
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 {A} {P} a1 (Id a2) pa2 a1eqa2 =
 >   replace (sym a1eqa2) pa2
@@ -98,12 +99,6 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 ** Controls:
 
 > SeqDecProbsCoreAssumptions.Ctrl t x = LeftAheadRight
-
-*** Controls are finite:
-
-> fCtrl : {t : Nat} -> {x : State t} -> Finite (Ctrl t x)
-> fCtrl = finiteLeftAheadRight
-> %freeze fCtrl
 
 
 ** Transition function:
@@ -136,7 +131,8 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 > SeqDecProbsCoreAssumptions.Viable n x =  Unit
 
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
-> SeqDecProbsCoreAssumptions.viableSpec1 x v = MkSigma Left ()
+> -- SeqDecProbsCoreAssumptions.viableSpec1 x v = MkSigma Left ()
+> SeqDecProbsCoreAssumptions.viableSpec1 {t} x v = MkSigma Left (nonEmptyLemma (step t x Left), ())
 
 > -- Reachable : State t' -> Type
 > SeqDecProbsCoreAssumptions.Reachable x' = Unit
@@ -150,56 +146,57 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 
 We want to implement |max|, |argmax|, |maxSpec| and |argmaxSpec|. This
 can be easily done in terms of |Opt.max| and |Opt.argmax| if we can show
-that |GoodCtrl t x n| is finite and non-empty for every |t : Nat|, |x :
-State t| such that |Viable (S n) x|. If we have finiteness
+that |GoodCtrl t x n| is finite and, for every |t : Nat|, |x : State t|
+such that |Viable (S n) x|, its cardinality is not zero. In turn,
 
-> fGoodCtrl : {t : Nat} -> {n : Nat} -> 
->             (x : State t) -> Viable {t = t} (S n) x ->
->             Finite (GoodCtrl t x n) 
-
-non-emptiness is straightforward:
-
-> neGoodCtrl : {t : Nat} -> {n : Nat} -> 
->              (x : State t) -> (v : Viable {t = t} (S n) x) ->
->              NonEmpty (fGoodCtrl {t} {n} x v)
-> neGoodCtrl {t} {n} x v = nonEmptyLemma {A = GoodCtrl t x n} (fGoodCtrl x v) gy where
->   gy : GoodCtrl t x n 
->   gy = viableSpec1 x v            
-
-Thus, the problem is that of implementing |fGoodCtrl|. We already know
-that |Ctrl t x| is finite. If we manage to show that for every |y|,
-|Good t x n| is also finite, we can apply |finiteSigmaLemma| from
-|SigmaProperties| and we are done. We show the result in two steps
-
-> fAll : {t : Nat} -> {P : State t -> Type} ->
->        Finite1 P -> (mx : Identity (State t)) -> Finite (All P mx)
-> fAll f1P (Id x) = f1P x
+< finiteGoodCtrl : {t : Nat} -> {n : Nat} -> 
+<                  (x : State t) -> 
+<                  Finite (GoodCtrl t x n) 
 
 and
 
-> fViable : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite (Viable {t} n x)
-> fViable _ = finiteSingleton
+< cnzGoodCtrl : {t : Nat} -> {n : Nat} -> 
+<               (x : State t) -> (v : Viable {t = t} (S n) x) ->
+<               CardNotZ (finiteGoodCtrl {t} {n} x)
 
-> f1Good : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite1 (Good t x n)
-> f1Good {t} {n} x y = fAll {t} (fViable {t = S t} {n}) (step t x y)
+follow from finiteness of |All|
 
-With |f1Good| we can finally implement |fGoodCtrl|
+> -- finiteAll : {A : Type} -> {P : A -> Type} -> 
+> --             Finite1 P -> (ma : M A) -> Finite (All P ma)
+> SeqDecProbsHelpers.finiteAll = IdentityProperties.finiteAll
 
-> fGoodCtrl {t} {n} x v = finiteSigmaLemma0 (fCtrl {t} {x}) (f1Good {t} {n} x)
+, finiteness of |Viable|
 
-and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
+> -- finiteViable : {t : Nat} -> {n : Nat} -> 
+> --                (x : State t) -> Finite (Viable {t} n x)
+> SeqDecProbsHelpers.finiteViable _ = finiteSingleton
+
+, finiteness of |NonEmpty|
+
+> -- finiteNonEmpty : {t : Nat} -> {n : Nat} -> 
+> --                  (x : State t) -> (y : Ctrl t x) -> 
+> --                  Finite (SeqDecProbsCoreAssumptions.NonEmpty (step t x y))
+> SeqDecProbsHelpers.finiteNonEmpty {t} {n} x y = IdentityProperties.finiteNonEmpty (step t x y)
+
+and, finally, finiteness of controls
+
+> -- finiteCtrl : {t : Nat} -> {n : Nat} -> (x : State t) -> Finite (Ctrl t x) 
+> SeqDecProbsHelpers.finiteCtrl _ = finiteLeftAheadRight
+> %freeze SeqDecProbsHelpers.finiteCtrl
+
+With these results in place, we have
 
 > SeqDecProbsCoreAssumptions.max x v =
->   Opt.max totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
+>   Opt.max totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 > SeqDecProbsCoreAssumptions.argmax x v  =
->   Opt.argmax totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
+>   Opt.argmax totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 > SeqDecProbsCoreAssumptions.maxSpec x v =
->   Opt.maxSpec totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
+>   Opt.maxSpec totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 > SeqDecProbsCoreAssumptions.argmaxSpec x v =
->   Opt.argmaxSpec totalPreorderNatLTE (fGoodCtrl x v) (neGoodCtrl x v)
+>   Opt.argmaxSpec totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 
 
@@ -240,6 +237,8 @@ and |max|, |argmax|, |maxSpec| and |argmaxSpec|:
 
 > main : IO ()
 > main = run computation
+
+> {-
 
 > ---}
 

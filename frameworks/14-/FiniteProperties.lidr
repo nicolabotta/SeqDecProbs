@@ -65,8 +65,8 @@
 Non empty finite types
 
 > |||
-> nonEmptyLemma : {A : Type} -> (fA : Finite A) -> A -> NonEmpty fA
-> nonEmptyLemma fA a = gtZisnotZ (elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a))
+> cardNotZLemma : {A : Type} -> (fA : Finite A) -> A -> CardNotZ fA
+> cardNotZLemma fA a = gtZisnotZ (elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a))
 
 
 We want to show that, for a finite type |A| and a decidable predicate |P

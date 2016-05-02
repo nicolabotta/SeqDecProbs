@@ -60,6 +60,6 @@ LeftAheadRight is finite:
 
 LeftAheadRight is non empty:
 
-> nonEmptyLeftAheadRight : NonEmpty finiteLeftAheadRight
-> nonEmptyLeftAheadRight = nonEmptyLemma finiteLeftAheadRight Left
-> %freeze nonEmptyLeftAheadRight
+> cardNotZLeftAheadRight : CardNotZ finiteLeftAheadRight
+> cardNotZLeftAheadRight = cardNotZLemma finiteLeftAheadRight Left
+> %freeze cardNotZLeftAheadRight

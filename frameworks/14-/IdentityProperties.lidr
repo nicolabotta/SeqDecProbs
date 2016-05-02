@@ -24,19 +24,6 @@
 Id is a container monad:
 
 > |||
-> elemEmptySpec0 : {A : Type} ->
->                  (a : A) -> (ia : Identity A) ->
->                  a `Elem` ia -> Not (Empty ia)
-> elemEmptySpec0 a (Id a) Refl = id   
-
-> ||| 
-> elemEmptySpec1 : {A : Type} ->
->                  (ia : Identity A) ->
->                  Not (Empty ia) -> 
->                  Sigma A (\ a => a `Elem` ia)
-> elemEmptySpec1 (Id a) _ = (MkSigma a Refl)
-
-> |||
 > elemNonEmptySpec0 : {A : Type} ->
 >                     (a : A) -> (ia : Identity A) ->
 >                     a `Elem` ia -> NonEmpty ia
@@ -74,12 +61,6 @@ Show
 
 
 Specific container monad properties
-
-> ||| Values of type |Identity A| are never empty
-> notEmptyLemma : {A : Type} -> 
->                 (ia : Identity A) -> 
->                 Not (Empty ia)
-> notEmptyLemma (Id a) = elemEmptySpec0 a (Id a) Refl                
 
 > ||| Values of type |Identity A| are never empty
 > nonEmptyLemma : {A : Type} -> 
