@@ -66,10 +66,10 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 ** M is a container monad:
 
 > SeqDecProbsCoreAssumptions.Elem = Data.List.Elem
-> SeqDecProbsCoreAssumptions.Empty = ListOperations.Empty
+> SeqDecProbsCoreAssumptions.NonEmpty = ListOperations.NonEmpty
 > SeqDecProbsCoreAssumptions.All = Data.List.Quantifiers.All
-> SeqDecProbsCoreAssumptions.elemEmptySpec0 = ListProperties.elemEmptySpec0
-> SeqDecProbsCoreAssumptions.elemEmptySpec1 = ListProperties.elemEmptySpec1
+> SeqDecProbsCoreAssumptions.elemNonEmptySpec0 = ListProperties.elemNonEmptySpec0
+> SeqDecProbsCoreAssumptions.elemNonEmptySpec1 = ListProperties.elemNonEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = ListOperations.tagElem
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 = ListProperties.containerMonadSpec3
 
