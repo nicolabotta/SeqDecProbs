@@ -69,7 +69,7 @@ For reasons that become clear immediately, |M| is is required fulfill
 
 > fmap : {A, B : Type} -> (A -> B) -> M A -> M B
 > postulate functorSpec1 : fmap . id = id
-> postulate functorSpec2 : {A, B, C : Type} -> {f : B -> C} -> {g : A -> B} -> 
+> postulate functorSpec2 : {A, B, C : Type} -> {f : B -> C} -> {g : A -> B} ->
 >                          fmap (f . g) = (fmap f) . (fmap g)
 
 In the above specification and throughout this file, we use postulates
@@ -132,7 +132,7 @@ In a nutshell, |measMon| says that, if |ma| and |mb| are similar
 the case that the measure of |ma| is greater than the measure of |mb|.
 
 
-* Solving sequential decision problems 
+* Solving sequential decision problems
 
 Implementing the above holes defines a specific SDP unambiguously. But
 in order to compute controls that provably maximize the sum of the
@@ -143,9 +143,9 @@ additional assumptions. In particular, we need |M| to be a "monad":
 > bind  :  {A, B : Type} -> M A -> (A -> M B) -> M B
 > postulate monadSpec1   :  {A, B : Type} -> {f : A -> B} ->
 >                           (fmap f) . ret = ret . f
-> postulate monadSpec21  :  {A, B : Type} -> {f : A -> M B} -> {a : A} -> 
+> postulate monadSpec21  :  {A, B : Type} -> {f : A -> M B} -> {a : A} ->
 >                           bind (ret a) f = f a
-> postulate monadSpec22  :  {A : Type} -> {ma : M A} -> 
+> postulate monadSpec22  :  {A : Type} -> {ma : M A} ->
 >                           bind ma ret = ma
 > postulate monadSpec23  :  {A, B, C : Type} -> {f : A -> M B} -> {g : B -> M C} -> {ma : M A} ->
 >                           bind (bind ma f) g = bind ma (\ a => bind (f a) g)
@@ -168,23 +168,23 @@ and, more specifically, a "container" monad:
 >                               (ma : M A) -> SeqDecProbsCoreAssumptions.NonEmpty ma -> 
 >                               Sigma A (\ a => a `Elem` ma)
 
-> postulate containerMonadSpec1 : {A : Type} -> {a : A} -> 
+> postulate containerMonadSpec1 : {A : Type} -> {a : A} ->
 >                                 a `Elem` (ret a)
 
-> postulate containerMonadSpec2 : {A : Type} -> 
+> postulate containerMonadSpec2 : {A : Type} ->
 >                                 (a : A) -> (ma : M A) -> (mma : M (M A)) ->
 >                                 a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
 
-> containerMonadSpec3 : {A : Type} -> {P : A -> Type} -> 
+> containerMonadSpec3 : {A : Type} -> {P : A -> Type} ->
 >                       (a : A) -> (ma : M A) ->
 >                       All P ma -> a `Elem` ma -> P a
 
-> postulate tagElemSpec : {A : Type} -> 
+> postulate tagElemSpec : {A : Type} ->
 >                         (ma : M A) -> fmap outl (tagElem ma) = ma
 
 The theory presented in "SeqDecProbCoreTheory.lidr" relies on two
 further assumptions. Expressing these assumptions requires introducing
-the notion of viability. 
+the notion of viability.
 
 Intuitively, a state |x : State t| is viable for |n| steps if, in spite
 of the uncertainties of the decision process, one can make |n| decision
@@ -200,16 +200,20 @@ computation, running out of fuel, being shot dead.
 > Good t x n y = (SeqDecProbsCoreAssumptions.NonEmpty (step t x y), 
 >                 All (Viable {t = S t} n) (step t x y))
 
+> Good' : (t : Nat) -> (x : State t) -> (n : Nat) -> (Ctrl t x) -> Type
+> Good' t x n y =  let mx = step t x y in
+>                  (Exists (\ x' => Elem x' mx), All (Viable {t = S t} n) mx)
+
 > GoodCtrl : (t : Nat) -> (x : State t) -> (n : Nat) -> Type
 > GoodCtrl t x n = Sigma (Ctrl t x) (Good t x n)
 
-> postulate viableSpec0 : {t : Nat} -> 
+> postulate viableSpec0 : {t : Nat} ->
 >                         (x : State t) -> Viable Z x
-                         
-> viableSpec1 : {t : Nat} -> {n : Nat} -> 
+
+> viableSpec1 : {t : Nat} -> {n : Nat} ->
 >               (x : State t) -> Viable (S n) x -> GoodCtrl t x n
 
-> postulate viableSpec2 : {t : Nat} -> {n : Nat} -> 
+> postulate viableSpec2 : {t : Nat} -> {n : Nat} ->
 >                         (x : State t) -> GoodCtrl t x n -> Viable (S n) x
 
 A somehow orthogonal notion to viability is that of reachability. Even
@@ -223,16 +227,16 @@ reachable:
 
 > postulate reachableSpec0 : (x : State Z) -> Reachable x
 
-> reachableSpec1 : {t : Nat} -> 
->                  (x : State t) -> Reachable {t' = t} x -> (y : Ctrl t x) -> 
+> reachableSpec1 : {t : Nat} ->
+>                  (x : State t) -> Reachable {t' = t} x -> (y : Ctrl t x) ->
 >                  All (Reachable {t' = S t}) (step t x y)
 
-> postulate reachableSpec2 : {t : Nat} -> 
->                            (x' : State (S t)) -> Reachable x' -> 
->                            Exists (\ x => (Reachable x , Exists (\ y => x' `Elem` (step t x y)))) 
+> postulate reachableSpec2 : {t : Nat} ->
+>                            (x' : State (S t)) -> Reachable x' ->
+>                            Exists (\ x => (Reachable x , Exists (\ y => x' `Elem` (step t x y))))
 
 With viability in place , we are now ready to express the last core
-assumption at the core of the theory. 
+assumption at the core of the theory.
 
 In "SeqDecProbCoreTheory.lidr" we are going to implement a generic form
 (for all |State : (t : Nat) -> Type|, |Ctrl : (t : Nat) -> (x : State t)
@@ -246,22 +250,22 @@ compute such "optimal" controls only for those states in |State t| which
 are viable for a certain number of steps. Thus, we assume that users
 that want to apply the theory are able to implement two functions
 
-> max    : {t : Nat} -> {n : Nat} -> 
+> max    : {t : Nat} -> {n : Nat} ->
 >          (x : State t) -> (Viable (S n) x) ->
 >          (f : GoodCtrl t x n -> Nat) -> Nat
 
-> argmax : {t : Nat} -> {n : Nat} -> 
+> argmax : {t : Nat} -> {n : Nat} ->
 >          (x : State t) -> (Viable (S n) x) ->
 >          (f : GoodCtrl t x n -> Nat) -> GoodCtrl t x n
 
 that fulfill
 
-> maxSpec : {t : Nat} -> {n : Nat} -> 
+> maxSpec : {t : Nat} -> {n : Nat} ->
 >           (x : State t) -> (v : Viable (S n) x) ->
 >           (f : GoodCtrl t x n -> Nat) -> (y : GoodCtrl t x n) ->
 >           (f y) `LTE` (max x v f)
 
-> argmaxSpec : {t : Nat} -> {n : Nat} -> 
+> argmaxSpec : {t : Nat} -> {n : Nat} ->
 >              (x : State t) -> (v : Viable (S n) x) ->
 >              (f : GoodCtrl t x n -> Nat) ->
 >              max x v f = f (argmax x v f)
@@ -270,12 +274,12 @@ that fulfill
 * Auxiliary functions
 
 > |||
-> ctrl : {t : Nat} -> {x : State t} -> {n : Nat} -> 
+> ctrl : {t : Nat} -> {x : State t} -> {n : Nat} ->
 >        GoodCtrl t x n -> Ctrl t x
-> ctrl (MkSigma y _) = y          
+> ctrl (MkSigma y _) = y
 
 > |||
-> good : {t : Nat} -> {x : State t} -> {n : Nat} -> 
+> good : {t : Nat} -> {x : State t} -> {n : Nat} ->
 >        (y : GoodCtrl t x n) -> Good t x n (ctrl y)
 > good (MkSigma _ p) = p
 
@@ -287,8 +291,6 @@ that fulfill
 
 
 
-
-
 * References
 
 [1] Bellman, Richard; "Dynamic Programming", Princeton University Press,
@@ -296,6 +298,3 @@ that fulfill
 
 [2] Ionescu, Cezar; "Vulnerability Modelling and Monadic Dynamical
     Systems", Freie Universitaet Berlin, 2009
- 
- 
- 
