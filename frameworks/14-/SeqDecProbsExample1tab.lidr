@@ -131,7 +131,6 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 > SeqDecProbsCoreAssumptions.Viable n x =  Unit
 
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
-> -- SeqDecProbsCoreAssumptions.viableSpec1 x v = MkSigma Left ()
 > SeqDecProbsCoreAssumptions.viableSpec1 {t} x v = MkSigma Left (nonEmptyLemma (step t x Left), ())
 
 > -- Reachable : State t' -> Type

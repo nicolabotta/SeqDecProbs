@@ -113,7 +113,11 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 >   | (Yes p)     = [MkSigma (S n) (LTESucc p)]
 >   | (No contra) = [MkSigma  Z    (LTESucc LTEZero)]
 
-> postulate stepLemma : {t : Nat} -> (x : State t) -> SeqDecProbsCoreAssumptions.NonEmpty (step t x Left)
+> stepNonEmptyLemma : {t : Nat} -> 
+>                     (x : State t) -> 
+>                     SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
+> stepNonEmptyLemma {t} (MkSigma n prf) = 
+>   SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} (MkSigma n prf) [(MkSigma n prf)] Here
 
 
 ** Reward function:
@@ -127,23 +131,22 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 
 
 
+* Viable and Reachable
+
 > -- Viable : (n : Nat) -> State t -> Type
 > SeqDecProbsCoreAssumptions.Viable n x =  Unit
 
+> viableLemma : {t : Nat} -> {n : Nat} ->
+>               (x : State t) -> 
+>               SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
+> viableLemma (MkSigma n prf) = [()]
+
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
-> SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x _ = MkSigma y s2 where
->   y : Ctrl t x
->   y = Left
->   mx' : List (State (S t))
->   mx' = step t x y 
->   s2  : Good t x n y
->   -- s2  = all mx' where
->   s2  = (ne, all mx') where
->     ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x y)
->     ne = stepLemma x
->     all : (xs : List (State (S t))) -> SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) xs
->     all Nil = Nil
->     all (x :: xs) = () :: (all xs)
+> SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x _ = MkSigma Ahead (ne, av) where
+>   ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
+>   ne = stepNonEmptyLemma x
+>   av : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
+>   av = viableLemma x
 
 > -- Reachable : State t' -> Type
 > SeqDecProbsCoreAssumptions.Reachable x' = Unit

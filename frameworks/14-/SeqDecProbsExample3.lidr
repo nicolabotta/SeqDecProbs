@@ -119,10 +119,6 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 >                        (x : State t) -> (outl x `LT` maxColumn) -> 
 >                        SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
 
-> postulate stepLemma2 : {t : Nat} -> {n : Nat} ->
->                        (x : State t) -> (outl x `LT` maxColumn) -> 
->                        SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
-
 
 ** Reward function:
 
@@ -135,10 +131,25 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 
 
 
+* Viable and Reachable
+
 > -- Viable : (n : Nat) -> State t -> Type
 > SeqDecProbsCoreAssumptions.Viable n x with (decLT (outl x) maxColumn)
 >   | (Yes _) = Unit
 >   | (No  _) = Void
+
+> viableLemma : {t : Nat} -> {n : Nat} ->
+>               (x : State t) -> 
+>               SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
+> viableLemma {t} {n} (MkSigma i prf) with (decLT i maxColumn)
+>   | (Yes p) = res where
+>     res : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) [MkSigma i prf]
+>     res = v :: Nil where
+>       v : Viable {t = S t} n (MkSigma i prf)
+>       v with (decLT i maxColumn)
+>         | (Yes _) = ()
+>         | (No  contra) = void (contra p)
+>   | (No  _) = Nil
 
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
 > SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x v with (decLT (outl x) maxColumn)
@@ -146,7 +157,7 @@ A tabulated version of "SeqDecProbsExample2.lidr".
 >     ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
 >     ne = stepLemma1 x prf
 >     av : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
->     av = stepLemma2 x prf
+>     av = viableLemma x 
 >   | (No _) = void v
 
 > -- Reachable : State t' -> Type

@@ -196,7 +196,6 @@ computation, running out of fuel, being shot dead.
 > Viable : {t : Nat} -> (n : Nat) -> State t -> Type
 
 > Good : (t : Nat) -> (x : State t) -> (n : Nat) -> (Ctrl t x) -> Type
-> -- Good t x n y = All (Viable {t = S t} n) (step t x y)
 > Good t x n y = (SeqDecProbsCoreAssumptions.NonEmpty (step t x y), 
 >                 All (Viable {t = S t} n) (step t x y))
 
@@ -286,7 +285,6 @@ that fulfill
 > |||
 > allViable : {t : Nat} -> {x : State t} -> {n : Nat} -> {y : Ctrl t x} ->
 >             (y : GoodCtrl t x n) -> All (Viable {t = S t} n) (step t x (ctrl y)) 
-> -- allViable = good
 > allViable (MkSigma y p) = snd p
 
 

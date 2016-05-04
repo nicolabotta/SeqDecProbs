@@ -100,7 +100,6 @@ Finiteness of |NonEmpty| and |All Viable| directly implies finiteness of
 >              (x : State t) -> (y : Ctrl t x) -> 
 >              Finite (Good t x n y)
 > finiteGood {n} x y = finiteProduct (finiteNonEmpty {n} x y) (finiteAllViable x y)
-> -- finiteGood {n} x y = finiteAllViable x y
 
 and, assuming finiteness of controls, finiteness of |GoodCtrl|:
 
