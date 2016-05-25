@@ -27,6 +27,11 @@
 
 
 > |||
+> toNatfromNatLemma : (m : Nat) -> (zLTm : Z `LT` m) -> toNat (fromNat m zLTm) = m
+> toNatfromNatLemma m zLTm = Refl
+
+
+> |||
 > toNatLTLemma : (x : PNat) -> Z `LT` toNat x
 > toNatLTLemma x = s2 where
 >   s1 : Z `LT` (S (pred x))

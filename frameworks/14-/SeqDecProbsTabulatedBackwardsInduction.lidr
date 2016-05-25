@@ -152,7 +152,7 @@ The idea is to equip |optExt| with an additional argument |vt : Vect
 
 < tabOptExt : (ps : PolicySeq (S t) n) -> (vt : Vect (cRVState (S t) n) Nat) -> Policy t (S n)
 
-> tabOptExt : (vt : Vect (cRVState (S t) n) Nat) -> Policy t (S n)
+> tabOptExt : (vt : Vect (cRVState (S t) n) Val) -> Policy t (S n)
 
 storing the value, for a given |ps : PolicySeq (S t) n| and for every
 state in |RVState t (S n)|, of taking |n| decision steps with |ps| starting
@@ -174,9 +174,9 @@ Nat|:
 > mkf' : {t : Nat} -> {n : Nat} ->
 >        (x  : State t) -> (r  : Reachable x) -> (v  : Viable (S n) x) ->
 >        (gy  : GoodCtrl t x n) -> 
->        (vt : Vect (cRVState (S t) n) Nat) ->
->        PossibleState x (ctrl gy) -> Nat
-> mkf' {t} {n} x r v gy vt (MkSigma x' x'estep) = reward t x y x' + index k vt where
+>        (vt : Vect (cRVState (S t) n) Val) ->
+>        PossibleState x (ctrl gy) -> Val
+> mkf' {t} {n} x r v gy vt (MkSigma x' x'estep) = reward t x y x' `plus` index k vt where
 >   y   : Ctrl t x
 >   y   = ctrl gy
 >   ar' : All Reachable (step t x y)
@@ -202,8 +202,8 @@ Nat|:
 >         (x  : State t) ->
 >         (r  : Reachable x) ->
 >         (v  : Viable (S n) x) ->
->         (vt : Vect (cRVState (S t) n) Nat) -> 
->         GoodCtrl t x n -> Nat
+>         (vt : Vect (cRVState (S t) n) Val) -> 
+>         GoodCtrl t x n -> Val
 > tcval {t} x r v vt gy = meas (fmap (mkf' x r v gy vt) (tagElem mx')) where
 >   y    : Ctrl t x
 >   y    = ctrl gy
@@ -219,14 +219,14 @@ With |tabOptExt| in place, it is easy to implement a tabulated version
 of |trbi|:
 
 > ValueTable : Nat -> Nat -> Type
-> ValueTable t n = Vect (cRVState t n) Nat  -- a table of the result of calling flip val (roughly) on a PolicySeq
+> ValueTable t n = Vect (cRVState t n) Val  -- a table of the result of calling flip val (roughly) on a PolicySeq
 
 > PolicySeqAndTab : Nat -> Nat -> Type
 > PolicySeqAndTab t n = (PolicySeq t n, ValueTable t n)
 
-> zeroVec : (n : Nat) -> Vect n Nat
+> zeroVec : (n : Nat) -> Vect n Val
 > zeroVec Z     = Nil
-> zeroVec (S n) = Z :: zeroVec n
+> zeroVec (S n) = zero :: zeroVec n
 
 
 > ||| Tabulated backwards induction
@@ -243,7 +243,7 @@ of |trbi|:
 >      p = tabOptExt vt
 >      vt' : ValueTable t (S n)
 >      vt' = toVect vtf where
->         vtf : Fin (cRVState t (S n)) -> Nat
+>         vtf : Fin (cRVState t (S n)) -> Val
 >         vtf k = tcval x r v vt (p x r v) where
 >           xrv : Sigma (State t) (ReachableViable (S n))
 >           xrv = index k (rRVState t (S n))
@@ -260,7 +260,7 @@ of |trbi|:
 > ||| Tabulated tail-recursive backwards induction iteration
 > ttrbii : (t : Nat) -> (n : Nat) -> (c : Nat) -> (LTE c n) ->
 >          PolicySeq (c + t) (n - c) ->
->          (vt : Vect (cRVState (c + t) (n - c)) Nat) ->
+>          (vt : Vect (cRVState (c + t) (n - c)) Val) ->
 >          PolicySeq t n
 >
 > ttrbii t n  Z     prf ps vt = replace {P = \ z => PolicySeq t z} (minusZeroRight n) ps
@@ -274,9 +274,9 @@ of |trbi|:
 >   p    = tabOptExt vt
 >   ps'  : PolicySeq (c' + t) (n - c')
 >   ps'  = replace {P = \ z => PolicySeq (c' + t) z} bic (p :: ps)
->   vt'  : Vect (cRVState (c' + t) (S (n - S c'))) Nat
+>   vt'  : Vect (cRVState (c' + t) (S (n - S c'))) Val
 >   vt'  = toVect vt'f where
->     vt'f : Fin (cRVState (c' + t) (S (n - S c'))) -> Nat
+>     vt'f : Fin (cRVState (c' + t) (S (n - S c'))) -> Val
 >     vt'f k = tcval x r v vt (p x r v) where
 >       xrv : Sigma (State (c' + t)) (ReachableViable (S (n - S c')))
 >       xrv = index k (rRVState (c' + t) (S (n - S c')))
@@ -286,8 +286,8 @@ of |trbi|:
 >       r   = fst (outr xrv)
 >       v   : Viable {t = c' + t} (S (n - S c')) x
 >       v   = snd (outr xrv)
->   vt''  : Vect (cRVState (c' + t) (n - c')) Nat
->   vt''  = replace {P = \z => Vect (cRVState (c' + t) z) Nat} bic vt'
+>   vt''  : Vect (cRVState (c' + t) (n - c')) Val
+>   vt''  = replace {P = \z => Vect (cRVState (c' + t) z) Val} bic vt'
 
 
 > ||| Tabulated tail-recursive backwards induction

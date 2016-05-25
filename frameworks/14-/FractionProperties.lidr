@@ -4,6 +4,7 @@
 
 > import Fraction
 > import FractionOperations
+> import FractionPredicates
 > import FractionNormal
 > import PNat
 > import PNatOperations
@@ -31,6 +32,15 @@
 > -- %access export
 
 
+> ||| Denominators of fractions are greater than zero
+> denLTLemma : (x : Fraction) -> Z `LT` den x
+> denLTLemma x = s2 where
+>   s1 : Z `LT` toNat (snd x)
+>   s1 = toNatLTLemma (snd x)
+>   s2 : Z `LT` den x
+>   s2 = replace {P = \ ZUZU => Z `LT` ZUZU} Refl s1
+
+> |||
 > fromNatNormal : {n : Nat} -> Normal (fromNat n)
 > fromNatNormal = MkNormal anyCoprimeOne
 > %freeze fromNatNormal
@@ -664,6 +674,221 @@ Further properties of |normalize|:
 >   let nxnyEqxy = multPreservesEq (normalize x) x (normalize y) y nxEqx nyEqy in
 >   normalizeEqLemma2 ((normalize x) * (normalize y)) (x * y) nxnyEqxy
 > %freeze normalizeMultElim
+
+
+> |||
+> normalizeLTELemma : (x : Fraction) -> (y : Fraction) -> 
+>                     x `LTE` y -> normalize x `LTE` normalize y
+> normalizeLTELemma (nx, dx') (ny, dy') xLTEy = s11 where
+> 
+>   dx  : Nat
+>   dx  = toNat dx'
+>   zLTdx : Z `LT` dx
+>   zLTdx = toNatLTLemma dx'
+>   
+>   dy  : Nat
+>   dy  = toNat dy'
+>   zLTdy : Z `LT` dy
+>   zLTdy = toNatLTLemma dy'
+>   
+>   gx  : Nat
+>   gx  = gcdAlg nx dx
+>   pgx : GCD gx nx dx
+>   pgx = gcdAlgLemma nx dx
+>   gxDnx : gx `Divisor` nx
+>   gxDnx = gcdDivisorFst pgx
+>   gxDdx : gx `Divisor` dx
+>   gxDdx = gcdDivisorSnd pgx
+>   zLTgx : Z `LT` gx
+>   zLTgx = gcdPreservesPositivity2 zLTdx (MkSigma gx pgx)
+>   
+>   gy  : Nat
+>   gy  = gcdAlg ny dy
+>   pgy : GCD gy ny dy
+>   pgy = gcdAlgLemma ny dy
+>   gyDny : gy `Divisor` ny
+>   gyDny = gcdDivisorFst pgy
+>   gyDdy : gy `Divisor` dy
+>   gyDdy = gcdDivisorSnd pgy
+>   zLTgy : Z `LT` gy
+>   zLTgy = gcdPreservesPositivity2 zLTdy (MkSigma gy pgy)
+>   
+>   nnx : Nat
+>   nnx = quotient nx gx gxDnx
+>   dnx : Nat
+>   dnx = quotient dx gx gxDdx
+>   zLTdnx : Z `LT` dnx
+>   zLTdnx = quotientPreservesPositivity dx gx gxDdx zLTdx
+>   dnx' : PNat
+>   dnx' = fromNat dnx zLTdnx
+>   
+>   nny : Nat
+>   nny = quotient ny gy gyDny
+>   dny : Nat
+>   dny = quotient dy gy gyDdy
+>   zLTdny : Z `LT` dny
+>   zLTdny = quotientPreservesPositivity dy gy gyDdy zLTdy
+>   dny' : PNat
+>   dny' = fromNat dny zLTdny
+>   
+>   nxdy : Nat
+>   nxdy = nx * dy
+>   nydx : Nat
+>   nydx = ny * dx
+>   gxgy : Nat
+>   gxgy = gx * gy
+>   gygx : Nat
+>   gygx = gy * gx
+>   gxgyDnxdy : gxgy `Divisor` nxdy
+>   gxgyDnxdy = divisorMultLemma1 nx gx gxDnx dy gy gyDdy
+>   gygxDnydx : gygx `Divisor` nydx 
+>   gygxDnydx = divisorMultLemma1 ny gy gyDny dx gx gxDdx
+>   ngxgyZ : Not (gxgy = Z)
+>   ngxgyZ = multNotZeroNotZero gx gy (gtZisnotZ zLTgx) (gtZisnotZ zLTgy)
+
+>   s01 : LTE nxdy nydx
+>   s01 = xLTEy
+>   s02 : LTE ((quotient nxdy gxgy gxgyDnxdy) * gxgy) nydx
+>   s02 = replace {P = \ ZUZ => LTE ZUZ nydx} 
+>                 (sym (quotientLemma' nxdy gxgy gxgyDnxdy)) s01
+>   s03 : LTE ((quotient nxdy gxgy gxgyDnxdy) * gxgy) ((quotient nydx gygx gygxDnydx) * gygx)
+>   s03 = replace {P = \ ZUZ => LTE ((quotient nxdy gxgy gxgyDnxdy) * gxgy) ZUZ} 
+>                 (sym (quotientLemma' nydx gygx gygxDnydx)) s02
+>   s04 : LTE (quotient nxdy gxgy gxgyDnxdy) (quotient nydx gygx gygxDnydx)
+>   s04 = elimRightMultLTE s03 (multCommutative gx gy) ngxgyZ
+>   s05 : LTE ((quotient nx gx gxDnx) * (quotient dy gy gyDdy)) (quotient nydx gygx gygxDnydx)                         
+>   s05 = replace {P = \ ZUZ => LTE ZUZ (quotient nydx gygx gygxDnydx)} 
+>                 (sym (quotientMultLemma nx gx gxDnx dy gy gyDdy)) s04
+>   s06 : LTE ((quotient nx gx gxDnx) * (quotient dy gy gyDdy)) ((quotient ny gy gyDny) * (quotient dx gx gxDdx))
+>   s06 = replace {P = \ ZUZ => LTE ((quotient nx gx gxDnx) * (quotient dy gy gyDdy)) ZUZ} 
+>                 (sym (quotientMultLemma ny gy gyDny dx gx gxDdx)) s05
+>   s07 : LTE (nnx * dny) (nny * dnx)
+>   s07 = s06
+>   s08 : LTE (nnx * (toNat dny')) (nny * dnx)
+>   s08 = replace {P = \ ZUZ => LTE (nnx * ZUZ) (nny * dnx)} (sym (toNatfromNatLemma dny zLTdny)) s07
+>   s09 : LTE (nnx * (toNat dny')) (nny * (toNat dnx'))
+>   s09 = replace {P = \ ZUZ => LTE (nnx * (toNat dny')) (nny * ZUZ)} (sym (toNatfromNatLemma dnx zLTdnx)) s08
+>   s10 : (nnx, dnx') `LTE` (nny, dny')
+>   s10 = s09
+>   s11 : normalize (nx, dx') `LTE` normalize (ny, dy')
+>   s11 = s10
+> %freeze normalizeLTELemma
+
+
+Properties of |LTE|:
+
+> ||| LTE is reflexive
+> reflexiveLTE : (x : Fraction) -> x `LTE` x
+> reflexiveLTE (n, d') = NatProperties.reflexiveLTE (n * (toNat d'))
+
+
+> ||| LTE is transitive
+> transitiveLTE : (x, y, z : Fraction) -> x `LTE` y -> y `LTE` z -> x `LTE` z
+> transitiveLTE (nx, dx') (ny, dy') (nz, dz') xLTEy yLTEz = s8 where
+>   dx : Nat
+>   dx = toNat dx'
+>   dy : Nat
+>   dy = toNat dy'
+>   dz : Nat
+>   dz = toNat dz'
+>   s1    : Prelude.Nat.LTE ((nx * dy) * dz) ((ny * dx) * dz)
+>   s1    = monotoneNatMultLTE xLTEy (NatProperties.reflexiveLTE dz)
+>   s2    : Prelude.Nat.LTE ((ny * dz) * dx) ((nz * dy) * dx)
+>   s2    = monotoneNatMultLTE yLTEz (NatProperties.reflexiveLTE dx)
+>   s3    : Prelude.Nat.LTE ((ny * dx) * dz) ((nz * dy) * dx)
+>   s3    = replace {P = \ ZUZ => Prelude.Nat.LTE ZUZ ((nz * dy) * dx)} (multSwapRight ny dz dx) s2
+>   s4    : Prelude.Nat.LTE ((nx * dy) * dz) ((nz * dy) * dx)
+>   s4    = NatProperties.transitiveLTE ((nx * dy) * dz)
+>                                       ((ny * dx) * dz)
+>                                       ((nz * dy) * dx)
+>                                       s1 s3
+>   s5    : Prelude.Nat.LTE ((nx * dz) * dy) ((nz * dy) * dx)
+>   s5    = replace {P = \ ZUZ => Prelude.Nat.LTE ZUZ ((nz * dy) * dx)} (multSwapRight nx dy dz) s4
+>   s6    : Prelude.Nat.LTE ((nx * dz) * dy) ((nz * dx) * dy)
+>   s6    = replace {P = \ ZUZ => Prelude.Nat.LTE ((nx * dz) * dy) ZUZ} (multSwapRight nz dy dx) s5
+>   s7    : Prelude.Nat.LTE (nx * dz) (nz * dx)
+>   s7    = elimRightMultLTE {a = nx * dz} {b = nz * dx} {c = dy} {d = dy}
+>                            s6 Refl (gtZisnotZ (denLTLemma (ny, dy')))
+>   s8 : (nx, dx') `LTE` (nz, dz')
+>   s8 = s7
+
+                        
+> ||| LTE is total
+> totalLTE : (x, y : Fraction) -> Either (x `LTE` y) (y `LTE` x) 
+> totalLTE (n1, d1') (n2, d2') = 
+>   let d1 = toNat d1' in
+>   let d2 = toNat d2' in
+>   NatProperties.totalLTE (n1 * d2) (n2 * d1)
+
+
+> ||| LTE is monotone w.r.t. `plus`
+> monotonePlusLTE : {a, b, c, d : Fraction} -> 
+>                   a `LTE` b -> c `LTE` d -> (a `plus` c) `LTE` (b `plus` d)
+> monotonePlusLTE {a = (na, da')} {b = (nb, db')} {c = (nc, dc')} {d = (nd, dd')} aLTEb cLTEd = s16 where
+>   da : Nat
+>   da = toNat da'
+>   db : Nat
+>   db = toNat db'
+>   dc : Nat
+>   dc = toNat dc'
+>   dd : Nat
+>   dd = toNat dd'
+>   s1 : Prelude.Nat.LTE (na * db) (nb * da)
+>   s1 = aLTEb
+>   s2 : Prelude.Nat.LTE (nc * dd) (nd * dc)
+>   s2 = cLTEd
+>   s3 : Prelude.Nat.LTE ((na * db) * (dc * dd)) ((nb * da) * (dc * dd))
+>   s3 = monotoneNatMultLTE s1 (NatProperties.reflexiveLTE (dc * dd))
+>   s4 : Prelude.Nat.LTE ((nc * dd) * (da * db)) ((nd * dc) * (da * db))
+>   s4 = monotoneNatMultLTE s2 (NatProperties.reflexiveLTE (da * db))
+>   s5 : Prelude.Nat.LTE ((na * db) * (dc * dd) + (nc * dd) * (da * db)) 
+>                        ((nb * da) * (dc * dd) + (nd * dc) * (da * db))
+>   s5 = monotoneNatPlusLTE s3 s4 
+>   s6 : Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * dd) * (da * db)) 
+>                        ((nb * da) * (dc * dd) + (nd * dc) * (da * db))
+>   s6 = replace {P = \ ZUZ => Prelude.Nat.LTE (         ZUZ          + (nc * dd) * (da * db)) 
+>                                              ((nb * da) * (dc * dd) + (nd * dc) * (da * db))} 
+>                (multSwap23 na db dc dd) s5 
+>   s7 : Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (dd * db)) 
+>                        ((nb * da) * (dc * dd) + (nd * dc) * (da * db))
+>   s7 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc) * (db * dd) +          ZUZ         ) 
+>                                              ((nb * da) * (dc * dd) + (nd * dc) * (da * db))} 
+>                (multSwap23 nc dd da db) s6
+>   s8 : Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (dd * db)) 
+>                        ((nb * dd) * (dc * da) + (nd * dc) * (da * db))
+>   s8 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (dd * db)) 
+>                                              (         ZUZ          + (nd * dc) * (da * db))} 
+>                (multSwap24 nb da dc dd) s7
+>   s9 : Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (dd * db)) 
+>                        ((nb * dd) * (dc * da) + (nd * db) * (da * dc))
+>   s9 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (dd * db)) 
+>                                              ((nb * dd) * (dc * da) +          ZUZ         )} 
+>                (multSwap24 nd dc da db) s8                
+>   s10 : Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (db * dd)) 
+>                         ((nb * dd) * (dc * da) + (nd * db) * (da * dc))
+>   s10 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) *    ZUZ   ) 
+>                                               ((nb * dd) * (dc * da) + (nd * db) * (da * dc))} 
+>                 (multCommutative dd db) s9
+>   s11 : Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (db * dd)) 
+>                         ((nb * dd) * (da * dc) + (nd * db) * (da * dc))
+>   s11 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc) * (db * dd) + (nc * da) * (db * dd)) 
+>                                               ((nb * dd) *    ZUZ    + (nd * db) * (da * dc))} 
+>                 (multCommutative dc da) s10
+>   s12 : Prelude.Nat.LTE ((na * dc + nc * da) * (db * dd)) 
+>                         ((nb * dd) * (da * dc) + (nd * db) * (da * dc))
+>   s12 = replace {P = \ ZUZ => Prelude.Nat.LTE ZUZ ((nb * dd) * (da * dc) + (nd * db) * (da * dc))} 
+>                 (sym (multDistributesOverPlusLeft (na * dc) (nc * da) (db * dd))) s11
+>   s13 : Prelude.Nat.LTE ((na * dc + nc * da) * (db * dd)) ((nb * dd + nd * db) * (da * dc))
+>   s13 = replace {P = \ ZUZ => Prelude.Nat.LTE (((na * dc) + (nc * da)) * (db * dd)) ZUZ} 
+>                 (sym (multDistributesOverPlusLeft (nb * dd) (nd * db) (da * dc))) s12
+>   s14 : Prelude.Nat.LTE ((na * dc + nc * da) * (toNat (db' * dd'))) ((nb * dd + nd * db) * (da * dc))
+>   s14 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc + nc * da) * ZUZ) ((nb * dd + nd * db) * (da * dc))} 
+>                 (sym toNatMultLemma) s13
+>   s15 : Prelude.Nat.LTE ((na * dc + nc * da) * (toNat (db' * dd'))) ((nb * dd + nd * db) * (toNat (da' * dc')))
+>   s15 = replace {P = \ ZUZ => Prelude.Nat.LTE ((na * dc + nc * da) * (toNat (db' * dd'))) ((nb * dd + nd * db) * ZUZ)}
+>                 (sym toNatMultLemma) s14
+>   s16 : ((na, da') `plus` (nc, dc')) `LTE` ((nb, db') `plus` (nd, dd'))
+>   s16 = s15
 
 
 > {-

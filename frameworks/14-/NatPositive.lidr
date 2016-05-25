@@ -7,8 +7,8 @@
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 > |||
@@ -26,6 +26,15 @@
 >   s1 = MkPositive
 >   s2 : Positive n
 >   s2 = replace prf s1
+
+> |||
+> implementation Uninhabited (Positive Z) where
+>   uninhabited (MkPositive {n}) impossible
+
+> |||
+> positiveNotZ : {n : Nat} -> Positive n -> Not (n = Z)
+> positiveNotZ {n = Z}   p = absurd p
+> positiveNotZ {n = S m} _ = SIsNotZ
 
 > |||
 > plusPreservesPositivity : Positive m -> Positive n -> Positive (m + n)

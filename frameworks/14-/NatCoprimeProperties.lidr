@@ -16,8 +16,8 @@
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 > ||| Coprime is decidable

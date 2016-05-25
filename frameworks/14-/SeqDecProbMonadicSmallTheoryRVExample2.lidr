@@ -363,7 +363,7 @@ that |Sigma (Y t x) (\ y => All (Viable n) (step t x y))| is finite and
 non-empty for every |t : Nat|, |x : X t| such that |Viable (S n) x|. If
 we have finiteness
 
-> fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable (S n) x ->
+> fYAV : (t : Nat) -> (n : Nat) -> (x : X t) -> Viable {t = t} (S n) x ->
 >        Finite (Sigma (Y t x) (\ y => SeqDecProbMonadicSmallTheoryRV.All (Viable {t = S t} n) (step t x y)))
 
 non-emptiness is straightforward:

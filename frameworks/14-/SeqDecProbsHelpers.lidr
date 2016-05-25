@@ -21,7 +21,7 @@
 
 > |||
 > FiniteViable : Type
-> FiniteViable = {t : Nat} -> {n : Nat} -> 
+> FiniteViable = {t : Nat} -> (n : Nat) -> 
 >                (x : State t) -> Finite (Viable {t} n x)
 
 > |||

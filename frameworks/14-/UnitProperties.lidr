@@ -14,14 +14,14 @@
 > %access public export
 
 
-> ||| Mapping |()|s to |Fin|s
+> ||| Mapping |Unit|s to |Fin|s
 > toFin : Unit -> Fin (S Z)
-> toFin () = FZ
+> toFin MkUnit = FZ
 
 
-> ||| Mapping |Fin (S Z)|s to |()|s
+> ||| Mapping |Fin (S Z)|s to |Unit|s
 > fromFin : Fin (S Z) -> Unit
-> fromFin  FZ = ()
+> fromFin  FZ = MkUnit
 > fromFin (FS k) = absurd k
 
 
@@ -33,7 +33,7 @@
 
 > ||| |fromFin| is the left-inverse of |toFin|
 > fromFinToFinLemma : (e : Unit) -> fromFin (toFin e) = e
-> fromFinToFinLemma () = Refl
+> fromFinToFinLemma MkUnit = Refl
 
 
 > ||| Unit is finite

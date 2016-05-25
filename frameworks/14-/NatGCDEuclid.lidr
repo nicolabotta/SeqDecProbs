@@ -11,8 +11,8 @@
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 Euclid's greatest common divisor algorithm

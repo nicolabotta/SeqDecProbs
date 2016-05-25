@@ -2,7 +2,7 @@
 
 > import SeqDecProbsCoreAssumptions
 
-> import NatProperties
+> -- import NatProperties
 > import Sigma
 > import SigmaOperations
 
@@ -43,12 +43,12 @@ decision steps with a given policy sequence |ps : PolicySeq t n| from a
 (reachable, viable for |n| steps) state |x : State t|
 
 <   val : {t : Nat} -> {n : Nat} -> 
-<         (x : State t) -> Reachable x -> Viable n x -> PolicySeq t n -> Nat
+<         (x : State t) -> Reachable x -> Viable n x -> PolicySeq t n -> Val
 
 is not trivial. If |n = Z| (and |ps = Nil|) we are not making any
 decision step. Thus, we do not collect any reward and the value is just zero:
 
-<   val {t} {n = Z} x r v ps = Z
+<   val {t} {n = Z} x r v ps = zero
 
 If |n = S m| and |ps| consists of a policy |p : Policy t (S m)| and of a
 policy sequence |ps : PolicySeq (S t) m|, things are more complicated:
@@ -82,7 +82,7 @@ obtained by selecting the control |y : Ctrl t x| in |x : State t|:
 With this notion in place and assuming 
 
 <   val : {t : Nat} -> {n : Nat} -> 
-<         (x : State t) -> Reachable x -> Viable n x -> PolicySeq t n -> Nat
+<         (x : State t) -> Reachable x -> Viable n x -> PolicySeq t n -> Val
 
 to be available, we can easily implement
 
@@ -91,8 +91,8 @@ to be available, we can easily implement
 >   sval : {t : Nat} -> {m : Nat} -> 
 >          (x  : State t) -> (r  : Reachable x) -> (v  : Viable (S m) x) ->
 >          (gy  : GoodCtrl t x m) -> (ps : PolicySeq (S t) m) ->
->          PossibleState x (ctrl gy) -> Nat
->   sval {t} {m} x r v gy ps (MkSigma x' x'estep) = reward t x y x' + val x' r' v' ps where
+>          PossibleState x (ctrl gy) -> Val
+>   sval {t} {m} x r v gy ps (MkSigma x' x'estep) = reward t x y x' `plus` val x' r' v' ps where
 >     y   : Ctrl t x
 >     y   = ctrl gy
 >     ar' : All Reachable (step t x y)
@@ -107,8 +107,8 @@ to be available, we can easily implement
 And finally
 
 >   val : {t : Nat} -> {n : Nat} -> 
->         (x : State t) -> Reachable x -> Viable n x -> PolicySeq t n -> Nat
->   val {t} {n = Z} x r v ps = Z
+>         (x : State t) -> Reachable x -> Viable n x -> PolicySeq t n -> Val
+>   val {t} {n = Z} x r v ps = zero
 >   val {t} {n = S m} x r v (p :: ps) = meas (fmap (sval x r v gy ps) (tagElem mx')) where
 >     gy   :  GoodCtrl t x m
 >     gy   =  p x r v
@@ -131,7 +131,7 @@ Policy sequences of length zero are optimal
 
 > |||
 > nilOptPolicySeq : OptPolicySeq Nil
-> nilOptPolicySeq ps' x r v = reflexiveLTE Z
+> nilOptPolicySeq ps' x r v = reflexiveLTE zero
 
 
 ** Optimal extensions of policy sequences:
@@ -154,11 +154,10 @@ Policy sequences of length zero are optimal
 
 > Bellman {t} {m} ps ops p oep = opps where
 >   opps : OptPolicySeq (p :: ps)
->   opps (p' :: ps') x r v = transitiveLTE
->                            (val x r v (p' :: ps'))
->                            (val x r v (p' :: ps))
->                            (val x r v (p :: ps))
->                            s4 s5 where
+>   opps (p' :: ps') x r v = transitiveLTE (val x r v (p' :: ps')) 
+>                                          (val x r v (p' :: ps)) 
+>                                          (val x r v (p :: ps)) 
+>                                          s4 s5 where
 >     gy' : GoodCtrl t x m
 >     gy' = p' x r v                       
 >     y'  : Ctrl t x
@@ -167,16 +166,16 @@ Policy sequences of length zero are optimal
 >     mx' = step t x y'
 >     av' : All (Viable m) mx'
 >     av' = allViable {y = y'} gy'
->     f' : PossibleState x (ctrl gy') -> Nat
+>     f' : PossibleState x (ctrl gy') -> Val
 >     f' = sval x r v gy' ps'
->     f  : PossibleState x (ctrl gy') -> Nat
+>     f  : PossibleState x (ctrl gy') -> Val
 >     f  = sval x r v gy' ps
 >     s1 : (x' : State (S t)) -> (r' : Reachable x') -> (v' : Viable m x') ->
 >          (val x' r' v' ps') `LTE` (val x' r' v' ps)
 >     s1 x' r' v' = ops ps' x' r' v'
 >     s2 : (z : PossibleState x (ctrl gy')) -> (f' z) `LTE` (f z)
 >     s2 (MkSigma x' x'emx') = 
->       monotoneNatPlusLTE lteRefl (s1 x' r' v') where 
+>       monotonePlusLTE (reflexiveLTE (reward t x y' x')) (s1 x' r' v') where 
 >         ar' : All Reachable mx'
 >         ar' = reachableSpec1 x r y'
 >         r'  : Reachable x'
@@ -199,7 +198,7 @@ Policy sequences of length zero are optimal
 >        (r  : Reachable x) ->
 >        (v  : Viable (S n) x) ->
 >        (ps : PolicySeq (S t) n) ->
->        GoodCtrl t x n -> Nat
+>        GoodCtrl t x n -> Val
 > cval {t} x r v ps gy = meas (fmap (sval x r v gy ps) (tagElem mx')) where
 >   y    : Ctrl t x
 >   y    = ctrl gy
@@ -233,11 +232,11 @@ Policy sequences of length zero are optimal
 >   y'    =  ctrl gy'
 >   av'   :  All (Viable n) (step t x y')
 >   av'   =  allViable {y = y'} gy'
->   g     :  GoodCtrl t x n -> Nat
+>   g     :  GoodCtrl t x n -> Val
 >   g     =  cval x r v ps
->   f     :  PossibleState x (ctrl gy) -> Nat
+>   f     :  PossibleState x (ctrl gy) -> Val
 >   f     =  sval x r v gy ps
->   f'    :  PossibleState x (ctrl gy') -> Nat
+>   f'    :  PossibleState x (ctrl gy') -> Val
 >   f'    =  sval x r v gy' ps
 >   s1    :  (g gy') `LTE` (max x v g)
 >   s1    =  maxSpec x v g gy'

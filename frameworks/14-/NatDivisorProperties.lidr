@@ -12,14 +12,19 @@
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 > ||| Fundamental quotient lemma
 > quotientLemma : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> d * (quotient m d dDm) = m
 > quotientLemma m d (Element q prf) = prf
 > %freeze quotientLemma
+
+> ||| Fundamental quotient lemma
+> quotientLemma' : (m : Nat) -> (d : Nat) -> (dDm : d `Divisor` m) -> (quotient m d dDm) * d = m
+> quotientLemma' m d dDm = replace {P = \ ZUZ => ZUZ = m} (multCommutative d (quotient m d dDm)) (quotientLemma m d dDm)
+> %freeze quotientLemma'
 
 
 Properties of |Divisor|:

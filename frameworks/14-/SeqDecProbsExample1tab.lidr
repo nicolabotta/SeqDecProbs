@@ -74,14 +74,6 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 >   replace (sym a1eqa2) pa2
 
 
-** M is measurable:
-
-> SeqDecProbsCoreAssumptions.meas (Id x) = x
-
-> SeqDecProbsCoreAssumptions.measMon f g prf (Id x) = prf x
-
-
-
 * The decision process:
 
 > maxColumn : Nat
@@ -116,6 +108,8 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 
 ** Reward function:
 
+> SeqDecProbsCoreAssumptions.Val = Nat
+
 > SeqDecProbsCoreAssumptions.reward t x y (MkSigma c _) =
 >   if c == Z
 >   then (S Z)
@@ -123,6 +117,19 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 >        then (S (S Z))
 >        else Z
 
+> SeqDecProbsCoreAssumptions.plus = Prelude.Nat.plus
+> SeqDecProbsCoreAssumptions.zero = Z
+
+> SeqDecProbsCoreAssumptions.LTE = Prelude.Nat.LTE
+> SeqDecProbsCoreAssumptions.reflexiveLTE = NatProperties.reflexiveLTE
+> SeqDecProbsCoreAssumptions.transitiveLTE = NatProperties.transitiveLTE
+
+> SeqDecProbsCoreAssumptions.monotonePlusLTE = NatProperties.monotoneNatPlusLTE
+
+** M is measurable:
+
+> SeqDecProbsCoreAssumptions.meas (Id x) = x
+> SeqDecProbsCoreAssumptions.measMon f g prf (Id x) = prf x
 
 
 * Viable and Reachable
@@ -145,8 +152,19 @@ A tabulated version of "SeqDecProbsExample1.lidr".
 
 We want to implement |max|, |argmax|, |maxSpec| and |argmaxSpec|. This
 can be easily done in terms of |Opt.max| and |Opt.argmax| if we can show
-that |GoodCtrl t x n| is finite and, for every |t : Nat|, |x : State t|
-such that |Viable (S n) x|, its cardinality is not zero. In turn,
+that 
+
+1) |LTE| is a *total* preorder 
+
+2) |GoodCtrl t x n| is finite and, for every |t : Nat|, |x : State t|
+   such that |Viable (S n) x|, its cardinality is not zero.
+
+The first condition trivially holds 
+
+> totalPreorderLTE : TotalPreorder Val
+> totalPreorderLTE = NatProperties.totalPreorderNatLTE
+
+Finiteness and non-zero cardinality of |GoodCtrl t x n|
 
 < finiteGoodCtrl : {t : Nat} -> {n : Nat} -> 
 <                  (x : State t) -> 
@@ -186,16 +204,16 @@ and, finally, finiteness of controls
 With these results in place, we have
 
 > SeqDecProbsCoreAssumptions.max x v =
->   Opt.max totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
+>   Opt.max totalPreorderLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 > SeqDecProbsCoreAssumptions.argmax x v  =
->   Opt.argmax totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
+>   Opt.argmax totalPreorderLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 > SeqDecProbsCoreAssumptions.maxSpec x v =
->   Opt.maxSpec totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
+>   Opt.maxSpec totalPreorderLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 > SeqDecProbsCoreAssumptions.argmaxSpec x v =
->   Opt.argmaxSpec totalPreorderNatLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
+>   Opt.argmaxSpec totalPreorderLTE (finiteGoodCtrl x) (cardNotZGoodCtrl x v)
 
 
 

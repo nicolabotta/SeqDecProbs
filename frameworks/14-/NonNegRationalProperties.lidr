@@ -5,8 +5,10 @@
 
 > import NonNegRational
 > import NonNegRationalOperations
+> import NonNegRationalPredicates
 > import Fraction
 > import FractionOperations
+> import FractionPredicates
 > import FractionProperties
 > import FractionNormal
 > import SubsetProperties
@@ -14,6 +16,7 @@
 > import NatPositive
 > import NumRefinements
 > import PairsOperations
+> import NatProperties
 
 
 > %default total
@@ -48,6 +51,15 @@ Properties of |fromFraction| and |toFraction|:
 >                           ( Element x nx )
 >                         QED
 > %freeze fromToId
+
+
+> ||| Denominators of non-negative rationals are greater than zero
+> denLTLemma : (x : NonNegRational) -> Z `LT` den x
+> denLTLemma x = s2 where
+>   s1 : Z `LT` den (toFraction x)
+>   s1 = FractionProperties.denLTLemma (toFraction x)
+>   s2 : Z `LT` den x
+>   s2 = replace {P = \ ZUZU => Z `LT` ZUZU} Refl s1
 
 
 > ||| 
@@ -288,29 +300,62 @@ Properties of |fromFraction| and |toFraction|:
 
 > ||| NonNegRational is an implementation of NumPlusZeroNeutral
 > implementation NumPlusZeroNeutral NonNegRational where
->   plusZeroLeftNeutral = plusZeroLeftNeutral
->   plusZeroRightNeutral = plusZeroRightNeutral
+>   plusZeroLeftNeutral = NonNegRationalProperties.plusZeroLeftNeutral
+>   plusZeroRightNeutral = NonNegRationalProperties.plusZeroRightNeutral
 
 
 > ||| NonNegRational is an implementation of NumPlusAssociative
 > implementation NumPlusAssociative NonNegRational where
->   plusAssociative = plusAssociative
+>   plusAssociative = NonNegRationalProperties.plusAssociative
 
 
 > ||| NonNegRational is an implementation of NumMultZeroOne
 > implementation NumMultZeroOne NonNegRational where
->   multZeroRightZero   = multZeroRightZero
->   multZeroLeftZero    = multZeroLeftZero
->   multOneRightNeutral = multOneRightNeutral
->   multOneLeftNeutral  = multOneLeftNeutral
+>   multZeroRightZero   = NonNegRationalProperties.multZeroRightZero
+>   multZeroLeftZero    = NonNegRationalProperties.multZeroLeftZero
+>   multOneRightNeutral = NonNegRationalProperties.multOneRightNeutral
+>   multOneLeftNeutral  = NonNegRationalProperties.multOneLeftNeutral
 
 
 > ||| NonNegRational is an implementation NumMultDistributesOverPlus
 > implementation NumMultDistributesOverPlus NonNegRational where
->   multDistributesOverPlusRight = multDistributesOverPlusRight
->   multDistributesOverPlusLeft  = multDistributesOverPlusLeft
+>   multDistributesOverPlusRight = NonNegRationalProperties.multDistributesOverPlusRight
+>   multDistributesOverPlusLeft  = NonNegRationalProperties.multDistributesOverPlusLeft
 
 
+Properties of |LTE|:
+
+> ||| LTE is reflexive
+> reflexiveLTE : (x : NonNegRational) -> x `LTE` x
+> reflexiveLTE x = FractionProperties.reflexiveLTE (toFraction x)
+
+
+> ||| LTE is transitive
+> transitiveLTE : (x, y, z : NonNegRational) -> x `LTE` y -> y `LTE` z -> x `LTE` z
+> transitiveLTE x y z xLTEy yLTEz = FractionProperties.transitiveLTE (toFraction x) (toFraction y) (toFraction z) xLTEy yLTEz
+
+
+> ||| LTE is total
+> totalLTE : (x, y : NonNegRational) -> Either (x `LTE` y) (y `LTE` x) 
+> totalLTE x y = FractionProperties.totalLTE (toFraction x) (toFraction y)
+
+
+> ||| LTE is monotone w.r.t. `plus`
+> monotonePlusLTE : {a, b, c, d : NonNegRational} -> 
+>                   a `LTE` b -> c `LTE` d -> (a `plus` c) `LTE` (b `plus` d)
+> monotonePlusLTE {a} {b} {c} {d} aLTEb cLTEd = s4 where
+>   s1 : FractionPredicates.LTE (toFraction a + toFraction c) (toFraction b + toFraction d)
+>   s1 = FractionProperties.monotonePlusLTE aLTEb cLTEd
+>   s2 : FractionPredicates.LTE (normalize (toFraction a + toFraction c)) 
+>                               (normalize (toFraction b + toFraction d))
+>   s2 = normalizeLTELemma (toFraction a + toFraction c) (toFraction b + toFraction d) s1
+>   s3 : FractionPredicates.LTE (toFraction (fromFraction (toFraction a + toFraction c)))
+>                               (toFraction (fromFraction (toFraction b + toFraction d)))
+>   s3 = s2
+>   s4 : LTE (fromFraction (toFraction a + toFraction c)) (fromFraction (toFraction b + toFraction d))
+>   s4 = s3
+>   s5 : LTE (a `plus` c) (b `plus` d)
+>   s5 = s4
 
 
 > {-

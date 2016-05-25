@@ -89,41 +89,60 @@ In order to obtain a decision problem, we introduce the additional
 assumption that, with each transition from the current state to a new
 state, the decision maker receives a certain reward (payoff, etc.)
 
-> reward  : (t : Nat) -> (x : State t) -> (y : Ctrl t x) -> (x' : State (S t)) -> Nat
+> Val : Type
+
+> reward  : (t : Nat) -> (x : State t) -> (y : Ctrl t x) -> (x' : State (S t)) -> Val
 
 Since the original work of Bellman [1957], this has turned out to be a
 very useful abstraction. The idea is that the decision maker seeks
 controls that maximize the sum of the rewards obtained in a decision
-process. In a deterministic case, implementing the above assumptions
-completely defines a sequential decision problem. But whenever a
-decision step has an uncertain outcome, uncertainties about "next"
-states naturally yield uncertainties about rewards. In these cases, the
-decision makes faces a number of possible rewards (one for each possible
-next state) and has to explain how it measures such chances. In
-stochastic decision problems, possible next states (and, therefore
-possible rewards) are labelled with probabilities. In these cases,
-possible rewards are often measured in terms of their expected value.
-Here, again, we folow the approach proposed by Ionescu in [1] and
-introduce a measure
+process. Thus, values of type |Val| have to be "addable"
 
-> meas : M Nat -> Nat
+> plus : Val -> Val -> Val
+
+As it turns out, we will also need |Val| to be equipped with a "zero"
+
+> zero : Val
+
+, to be a preorder
+
+> LTE : Val -> Val -> Type
+> reflexiveLTE : (a : Val) -> a `LTE` a
+> transitiveLTE : (a : Val) -> (b : Val) -> (c : Val) -> a `LTE` b -> b `LTE` c -> a `LTE` c
+
+and to satisfy the monotonicity condition
+
+> monotonePlusLTE : {a, b, c, d  : Val} -> a `LTE` b -> c `LTE` d -> (a `plus` c) `LTE` (b `plus` d)
+
+In a deterministic case, implementing the above assumptions completely
+defines a sequential decision problem. But whenever a decision step has
+an uncertain outcome, uncertainties about "next" states naturally yield
+uncertainties about rewards. In these cases, the decision makes faces a
+number of possible rewards (one for each possible next state) and has to
+explain how it measures such chances. In stochastic decision problems,
+possible next states (and, therefore possible rewards) are labelled with
+probabilities. In these cases, possible rewards are often measured in
+terms of their expected value.  Here, again, we folow the approach
+proposed by Ionescu in [1] and introduce a measure
+
+> meas : M Val -> Val
 
 that characterizes how the decision maker values uncertainties about
 rewards in a single decision step. It is possible that a decision maker
 values uncertainties according to different measures at different
 decision steps. This could be easily formalized by generalising
 
-< meas : M Nat -> Nat
+< meas : M Val -> Val
 
 to
 
-< meas : (t : Nat) -> (x : State t) -> (M Nat -> Nat)
+< meas : (t : Nat) -> (x : State t) -> (M Val -> Val)
 
 As it turns out, measure are essentially arbitrary. But they have to
 satisfy a monotonicity condition
 
 > measMon  :  {A : Type} ->
->             (f : A -> Nat) -> (g : A -> Nat) ->
+>             (f : A -> Val) -> (g : A -> Val) ->
 >             ((a : A) -> (f a) `LTE` (g a)) ->
 >             (ma : M A) -> (meas (fmap f ma)) `LTE` (meas (fmap g ma))
 
@@ -251,22 +270,22 @@ that want to apply the theory are able to implement two functions
 
 > max    : {t : Nat} -> {n : Nat} ->
 >          (x : State t) -> (Viable (S n) x) ->
->          (f : GoodCtrl t x n -> Nat) -> Nat
+>          (f : GoodCtrl t x n -> Val) -> Val
 
 > argmax : {t : Nat} -> {n : Nat} ->
 >          (x : State t) -> (Viable (S n) x) ->
->          (f : GoodCtrl t x n -> Nat) -> GoodCtrl t x n
+>          (f : GoodCtrl t x n -> Val) -> GoodCtrl t x n
 
 that fulfill
 
 > maxSpec : {t : Nat} -> {n : Nat} ->
 >           (x : State t) -> (v : Viable (S n) x) ->
->           (f : GoodCtrl t x n -> Nat) -> (y : GoodCtrl t x n) ->
+>           (f : GoodCtrl t x n -> Val) -> (y : GoodCtrl t x n) ->
 >           (f y) `LTE` (max x v f)
 
 > argmaxSpec : {t : Nat} -> {n : Nat} ->
 >              (x : State t) -> (v : Viable (S n) x) ->
->              (f : GoodCtrl t x n -> Nat) ->
+>              (f : GoodCtrl t x n -> Val) ->
 >              max x v f = f (argmax x v f)
 
 

@@ -212,6 +212,13 @@ LT, LTE properties
 >   LTESucc (monotoneNatPlusLTE {a = m} {b = n} {c = c} {d = d} p cLTEd)
 > --%freeze monotoneNatPlusLTE
 
+> monotoneNatMultLTE : {a, b, c, d  : Nat} ->
+>                      LTE a b -> LTE c d -> LTE (a * c) (b * d)
+
+> elimRightMultLTE : {a, b, c, d : Nat} ->
+>                    LTE (a * c) (b * d) -> c = d -> Not (c = Z) -> LTE a b
+
+> ||| LTE is reflexive
 > reflexiveLTE : (n : Nat) -> LTE n n
 > reflexiveLTE n = lteRefl {n}
 > --%freeze reflexiveLTE
@@ -603,6 +610,12 @@ Properties of |mult|: elimination rules
 >   s5 : (S n) * (S m) = Z
 >   s5 = plusLeftLeftRightZero (S m) ((S n) * (S m)) s2
 > %freeze multElim1
+
+> multSwapRight : (a, b, c : Nat) -> a * b * c = a * c * b
+
+> multSwap23 : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * c) * (b * d)
+
+> multSwap24 : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * d) * (c * b)
 
 > |||
 > multFlipCentre : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
