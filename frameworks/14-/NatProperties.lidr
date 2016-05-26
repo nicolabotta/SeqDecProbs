@@ -84,30 +84,74 @@ Test:
 > -}
 
 
-Predecessor properties
+Properties of |pred|:
 
 > predLemma : (n : Nat) -> (prf : Z `LT` n) -> S (pred n prf) = n
 > predLemma  Z    prf = absurd prf
 > predLemma (S m) _   = Refl
 
 
-EQ properties
+Properties of |=|:
 
+> |||
 > predInjective : (left : Nat) -> (right : Nat) -> Not (S left = S right) -> Not (left = right)
 > predInjective left right contra = contra . (eqSucc left right)
 > %freeze predInjective
 
+> |||
 > succInjective' : (left : Nat) -> (right : Nat) -> Not (left = right) -> Not (S left = S right)
 > succInjective' left right contra = contra . (succInjective left right)
 > %freeze succInjective'
 
+> ||| EQ is contained in LTE
+> eqInLTE : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
+> eqInLTE  Z     n    prf = LTEZero
+> eqInLTE (S m)  Z    prf = absurd prf
+> eqInLTE (S m) (S n) prf = LTESucc (eqInLTE m n (succInjective m n prf))
+> %freeze eqInLTE
 
-LT, LTE properties
 
+Properties of |LTE|:
+
+> ||| LTE is reflexive
+> reflexiveLTE : (n : Nat) -> LTE n n
+> reflexiveLTE n = lteRefl {n}
+> --%freeze reflexiveLTE
+
+> ||| LTE is transitive
+> transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
+>                 LTE m n -> LTE n o -> LTE m o
+> transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
+> transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
+> --%freeze transitiveLTE
+
+> ||| LTE is total
+> totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
+> totalLTE  Z    n     = Left LTEZero
+> totalLTE (S m) Z     = Right LTEZero
+> totalLTE (S m) (S n) with (totalLTE m n)
+>   | (Left  p) = Left  (LTESucc p)
+>   | (Right p) = Right (LTESucc p)
+> --%freeze totalLTE
+
+> ||| LTE is a preorder
+> preorderNatLTE : Preorder Nat
+> preorderNatLTE =
+>   MkPreorder LTE reflexiveLTE transitiveLTE
+> --%freeze preorderNatLTE
+
+> ||| LTE is a total preorder
+> totalPreorderNatLTE : TotalPreorder Nat
+> totalPreorderNatLTE =
+>   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
+> --%freeze totalPreorderNatLTE
+
+> |||
 > notLTELemma0 : Not (S m `LTE` S n) -> Not (m `LTE` n)
 > notLTELemma0 contra = contra . LTESucc
 > %freeze notLTELemma0
 
+> |||
 > notLTELemma1 : (m : Nat) -> (n : Nat) -> Not (m `LTE` n) -> n `LTE` m
 > notLTELemma1  m     Z    p = LTEZero
 > notLTELemma1  Z    (S n) p = void (p LTEZero)
@@ -125,6 +169,16 @@ LT, LTE properties
 > %freeze lteLemma1
 
 > |||
+> idSuccPreservesLTE : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
+> idSuccPreservesLTE  Z     n    prf = LTEZero
+> idSuccPreservesLTE (S m)  Z    prf = absurd prf
+> idSuccPreservesLTE (S m) (S n) prf = LTESucc (idSuccPreservesLTE m n (fromLteSucc prf))
+> %freeze idSuccPreservesLTE
+
+
+Properties of |LT|:
+
+> |||
 > ltLemma1 : (m : Nat) -> (n : Nat) -> LT (S m) n -> LT m n
 > ltLemma1 m n prf = lteLemma1 (S m) n prf
 > %freeze ltLemma1
@@ -133,20 +187,6 @@ LT, LTE properties
 > ltInLTE : (m : Nat) -> (n : Nat) -> LT m n -> LTE m n
 > ltInLTE = lteLemma1
 > %freeze ltInLTE
-
-> ||| EQ is contained in LTE
-> eqInLTE : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
-> eqInLTE  Z     n    prf = LTEZero
-> eqInLTE (S m)  Z    prf = absurd prf
-> eqInLTE (S m) (S n) prf = LTESucc (eqInLTE m n (succInjective m n prf))
-> %freeze eqInLTE
-
-> |||
-> idSuccPreservesLTE : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
-> idSuccPreservesLTE  Z     n    prf = LTEZero
-> idSuccPreservesLTE (S m)  Z    prf = absurd prf
-> idSuccPreservesLTE (S m) (S n) prf = LTESucc (idSuccPreservesLTE m n (fromLteSucc prf))
-> %freeze idSuccPreservesLTE
 
 > ||| Zero is smaller than any successor
 > ltZS : (m : Nat) -> LT Z (S m)
@@ -196,10 +236,34 @@ LT, LTE properties
 >   mLTn = strengthenLT m n mLTsn mNEQn
 > %freeze strengthenLT
 
+
+Properties of |LTE| and |plus|
+
+> |||
+> elimSuccRightLTEPlus : {a, b, c, d : Nat} -> LTE (a + S b) (c + S d) -> LTE (a + b) (c + d)
+> elimSuccRightLTEPlus {a} {b} {c} {d} aSbLTEcSd = s6 where
+>   s0 : LTE (a + S b) (c + S d)
+>   s0 = aSbLTEcSd
+>   s1 : LTE (S b + a) (c + S d)
+>   s1 = replace {P = \ ZUZU => LTE ZUZU (c + S d)} (plusCommutative a (S b)) s0
+>   s2 : LTE (S b + a) (S d + c)
+>   s2 = replace {P = \ ZUZU => LTE (S b + a) ZUZU } (plusCommutative c (S d)) s1
+>   s3 : LTE (S (b + a)) (S (d + c))
+>   s3 = s2
+>   s4 : LTE (b + a) (d + c)
+>   s4 = fromLteSucc s3
+>   s5 : LTE (a + b) (d + c)
+>   s5 = replace {P = \ ZUZU => LTE ZUZU (d + c)} (plusCommutative b a) s4
+>   s6 : LTE (a + b) (c + d)
+>   s6 = replace {P = \ ZUZU => LTE (a + b) ZUZU}(plusCommutative d c) s5
+> %freeze elimSuccRightLTEPlus
+
+> |||
 > idAnyPlusPreservsLTE : {a, b, c : Nat} -> LTE a b -> LTE a (c + b)
 > idAnyPlusPreservsLTE {a} {b} {c = Z}   aLTEb = aLTEb
 > idAnyPlusPreservsLTE {a} {b} {c = S m} aLTEb = idSuccPreservesLTE a (m + b) (idAnyPlusPreservsLTE {a = a} {b = b} {c = m} aLTEb)  
 
+> |||
 > monotoneNatPlusLTE : {a, b, c, d  : Nat} ->
 >                      LTE a b -> LTE c d -> LTE (a + c) (b + d)
 > monotoneNatPlusLTE {a = Z}   {b = Z}   {c} {d} _           cLTEd = 
@@ -212,40 +276,65 @@ LT, LTE properties
 >   LTESucc (monotoneNatPlusLTE {a = m} {b = n} {c = c} {d = d} p cLTEd)
 > --%freeze monotoneNatPlusLTE
 
+> |||
+> elimRightPlusLTE : {a, b, c, d : Nat} ->
+>                    LTE (a + c) (b + d) -> c = d -> LTE a b
+> elimRightPlusLTE {a} {b} {c = Z} {d = Z} acLTEbd _ = s2 where
+>   s1 : LTE a (b + Z)
+>   s1 = replace {P = \ ZUZ => LTE ZUZ (b + Z)} (plusZeroRightNeutral a) acLTEbd
+>   s2 : LTE a b
+>   s2 = replace {P = \ ZUZ => LTE a ZUZ} (plusZeroRightNeutral b) s1
+> elimRightPlusLTE {a} {b} {c = Z} {d = S n} _ ZEQSn = absurd ZEQSn
+> elimRightPlusLTE {a} {b} {c = S m} {d = Z} _ cEQZ = absurd cEQZ
+> elimRightPlusLTE {a} {b} {c = S m} {d = S n} aSmLTEbSn SmEQSn = s4 where
+>   s1 : LTE (a + S m) (b + S n)
+>   s1 = aSmLTEbSn
+>   s2 : LTE (a + m) (b + n)
+>   s2 = elimSuccRightLTEPlus s1
+>   s3 : m = n
+>   s3 = succInjective m n SmEQSn
+>   s4 : LTE a b
+>   s4 = elimRightPlusLTE {a = a} {b = b} {c = m} {d = n} s2 s3
+> %freeze elimRightPlusLTE
+
+
+Properties of |LTE| and |mult|
+
+> |||
 > monotoneNatMultLTE : {a, b, c, d  : Nat} ->
 >                      LTE a b -> LTE c d -> LTE (a * c) (b * d)
+> monotoneNatMultLTE {a = Z}   {b}       {c} {d} _ _ = LTEZero
+> monotoneNatMultLTE {a = S m} {b = Z}   {c} {d} aLTEb _ = absurd aLTEb
+> monotoneNatMultLTE {a = S m} {b = S n} {c} {d} (LTESucc mLTEn) cLTEd = s3 where
+>   s1 : LTE (c + m * c) (d + n * d)
+>   s1 = monotoneNatPlusLTE {a = c} {b = d} {c = m * c} {d = n * d} 
+>        cLTEd (monotoneNatMultLTE {a = m} {b = n} {c = c} {d = d} mLTEn cLTEd)
+>   s2 : LTE ((S m) * c) (d + n * d)
+>   s2 = replace {P = \ ZUZ => LTE ZUZ (d + n * d)} Refl s1
+>   s3 : LTE ((S m) * c) ((S n) * d)
+>   s3 = replace {P = \ ZUZ => LTE ((S m) * c) ZUZ} Refl s2
+> %freeze monotoneNatMultLTE
 
+> |||
 > elimRightMultLTE : {a, b, c, d : Nat} ->
 >                    LTE (a * c) (b * d) -> c = d -> Not (c = Z) -> LTE a b
-
-> ||| LTE is reflexive
-> reflexiveLTE : (n : Nat) -> LTE n n
-> reflexiveLTE n = lteRefl {n}
-> --%freeze reflexiveLTE
-
-> transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
->                 LTE m n -> LTE n o -> LTE m o
-> transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
-> transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
-> --%freeze transitiveLTE
-
-> totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
-> totalLTE  Z    n     = Left LTEZero
-> totalLTE (S m) Z     = Right LTEZero
-> totalLTE (S m) (S n) with (totalLTE m n)
->   | (Left  p) = Left  (LTESucc p)
->   | (Right p) = Right (LTESucc p)
-> --%freeze totalLTE
-
-> preorderNatLTE : Preorder Nat
-> preorderNatLTE =
->   MkPreorder LTE reflexiveLTE transitiveLTE
-> --%freeze preorderNatLTE
-
-> totalPreorderNatLTE : TotalPreorder Nat
-> totalPreorderNatLTE =
->   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
-> --%freeze totalPreorderNatLTE
+> elimRightMultLTE {a = Z}   {b}       {c}       {d} _       _    _      = LTEZero
+> elimRightMultLTE {a = S m} {b = Z}   {c = Z}   {d} _       _    contra = void (contra Refl)
+> elimRightMultLTE {a = S m} {b = Z}   {c = S n} {d} acLTEbd _    _      = absurd acLTEbd
+> elimRightMultLTE {a = S m} {b = S n} {c}       {d} acLTEbd cEQd ncEQZ  = s6 where
+>   s1 : LTE (c + m * c) (d + n * d)
+>   s1 = acLTEbd
+>   s2 : LTE (m * c + c) (d + n * d)
+>   s2 = replace {P = \ ZUZ => LTE ZUZ (d + n * d)} (plusCommutative c (m * c)) s1 
+>   s3 : LTE (m * c + c) (n * d + d)
+>   s3 = replace {P = \ ZUZ => LTE (m * c + c) ZUZ} (plusCommutative d (n * d)) s2 
+>   s4 : LTE (m * c) (n * d)
+>   s4 = elimRightPlusLTE s3 cEQd
+>   s5 : LTE m n
+>   s5 = elimRightMultLTE s4 cEQd ncEQZ
+>   s6 : LTE (S m) (S n)
+>   s6 = LTESucc s5
+> %freeze elimRightMultLTE
 
 
 Properties of |plus|:
@@ -278,6 +367,7 @@ Properties of |plus|:
 > plusElimLeft : (m1 : Nat) -> (n : Nat) -> (m2 : Nat) -> m1 + n = m2 -> m1 = m2 -> n = Z
 > plusElimLeft m n m p Refl = plusLeftLeftRightZero m n p
 > %freeze plusElimLeft
+
 
 Properties of |minus|:
 
@@ -410,33 +500,38 @@ Properties of |plus| and |minus|:
 
 Properties of |mult|: LT, EQ and GT zero:
 
+> ||| Multiplication of successors is not zero
 > multSuccNotZero : (m : Nat) -> (n : Nat) -> Not ((S m) * (S n) = Z)
 > multSuccNotZero m  n  p = absurd p
 > %freeze multSuccNotZero
 
+> ||| Multiplication of non-zeros is not zero
 > multNotZeroNotZero : (m : Nat) -> (n : Nat) -> Not (m = Z) -> Not (n = Z) -> Not (m * n = Z)
 > multNotZeroNotZero  Z     n    p q = void (p Refl)
 > multNotZeroNotZero (S m)  Z    p q = void (q Refl)
 > multNotZeroNotZero (S m) (S n) p q = multSuccNotZero m n
 > %freeze multNotZeroNotZero
 
+> ||| Multiplication not zero implies non-zero left
 > multNotZeroNotZeroLeft : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (m = Z)
 > multNotZeroNotZeroLeft  Z     n    p = void (p (multZeroLeftZero n))
 > multNotZeroNotZeroLeft (S m)  _    _ = SIsNotZ
 > %freeze multNotZeroNotZeroLeft
 
+> ||| Multiplication not zero implies non-zero right
 > multNotZeroNotZeroRight : (m : Nat) -> (n : Nat) -> Not (m * n = Z) -> Not (n = Z)
 > multNotZeroNotZeroRight m  Z     p = void (p (multZeroRightZero m))
 > multNotZeroNotZeroRight _ (S n)  _ = SIsNotZ
 > %freeze multNotZeroNotZeroRight
 
+> ||| Multiplication of greater-than-zeros is greater than zero
 > multZeroLTZeroLT : (m : Nat) -> (n : Nat) -> Z `LT` m -> Z `LT` n -> Z `LT` (m * n)
 > multZeroLTZeroLT  Z     n    p _ = absurd p
 > multZeroLTZeroLT (S m)  Z    _ q = absurd q
 > multZeroLTZeroLT (S m) (S n) _ _ = ltZS (n + m * (S n))
 > %freeze multZeroLTZeroLT
 
-> |||
+> ||| Multiplication greater than zero implies greater than zero left
 > multLTZeroLeftLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` m
 > multLTZeroLeftLTZero Z n p = absurd p' where
 >   p' : Z `LT` Z
@@ -447,7 +542,7 @@ Properties of |mult|: LT, EQ and GT zero:
 > multLTZeroLeftLTZero (S m) n _ = ltZS m
 > %freeze multLTZeroLeftLTZero
 
-> |||
+> ||| Multiplication greater than zero implies greater than zero right
 > multLTZeroRightLTZero : (m : Nat) -> (n : Nat) -> Z `LT` (m * n) -> Z `LT` n
 > multLTZeroRightLTZero m Z p = absurd p' where
 >   p' : Z `LT` Z
@@ -458,7 +553,7 @@ Properties of |mult|: LT, EQ and GT zero:
 > multLTZeroRightLTZero m (S n) _ = ltZS n
 > %freeze multLTZeroRightLTZero
 
-> |||
+> ||| 
 > multZeroRightOneLeftZero : (m : Nat) -> (n : Nat) -> m * (S n) = Z -> m = Z
 > multZeroRightOneLeftZero m n prf = plusZeroLeftZero m (n * m) prf' where
 >   prf' : (S n) * m = Z
@@ -500,7 +595,7 @@ Properties of |mult|: LT, EQ and GT zero:
 > %freeze multOneRightOne
 
 
-Properties of |mult|: preservation rules:
+Properties of |mult|: preservation
 
 > |||
 > multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
@@ -611,38 +706,69 @@ Properties of |mult|: elimination rules
 >   s5 = plusLeftLeftRightZero (S m) ((S n) * (S m)) s2
 > %freeze multElim1
 
+> |||
+> multSwapLeft : (a, b, c : Nat) -> a * b * c = b * a * c
+> multSwapLeft a b c = ( a * b * c )
+>                    ={ Refl }=
+>                      ( (a * b) * c )
+>                    ={ cong {f = \ ZUZU => ZUZU * c} (multCommutative a b) }=
+>                      ( (b * a) * c )
+>                    ={ Refl }=
+>                      ( b * a * c )
+>                    QED
+> %freeze multSwapLeft
+
+> |||
 > multSwapRight : (a, b, c : Nat) -> a * b * c = a * c * b
+> multSwapRight a b c = ( a * b * c )
+>                     ={ Refl }=
+>                       ( (a * b) * c )
+>                     ={ sym (multAssociative a b c) }=
+>                       ( a * (b * c) )
+>                     ={ cong (multCommutative b c) }=
+>                       ( a * (c * b) )
+>                     ={ multAssociative a c b }=
+>                       ( (a * c) * b )
+>                     ={ Refl }=
+>                       ( a * c * b )
+>                     QED
+> %freeze multSwapRight
 
+> |||
 > multSwap23 : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * c) * (b * d)
+> multSwap23 a b c d = ( (a * b) * (c * d) )
+>                    ={ Refl }=
+>                      ( a * b * (c * d) )
+>                    ={ sym (multAssociative a b (c * d)) }=
+>                      ( a * (b * (c * d)) )
+>                    ={ cong {f = \ ZUZU => a * ZUZU} (multAssociative b c d) }=
+>                      ( a * ((b * c) * d) )
+>                    ={ cong {f = \ ZUZU => a * ZUZU} (multSwapLeft b c d) }=
+>                      ( a * ((c * b) * d) )
+>                    ={ cong {f = \ ZUZU => a * ZUZU} (sym (multAssociative c b d)) }=
+>                      ( a * (c * (b * d)) )
+>                    ={ multAssociative a c (b * d) }=
+>                      ( a * c * (b * d) )
+>                    ={ Refl }=
+>                      ( (a * c) * (b * d) )
+>                    QED
 
+> |||
 > multSwap24 : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * d) * (c * b)
+> multSwap24 a b c d = ( (a * b) * (c * d) )
+>                    ={ cong {f = \ ZUZU => (a * b) * ZUZU} (multCommutative c d) }=
+>                      ( (a * b) * (d * c) )
+>                    ={ multSwap23 a b d c }=
+>                      ( (a * d) * (b * c) )
+>                    ={ cong {f = \ ZUZU => (a * d) * ZUZU} (multCommutative b c) }=
+>                      ( (a * d) * (c * b) )
+>                    QED
 
 > |||
 > multFlipCentre : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
 >                  (m1 * m2) * (n1 * n2) = (m1 * n1) * (m2 * n2)
-> multFlipCentre m1 m2 n1 n2 =
->   ( (m1 * m2) * (n1 * n2) )
-> ={ multAssociative (m1 * m2) n1 n2 }=
->   ( ((m1 * m2) * n1) * n2 )
-> ={ replace {x = (m1 * m2) * n1}
->            {y = m1 * (m2 * n1)}
->            {P = \ ZUZU => ((m1 * m2) * n1) * n2 = (ZUZU) * n2}
->            (sym (multAssociative m1 m2 n1)) Refl }=
->   ( (m1 * (m2 * n1)) * n2 )
-> ={ replace {x = m2 * n1}
->            {y = n1 * m2}
->            {P = \ ZUZU => (m1 * (m2 * n1)) * n2 = (m1 * (ZUZU)) * n2 }
->            (multCommutative m2 n1) Refl }=
->   ( (m1 * (n1 * m2)) * n2 )
-> ={ replace {x = m1 * (n1 * m2)}
->            {y = (m1 * n1) * m2}
->            {P = \ ZUZU => (m1 * (n1 * m2)) * n2 = (ZUZU) * n2}
->            (multAssociative m1 n1 m2) Refl }=
->   ( ((m1 * n1) * m2) * n2 )
-> ={ sym (multAssociative (m1 * n1) m2 n2) }=
->   ( (m1 * n1) * (m2 * n2) )
-> QED
-> %freeze multPreservesEq
+> multFlipCentre = multSwap23
+> %freeze multFlipCentre
 
 > |||
 > multOneRightNeutralPlusMultZeroLeftZero : (m : Nat) -> (n : Nat) -> m * 1 + 0 * n = m

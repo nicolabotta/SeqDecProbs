@@ -327,39 +327,114 @@ Properties of |LTE|:
 
 > ||| LTE is reflexive
 > reflexiveLTE : (x : NonNegRational) -> x `LTE` x
-> reflexiveLTE x = FractionProperties.reflexiveLTE (toFraction x)
+> reflexiveLTE x = reflexiveLTE (toFraction x)
 > %freeze reflexiveLTE
 
 
 > ||| LTE is transitive
 > transitiveLTE : (x, y, z : NonNegRational) -> x `LTE` y -> y `LTE` z -> x `LTE` z
-> transitiveLTE x y z xLTEy yLTEz = FractionProperties.transitiveLTE (toFraction x) (toFraction y) (toFraction z) xLTEy yLTEz
+> transitiveLTE x y z xLTEy yLTEz = transitiveLTE (toFraction x) (toFraction y) (toFraction z) xLTEy yLTEz
 > %freeze transitiveLTE
 
 
 > ||| LTE is total
 > totalLTE : (x, y : NonNegRational) -> Either (x `LTE` y) (y `LTE` x) 
-> totalLTE x y = FractionProperties.totalLTE (toFraction x) (toFraction y)
+> totalLTE x y = totalLTE (toFraction x) (toFraction y)
 > %freeze totalLTE
 
 
 > ||| LTE is monotone w.r.t. `plus`
 > monotonePlusLTE : {a, b, c, d : NonNegRational} -> 
->                   a `LTE` b -> c `LTE` d -> (a `plus` c) `LTE` (b `plus` d)
+>                   a `LTE` b -> c `LTE` d -> (a + c) `LTE` (b + d)
 > monotonePlusLTE {a} {b} {c} {d} aLTEb cLTEd = s4 where
->   s1 : FractionPredicates.LTE (toFraction a + toFraction c) (toFraction b + toFraction d)
+>   s1 : LTE (toFraction a + toFraction c) (toFraction b + toFraction d)
 >   s1 = FractionProperties.monotonePlusLTE aLTEb cLTEd
->   s2 : FractionPredicates.LTE (normalize (toFraction a + toFraction c)) 
->                               (normalize (toFraction b + toFraction d))
+>   s2 : LTE (normalize (toFraction a + toFraction c)) 
+>            (normalize (toFraction b + toFraction d))
 >   s2 = normalizeLTELemma (toFraction a + toFraction c) (toFraction b + toFraction d) s1
->   s3 : FractionPredicates.LTE (toFraction (fromFraction (toFraction a + toFraction c)))
->                               (toFraction (fromFraction (toFraction b + toFraction d)))
+>   s3 : LTE (toFraction (fromFraction (toFraction a + toFraction c)))
+>            (toFraction (fromFraction (toFraction b + toFraction d)))
 >   s3 = s2
 >   s4 : LTE (fromFraction (toFraction a + toFraction c)) (fromFraction (toFraction b + toFraction d))
 >   s4 = s3
->   s5 : LTE (a `plus` c) (b `plus` d)
+>   s5 : LTE (a + c) (b + d)
 >   s5 = s4
 > %freeze monotonePlusLTE
+
+
+> ||| LTE is monotone w.r.t. `(*)`
+> monotoneMultLTE : {a, b, c, d : NonNegRational} -> 
+>                   a `LTE` b -> c `LTE` d -> (a * c) `LTE` (b * d)
+> monotoneMultLTE {a} {b} {c} {d} aLTEb cLTEd = s4 where
+>   s1 : LTE (toFraction a * toFraction c) (toFraction b * toFraction d)
+>   s1 = FractionProperties.monotoneMultLTE aLTEb cLTEd
+>   s2 : LTE (normalize (toFraction a * toFraction c)) 
+>            (normalize (toFraction b * toFraction d))
+>   s2 = normalizeLTELemma (toFraction a * toFraction c) (toFraction b * toFraction d) s1
+>   s3 : LTE (toFraction (fromFraction (toFraction a * toFraction c)))
+>            (toFraction (fromFraction (toFraction b * toFraction d)))
+>   s3 = s2
+>   s4 : LTE (fromFraction (toFraction a * toFraction c)) (fromFraction (toFraction b * toFraction d))
+>   s4 = s3
+>   s5 : LTE (a * c) (b * d)
+>   s5 = s4
+> %freeze monotoneMultLTE
+
+
+Properties of |sum|, |average|:
+
+> ||| |sum| is monotone
+> monotoneSum : {A : Type} ->
+>               (f : A -> NonNegRational) -> (g : A -> NonNegRational) ->
+>               (p : (a : A) -> f a `LTE` g a) ->
+>               (as : List A) ->
+>               sum (map f as) `LTE` sum (map g as) 
+> monotoneSum f g p Nil = LTEZero
+> monotoneSum f g p (a :: as) = s5 where
+>   s1 : sum (map f (a :: as)) = f a + sum (map f as)
+>   s1 = Refl
+>   s2 : sum (map g (a :: as)) = g a + sum (map g as)
+>   s2 = Refl
+>   s3 : f a `LTE` g a
+>   s3 = p a
+>   s4 : sum (map f as) `LTE` sum (map g as)
+>   s4 = monotoneSum f g p as
+>   s5 : sum (map f (a :: as)) `LTE` sum (map g (a :: as))
+>   s5 = NonNegRationalProperties.monotonePlusLTE s3 s4
+
+
+> factor : {A : Type} -> List A -> NonNegRational
+> factor Nil = 1
+> factor (a :: as) = fromFraction (1, Element (S (length as)) MkPositive)
+
+> {-
+> factorLemma : {A, B : Type} -> (as : List A) -> (bs : List B) -> length as = length bs -> factor as = factor bs
+> factorLemma Nil Nil _ = Refl
+> factorLemma Nil (b :: bs) prf = absurd prf
+> factorLemma (a :: as) Nil prf = absurd prf
+> factorLemma (a :: as) (b :: bs) prf = 
+> -}
+
+> ||| 
+> average : List NonNegRational -> NonNegRational
+> average xs = (sum xs) * (factor xs)
+
+
+> ||| |average| is monotone
+> monotoneAverage : {A : Type} ->
+>                   (f : A -> NonNegRational) -> (g : A -> NonNegRational) ->
+>                   (p : (a : A) -> f a `LTE` g a) ->
+>                   (as : List A) ->
+>                   average (map f as) `LTE` average (map g as) 
+> monotoneAverage f g p as = monotoneMultLTE {a = sum (map f as)} 
+>                                            {b = sum (map g as)} 
+>                                            {c = factor (map f as)} 
+>                                            {d = factor (map g as)}
+>                                            aLTEb cLTEd where
+>   aLTEb : sum (map f as) `LTE` sum (map g as)
+>   aLTEb = monotoneSum f g p as
+>   cLTEd : factor (map f as) `LTE` factor (map g as)
+>   cLTEd = ?guga
 
 
 > {-
