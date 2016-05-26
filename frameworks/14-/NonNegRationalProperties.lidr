@@ -328,16 +328,19 @@ Properties of |LTE|:
 > ||| LTE is reflexive
 > reflexiveLTE : (x : NonNegRational) -> x `LTE` x
 > reflexiveLTE x = FractionProperties.reflexiveLTE (toFraction x)
+> %freeze reflexiveLTE
 
 
 > ||| LTE is transitive
 > transitiveLTE : (x, y, z : NonNegRational) -> x `LTE` y -> y `LTE` z -> x `LTE` z
 > transitiveLTE x y z xLTEy yLTEz = FractionProperties.transitiveLTE (toFraction x) (toFraction y) (toFraction z) xLTEy yLTEz
+> %freeze transitiveLTE
 
 
 > ||| LTE is total
 > totalLTE : (x, y : NonNegRational) -> Either (x `LTE` y) (y `LTE` x) 
 > totalLTE x y = FractionProperties.totalLTE (toFraction x) (toFraction y)
+> %freeze totalLTE
 
 
 > ||| LTE is monotone w.r.t. `plus`
@@ -356,6 +359,7 @@ Properties of |LTE|:
 >   s4 = s3
 >   s5 : LTE (a `plus` c) (b `plus` d)
 >   s5 = s4
+> %freeze monotonePlusLTE
 
 
 > {-

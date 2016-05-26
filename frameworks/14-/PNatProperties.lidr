@@ -29,6 +29,7 @@
 > |||
 > toNatfromNatLemma : (m : Nat) -> (zLTm : Z `LT` m) -> toNat (fromNat m zLTm) = m
 > toNatfromNatLemma m zLTm = Refl
+> %freeze toNatfromNatLemma
 
 
 > |||
@@ -38,6 +39,7 @@
 >   s1 = ltZS (pred x)
 >   s2 : Z `LT` (toNat x)
 >   s2 = replace (predToNatLemma x) s1
+> %freeze toNatLTLemma
 
 
 > ||| 

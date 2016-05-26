@@ -780,6 +780,7 @@ Properties of |LTE|:
 > ||| LTE is reflexive
 > reflexiveLTE : (x : Fraction) -> x `LTE` x
 > reflexiveLTE (n, d') = NatProperties.reflexiveLTE (n * (toNat d'))
+> %freeze reflexiveLTE
 
 
 > ||| LTE is transitive
@@ -811,6 +812,7 @@ Properties of |LTE|:
 >                            s6 Refl (gtZisnotZ (denLTLemma (ny, dy')))
 >   s8 : (nx, dx') `LTE` (nz, dz')
 >   s8 = s7
+> %freeze transitiveLTE
 
                         
 > ||| LTE is total
@@ -819,6 +821,7 @@ Properties of |LTE|:
 >   let d1 = toNat d1' in
 >   let d2 = toNat d2' in
 >   NatProperties.totalLTE (n1 * d2) (n2 * d1)
+> %freeze totalLTE
 
 
 > ||| LTE is monotone w.r.t. `plus`
@@ -889,6 +892,7 @@ Properties of |LTE|:
 >                 (sym toNatMultLemma) s14
 >   s16 : ((na, da') `plus` (nc, dc')) `LTE` ((nb, db') `plus` (nd, dd'))
 >   s16 = s15
+> %freeze monotonePlusLTE
 
 
 > {-
