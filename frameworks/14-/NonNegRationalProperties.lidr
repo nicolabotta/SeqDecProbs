@@ -12,6 +12,7 @@
 > import FractionBasicProperties
 > import FractionNormalize
 > import FractionNormalizeProperties
+> import FractionEqProperties
 > import FractionLTEProperties
 > import FractionNormal
 > import SubsetProperties

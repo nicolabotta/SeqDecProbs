@@ -142,11 +142,12 @@ Properties of |LTE| and |plus|:
 Properties of |LTE| and |mult|:
 
 
-> {-
-
 > ||| LTE is monotone w.r.t. `(*)`
 > monotoneMultLTE : {a, b, c, d : Fraction} -> 
 >                   a `LTE` b -> c `LTE` d -> (a `mult` c) `LTE` (b `mult` d)
+
+
+> {-
 
 > ---}
 
