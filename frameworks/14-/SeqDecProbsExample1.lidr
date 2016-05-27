@@ -26,7 +26,8 @@
 > import Sigma
 > import SigmaOperations
 > import SigmaProperties
-> import NatProperties
+> import NatLTEProperties
+> import NatLTProperties
 > import Finite
 > import FiniteOperations
 > import FiniteProperties
@@ -120,10 +121,10 @@ right as we wish.
 > SeqDecProbsCoreAssumptions.zero = Z
 
 > SeqDecProbsCoreAssumptions.LTE = Prelude.Nat.LTE
-> SeqDecProbsCoreAssumptions.reflexiveLTE = NatProperties.reflexiveLTE
-> SeqDecProbsCoreAssumptions.transitiveLTE = NatProperties.transitiveLTE
+> SeqDecProbsCoreAssumptions.reflexiveLTE = NatLTEProperties.reflexiveLTE
+> SeqDecProbsCoreAssumptions.transitiveLTE = NatLTEProperties.transitiveLTE
 
-> SeqDecProbsCoreAssumptions.monotonePlusLTE = NatProperties.monotoneNatPlusLTE
+> SeqDecProbsCoreAssumptions.monotonePlusLTE = NatLTEProperties.monotoneNatPlusLTE
 
 ** M is measurable:
 
@@ -161,7 +162,10 @@ that
 The first condition trivially holds 
 
 > totalPreorderLTE : TotalPreorder Val
-> totalPreorderLTE = NatProperties.totalPreorderNatLTE
+> totalPreorderLTE = MkTotalPreorder SeqDecProbsCoreAssumptions.LTE 
+>                                    NatLTEProperties.reflexiveLTE 
+>                                    NatLTEProperties.transitiveLTE 
+>                                    NatLTEProperties.totalLTE
 
 Finiteness and non-zero cardinality of |GoodCtrl t x n|
 
