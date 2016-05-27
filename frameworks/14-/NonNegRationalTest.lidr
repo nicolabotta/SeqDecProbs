@@ -1,7 +1,7 @@
 > module Main
 
 > import NonNegRational
-> import NonNegRationalOperations
+> import NonNegRationalBasicOperations
 > import NonNegRationalProperties
 > import Fraction
 > import FractionOperations
@@ -20,7 +20,6 @@
 > y = fromFraction (32, PNat.fromNat 11 (LTESucc LTEZero))
 
 > z : NonNegRational
-> -- z = x `plus` y
 > z = x + y
 
 > main : IO ()               
