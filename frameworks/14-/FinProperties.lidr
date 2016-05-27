@@ -6,14 +6,10 @@
 
 > import FunProperties
 > import FinOperations
-> import NatProperties
 > import Basics
 
-
 > %default total
-
 > %access public export
-
 
 > -- %hide Prelude.List.tail
 > -- %hide Prelude.Stream.tail

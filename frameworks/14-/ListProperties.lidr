@@ -185,4 +185,22 @@ Fusion-related properties:
 > %freeze mapSndMapCrossAnyIdLemma
 
 
+> |||
+> lengthLemma : {A, B, C : Type} -> 
+>               (as : List A) -> (f : A -> B) -> (g : A -> C) ->
+>               length (map f as) = length (map g as)
+> lengthLemma  Nil      f g = Refl
+> lengthLemma (a :: as) f g = ( length (map f (a :: as)) )
+>                           ={ Refl }=
+>                             ( length (f a :: map f as) )
+>                           ={ Refl }=
+>                             ( S (length (map f as)) )
+>                           ={ cong (lengthLemma as f g) }=
+>                             ( S (length (map g as)) )
+>                           ={ Refl }=
+>                             ( length (g a :: map g as) )
+>                           ={ Refl }=
+>                             ( length (map g (a :: as)) )
+>                           QED
+> %freeze lengthLemma
 

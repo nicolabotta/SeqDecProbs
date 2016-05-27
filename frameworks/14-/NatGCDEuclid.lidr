@@ -5,7 +5,8 @@
 > import NatDivisor
 > import NatDivisorProperties
 > import NatOperations
-> import NatProperties
+> import NatLTEProperties
+> import NatOperationsProperties
 > import Sigma
 > import PairsOperations
 

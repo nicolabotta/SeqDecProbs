@@ -4,20 +4,25 @@
 > import Syntax.PreorderReasoning
 
 > import NonNegRational
-> import NonNegRationalOperations
+> import NonNegRationalBasicOperations
 > import NonNegRationalPredicates
 > import Fraction
-> import FractionOperations
+> import FractionBasicOperations
 > import FractionPredicates
-> import FractionProperties
+> import FractionBasicProperties
+> import FractionNormalize
+> import FractionNormalizeProperties
+> import FractionLTEProperties
 > import FractionNormal
 > import SubsetProperties
 > import Unique
 > import NatPositive
 > import NumRefinements
 > import PairsOperations
-> import NatProperties
-
+> import NatLTEProperties
+> import NatOperationsProperties
+> import ListProperties 
+ 
 
 > %default total
 
@@ -57,7 +62,7 @@ Properties of |fromFraction| and |toFraction|:
 > denLTLemma : (x : NonNegRational) -> Z `LT` den x
 > denLTLemma x = s2 where
 >   s1 : Z `LT` den (toFraction x)
->   s1 = FractionProperties.denLTLemma (toFraction x)
+>   s1 = FractionBasicProperties.denLTLemma (toFraction x)
 >   s2 : Z `LT` den x
 >   s2 = replace {P = \ ZUZU => Z `LT` ZUZU} Refl s1
 
@@ -348,7 +353,7 @@ Properties of |LTE|:
 >                   a `LTE` b -> c `LTE` d -> (a + c) `LTE` (b + d)
 > monotonePlusLTE {a} {b} {c} {d} aLTEb cLTEd = s4 where
 >   s1 : LTE (toFraction a + toFraction c) (toFraction b + toFraction d)
->   s1 = FractionProperties.monotonePlusLTE aLTEb cLTEd
+>   s1 = FractionLTEProperties.monotonePlusLTE aLTEb cLTEd
 >   s2 : LTE (normalize (toFraction a + toFraction c)) 
 >            (normalize (toFraction b + toFraction d))
 >   s2 = normalizeLTELemma (toFraction a + toFraction c) (toFraction b + toFraction d) s1
@@ -367,7 +372,7 @@ Properties of |LTE|:
 >                   a `LTE` b -> c `LTE` d -> (a * c) `LTE` (b * d)
 > monotoneMultLTE {a} {b} {c} {d} aLTEb cLTEd = s4 where
 >   s1 : LTE (toFraction a * toFraction c) (toFraction b * toFraction d)
->   s1 = FractionProperties.monotoneMultLTE aLTEb cLTEd
+>   s1 = FractionLTEProperties.monotoneMultLTE aLTEb cLTEd
 >   s2 : LTE (normalize (toFraction a * toFraction c)) 
 >            (normalize (toFraction b * toFraction d))
 >   s2 = normalizeLTELemma (toFraction a * toFraction c) (toFraction b * toFraction d) s1
@@ -401,19 +406,33 @@ Properties of |sum|, |average|:
 >   s4 = monotoneSum f g p as
 >   s5 : sum (map f (a :: as)) `LTE` sum (map g (a :: as))
 >   s5 = NonNegRationalProperties.monotonePlusLTE s3 s4
+> %freeze monotoneSum
 
 
 > factor : {A : Type} -> List A -> NonNegRational
 > factor Nil = 1
 > factor (a :: as) = fromFraction (1, Element (S (length as)) MkPositive)
 
-> {-
-> factorLemma : {A, B : Type} -> (as : List A) -> (bs : List B) -> length as = length bs -> factor as = factor bs
-> factorLemma Nil Nil _ = Refl
-> factorLemma Nil (b :: bs) prf = absurd prf
-> factorLemma (a :: as) Nil prf = absurd prf
-> factorLemma (a :: as) (b :: bs) prf = 
-> -}
+
+> factorLemma : {A, B, C : Type} -> 
+>               (as : List A) -> (f : A -> B) -> (g : A -> C) ->
+>               factor (map f as) = factor (map g as)
+> factorLemma  Nil f g = Refl
+> factorLemma (a :: as) f g = 
+>     ( factor (map f (a :: as)) )
+>   ={ Refl }=
+>     ( factor (f a :: map f as) )
+>   ={ Refl }=
+>     ( fromFraction (1, Element (S (length (map f as))) MkPositive) )
+>   ={ cong {f = \ ZUZU => fromFraction (1, Element (S ZUZU) MkPositive)} (lengthLemma as f g) }=
+>     ( fromFraction (1, Element (S (length (map g as))) MkPositive) )  
+>   ={ Refl }=
+>     ( factor (g a :: map g as) )
+>   ={ Refl }=
+>     ( factor (map g (a :: as)) )
+>   QED
+> %freeze factorLemma
+
 
 > ||| 
 > average : List NonNegRational -> NonNegRational
@@ -430,11 +449,13 @@ Properties of |sum|, |average|:
 >                                            {b = sum (map g as)} 
 >                                            {c = factor (map f as)} 
 >                                            {d = factor (map g as)}
->                                            aLTEb cLTEd where
->   aLTEb : sum (map f as) `LTE` sum (map g as)
->   aLTEb = monotoneSum f g p as
->   cLTEd : factor (map f as) `LTE` factor (map g as)
->   cLTEd = ?guga
+>                                            s1 s3 where
+>   s1 : sum (map f as) `LTE` sum (map g as)
+>   s1 = monotoneSum f g p as
+>   s2 : factor (map f as) `LTE` factor (map f as)
+>   s2 = reflexiveLTE (factor (map f as))
+>   s3 : factor (map f as) `LTE` factor (map g as)
+>   s3 = replace {P = \ ZUZU => factor (map f as) `LTE` ZUZU} (factorLemma as f g) s2
 
 
 > {-

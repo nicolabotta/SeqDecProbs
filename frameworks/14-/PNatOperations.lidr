@@ -4,7 +4,7 @@
 > import PNat
 > import NatPositive
 > import NatOperations
-> import NatProperties
+> import NatOperationsProperties
 > import PairsOperations
 
 

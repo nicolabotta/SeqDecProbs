@@ -4,7 +4,7 @@
 > import Effects
 > import Effect.Exception
 
-> import NatProperties
+> import NatLTProperties
 > import BoundedNat
 > import Sigma
 > import PairsOperations

@@ -16,6 +16,7 @@ Divisor (following an idea from Tim Richter):
 > Divisor : (m : Nat) -> (n : Nat) -> Type
 > Divisor m n = Exists (\ q => m * q = n)
 
+
 Greatest common divisor (following an idea from Tim Richter):
 
 > data GCD : (d : Nat) -> (m : Nat) -> (n : Nat) -> Type where

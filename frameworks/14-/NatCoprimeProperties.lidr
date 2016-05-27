@@ -8,7 +8,7 @@
 > import NatDivisor
 > import NatDivisorOperations
 > import NatDivisorProperties
-> import NatProperties
+> import NatOperationsProperties
 > import NatGCDAlgorithm
 > import NatGCDEuclid
 > import PairsOperations

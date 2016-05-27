@@ -1,19 +1,15 @@
-> module BoundedNat
+> module BoundedNatOperations
 
 > import Data.Fin
 > import Data.Vect
-> -- import Control.Isomorphism
-> -- import Syntax.PreorderReasoning
 
 > import BoundedNat
 > import FinProperties
-> import NatProperties
+> import NatLTProperties
 > import Sigma
 > import PairsOperations
 
-
 > %default total
-
 > %access public export
 
 

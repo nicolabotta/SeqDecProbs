@@ -4,7 +4,6 @@
 > import Data.Vect
 > import Control.Isomorphism
 
-
 > import Decidable
 > import Finite
 > import Unique
@@ -21,7 +20,6 @@
 > import Basics
 
 > %default total
-
 > %access public export
 
 

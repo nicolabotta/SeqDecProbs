@@ -13,7 +13,7 @@
 > import VectProperties
 > import IsomorphismOperations
 > import IsomorphismProperties
-> import NatProperties
+> import NatLTProperties
 > import Basics
 > import FunProperties
 > import Sigma

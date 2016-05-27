@@ -2,7 +2,7 @@
 
 
 > import Fraction
-> import FractionOperations
+> import FractionBasicOperations
 > import NatCoprime
 > import Unique
 > import NatGCD

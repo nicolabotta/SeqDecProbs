@@ -14,7 +14,7 @@
 > import VectOperations
 > import VectProperties
 > import FunOperations
-> import NatProperties
+> import NatLTProperties
 
 
 > %default total 

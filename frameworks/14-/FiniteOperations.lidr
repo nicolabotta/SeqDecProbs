@@ -9,7 +9,6 @@
 > import Finite
 > import FinOperations
 > import IsomorphismOperations
-> import NatProperties
 > import Sigma
 > import PairsOperations
 

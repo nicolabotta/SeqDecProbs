@@ -2,10 +2,11 @@
 
 > import Syntax.PreorderReasoning
 
-> import NatPredicates
+> -- import NatPredicates
 > import NatOperations
-> import Preorder
-> import TotalPreorder
+> import NatBasicProperties
+> import NatLTEProperties
+> import NatLTProperties
 > import Basics
 
 
@@ -14,78 +15,9 @@
 > %auto_implicits on
 
 
-> implementation Uninhabited (S n = Z) where
->   uninhabited Refl impossible
-
-
-> {-
-> implementation Uninhabited (LTE (S n) Z) where
->   uninhabited LTEZero impossible
->   uninhabited (LTESucc x) impossible
-
-> lteRefl : LTE n n
-> lteRefl {n = Z}   = LTEZero
-> lteRefl {n = S k} = LTESucc lteRefl
-
-> -}
-
-> {- Not used
-
-> eitherLemma : (m : Nat) -> (n : Nat) -> Either (m = n) (Either (m `LT` n) (n `LT` m))
-> eitherLemma Z  Z    = Left Refl
-
-> -}
-
-
-> {-
-
-Test:
-
-> CLTtoLT : {m, n : Nat} -> compare m n = LT -> m `LT` n
-
-> LTtoCLT : {m, n : Nat} -> m `LT` n -> compare m n = LT
-
-> CEQtoEQ : {m, n : Nat} -> compare m n = EQ -> m = n
-
-> EQtoCEQ : {m, n : Nat} -> m = n -> compare m n = EQ
-
-
-> anyPlusPreservesOrd : {x, y, z : Nat} -> {ORD : Ordering} -> 
->                       compare x y = ORD -> compare (z + x) (z + y) = ORD
-
-> plusAnyPreservesOrd : {x, y, z : Nat} -> {ORD : Ordering} -> 
->                       compare x y = ORD -> compare (z + x) (z + y) = ORD
-
-> LTinLTE : {m, n : Nat} -> LT m n -> LTE m n
-
-> pLTpEQpLTE : (LT x1 x2 -> LT y1 y2) -> (x1 = x2 -> y1 = y2) -> (LTE x1 x2 -> LTE y1 y2)
-
-> anyPlusPreservesLT : LT x y -> LT (z + x) (z + y)
-> anyPlusPreservesLT {x} {y} {z} prf = s3 where
->   s1  :  compare x y = LT
->   s1  =  LTtoCLT prf
->   s2  :  compare (z + x) (z + y) = LT
->   s2  =  anyPlusPreservesOrd s1
->   s3  :  (z + x) `LT` (z + y) 
->   s3  =  CLTtoLT s2
-
-> anyPlusPreservesEQ : {x, y, z : Nat} -> x = y -> (z + x) = (z + y)
-> anyPlusPreservesEQ {x} {y} {z} prf = s3 where
->   s1  :  compare x y = EQ
->   s1  =  EQtoCEQ prf
->   s2  :  compare (z + x) (z + y) = EQ
->   s2  =  anyPlusPreservesOrd s1
->   s3  :  (z + x) = (z + y) 
->   s3  =  CEQtoEQ s2
-
-> anyPlusPreservesLTE : LTE x y -> LTE (z + x) (z + y)
-> anyPlusPreservesLTE = pLTpEQpLTE anyPlusPreservesLT anyPlusPreservesEQ
-
-> -}
-
-
 Properties of |pred|:
 
+> |||
 > predLemma : (n : Nat) -> (prf : Z `LT` n) -> S (pred n prf) = n
 > predLemma  Z    prf = absurd prf
 > predLemma (S m) _   = Refl
@@ -93,248 +25,12 @@ Properties of |pred|:
 
 Properties of |=|:
 
-> |||
-> predInjective : (left : Nat) -> (right : Nat) -> Not (S left = S right) -> Not (left = right)
-> predInjective left right contra = contra . (eqSucc left right)
-> %freeze predInjective
-
-> |||
-> succInjective' : (left : Nat) -> (right : Nat) -> Not (left = right) -> Not (S left = S right)
-> succInjective' left right contra = contra . (succInjective left right)
-> %freeze succInjective'
-
 > ||| EQ is contained in LTE
 > eqInLTE : (m : Nat) -> (n : Nat) -> m = n -> m `LTE` n
 > eqInLTE  Z     n    prf = LTEZero
 > eqInLTE (S m)  Z    prf = absurd prf
 > eqInLTE (S m) (S n) prf = LTESucc (eqInLTE m n (succInjective m n prf))
 > %freeze eqInLTE
-
-
-Properties of |LTE|:
-
-> ||| LTE is reflexive
-> reflexiveLTE : (n : Nat) -> LTE n n
-> reflexiveLTE n = lteRefl {n}
-> --%freeze reflexiveLTE
-
-> ||| LTE is transitive
-> transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
->                 LTE m n -> LTE n o -> LTE m o
-> transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
-> transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
-> --%freeze transitiveLTE
-
-> ||| LTE is total
-> totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
-> totalLTE  Z    n     = Left LTEZero
-> totalLTE (S m) Z     = Right LTEZero
-> totalLTE (S m) (S n) with (totalLTE m n)
->   | (Left  p) = Left  (LTESucc p)
->   | (Right p) = Right (LTESucc p)
-> --%freeze totalLTE
-
-> ||| LTE is a preorder
-> preorderNatLTE : Preorder Nat
-> preorderNatLTE =
->   MkPreorder LTE reflexiveLTE transitiveLTE
-> --%freeze preorderNatLTE
-
-> ||| LTE is a total preorder
-> totalPreorderNatLTE : TotalPreorder Nat
-> totalPreorderNatLTE =
->   MkTotalPreorder LTE reflexiveLTE transitiveLTE totalLTE
-> --%freeze totalPreorderNatLTE
-
-> |||
-> notLTELemma0 : Not (S m `LTE` S n) -> Not (m `LTE` n)
-> notLTELemma0 contra = contra . LTESucc
-> %freeze notLTELemma0
-
-> |||
-> notLTELemma1 : (m : Nat) -> (n : Nat) -> Not (m `LTE` n) -> n `LTE` m
-> notLTELemma1  m     Z    p = LTEZero
-> notLTELemma1  Z    (S n) p = void (p LTEZero)
-> notLTELemma1 (S m) (S n) p = LTESucc (notLTELemma1 m n (notLTELemma0 p))
-> %freeze notLTELemma1
-
-> |||
-> lteLemma1 : (m : Nat) -> (n : Nat) -> LTE (S m) n -> LTE m n
-> lteLemma1  Z     Z             prf  = absurd prf
-> lteLemma1  Z    (S n)  LTEZero        impossible
-> lteLemma1  Z    (S n) (LTESucc prf) = LTEZero
-> lteLemma1 (S m)  Z             prf  = absurd prf
-> lteLemma1 (S m) (S n)  LTEZero        impossible
-> lteLemma1 (S m) (S n) (LTESucc prf) = LTESucc (lteLemma1 m n prf)
-> %freeze lteLemma1
-
-> |||
-> idSuccPreservesLTE : (m : Nat) -> (n : Nat) -> m `LTE` n -> m `LTE` (S n)
-> idSuccPreservesLTE  Z     n    prf = LTEZero
-> idSuccPreservesLTE (S m)  Z    prf = absurd prf
-> idSuccPreservesLTE (S m) (S n) prf = LTESucc (idSuccPreservesLTE m n (fromLteSucc prf))
-> %freeze idSuccPreservesLTE
-
-
-Properties of |LT|:
-
-> |||
-> ltLemma1 : (m : Nat) -> (n : Nat) -> LT (S m) n -> LT m n
-> ltLemma1 m n prf = lteLemma1 (S m) n prf
-> %freeze ltLemma1
-
-> ||| LT is contained in LTE
-> ltInLTE : (m : Nat) -> (n : Nat) -> LT m n -> LTE m n
-> ltInLTE = lteLemma1
-> %freeze ltInLTE
-
-> ||| Zero is smaller than any successor
-> ltZS : (m : Nat) -> LT Z (S m)
-> ltZS  Z    = LTESucc LTEZero
-> ltZS (S m) = idSuccPreservesLTE (S Z) (S m) (ltZS m)
-> %freeze ltZS
-
-> ||| Zero is smaller than any successor
-> ltZS' : {n : Nat} -> LT Z (S n)
-> ltZS' {n = Z}   = LTESucc LTEZero
-> ltZS' {n = S m} = idSuccPreservesLTE (S Z) (S m) ltZS'
-> %freeze ltZS'
-
-> ||| Any number is smaller than its successor
-> ltIdS : (m : Nat) -> LT m (S m)
-> ltIdS  Z    = LTESucc LTEZero
-> ltIdS (S m) = LTESucc (ltIdS m)
-> %freeze ltIdS
-
-> ||| Any number which is not zero is greater than zero
-> notZisgtZ : {n : Nat} -> Not (n = Z) -> LT Z n
-> notZisgtZ {n = Z}   contra = void (contra Refl)
-> notZisgtZ {n = S m} _      = ltZS m
-> %freeze notZisgtZ
-
-> ||| Any number which is greater than zero is not zero
-> gtZisnotZ : {n : Nat} -> LT Z n -> Not (n = Z)
-> gtZisnotZ {n = Z}   p = absurd p
-> gtZisnotZ {n = S m} p = absurd
-> %freeze gtZisnotZ
-
-> ||| No number is less than zero
-> notLTzero : {n : Nat} -> Not (LT n Z)
-> notLTzero = succNotLTEzero
-> %freeze notLTzero
-
-> |||
-> strengthenLT : (m : Nat) -> (n : Nat) -> LT m (S n) -> Not (m = n) -> LT m n
-> strengthenLT  Z       n  _       zNEQn   = notZisgtZ (zNEQn . sym)
-> strengthenLT (S m)  Z    smLTsz  _       = void (notLTzero (fromLteSucc smLTsz))
-> strengthenLT (S m) (S n) smLTssn smNEQsn = LTESucc mLTn where
->   mLTsn : LT m (S n)
->   mLTsn = fromLteSucc smLTssn
->   mNEQn : Not (m = n)
->   mNEQn = predInjective m n smNEQsn
->   mLTn : LT m n
->   mLTn = strengthenLT m n mLTsn mNEQn
-> %freeze strengthenLT
-
-
-Properties of |LTE| and |plus|
-
-> |||
-> elimSuccRightLTEPlus : {a, b, c, d : Nat} -> LTE (a + S b) (c + S d) -> LTE (a + b) (c + d)
-> elimSuccRightLTEPlus {a} {b} {c} {d} aSbLTEcSd = s6 where
->   s0 : LTE (a + S b) (c + S d)
->   s0 = aSbLTEcSd
->   s1 : LTE (S b + a) (c + S d)
->   s1 = replace {P = \ ZUZU => LTE ZUZU (c + S d)} (plusCommutative a (S b)) s0
->   s2 : LTE (S b + a) (S d + c)
->   s2 = replace {P = \ ZUZU => LTE (S b + a) ZUZU } (plusCommutative c (S d)) s1
->   s3 : LTE (S (b + a)) (S (d + c))
->   s3 = s2
->   s4 : LTE (b + a) (d + c)
->   s4 = fromLteSucc s3
->   s5 : LTE (a + b) (d + c)
->   s5 = replace {P = \ ZUZU => LTE ZUZU (d + c)} (plusCommutative b a) s4
->   s6 : LTE (a + b) (c + d)
->   s6 = replace {P = \ ZUZU => LTE (a + b) ZUZU}(plusCommutative d c) s5
-> %freeze elimSuccRightLTEPlus
-
-> |||
-> idAnyPlusPreservsLTE : {a, b, c : Nat} -> LTE a b -> LTE a (c + b)
-> idAnyPlusPreservsLTE {a} {b} {c = Z}   aLTEb = aLTEb
-> idAnyPlusPreservsLTE {a} {b} {c = S m} aLTEb = idSuccPreservesLTE a (m + b) (idAnyPlusPreservsLTE {a = a} {b = b} {c = m} aLTEb)  
-
-> |||
-> monotoneNatPlusLTE : {a, b, c, d  : Nat} ->
->                      LTE a b -> LTE c d -> LTE (a + c) (b + d)
-> monotoneNatPlusLTE {a = Z}   {b = Z}   {c} {d} _           cLTEd = 
->   cLTEd
-> monotoneNatPlusLTE {a = Z}   {b = S n} {c} {d} _           cLTEd = 
->   idAnyPlusPreservsLTE {a = c} {b = d} {c = S n} cLTEd
-> monotoneNatPlusLTE {a = S m} {b = Z}   {c} {d} aLTEb       _     = 
->   absurd aLTEb
-> monotoneNatPlusLTE {a = S m} {b = S n} {c} {d} (LTESucc p) cLTEd = 
->   LTESucc (monotoneNatPlusLTE {a = m} {b = n} {c = c} {d = d} p cLTEd)
-> --%freeze monotoneNatPlusLTE
-
-> |||
-> elimRightPlusLTE : {a, b, c, d : Nat} ->
->                    LTE (a + c) (b + d) -> c = d -> LTE a b
-> elimRightPlusLTE {a} {b} {c = Z} {d = Z} acLTEbd _ = s2 where
->   s1 : LTE a (b + Z)
->   s1 = replace {P = \ ZUZ => LTE ZUZ (b + Z)} (plusZeroRightNeutral a) acLTEbd
->   s2 : LTE a b
->   s2 = replace {P = \ ZUZ => LTE a ZUZ} (plusZeroRightNeutral b) s1
-> elimRightPlusLTE {a} {b} {c = Z} {d = S n} _ ZEQSn = absurd ZEQSn
-> elimRightPlusLTE {a} {b} {c = S m} {d = Z} _ cEQZ = absurd cEQZ
-> elimRightPlusLTE {a} {b} {c = S m} {d = S n} aSmLTEbSn SmEQSn = s4 where
->   s1 : LTE (a + S m) (b + S n)
->   s1 = aSmLTEbSn
->   s2 : LTE (a + m) (b + n)
->   s2 = elimSuccRightLTEPlus s1
->   s3 : m = n
->   s3 = succInjective m n SmEQSn
->   s4 : LTE a b
->   s4 = elimRightPlusLTE {a = a} {b = b} {c = m} {d = n} s2 s3
-> %freeze elimRightPlusLTE
-
-
-Properties of |LTE| and |mult|
-
-> |||
-> monotoneNatMultLTE : {a, b, c, d  : Nat} ->
->                      LTE a b -> LTE c d -> LTE (a * c) (b * d)
-> monotoneNatMultLTE {a = Z}   {b}       {c} {d} _ _ = LTEZero
-> monotoneNatMultLTE {a = S m} {b = Z}   {c} {d} aLTEb _ = absurd aLTEb
-> monotoneNatMultLTE {a = S m} {b = S n} {c} {d} (LTESucc mLTEn) cLTEd = s3 where
->   s1 : LTE (c + m * c) (d + n * d)
->   s1 = monotoneNatPlusLTE {a = c} {b = d} {c = m * c} {d = n * d} 
->        cLTEd (monotoneNatMultLTE {a = m} {b = n} {c = c} {d = d} mLTEn cLTEd)
->   s2 : LTE ((S m) * c) (d + n * d)
->   s2 = replace {P = \ ZUZ => LTE ZUZ (d + n * d)} Refl s1
->   s3 : LTE ((S m) * c) ((S n) * d)
->   s3 = replace {P = \ ZUZ => LTE ((S m) * c) ZUZ} Refl s2
-> %freeze monotoneNatMultLTE
-
-> |||
-> elimRightMultLTE : {a, b, c, d : Nat} ->
->                    LTE (a * c) (b * d) -> c = d -> Not (c = Z) -> LTE a b
-> elimRightMultLTE {a = Z}   {b}       {c}       {d} _       _    _      = LTEZero
-> elimRightMultLTE {a = S m} {b = Z}   {c = Z}   {d} _       _    contra = void (contra Refl)
-> elimRightMultLTE {a = S m} {b = Z}   {c = S n} {d} acLTEbd _    _      = absurd acLTEbd
-> elimRightMultLTE {a = S m} {b = S n} {c}       {d} acLTEbd cEQd ncEQZ  = s6 where
->   s1 : LTE (c + m * c) (d + n * d)
->   s1 = acLTEbd
->   s2 : LTE (m * c + c) (d + n * d)
->   s2 = replace {P = \ ZUZ => LTE ZUZ (d + n * d)} (plusCommutative c (m * c)) s1 
->   s3 : LTE (m * c + c) (n * d + d)
->   s3 = replace {P = \ ZUZ => LTE (m * c + c) ZUZ} (plusCommutative d (n * d)) s2 
->   s4 : LTE (m * c) (n * d)
->   s4 = elimRightPlusLTE s3 cEQd
->   s5 : LTE m n
->   s5 = elimRightMultLTE s4 cEQd ncEQZ
->   s6 : LTE (S m) (S n)
->   s6 = LTESucc s5
-> %freeze elimRightMultLTE
 
 
 Properties of |plus|:
@@ -367,6 +63,25 @@ Properties of |plus|:
 > plusElimLeft : (m1 : Nat) -> (n : Nat) -> (m2 : Nat) -> m1 + n = m2 -> m1 = m2 -> n = Z
 > plusElimLeft m n m p Refl = plusLeftLeftRightZero m n p
 > %freeze plusElimLeft
+
+> {-
+
+> |||
+> idPlusAnyPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (n + p)
+
+> |||
+> idAnyPlusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (p + n)
+
+> |||
+> plusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
+>                   (p : Nat) -> (q : Nat) -> p `LT` q ->
+>                   (m + p) `LT` (n + q)
+> plusPreservesLT  Z     Z     zLTz  _ _ _    = absurd  zLTz 
+> plusPreservesLT  Z    (S n)  zLTsn p q pLTq = idAnyPlusPreservesLT p q pLTq (S n)
+> plusPreservesLT (S m)  Z    smLTz  _ _ _    = absurd smLTz 
+> plusPreservesLT (S m) (S n) smLTsn p q pLTq = LTESucc (plusPreservesLT m n (fromLteSucc smLTsn) p q pLTq)
+
+> -}
 
 
 Properties of |minus|:
@@ -498,7 +213,7 @@ Properties of |plus| and |minus|:
 > %freeze plusRightInverseMinus
 
 
-Properties of |mult|: LT, EQ and GT zero:
+Properties of |mult|:
 
 > ||| Multiplication of successors is not zero
 > multSuccNotZero : (m : Nat) -> (n : Nat) -> Not ((S m) * (S n) = Z)
@@ -594,41 +309,11 @@ Properties of |mult|: LT, EQ and GT zero:
 >   prf' = replace {x = m * n} {y = n * m} {P = \ ZUZU => ZUZU = S Z} (multCommutative m n) prf
 > %freeze multOneRightOne
 
-
-Properties of |mult|: preservation
-
 > |||
 > multPreservesEq : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
 >                   m1 = m2 -> n1 = n2 -> m1 * n1 = m2 * n2
 > multPreservesEq m m n n Refl Refl = Refl
 > %freeze multPreservesEq
-
-> {-
-
-> |||
-> idPlusAnyPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (n + p)
-
-> |||
-> idAnyPlusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n -> (p : Nat) -> m `LT` (p + n)
-
-> |||
-> plusPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
->                   (p : Nat) -> (q : Nat) -> p `LT` q ->
->                   (m + p) `LT` (n + q)
-> plusPreservesLT  Z     Z     zLTz  _ _ _    = absurd  zLTz 
-> plusPreservesLT  Z    (S n)  zLTsn p q pLTq = idAnyPlusPreservesLT p q pLTq (S n)
-> plusPreservesLT (S m)  Z    smLTz  _ _ _    = absurd smLTz 
-> plusPreservesLT (S m) (S n) smLTsn p q pLTq = LTESucc (plusPreservesLT m n (fromLteSucc smLTsn) p q pLTq)
-
-> |||
-> multPreservesLT : (m : Nat) -> (n : Nat) -> m `LT` n ->
->                   (p : Nat) -> (q : Nat) -> p `LT` q ->
->                   (m * p) `LT` (n * q)
-
-> -}
-
-
-Properties of |mult|: elimination rules
 
 > |||
 > multMultElimLeft : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
@@ -816,45 +501,48 @@ Properties of |sum|:
 > -}
 
 
-Decidability:
+> {-
 
-> ||| LTE is decidable
-> decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)
-> --decLTE = lte
-> --{-
-> decLTE Z _     = Yes LTEZero
-> decLTE (S m) Z = No succNotLTEzero
-> decLTE (S m) (S n) with (decLTE m n)
->   | (Yes p) = Yes (LTESucc p)
->   | (No contra) = No (\ p => contra (fromLteSucc p))
-> ---}
-> -- %freeze decLTE
+Test:
 
-> ||| LT is decidable
-> decLT : (m : Nat) -> (n : Nat) -> Dec (LT m n)
-> decLT m n = decLTE (S m) n
-> %freeze decLT
+> CLTtoLT : {m, n : Nat} -> compare m n = LT -> m `LT` n
+
+> LTtoCLT : {m, n : Nat} -> m `LT` n -> compare m n = LT
+
+> CEQtoEQ : {m, n : Nat} -> compare m n = EQ -> m = n
+
+> EQtoCEQ : {m, n : Nat} -> m = n -> compare m n = EQ
 
 
-Uniqueness
+> anyPlusPreservesOrd : {x, y, z : Nat} -> {ORD : Ordering} -> 
+>                       compare x y = ORD -> compare (z + x) (z + y) = ORD
 
-> ||| LTE is unique
-> uniqueLTE : (p1 : LTE m n) -> (p2 : LTE m n) -> p1 = p2
-> uniqueLTE  LTEZero     LTEZero    = Refl
-> uniqueLTE  LTEZero    (LTESucc p) impossible
-> uniqueLTE (LTESucc p)  LTEZero    impossible
-> uniqueLTE (LTESucc p) (LTESucc q) = cong (uniqueLTE p q)
-> %freeze uniqueLTE
+> plusAnyPreservesOrd : {x, y, z : Nat} -> {ORD : Ordering} -> 
+>                       compare x y = ORD -> compare (z + x) (z + y) = ORD
 
-> ||| LT is unique
-> uniqueLT : (p1 : LT m n) -> (p2 : LT m n) -> p1 = p2
-> uniqueLT {m} {n} = uniqueLTE {m = S m} {n = n}
-> %freeze uniqueLT
+> LTinLTE : {m, n : Nat} -> LT m n -> LTE m n
 
-> |||
-> uniqueLT' : m1 = m2 -> n1 = n2 -> (p1 : LT m1 n1) -> (p2 : LT m2 n2) -> p1 = p2
-> uniqueLT' Refl Refl p1 p2 = uniqueLT p1 p2
-> %freeze uniqueLT'
+> pLTpEQpLTE : (LT x1 x2 -> LT y1 y2) -> (x1 = x2 -> y1 = y2) -> (LTE x1 x2 -> LTE y1 y2)
 
+> anyPlusPreservesLT : LT x y -> LT (z + x) (z + y)
+> anyPlusPreservesLT {x} {y} {z} prf = s3 where
+>   s1  :  compare x y = LT
+>   s1  =  LTtoCLT prf
+>   s2  :  compare (z + x) (z + y) = LT
+>   s2  =  anyPlusPreservesOrd s1
+>   s3  :  (z + x) `LT` (z + y) 
+>   s3  =  CLTtoLT s2
+
+> anyPlusPreservesEQ : {x, y, z : Nat} -> x = y -> (z + x) = (z + y)
+> anyPlusPreservesEQ {x} {y} {z} prf = s3 where
+>   s1  :  compare x y = EQ
+>   s1  =  EQtoCEQ prf
+>   s2  :  compare (z + x) (z + y) = EQ
+>   s2  =  anyPlusPreservesOrd s1
+>   s3  :  (z + x) = (z + y) 
+>   s3  =  CEQtoEQ s2
+
+> anyPlusPreservesLTE : LTE x y -> LTE (z + x) (z + y)
+> anyPlusPreservesLTE = pLTpEQpLTE anyPlusPreservesLT anyPlusPreservesEQ
 
 > ---}

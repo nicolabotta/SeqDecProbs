@@ -1,11 +1,9 @@
 > module NonNegRationalPredicates
 
-
 > import NonNegRational
-> import NonNegRationalOperations
+> import NonNegRationalBasicOperations
 > import Fraction
 > import FractionPredicates
-
 
 > %default total
 > %access public export

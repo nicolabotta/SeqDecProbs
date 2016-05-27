@@ -7,17 +7,13 @@
 > import BoundedNat
 > import BoundedNatOperations
 > import Basics
-> import NatProperties
+> import NatLTProperties
 > import Sigma
 > import PairsOperations
 > import SigmaProperties
 > import FinProperties
 > import Finite
-> -- import Decidable
 > import Unique
-> -- import SubType
-> -- import FiniteSubTypeProperties
-
 
 > %default total
 > %access public export

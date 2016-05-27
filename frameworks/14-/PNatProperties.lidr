@@ -7,7 +7,7 @@
 > import NatPositive
 > import Unique
 > import SubsetProperties
-> import NatProperties
+> import NatLTProperties
 > import PairsOperations
 
 

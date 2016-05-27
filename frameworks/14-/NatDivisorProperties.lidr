@@ -2,11 +2,11 @@
 
 > import Syntax.PreorderReasoning
 
-> import Basics
-> import NatOperations
-> import NatProperties
 > import NatDivisor
 > import NatDivisorOperations
+> import Basics
+> import NatOperations
+> import NatOperationsProperties
 > import Sigma
 > import PairsOperations
 

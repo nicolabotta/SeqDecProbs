@@ -2,7 +2,7 @@
 
 
 > import NatOperations
-> import NatProperties
+> import NatLTEProperties
 
 
 > %default total

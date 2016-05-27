@@ -6,7 +6,8 @@
 > import NatDivisor
 > import NatDivisorOperations
 > import NatDivisorProperties
-> import NatProperties
+> import NatLTProperties
+> import NatOperationsProperties
 > import Basics
 > import Sigma
 > import PairsOperations

@@ -8,7 +8,7 @@
 > import Decidable
 > import TotalPreorder
 > import TotalPreorderOperations
-> import NatProperties
+> import NatLTProperties
 > import Sigma
 
 

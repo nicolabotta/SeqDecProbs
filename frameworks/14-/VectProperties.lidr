@@ -13,10 +13,9 @@
 > import Decidable
 > import TotalPreorder
 > import TotalPreorderOperations
-> import NatProperties
+> import NatLTProperties
 > import FinProperties
 > import FunOperations
-
 
 > %default total
 > %access public export
@@ -138,7 +137,7 @@ Membership, quantifiers:
 >             Elem a as -> LT Z n
 > elemLemma {n = Z}   a Nil p = absurd p
 > elemLemma {n = S m} a as  p = ltZS m
-
+ 
 
 > AnyExistsLemma : {A : Type} -> {P : A -> Type} -> {as : Vect n A} ->
 >                  Any P as -> Exists P
