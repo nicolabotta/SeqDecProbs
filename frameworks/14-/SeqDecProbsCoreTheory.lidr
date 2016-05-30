@@ -120,8 +120,8 @@ And finally
 **  Optimality of policy sequences:
 
 > |||
-> OptPolicySeq : {t : Nat} -> {n : Nat} -> 
->                PolicySeq t n -> Type
+> OptPolicySeq : {t : Nat} -> {n : Nat} -> PolicySeq t n -> Type
+> 
 > OptPolicySeq {t} {n} ps  =  (ps' : PolicySeq t n) ->
 >                             (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
 >                             (val x r v ps') `LTE` (val x r v ps)

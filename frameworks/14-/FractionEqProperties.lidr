@@ -132,7 +132,7 @@ Properties of |mult|, |Eq|:
 >   let xzEqz   : (x * 0 `Eq` 0)
 >               = multZeroRightEqZero x in
 >   EqTransitive zxEqxz xzEqz
-> -- %freeze multZeroLeftEqZero
+> %freeze multZeroLeftEqZero
 
 
 > ||| 

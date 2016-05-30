@@ -9,17 +9,8 @@
 > import NonNegRationalPredicates
 > import NonNegRationalLTEProperties
 > import Fraction
-> import FractionBasicOperations
-> import FractionPredicates
-> import FractionBasicProperties
 > import FractionNormal
-> import SubsetProperties
-> import Unique
-> import NatPositive
-> import NumRefinements
-> import PairsOperations
-> import NatLTEProperties
-> import NatOperationsProperties
+> -- import NatPositive
 > import ListProperties 
  
 > %default total

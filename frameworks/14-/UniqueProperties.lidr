@@ -16,6 +16,13 @@
 > %access public export
 
 
+> |||
+> uniqueLemma : {A : Type} -> {P : A -> Type} -> ((a : A) -> Unique (P a)) ->
+>               (a1 : A) -> (a2 : A) -> (pa1 : P a1) -> (pa2 : P a2) -> 
+>               (a1 = a2) -> pa1 = pa2
+> uniqueLemma {A} {P} prf a a pa1 pa2 Refl = prf a pa1 pa2
+
+
 > ||| Unique properties are finite
 > uniqueFiniteLemma1 : {P : Type} -> P -> Unique P -> Finite P
 > uniqueFiniteLemma1 {P} p uP = MkSigma n (MkIso to from toFrom fromTo) where

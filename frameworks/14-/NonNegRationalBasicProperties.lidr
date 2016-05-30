@@ -13,17 +13,20 @@
 > import FractionNormalize
 > import FractionNormalizeProperties
 > import FractionEqProperties
-> -- import FractionLTEProperties
 > import FractionNormal
 > import SubsetProperties
 > import Unique
+> import UniqueProperties
 > import NatPositive
 > import NumRefinements
 > import PairsOperations
 > import NatLTEProperties
 > import NatOperationsProperties
 > import ListProperties 
- 
+> import PNat
+> import PNatOperations
+> import PNatProperties 
+> import Basics
 
 > %default total
 
@@ -57,6 +60,31 @@ Properties of |fromFraction| and |toFraction|:
 >                           ( Element x nx )
 >                         QED
 > %freeze fromToId
+
+> |||
+> lala : (x, y : Fraction) -> x `Eq` y -> fromFraction x = fromFraction y
+> lala x y xEqy = s7 where
+>   s1 : normalize x = normalize y
+>   s1 = normalizeEqLemma2 x y xEqy
+>   s2 : Normal (normalize x) = Normal (normalize y)
+>   s2 = cong s1
+>   s3 : Normal (normalize x)
+>   s3 = normalNormalize x
+>   s4 : Normal (normalize y)
+>   s4 = normalNormalize y
+>   s5 : s3 = s4
+>   s5 = uniqueLemma (\ f => NormalUnique {x = f}) (normalize x) (normalize y) s3 s4 s1
+>   s6 : Element (normalize x) (normalNormalize x) = Element (normalize y) (normalNormalize y)
+>   s6 = depCong2 {alpha = Fraction} 
+>                 {P = Normal} 
+>                 {gamma = Subset Fraction Normal}
+>                 {a1 = normalize x} 
+>                 {a2 = normalize y}
+>                 {Pa1 = normalNormalize x} 
+>                 {Pa2 = normalNormalize y} 
+>                 {f = \ ZUZU => \ ZAZA => Element ZUZU ZAZA} s1 s5 
+>   s7 : fromFraction x = fromFraction y
+>   s7 = s6
 
 
 > ||| Denominators of non-negative rationals are greater than zero
