@@ -141,13 +141,51 @@ Properties of |LTE| and |plus|:
 
 Properties of |LTE| and |mult|:
 
-
 > ||| LTE is monotone w.r.t. `(*)`
 > monotoneMultLTE : {a, b, c, d : Fraction} -> 
 >                   a `LTE` b -> c `LTE` d -> (a `mult` c) `LTE` (b `mult` d)
+> monotoneMultLTE {a = (na, da')} {b = (nb, db')} {c = (nc, dc')} {d = (nd, dd')} aLTEb cLTEd = s13 where
+>   da : Nat
+>   da = toNat da'
+>   db : Nat
+>   db = toNat db'
+>   dc : Nat
+>   dc = toNat dc'
+>   dd : Nat
+>   dd = toNat dd'
+>   s01 : LTE (na * db) (nb * da)
+>   s01 = aLTEb
+>   s02 : LTE (nc * dd) (nd * dc)
+>   s02 = cLTEd
+>   s03 : LTE ((na * db) * (nc * dd)) ((nb * da) * (nc * dd))
+>   s03 = monotoneNatMultLTE s01 (NatLTEProperties.reflexiveLTE (nc * dd))
+>   s04 : LTE ((nc * dd) * (da * nb)) ((nd * dc) * (da * nb))
+>   s04 = monotoneNatMultLTE s02 (NatLTEProperties.reflexiveLTE (da * nb))
+>   s05 : LTE ((da * nb) * (nc * dd)) ((nd * dc) * (da * nb))
+>   s05 = replace {P = \ ZUZ => LTE ZUZ ((nd * dc) * (da * nb))} 
+>                 (multCommutative (nc * dd) (da * nb)) s04
+>   s06 : LTE ((nb * da) * (nc * dd)) ((nd * dc) * (da * nb))
+>   s06 = replace {P = \ ZUZ => LTE (ZUZ * (nc * dd)) ((nd * dc) * (da * nb))} 
+>                 (multCommutative da nb) s05
+>   s07 : LTE ((na * db) * (nc * dd)) ((nd * dc) * (da * nb))
+>   s07 = NatLTEProperties.transitiveLTE ((na * db) * (nc * dd)) ((nb * da) * (nc * dd)) ((nd * dc) * (da * nb)) s03 s06
+>   s08 : LTE ((na * nc) * (db * dd)) ((nd * dc) * (da * nb))
+>   s08 = replace {P = \ ZUZ => LTE ZUZ ((nd * dc) * (da * nb))} 
+>                 (multSwap23 na db nc dd) s07
+>   s09 : LTE ((na * nc) * (db * dd)) ((nd * nb) * (da * dc))
+>   s09 = replace {P = \ ZUZ => LTE ((na * nc) * (db * dd)) ZUZ} 
+>                 (multSwap24 nd dc da nb) s08
+>   s10 : LTE ((na * nc) * (db * dd)) ((nb * nd) * (da * dc))
+>   s10 = replace {P = \ ZUZ => LTE ((na * nc) * (db * dd)) (ZUZ * (da * dc))} 
+>                 (multCommutative nd nb) s09
+>   s11 : LTE ((na * nc) * (toNat (db' * dd'))) ((nb * nd) * (da * dc))
+>   s11 = replace {P = \ ZUZ => LTE ((na * nc) * ZUZ) ((nb * nd) * (da * dc))} 
+>                 (sym toNatMultLemma) s10
+>   s12 : LTE ((na * nc) * (toNat (db' * dd'))) ((nb * nd) * (toNat (da' * dc')))
+>   s12 = replace {P = \ ZUZ => LTE ((na * nc) * (toNat (db' * dd'))) ((nb * nd) * ZUZ)}
+>                 (sym toNatMultLemma) s11
+>   s13 : ((na, da') `mult` (nc, dc')) `LTE` ((nb, db') `mult` (nd, dd'))
+>   s13 = s12
+> %freeze monotoneMultLTE
 
-
-> {-
-
-> ---}
 

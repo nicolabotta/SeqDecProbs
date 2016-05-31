@@ -61,9 +61,10 @@ Properties of |fromFraction| and |toFraction|:
 >                         QED
 > %freeze fromToId
 
-> |||
-> lala : (x, y : Fraction) -> x `Eq` y -> fromFraction x = fromFraction y
-> lala x y xEqy = s7 where
+
+> ||| Equivalence of fractions implies equality of non-negative rationals 
+> fromFractionEqLemma : (x, y : Fraction) -> x `Eq` y -> fromFraction x = fromFraction y
+> fromFractionEqLemma x y xEqy = s7 where
 >   s1 : normalize x = normalize y
 >   s1 = normalizeEqLemma2 x y xEqy
 >   s2 : Normal (normalize x) = Normal (normalize y)
@@ -85,6 +86,7 @@ Properties of |fromFraction| and |toFraction|:
 >                 {f = \ ZUZU => \ ZAZA => Element ZUZU ZAZA} s1 s5 
 >   s7 : fromFraction x = fromFraction y
 >   s7 = s6
+> %freeze fromFractionEqLemma
 
 
 > ||| Denominators of non-negative rationals are greater than zero
