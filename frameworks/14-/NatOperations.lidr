@@ -22,8 +22,8 @@ Infix minus:
 
 Division:
 
-> quotient : (m : Nat) -> (d : Nat) -> d `Divisor` m -> Nat
-> quotient _ _ (Evidence q _) = q 
+> -- quotient : (m : Nat) -> (d : Nat) -> d `Divisor` m -> Nat
+> -- quotient _ _ (Evidence q _) = q 
 
 
 

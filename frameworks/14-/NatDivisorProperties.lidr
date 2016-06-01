@@ -280,6 +280,7 @@ Properties of |quotient|:
 >   ={ p }=
 >     ( m )
 >   QED
+> %freeze quotientAnyOneAny
 
 > |||
 > quotientPlusLemma : (m : Nat) -> (n : Nat) -> (d : Nat) -> 
@@ -294,6 +295,7 @@ Properties of |quotient|:
 >   ={ Refl }=
 >     ( quotient (m + n) d (divisorPlusLemma1 m n d (Element q1 p1) (Element q2 p2)) )
 >   QED
+> %freeze quotientPlusLemma
 
 > |||
 > quotientMultLemma : (m1 : Nat) -> (d1 : Nat) -> (d1Dm1 : d1 `Divisor` m1) ->
@@ -308,6 +310,7 @@ Properties of |quotient|:
 >   ={ Refl }=
 >     ( quotient (m1 * m2) (d1 * d2) (divisorMultLemma1 m1 d1 (Element q1 p1) m2 d2 (Element q2 p2)) )
 >   QED
+> %freeze quotientMultLemma
 
 > |||
 > quotientCancellationLemma : (m : Nat) -> (d : Nat) -> 
@@ -318,7 +321,7 @@ Properties of |quotient|:
 >   ={ multMultElimLeft (S d) (S d) q m Refl SIsNotZ prf }=
 >     ( m )
 >   QED
-
+> %freeze quotientCancellationLemma
 
 > quotientScaleInvariant : (m : Nat) -> (n : Nat) -> (d : Nat) -> Not (d * n = Z) ->
 >                          (nDm : n `Divisor` m) -> (dnDdm : (d * n) `Divisor` (d * m)) ->
@@ -338,7 +341,7 @@ Properties of |quotient|:
 >   ={ Refl }=
 >     ( quotient (d * m) (d * n) (Element q dnqEQdm) )
 >   QED
->        
+> %freeze quotientScaleInvariant
    
 > |||
 > quotientDivisorLemma : (d : Nat) -> (m : Nat) -> (n : Nat) ->
@@ -359,7 +362,8 @@ Properties of |quotient|:
 >                            (sym (multAssociative (S d) x y)) sdxyEQsdz
 >     xyEQz       :  x * y = z
 >     xyEQz       =  multMultElimLeft (S d) (S d) (x * y) z Refl SIsNotZ sdxyEQsdz'
-   
+> %freeze quotientDivisorLemma
+
 > |||
 > quotientDivisorLemma1 : (a : Nat) -> (b : Nat) -> (c : Nat) ->
 >                         (saDb : S a `Divisor` b) ->
@@ -405,24 +409,28 @@ Properties of |quotient|:
 >                          {y = quotient c (S a) (divisorTransitive {l = S a} {m = b} {n = c} saDb bDc)}
 >                          {P = \ ZUZU => (quotient b (S a) saDb) `Divisor` ZUZU}
 >                          (sym (quotientIsJustGetWitness c (S a) saDc)) prf2
+> %freeze quotientDivisorLemma1
 
->  flipQuotientLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
->                      (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) ->
->                      (quotient m d dDm) * n = m * (quotient n d dDn)
->  flipQuotientLemma m n d dDm dDn = 
->    let qmd = quotient m d dDm in
->    let qnd = quotient n d dDn in
->      ( qmd * n )
->    ={ cong {f = \ ZUZU => qmd * ZUZU} (sym (quotientLemma n d dDn)) }=
->      ( qmd * (d * qnd) )
->    ={ multAssociative qmd d qnd }=
->      ( (qmd * d) * qnd )
->    ={ cong {f = \ ZUZU => ZUZU * qnd} (multCommutative qmd d) }=
->      ( (d * qmd) * qnd )
->    ={ cong {f = \ ZUZU => ZUZU * qnd} (quotientLemma m d dDm) }=
->      ( m * qnd )
->    QED
+> |||
+> flipQuotientLemma : (m : Nat) -> (n : Nat) -> (d : Nat) ->
+>                     (dDm : d `Divisor` m) -> (dDn : d `Divisor` n) ->
+>                     (quotient m d dDm) * n = m * (quotient n d dDn)
+> flipQuotientLemma m n d dDm dDn = 
+>   let qmd = quotient m d dDm in
+>   let qnd = quotient n d dDn in
+>     ( qmd * n )
+>   ={ cong {f = \ ZUZU => qmd * ZUZU} (sym (quotientLemma n d dDn)) }=
+>     ( qmd * (d * qnd) )
+>   ={ multAssociative qmd d qnd }=
+>     ( (qmd * d) * qnd )
+>   ={ cong {f = \ ZUZU => ZUZU * qnd} (multCommutative qmd d) }=
+>     ( (d * qmd) * qnd )
+>   ={ cong {f = \ ZUZU => ZUZU * qnd} (quotientLemma m d dDm) }=
+>     ( m * qnd )
+>   QED
+> %freeze flipQuotientLemma
 
+> |||
 > quotientEqLemma : (m1 : Nat) -> (d1 : Nat) -> (d1Dm1 : d1 `Divisor` m1) ->
 >                   (m2 : Nat) -> (d2 : Nat) -> (d2Dm2 : d2 `Divisor` m2) ->
 >                   m1 = m2 -> d1 = d2 -> Not (d1 = Z) ->
@@ -436,6 +444,7 @@ Properties of |quotient|:
 >   ={ Refl }=
 >     ( quotient m d (Element q dqEQm) )
 >   QED
+> %freeze quotientEqLemma
 
 
 > {-

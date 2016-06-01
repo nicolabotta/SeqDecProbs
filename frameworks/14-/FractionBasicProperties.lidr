@@ -26,6 +26,7 @@
 >   s1 = toNatLTLemma (snd x)
 >   s2 : Z `LT` den x
 >   s2 = replace {P = \ ZUZU => Z `LT` ZUZU} Refl s1
+> %freeze denLTLemma
 
 
 > |||

@@ -46,6 +46,7 @@
 >   s3  :  Elem a (toVect fA)
 >   s3  =  replace {P = \ z => Elem z (toVect fA)} s2 s1
 > -}
+> %freeze toVectComplete -- frozen
 
 
 > ||| |toVect| representations of finite types are injective
@@ -60,6 +61,7 @@
 >                 (toVectRepr (from iso) i) (toVectRepr (from iso) j) s1
 >   s3 : i = j
 >   s3 = injectiveFrom iso i j s2
+> %freeze toVectInjective1 -- frozen
 
 
 Non empty finite types
@@ -67,6 +69,7 @@ Non empty finite types
 > |||
 > cardNotZLemma : {A : Type} -> (fA : Finite A) -> A -> CardNotZ fA
 > cardNotZLemma fA a = gtZisnotZ (elemLemma {n = card fA} a (toVect fA) (toVectComplete fA a))
+> %freeze cardNotZLemma -- frozen
 
 
 We want to show that, for a finite type |A| and a decidable predicate |P
@@ -88,6 +91,7 @@ With these premises, proving |finiteDecLemma| is almost straightforward:
 > finiteDecLemma fA dP with (decAny dP (toVect fA))
 >   | (Yes prf)   = Yes (AnyExistsLemma prf)
 >   | (No contra) = No (\ e => contra (ElemAnyLemma (getProof e) (toVectComplete fA (getWitness e))))
+> %freeze finiteDecLemma -- frozen
 
 We pattern match on |decAny dP (toVect fA)|: the result is either a |prf
 : Any P (toVect fA)| or a function |contra : Any P (toVect fA) ->
@@ -107,9 +111,12 @@ Finiteness of products
 > --   Evidence (m * n) (isoTrans (pairCong isoA isoB) finPairTimes)
 > finiteProduct {A} {B} (MkSigma _ isoA) (MkSigma _ isoB) =
 >   MkSigma _ (isoTrans (pairCong isoA isoB) finPairTimes)
+> %freeze finiteProduct -- frozen
+
 
 > finitePair : {A, B : Type} -> Finite A -> Finite B -> Finite (A, B)
 > finitePair = finiteProduct
+> %freeze finitePair -- frozen
 
 
 > {- we have to comply with the new |record| syntax for this to type check

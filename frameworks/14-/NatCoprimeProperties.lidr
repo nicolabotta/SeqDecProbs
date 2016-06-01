@@ -72,8 +72,7 @@
 >   let d'EQone    :  (d' = (S Z)) 
 >                  =  divisorAntisymmetric d' (S Z) d'Done oneDd' in
 >   MkCoprime d'EQone
-
-
+> %freeze gcdCoprimeLemma
 
 
 > {-

@@ -50,6 +50,7 @@ the following specification:
 >   ={ Refl }=
 >     ( go (foldrClassic f e (a :: as) ) )
 >   QED
+> %freeze foldrImplLemma
 
 Then we can specialise to when |go| is |id| as in the definition of
 |foldr|:
@@ -59,6 +60,7 @@ Then we can specialise to when |go| is |id| as in the definition of
 >                  (as : Vect n A) ->
 >                  foldrImpl f e Prelude.Basics.id as = foldrClassic f e as
 > foldrImplCorr f e as = foldrImplLemma f e Prelude.Basics.id as
+> %freeze foldrImplCorr
 
 Now we can continue with the proof:
 
@@ -75,6 +77,7 @@ Now we can continue with the proof:
 >   ={ Refl }=
 >     ( g a (foldr g e as) )
 >   QED
+> %freeze foldrVectLemma
 
 Finally we get to the one-step unfolding of |sum|:
 
@@ -87,6 +90,7 @@ Finally we get to the one-step unfolding of |sum|:
 >               ={ Refl }=
 >                 ( x + sum xs )
 >               QED
+> %freeze sumLemma
 
 The corresponding lemma for append (|++|) follows from the definition
 of append (because it is not defined in terms of |foldrImpl|)
@@ -98,6 +102,7 @@ of append (because it is not defined in terms of |foldrImpl|)
 >   ={ Refl }=
 >     ( x :: (xs ++ ys) )
 >   QED
+> %freeze appendLemma
 
 > |||
 > multSumLemma : (NumMultDistributesOverPlus t) =>
@@ -121,6 +126,7 @@ of append (because it is not defined in terms of |foldrImpl|)
 >                          ={ Refl }=
 >                            ( sum (multSV x (y :: ys)) )
 >                          QED
+> %freeze multSumLemma
 
 > sumsTo : Num t => (s : t) -> (xs : Vect m t) -> Type
 > sumsTo s xs = (sum xs = s)

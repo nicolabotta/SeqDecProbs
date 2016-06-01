@@ -40,6 +40,7 @@ Relationships of injectivity notions
 > ||| Injective1 implies Injective2
 > injectiveLemma : {A, B : Type} -> (f : A -> B) -> Injective1 f -> Injective2 f
 > injectiveLemma f i1f a1 a2 contra = contra . (i1f a1 a2)
+> %freeze injectiveLemma -- frozen
 
 
 Properties of constructive proofs
@@ -48,12 +49,14 @@ Properties of constructive proofs
 > nonInjectiveNotInjective : {A, B : Type} -> (f : A -> B) -> NonInjective f -> Not (Injective1 f)
 > nonInjectiveNotInjective f (Evidence a1 (Evidence a2 (na1eqa2 , fa1eqfa2))) =
 >   \ injectivef => na1eqa2 (injectivef a1 a2 fa1eqfa2)
+> %freeze nonInjectiveNotInjective -- frozen
 
 
 > ||| NonSurjective => Not Surjective
 > nonSurjectiveNotSurjective : {A, B : Type} -> (f : A -> B) -> NonSurjective f -> Not (Surjective f)
 > nonSurjectiveNotSurjective f (Evidence b faanfab) =
 >   \ surjectivef => let a = (getWitness (surjectivef b)) in (faanfab a) (getProof (surjectivef b))
+> %freeze nonSurjectiveNotSurjective -- frozen
 
 
 Properties of cross
@@ -61,8 +64,15 @@ Properties of cross
 > |||
 > crossAnyIdLemma : snd ((cross f Prelude.Basics.id) (a,b)) = snd (a,b)
 > crossAnyIdLemma {a} {b} {f} = Refl
+> %freeze crossAnyIdLemma -- frozen
 
 
 > |||
 > crossIdAnyLemma : fst ((cross Prelude.Basics.id f) (a,b)) = fst (a,b)
 > crossIdAnyLemma {a} {b} {f} = Refl
+> %freeze crossIdAnyLemma -- frozen
+
+
+> {-
+
+> ---}

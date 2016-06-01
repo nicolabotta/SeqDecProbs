@@ -33,6 +33,7 @@ Equality of projections:
 >                         {s2 : Subset A P} ->
 >                         (s1 = s2) -> (getWitness s1 = getWitness s2)
 > getWitnessPreservesEq {s1 = (Element a p)} {s2 = (Element a p)} Refl = Refl
+> %freeze getWitnessPreservesEq
 
 
 > ||| Equality of second projections
@@ -42,6 +43,7 @@ Equality of projections:
 >                       {s2 : Subset A P} ->
 >                       (s1 = s2) -> (getProof s1 = getProof s2)
 > getProofPreservesEq {s1 = (Element a p)} {s2 = (Element a p)} Refl = Refl
+> %freeze getProofPreservesEq
 
 
 Equality of Subset types:
@@ -55,9 +57,7 @@ Equality of Subset types:
 >                  (getProof s1 = getProof s2) ->
 >                  s1 = s2
 > subsetEqLemma2 {A} {P} {s1 = (Element a p)} {s2 = (Element a p)} Refl Refl = Refl
-
-subsetEqLemma2 {A} {P} {s1 = (Element a p)} {s2 = (Element a p)} r1 r2 = Refl
-subsetEqLemma2 r1 r2 = Refl
+> %freeze subsetEqLemma2
 
 
 > ||| Elimination and formation
@@ -66,6 +66,7 @@ subsetEqLemma2 r1 r2 = Refl
 >                  (s : Subset A P) ->
 >                  s = (Element (getWitness s) (getProof s))
 > subsetEqLemma0 (Element a p) = Refl
+> %freeze subsetEqLemma0
 
 
 > ||| Equality for singleton predicates
@@ -77,6 +78,7 @@ subsetEqLemma2 r1 r2 = Refl
 >                  Unique0 (P (getWitness s1)) ->
 >                  s1 = s2
 > subsetEqLemma1 (Element a p) (Element a q) Refl uP = cong (uP p q)
+> %freeze subsetEqLemma1
 
 
 Decidability of Subset equality:
@@ -94,20 +96,21 @@ Decidability of Subset equality:
 >     subsetDecEqLemma1 da d1p (Element a1 pa1) (Element a1 pa1) | (Yes Refl) | (Yes Refl) = Yes Refl
 >     subsetDecEqLemma1 da d1p (Element a1 pa1) (Element a1 pa2) | (Yes Refl) | (No contra) = No (\ eq => contra (getProofPreservesEq eq))
 >   subsetDecEqLemma1 da d1p (Element a1 pa1) (Element a2 pa2)   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
+> %freeze subsetDecEqLemma1
 
 
 > ||| Decidability of equality 2
 > subsetDecEqLemma2 : {A : Type} ->
 >                     {P : A -> Type} ->
 >                     (DecEq A) ->
->                     (Unique1 {t0 = A} P) ->
+>                     (Unique1 P) ->
 >                     (s1 : Subset A P) ->
 >                     (s2 : Subset A P) ->
 >                     Dec (s1 = s2)
 > subsetDecEqLemma2 da p1P s1 s2 with (decEq (getWitness s1) (getWitness s2))
 >   | (Yes prf)   = Yes (subsetEqLemma1 s1 s2 prf (p1P (getWitness s1)))
 >   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
-
+> %freeze subsetDecEqLemma2
 
 We want to show that |toVect| is complete
 
@@ -130,6 +133,7 @@ We start by deriving two auxiliary results. The first one is
 >                     Elem a (map Subset.getWitness (Sigma.getProof (toVectSubset fA d1P)))
 > toVectSubsetLemma {A} {P} fA d1P a p =
 >   filterTagSubsetLemma d1P a (toVect fA) (toVectComplete fA a) p
+> %freeze toVectSubsetLemma
 
 The proof is computed by applying |VectProperties.filterTagSubsetLemma|:
 
@@ -151,7 +155,7 @@ The second result is
 
 > subsetUniqueLemma1 : {A   : Type} ->
 >                      {P   : A -> Type} ->
->                      (Unique1 {t0 = A} P) ->
+>                      (Unique1 P) ->
 >                      (a : A) ->
 >                      (p : P a) ->
 >                      (ss : Vect n (Subset A P)) ->
@@ -163,6 +167,7 @@ The second result is
 >     Here {x = (Element a p)} {xs = ss}
 > subsetUniqueLemma1 u1P a1 p1 ((Element a2 p2) :: ss) (There prf) =
 >   There (subsetUniqueLemma1 u1P a1 p1 ss prf)
+> %freeze subsetUniqueLemma1
 
 With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 |toVect| is complete:
@@ -171,7 +176,7 @@ With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 >                        {P   : A -> Type} ->
 >                        (fA  : Finite A) ->
 >                        (d1P : Dec1 P) ->
->                        (Unique1 {t0 = A} P) ->
+>                        (Unique1 P) ->
 >                        (s   : Subset A P) ->
 >                        Elem s (getProof (toVectSubset fA d1P))
 > toVectSubsetComplete fA d1P u1P (Element a p) = s1 where
@@ -179,7 +184,7 @@ With |toVectLemma| and |subsetUniqueLemma1|, it is easy to show that
 >   s0 = toVectSubsetLemma fA d1P a p
 >   s1 : Elem (Element a p) (getProof (toVectSubset fA d1P))
 >   s1 = subsetUniqueLemma1 u1P a p (getProof (toVectSubset fA d1P)) s0
-
+> %freeze toVectSubsetComplete
 
 > {-
 > toVectSubsetInjective1 : {A   : Type} ->
@@ -200,7 +205,6 @@ Subset Fin properties:
 >     uninhabited (Element k _) = absurd k
 
 
-
 > |||
 > isoReplaceLemma1 : {A, A' : Type} ->  {B : A -> Type} -> {B' : A' -> Type} ->
 >                    (isoA : Iso A A') ->
@@ -216,6 +220,7 @@ Subset Fin properties:
 >   s1 = toFrom (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')
 >   s2 : replace (sym (toFrom isoA a')) b' = b'
 >   s2 = replaceLemma (sym (toFrom isoA a')) b'
+> %freeze isoReplaceLemma1
 
 
 > |||
@@ -246,8 +251,10 @@ Subset Fin properties:
 >                  s1
 >   s3 : from (isoBa a) (to (isoBa a) b) = b
 >   s3 = fromTo (isoBa a) b
+> %freeze isoReplaceLemma2
 
 
+> |||
 > subsetIsoLemma :  (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) ->
 >                   (isoA : Iso A A') ->
 >                   (isoBa  : (a : A) -> Iso (B a) (B' (to isoA a)) ) ->
@@ -304,14 +311,16 @@ Subset Fin properties:
 >                               {s2 = (Element a b)}
 >                               (fromTo isoA a)
 >                               (isoReplaceLemma2 isoA isoBa a b)
+> %freeze subsetIsoLemma
 
 
 > ||| |Subset (Fin Z) P| are void
 > voidSubsetFinZ : {P : Fin Z -> Type} -> Iso (Subset (Fin Z) P) Void
 > voidSubsetFinZ = MkIso (\x => void (uninhabited x))
->                       (\x => void x)
->                       (\x => void x)
->                       (\x => void (uninhabited x))
+>                        (\x => void x)
+>                        (\x => void x)
+>                        (\x => void (uninhabited x))
+> %freeze voidSubsetFinZ
 
 
 > ||| Decomposition lemma
@@ -331,8 +340,10 @@ Subset Fin properties:
 >   fromTo : (s : Subset (Fin (S n)) P) -> from (to s) = s
 >   fromTo (Element FZ j) = Refl
 >   fromTo (Element (FS k) j) = Refl
+> %freeze subsetEitherLemma
 
 
+> |||
 > subsetFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
 >                       Iso
 >                       (Subset (Fin (S n)) (Fin . f))
@@ -356,6 +367,7 @@ Subset Fin properties:
 >   ={ isoRefl }=
 >     ( Either (Fin (f FZ)) (Subset (Fin n) (Fin . (tail f)))            )
 >   QED
+> %freeze subsetFinEitherLemma
 
 
 > ||| |finDepPairTimes| for dependent pairs
@@ -380,10 +392,12 @@ Subset Fin properties:
 >   ={ isoRefl }=
 >     ( Fin (sum f)                                                   )
 >   QED
+> %freeze finDepPairTimes
 
 
 Subset Exists properties
 
+> |||
 > subsetExistsLemma : {A : Type} -> {P : A -> Type} ->
 >                    Iso (Subset A P) (Exists P)
 > subsetExistsLemma {A} {P} = MkIso to from toFrom fromTo where
@@ -395,6 +409,7 @@ Subset Exists properties
 >   toFrom (Evidence _ _) = Refl
 >   fromTo : (s : Subset A P) -> from (to s) = s
 >   fromTo (Element _ _) = Refl
+> %freeze subsetExistsLemma
 
 
 Finitess properties
@@ -427,8 +442,10 @@ Finitess properties
 >            -- s6 k = iso (f1P (from isoA k))
 >          step2 : Iso (Subset (Fin n) (Fin . f)) (Fin sumf)
 >          step2 = finDepPairTimes {n} {f}
+> %freeze finiteSubsetLemma0
 
 
+> |||
 > finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Exists {a = A} P)
 > finiteExistsLemma {A} {P} fA f1P = MkSigma n iE where
@@ -440,6 +457,7 @@ Finitess properties
 >   iS = iso fS
 >   iE : Iso (Exists {a = A} P) (Fin n)
 >   iE = isoTrans (isoSym (subsetExistsLemma {A} {P})) iS
+> %freeze finiteExistsLemma
 
 
 Finite  A           ~= (n ** Iso A (Fin n))

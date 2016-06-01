@@ -15,6 +15,7 @@
 >   contra : Not P -> Void
 >   contra np = np prf
 > decNot {P} (No contra) = Yes contra
+> %freeze decNot -- frozen
 
 
 > ||| If |P| and |Q| are decidable, |(P , Q)| is decidable
@@ -23,6 +24,7 @@
 > decPair (Yes p) (No nq) = No (\ pq => nq (snd pq))
 > decPair (No np) (Yes q) = No (\ pq => np (fst pq))
 > decPair (No np) (No nq) = No (\ pq => np (fst pq))
+> %freeze decPair -- frozen
 
 
 > ||| If |P| and |Q| are decidable, |Either P Q| is decidable
@@ -33,3 +35,4 @@
 >   contra : Either P Q -> Void
 >   contra (Left  p) = np p
 >   contra (Right q) = nq q
+> %freeze decEither -- frozen

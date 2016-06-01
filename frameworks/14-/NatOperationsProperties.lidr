@@ -21,6 +21,7 @@ Properties of |pred|:
 > predLemma : (n : Nat) -> (prf : Z `LT` n) -> S (pred n prf) = n
 > predLemma  Z    prf = absurd prf
 > predLemma (S m) _   = Refl
+> %freeze predLemma
 
 
 Properties of |=|:
@@ -360,6 +361,7 @@ Properties of |mult|:
 >                     (multCommutative n1 m1) (multCommutative n2 m2) s3
 >     s5  :  n1 = n2
 >     s5  =  multMultElimLeft m1 m2 n1 n2 m1EQm2 nm1EQZ s4
+> %freeze multMultElimLeft --
 
 > |||
 > multMultElimRight : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
@@ -369,6 +371,7 @@ Properties of |mult|:
 >   multMultElimLeft n1 n2 m1 m2 n1EQn2 nn1EQZ prf' where
 >     prf' : n1 * m1 = n2 * m2
 >     prf' = replace2 (multCommutative m1 n1) (multCommutative m2 n2) prf
+> %freeze multMultElimRight --
 
 > |||
 > multElim1 : (m : Nat) -> (n : Nat) -> (S m) * n = S m -> n = S Z
@@ -437,6 +440,7 @@ Properties of |mult|:
 >                    ={ Refl }=
 >                      ( (a * c) * (b * d) )
 >                    QED
+> %freeze multSwap23
 
 > |||
 > multSwap24 : (a, b, c, d : Nat) -> (a * b) * (c * d) = (a * d) * (c * b)
@@ -448,6 +452,7 @@ Properties of |mult|:
 >                    ={ cong {f = \ ZUZU => (a * d) * ZUZU} (multCommutative b c) }=
 >                      ( (a * d) * (c * b) )
 >                    QED
+> %freeze multSwap24
 
 > |||
 > multFlipCentre : (m1 : Nat) -> (m2 : Nat) -> (n1 : Nat) -> (n2 : Nat) ->
@@ -489,16 +494,7 @@ Properties of |sum|:
 >   s4 = sumMon f g p as
 >   s5 : sum (map f (a :: as)) `LTE` sum (map g (a :: as))
 >   s5 = monotoneNatPlusLTE s3 s4
-
-
-> {-
-> ||| |min| is monotone
-> postulate minMon : {A : Type} ->
->                    (f : A -> Nat) -> (g : A -> Nat) ->
->                    (p : (a : A) -> f a `LTE` g a) ->
->                    (as : List A) ->
->                    min (map f as) `LTE` min (map g as) 
-> -}
+> %freeze sumMon
 
 
 > {-

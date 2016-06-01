@@ -24,6 +24,7 @@
 > |||
 > predToNatLemma : (x : PNat) -> S (pred x) = toNat x
 > predToNatLemma (Element _ (MkPositive {n})) = Refl
+> %freeze predToNatLemma
 
 
 > |||

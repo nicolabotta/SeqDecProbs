@@ -35,6 +35,7 @@ Basic properties
 > toFinLemma0   Z    (S a) (LTESucc prf) = Refl
 > toFinLemma0  (S m) (S a) (LTESucc prf) = let ih = toFinLemma0 m a prf
 >                                          in rewrite ih in Refl
+> %freeze toFinLemma0 -- frozen
 
 
 > |||
@@ -47,6 +48,7 @@ Basic properties
 >   ={ cong (toFinLemma0 n b prf) }=       -- |toFinLemma0|, functionality of |S|
 >     ( S n                              )
 >   QED
+> %freeze toFinLemma1 -- frozen
 
 
 > |||
@@ -108,6 +110,7 @@ Basic properties
 >                  (toFinLemma0 n b prf)
 >                  (toFinLemma2 n b prf)
 > ---}
+> %freeze toFinLemma2 -- frozen
 
 
 > |||
@@ -140,6 +143,7 @@ Basic properties
 >        =
 >        LTESucc prf
 >   s2 = toFinLemma2 (S n) (S b) (LTESucc prf)
+> %freeze toFinLemma3 -- frozen
 
 
 > {-
@@ -157,6 +161,7 @@ Basic properties
 >   let ih = toFinFromFinLemma k in
 >   rewrite ih in
 >   Refl
+> %freeze toFinFromFinLemma -- frozen
 
 
 > ||| |fromFin| is the left-inverse of |toFin|
@@ -184,6 +189,7 @@ Basic properties
 >   s5 = depCong2 {f = MkSigma {a = Nat} {P = \ i => LT i (S m)}} s3 s4
 >   s6 : fromFin (toFin (MkSigma (S n) (LTESucc prf))) = MkSigma (S n) (LTESucc prf)
 >   s6 = trans s1 (trans s2 s5)
+> %freeze fromFinToFinLemma -- frozen
 
 
 Finitness properties
@@ -193,6 +199,8 @@ Finitness properties
 > finiteLTB b = MkSigma b iso where
 >   iso : Iso (LTB b) (Fin b)
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma
+> %freeze finiteLTB -- frozen
+
 
 > {-
 > ||| Subtypes of bounded |Nat|s are finite:
@@ -208,6 +216,8 @@ Decidability properties
 > decEqLTB {b} (MkSigma m p) (MkSigma n q) with (decEq m n)
 >   | (Yes prf)   = Yes (sigmaEqLemma1 (MkSigma m p) (MkSigma n q) prf (uniqueLT))
 >   | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
+> %freeze decEqLTB -- frozen
+
 
 > implementation DecEq (LTB b) where
 >   decEq {b} i j = decEqLTB {b} i j

@@ -16,21 +16,25 @@
 > ||| Mapping |Void|s to |Fin|s
 > toFin : Void -> Fin Z
 > toFin = void
+> %freeze toFin
 
 
 > ||| Mapping |Fin Z|s to |Void|s
 > fromFin : Fin Z -> Void
 > fromFin k = absurd k
+> %freeze fromFin 
 
 
 > ||| |toFin| is the left-inverse of |fromFin|
 > toFinFromFinLemma : (k : Fin Z) -> toFin (fromFin k) = k
 > toFinFromFinLemma k = absurd k
+> %freeze toFinFromFinLemma
 
 
 > ||| |fromFin| is the left-inverse of |toFin|
 > fromFinToFinLemma : (e : Void) -> fromFin (toFin e) = e
 > fromFinToFinLemma e = void e
+> %freeze fromFinToFinLemma
 
 
 > ||| Void is finite
@@ -38,6 +42,7 @@
 > finiteVoid = MkSigma Z iso where
 >   iso : Iso Void (Fin Z)
 >   iso = MkIso toFin fromFin toFinFromFinLemma fromFinToFinLemma
+> %freeze finiteVoid
 
 
 > {-

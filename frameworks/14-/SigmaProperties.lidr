@@ -32,6 +32,7 @@ Equality of projections:
 >                         {s2 : Sigma A P} ->
 >                         .(s1 = s2) -> (getWitness s1 = getWitness s2)
 > getWitnessPreservesEq {s1 = MkSigma a p} {s2 = MkSigma a p} Refl = Refl
+> %freeze getWitnessPreservesEq
 
 
 > ||| Equality of second projections
@@ -41,6 +42,7 @@ Equality of projections:
 >                       {s2 : Sigma A P} ->
 >                       .(s1 = s2) -> (getProof s1 = getProof s2)
 > getProofPreservesEq {s1 = MkSigma a p} {s2 = MkSigma a p} Refl = Refl
+> %freeze getProofPreservesEq
 
 
 Equality of Sigma types:
@@ -54,6 +56,7 @@ Equality of Sigma types:
 >                 .(getProof s1 = getProof s2) ->
 >                 s1 = s2
 > sigmaEqLemma2 {A} {P} {s1 = MkSigma a p} {s2 = MkSigma a p} Refl Refl = Refl
+> %freeze sigmaEqLemma2
 
 
 > ||| Elimination and formation
@@ -62,6 +65,7 @@ Equality of Sigma types:
 >                 .(s: Sigma A P) ->
 >                 s = MkSigma (getWitness s) (getProof s)
 > sigmaEqLemma0 (MkSigma a p) = Refl
+> %freeze sigmaEqLemma0
 
 
 > ||| Equality for singleton predicates
@@ -75,6 +79,7 @@ Equality of Sigma types:
 > -- sigmaEqLemma1 (a ** p) (a ** q) Refl uP = cong (uP p q)
 > sigmaEqLemma1 (MkSigma a p) (MkSigma a' q) prf uP with (prf)
 >   sigmaEqLemma1 (MkSigma a p) (MkSigma a q) prf uP | (Refl) = cong (uP p q)
+> %freeze sigmaEqLemma1
 
 
 Decidability of Sigma equality:
@@ -82,30 +87,31 @@ Decidability of Sigma equality:
 > ||| Decidability of equality 1
 > sigmaDecEqLemma1 : {A : Type} ->
 >                    {P : A -> Type} ->
->                    .(DecEq0 A) ->
->                    .(DecEq1 P) ->
->                    .(s1 : Sigma A P) ->
->                    .(s2 : Sigma A P) ->
+>                    (DecEq0 A) ->
+>                    (DecEq1 P) ->
+>                    (s1 : Sigma A P) ->
+>                    (s2 : Sigma A P) ->
 >                    Dec (s1 = s2)
 > sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a2 pa2)     with (da a1 a2)
 >   sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a1 pa2)   | (Yes Refl) with ((d1p a1) pa1 pa2)
 >     sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a1 pa1) | (Yes Refl) | (Yes Refl) = Yes Refl
 >     sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a1 pa2) | (Yes Refl) | (No contra) = No (\ eq => contra (getProofPreservesEq eq))
 >   sigmaDecEqLemma1 da d1p (MkSigma a1 pa1) (MkSigma a2 pa2)   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
+> %freeze sigmaDecEqLemma1
 
 
 > ||| Decidability of equality 2
 > sigmaDecEqLemma2 : {A : Type} ->
 >                    {P : A -> Type} ->
->                    .(DecEq A) ->
->                    .(Unique1 {t0 = A} P) ->
->                    .(s1 : Sigma A P) ->
->                    .(s2 : Sigma A P) ->
+>                    (DecEq A) ->
+>                    (Unique1 P) ->
+>                    (s1 : Sigma A P) ->
+>                    (s2 : Sigma A P) ->
 >                    Dec (s1 = s2)
 > sigmaDecEqLemma2 da p1P s1 s2 with (decEq (getWitness s1) (getWitness s2))
 >   | (Yes prf)   = Yes (sigmaEqLemma1 s1 s2 prf (p1P (getWitness s1)))
 >   | (No contra) = No (\ eq => contra (getWitnessPreservesEq eq))
-
+> %freeze sigmaDecEqLemma2
 
 We want to show that |toVect| is complete
 
@@ -119,6 +125,7 @@ We want to show that |toVect| is complete
 
 We start by deriving two auxiliary results. The first one is
 
+> |||
 > toVectSigmaLemma : {A : Type} ->
 >                    {P : A -> Type} ->
 >                    .(fA : Finite A) ->
@@ -128,6 +135,7 @@ We start by deriving two auxiliary results. The first one is
 >                    Elem a (map Sigma.getWitness (getProof (toVectSigma fA d1P)))
 > toVectSigmaLemma {A} {P} fA d1P a p =
 >   filterTagSigmaLemma d1P a (toVect fA) (toVectComplete fA a) p
+> %freeze toVectSigmaLemma
 
 The proof is computed by applying |VectProperties.filterTagSigmaLemma|:
 
@@ -147,11 +155,12 @@ form, |toVectLemma| does not type check.
 
 The second result is
 
+> |||
 > sigmaUniqueLemma1 : {A   : Type} ->
 >                     {P   : A -> Type} ->
->                     .(Unique1 {t0 = A} P) ->
->                     .(a : A) ->
->                     .(p : P a) ->
+>                     (Unique1 P) ->
+>                     (a : A) ->
+>                     (p : P a) ->
 >                     (ss : Vect n (Sigma A P)) ->
 >                     (Elem a (map Sigma.getWitness ss)) ->
 >                     Elem (MkSigma a p) ss
@@ -161,24 +170,25 @@ The second result is
 >     Here {x = (MkSigma a p)} {xs = ss}
 > sigmaUniqueLemma1 u1P a1 p1 ((MkSigma a2 p2) :: ss) (There prf) =
 >   There (sigmaUniqueLemma1 u1P a1 p1 ss prf)
-
+> %freeze sigmaUniqueLemma1
 
 With |toVectLemma| and |sigmaUniqueLemma1|, it is easy to show that
 |toVect| is complete:
 
+> |||
 > toVectSigmaComplete : {A   : Type} ->
 >                       {P   : A -> Type} ->
->                       .(fA  : Finite A) ->
->                       .(d1P : Dec1 P) ->
->                       .(Unique1 {t0 = A} P) ->
->                       .(s   : Sigma A P) ->
+>                       (fA  : Finite A) ->
+>                       (d1P : Dec1 P) ->
+>                       (u1P : Unique1 P) ->
+>                       (s   : Sigma A P) ->
 >                       Elem s (getProof (toVectSigma fA d1P))
 > toVectSigmaComplete fA d1P u1P (MkSigma a p) = s1 where
 >   s0 : Elem a (map Sigma.getWitness (getProof (toVectSigma fA d1P)))
 >   s0 = toVectSigmaLemma fA d1P a p
 >   s1 : Elem (MkSigma a p) (getProof (toVectSigma fA d1P))
 >   s1 = sigmaUniqueLemma1 u1P a p (getProof (toVectSigma fA d1P)) s0
-
+> %freeze toVectSigmaComplete
 
 > {-
 > toVectSigmaInjective1 : {A   : Type} ->
@@ -199,7 +209,6 @@ Sigma Fin properties:
 >     uninhabited (MkSigma k _) = absurd k
 
 
-
 > |||
 > isoReplaceLemma1 : {A, A' : Type} ->  {B : A -> Type} -> {B' : A' -> Type} ->
 >                    (isoA : Iso A A') ->
@@ -215,6 +224,7 @@ Sigma Fin properties:
 >   s1 = toFrom (isoBa (from isoA a')) (replace (sym (toFrom isoA a')) b')
 >   s2 : replace (sym (toFrom isoA a')) b' = b'
 >   s2 = replaceLemma (sym (toFrom isoA a')) b'
+> %freeze isoReplaceLemma1
 
 
 > |||
@@ -245,8 +255,10 @@ Sigma Fin properties:
 >                  s1
 >   s3 : from (isoBa a) (to (isoBa a) b) = b
 >   s3 = fromTo (isoBa a) b
+> %freeze isoReplaceLemma2
 
 
+> |||
 > sigmaIsoLemma :  (A : Type) -> (A' : Type) ->  (B : A -> Type) -> (B' : A' -> Type) ->
 >                  (isoA : Iso A A') ->
 >                  (isoBa  : (a : A) -> Iso (B a) (B' (to isoA a)) ) ->
@@ -303,6 +315,7 @@ Sigma Fin properties:
 >                              {s2 = MkSigma a b}
 >                              (fromTo isoA a)
 >                              (isoReplaceLemma2 isoA isoBa a b)
+> %freeze sigmaIsoLemma
 
 
 > ||| |Sigma (Fin Z) P| are void
@@ -311,6 +324,7 @@ Sigma Fin properties:
 >                       (\x => void x)
 >                       (\x => void x)
 >                       (\x => void (uninhabited x))
+> %freeze voidSigmaFinZ
 
 
 > ||| Decomposition lemma
@@ -330,8 +344,10 @@ Sigma Fin properties:
 >   fromTo : (s : Sigma (Fin (S n)) P) -> from (to s) = s
 >   fromTo (MkSigma  FZ    j) = Refl
 >   fromTo (MkSigma (FS k) j) = Refl
+> %freeze sigmaEitherLemma
 
 
+> |||
 > sigmaFinEitherLemma : {n : Nat} -> {f : Fin (S n) -> Nat} ->
 >                       Iso
 >                       (Sigma (Fin (S n)) (Fin . f))
@@ -356,6 +372,7 @@ Sigma Fin properties:
 >   ={ isoRefl }= 
 >     ( Either (Fin (f FZ)) (Sigma (Fin n) (Fin . (tail f)))            )
 >   QED
+> %freeze sigmaFinEitherLemma
 
 
 > ||| |finDepPairTimes| for dependent pairs
@@ -380,10 +397,11 @@ Sigma Fin properties:
 >   ={ isoRefl }=
 >     ( Fin (sum f)                                                   )
 >   QED
-
+> %freeze finDepPairTimes
 
 Sigma Exists properties
 
+> |||
 > sigmaExistsLemma : {A : Type} -> {P : A -> Type} ->
 >                    Iso (Sigma A P) (Exists P)
 > sigmaExistsLemma {A} {P} = MkIso to from toFrom fromTo where
@@ -395,6 +413,7 @@ Sigma Exists properties
 >   toFrom (Evidence _ _) = Refl
 >   fromTo : (s : Sigma A P) -> from (to s) = s
 >   fromTo (MkSigma _ _) = Refl
+> %freeze sigmaExistsLemma
 
 
 Finitess properties
@@ -427,8 +446,10 @@ Finitess properties
 >            -- s6 k = iso (f1P (from isoA k))
 >          step2 : Iso (Sigma (Fin n) (Fin . f)) (Fin sumf)
 >          step2 = finDepPairTimes {n} {f}
+> %freeze finiteSigmaLemma0
 
 
+> |||
 > finiteExistsLemma : {A : Type} -> {P : A -> Type} ->
 >                     Finite A -> Finite1 P -> Finite (Exists {a = A} P)
 > finiteExistsLemma {A} {P} fA f1P = MkSigma n iE where
@@ -440,6 +461,7 @@ Finitess properties
 >   iS = iso fS
 >   iE : Iso (Exists {a = A} P) (Fin n)
 >   iE = isoTrans (isoSym (sigmaExistsLemma {A} {P})) iS
+> %freeze finiteExistsLemma
 
 
 Finite  A           ~= MkSigma n (Iso A (Fin n))

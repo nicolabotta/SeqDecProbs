@@ -24,3 +24,5 @@
 >                       Finite A -> Dec1 P -> (uP : Unique1 P) ->
 >                       Finite (SubType A P uP)
 > finiteSubTypeLemma0 fA dP uP = finiteSigmaLemma0 fA (\ a => decUniqueFiniteLemma (dP a) (uP a))
+> %freeze finiteSubTypeLemma0 -- frozen
+

@@ -10,7 +10,6 @@
 > import NonNegRationalLTEProperties
 > import Fraction
 > import FractionNormal
-> -- import NatPositive
 > import ListProperties 
  
 > %default total
@@ -87,6 +86,7 @@ Properties of |sum|, |average|:
 >   s2 = reflexiveLTE (factor (map f as))
 >   s3 : factor (map f as) `LTE` factor (map g as)
 >   s3 = replace {P = \ ZUZU => factor (map f as) `LTE` ZUZU} (factorLemma as f g) s2
+> %freeze monotoneAverage
 
 
 > {-

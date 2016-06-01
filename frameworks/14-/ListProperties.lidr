@@ -52,6 +52,7 @@
 >                     a `Elem` as -> ListOperations.NonEmpty as
 > elemNonEmptySpec0 _  Nil      p = absurd p
 > elemNonEmptySpec0 _ (a :: as) _ = ()
+> %freeze elemNonEmptySpec0
 
 > |||
 > elemNonEmptySpec1 : {A : Type} ->
@@ -59,6 +60,7 @@
 >                     ListOperations.NonEmpty as -> Sigma A (\ a => a `Elem` as)
 > elemNonEmptySpec1  Nil      c = void c
 > elemNonEmptySpec1 (a :: as) _ = MkSigma a Here 
+> %freeze elemNonEmptySpec1
 
 > -- containerMonadSpec1 : a `Elem` (ret a)
 
@@ -78,6 +80,7 @@
 
 Specific container monad properties
 
+> |||
 > uniqueAllLemma : {A : Type} -> {P : A -> Type} -> 
 >                  Unique1 P -> (as : List A) -> Unique (All P as)
 > uniqueAllLemma u1P  Nil      Nil Nil = Refl
@@ -88,6 +91,7 @@ Specific container monad properties
 >   ={ replace {P = \ ZUZU => pa' :: pas = pa' :: ZUZU} (uniqueAllLemma u1P as pas pas') Refl }=
 >     ( pa' :: pas' ) 
 >   QED   
+> %freeze uniqueAllLemma
 
 
 > ||| 
@@ -102,6 +106,7 @@ Specific container monad properties
 >   toFrom () = Refl
 >   fromTo : (nil : All P Nil) -> from (to nil) = nil
 >   fromTo Nil = Refl
+> %freeze finiteAllLemma0
 
 
 > |||
@@ -117,6 +122,7 @@ Specific container monad properties
 >   toFrom (pa, pas) = Refl
 >   fromTo : (papas : All P (a :: as)) -> from (to papas) = papas
 >   fromTo (pa :: pas) = Refl
+> %freeze finiteAllLemma1
 
 
 > |||
@@ -148,19 +154,21 @@ Specific container monad properties
 >   iso3 = finPairTimes
 >   iso  : Iso (All P (a :: as)) (Fin n)
 >   iso  = isoTrans iso1 (isoTrans iso2 iso3)
+> %freeze finiteAllLemma
+
 
 > |||
 > finiteAll : {A : Type} -> {P : A -> Type} -> 
 >             Finite1 P -> (as : List A) -> Finite (All P as)
 > finiteAll = finiteAllLemma
+> %freeze finiteAll
 
 
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (as : List A) -> Finite (ListOperations.NonEmpty as)
 > finiteNonEmpty  Nil      = finiteVoid
 > finiteNonEmpty (a :: as) = finiteUnit
-
-
+> %freeze finiteNonEmpty
 
 
 Fusion-related properties:

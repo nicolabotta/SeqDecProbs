@@ -16,15 +16,21 @@
 >   (==) Minus Zero  = False
 >   (==) Minus Plus  = False
 
-
+> |||
 > plusNotZero : Plus = Zero -> Void
 > plusNotZero Refl impossible
+> %freeze plusNotZero
 
+> |||
 > plusNotMinus : Plus = Minus -> Void
 > plusNotMinus Refl impossible
+> %freeze plusNotMinus
 
+> |||
 > zeroNotMinus : Zero = Minus -> Void
 > zeroNotMinus Refl impossible
+> %freeze zeroNotMinus
+
 
 > instance DecEq Sign where
 >   decEq Plus Plus   = Yes Refl

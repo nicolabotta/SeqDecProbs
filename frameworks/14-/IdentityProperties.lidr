@@ -19,7 +19,7 @@
 > ||| Id is injective
 > injectiveId : {a : Type} -> {left : a} -> {right : a} -> (Id left) = (Id right) -> left = right
 > injectiveId Refl = Refl
-
+> %freeze injectiveId -- frozen
 
 Id is a container monad:
 
@@ -28,6 +28,7 @@ Id is a container monad:
 >                     (a : A) -> (ia : Identity A) ->
 >                     a `Elem` ia -> NonEmpty ia
 > elemNonEmptySpec0 a (Id a) Refl = ()   
+> %freeze elemNonEmptySpec0 -- frozen
 
 > ||| 
 > elemNonEmptySpec1 : {A : Type} ->
@@ -35,6 +36,7 @@ Id is a container monad:
 >                     NonEmpty ia -> 
 >                     Sigma A (\ a => a `Elem` ia)
 > elemNonEmptySpec1 (Id a) _ = (MkSigma a Refl)
+> %freeze elemNonEmptySpec1 -- frozen
 
 
 Container monad decidability:
@@ -44,6 +46,7 @@ Container monad decidability:
 > decElem dec a1 (Id a2) with (dec a1 a2)
 >   | (Yes prf)   = Yes prf
 >   | (No contra) = No contra
+> %freeze decElem -- frozen
 
 
 Container monad uniqueness:
@@ -51,6 +54,7 @@ Container monad uniqueness:
 > ||| |Elem| is unique
 > uniqueElem : {A : Type} -> UniqueEq0 A -> (a : A) -> (ma : Identity A) -> Unique (a `Elem` ma)
 > uniqueElem unique a1 (Id a2) p q = unique a1 a2 p q
+> %freeze uniqueElem -- frozen
 
 
 Show
@@ -67,13 +71,20 @@ Specific container monad properties
 >                 (ia : Identity A) -> 
 >                 NonEmpty ia
 > nonEmptyLemma (Id a) = elemNonEmptySpec0 a (Id a) Refl                
+> %freeze nonEmptyLemma -- frozen
 
 > ||| All is finite
 > finiteAll : {A : Type} -> {P : A -> Type} ->
 >             Finite1 P -> (ia : Identity A) -> Finite (All P ia)
 > finiteAll f1P (Id a) = f1P a
-
+> %freeze finiteAll -- frozen
 
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (ia : Identity A) -> Finite (NonEmpty ia)
 > finiteNonEmpty _ = finiteUnit
+> %freeze finiteNonEmpty -- frozen
+
+
+> {-
+
+> ---}

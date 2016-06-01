@@ -1,8 +1,8 @@
 > module Unique -- from an idea by Tim Richter
 
 > %default total
-
 > %access public export
+> %auto_implicits off
 
 
 > Unique : Type -> Type
@@ -11,8 +11,8 @@
 > Unique0 : Type -> Type
 > Unique0 = Unique
 
-> Unique1 : (t0 -> Type) -> Type
-> Unique1 {t0} t1 = (v : t0) -> Unique0 (t1 v)
+> Unique1 : {A : Type} -> (A -> Type) -> Type
+> Unique1 {A} P = (a : A) -> Unique0 (P a)
 
 > UniqueEq0 : Type -> Type
 > UniqueEq0 A = (a1 : A) -> (a2 : A) -> Unique (a1 = a2)

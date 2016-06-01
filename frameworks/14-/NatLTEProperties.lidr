@@ -28,7 +28,7 @@ LTE is decidable:
 >   | (Yes p) = Yes (LTESucc p)
 >   | (No contra) = No (\ p => contra (fromLteSucc p))
 > ---}
-> -- %freeze decLTE
+> %freeze decLTE
 
 
 |LTE| is a total preorder:
@@ -36,14 +36,14 @@ LTE is decidable:
 > ||| LTE is reflexive
 > reflexiveLTE : (n : Nat) -> LTE n n
 > reflexiveLTE n = lteRefl {n}
-> --%freeze reflexiveLTE
+> %freeze reflexiveLTE
 
 > ||| LTE is transitive
 > transitiveLTE : (m : Nat) -> (n : Nat) -> (o : Nat) ->
 >                 LTE m n -> LTE n o -> LTE m o
 > transitiveLTE  Z       n     o   LTEZero                 nlteo  = LTEZero
 > transitiveLTE (S m) (S n) (S o) (LTESucc mlten) (LTESucc nlteo) = LTESucc (transitiveLTE m n o mlten nlteo)
-> --%freeze transitiveLTE
+> %freeze transitiveLTE
 
 > ||| LTE is total
 > totalLTE : (m : Nat) -> (n : Nat) -> Either (LTE m n) (LTE n m)
@@ -52,7 +52,7 @@ LTE is decidable:
 > totalLTE (S m) (S n) with (totalLTE m n)
 >   | (Left  p) = Left  (LTESucc p)
 >   | (Right p) = Right (LTESucc p)
-> --%freeze totalLTE
+> %freeze totalLTE
 
 
 Properties of |LTE| and successor:
@@ -124,7 +124,7 @@ Properties of |LTE| and |plus|:
 >   absurd aLTEb
 > monotoneNatPlusLTE {a = S m} {b = S n} {c} {d} (LTESucc p) cLTEd = 
 >   LTESucc (monotoneNatPlusLTE {a = m} {b = n} {c = c} {d = d} p cLTEd)
-> --%freeze monotoneNatPlusLTE
+> %freeze monotoneNatPlusLTE
 
 > |||
 > elimRightPlusLTE : {a, b, c, d : Nat} ->

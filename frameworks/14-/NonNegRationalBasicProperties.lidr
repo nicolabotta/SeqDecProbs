@@ -96,6 +96,7 @@ Properties of |fromFraction| and |toFraction|:
 >   s1 = FractionBasicProperties.denLTLemma (toFraction x)
 >   s2 : Z `LT` den x
 >   s2 = replace {P = \ ZUZU => Z `LT` ZUZU} Refl s1
+> %freeze denLTLemma
 
 
 > ||| 

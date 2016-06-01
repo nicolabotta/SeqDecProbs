@@ -6,20 +6,20 @@
 > import FunProperties
 > import Basics
 
-
 > %default total
-
 > %access public export
 
 
 > |||
 > isoEq : {A, B : Type} -> A = B -> Iso A B
 > isoEq Refl = isoRefl
+> %freeze isoEq 
 
 
 > |||
 > isoCong : {A : Type} -> {x : A} -> {y : A} -> {P : A -> Type} -> x = y -> Iso (P x) (P y)
 > isoCong {x} {P} prf = replace {P = \ z => Iso (P x) (P z)} prf isoRefl
+> %freeze isoCong
 
 
 Injectivity of to and from
@@ -35,3 +35,9 @@ Injectivity of to and from
 >                 {b = B} {b1 = to (from b2)} {b2 = b2}
 >                 {P = \ a => \b => a = b}
 >                 (toFrom b1) (toFrom b2) s2
+> %freeze injectiveFrom
+
+
+> {-
+
+> ---} 

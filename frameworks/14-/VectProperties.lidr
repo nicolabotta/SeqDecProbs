@@ -44,6 +44,7 @@ Injectivity (of |flip index|):
 > ||| Injective1 implies Injective2
 > injectiveLemma : (xs : Vect n t) -> Injective1 xs -> Injective2 xs
 > injectiveLemma xs i1xs i j contra = contra . (i1xs i j)
+> %freeze injectiveLemma
 
 
 > ||| Tail preserves injectivity (one direction)
@@ -52,21 +53,27 @@ Injectivity (of |flip index|):
 > injectiveTailLemma1 (x :: xs) p i j q = FSInjective i j (p (FS i) (FS j) q') where
 >   q' : index (FS i) (x :: xs) = index (FS j) (x :: xs)
 >   q' = q
+> %freeze injectiveTailLemma1
 
 
 > ||| Tail preserves injectivity (the other direction)
 > injectiveTailLemma2 : (xs : Vect (S n) t) -> Injective2 xs -> Injective2 (tail xs)
 > injectiveTailLemma2  Nil      p _ _ _ impossible
 > injectiveTailLemma2 (x :: xs) p i j q = p (FS i) (FS j) (fsInjective2 i j q)
+> %freeze injectiveTailLemma2
 
 
 Indexing and lookup
 
+> |||
 > indexLemma : (k : Fin n) -> (xs : Vect n t) -> Elem (index k xs) xs
 > indexLemma {n = Z}       k   Nil      = absurd k
 > indexLemma {n = S m}  FZ    (x :: xs) = Here
 > indexLemma {n = S m} (FS k) (x :: xs) = There (indexLemma k xs)
+> %freeze indexLemma
 
+
+> |||
 > indexLookupLemma : (x : alpha) ->
 >                    (xs : Vect n alpha) ->
 >                    (prf : Elem x xs) ->
@@ -90,6 +97,7 @@ Indexing and lookup
 >        x
 >   s3 = indexLookupLemma x xs prf
 > -}
+> %freeze indexLookupLemma
 
 
 > |||
@@ -123,6 +131,7 @@ Indexing and lookup
 >   let p' = injectiveTailLemma2 (x :: xs) p in
 >   let ih = lookupIndexLemma k xs p' q in
 >   rewrite ih in Refl
+> %freeze lookupIndexLemma
 
 
 > |||
@@ -137,8 +146,10 @@ Membership, quantifiers:
 >             Elem a as -> LT Z n
 > elemLemma {n = Z}   a Nil p = absurd p
 > elemLemma {n = S m} a as  p = ltZS m
- 
+> %freeze elemLemma
 
+
+> |||
 > AnyExistsLemma : {A : Type} -> {P : A -> Type} -> {as : Vect n A} ->
 >                  Any P as -> Exists P
 > AnyExistsLemma (Here px) = Evidence _ px
@@ -147,26 +158,34 @@ Membership, quantifiers:
 > ElemAnyLemma : {A : Type} -> {P : A -> Type} -> P a -> Elem a as -> Any P as
 > ElemAnyLemma p Here = Here p
 > ElemAnyLemma p (There e) = There (ElemAnyLemma p e)
+> %freeze ElemAnyLemma
 
+
+> |||
 > decAny : {A : Type} -> {P : A -> Type} -> Dec1 P -> Dec1 (Any P)
 > decAny d1P = any d1P
+> %freeze decAny
 
 
 Container monad properties
 
+> |||
 > mapLemma : {A, B : Type} -> (as : Vect n A) -> (f : A -> B) ->
 >            (a : A) -> Elem a as -> Elem (f a) (map f as)
 > mapLemma  Nil      f a aeas = absurd aeas
 > mapLemma (a :: as) f a   Here       = Here
 > mapLemma (a :: as) f a' (There prf) = There (mapLemma as f a' prf)
+> %freeze mapLemma
 
 
+> |||
 > mapIdfLemma : {A, B : Type} -> (as : Vect n A) -> (f : A -> B) ->
 >               (ab : (A,B)) -> Elem ab (map (pair (Prelude.Basics.id,f)) as) ->
 >               f (fst ab) = snd ab
 > mapIdfLemma  Nil      f  ab     p        = absurd p
 > mapIdfLemma (a :: as) f (a, _)  Here     = Refl
 > mapIdfLemma (a :: as) f  ab    (There p) = mapIdfLemma as f ab p
+> %freeze mapIdfLemma
 
 
 Filtering
@@ -194,6 +213,7 @@ Filtering
 >     | (No  _) = -- filterLemma {A} {P} d1P a1 as prf p
 >                 replace {P = \rec => Elem a1 (getProof rec)} (sym itsEqual) $
 >                   filterLemma {P = P} d1P a1 as prf p
+> %freeze filterLemma
 
 
 > ||| |filterTagSigma| preserves membership
@@ -220,6 +240,7 @@ Filtering
 >     | (No  _) = -- filterTagSigmaLemma d1P a1 as prf p
 >                 replace {P = \rec => Elem a1 (map SigmaOperations.outl (getProof rec))} (sym itsEqual) $
 >                   filterTagSigmaLemma d1P a1 as prf p
+> %freeze filterTagSigmaLemma
 
 
 > ||| |filterTagExists| preserves membership
@@ -246,6 +267,7 @@ Filtering
 >     | (No  _) = -- filterTagExistsLemma d1P a1 as prf p
 >                 replace {P = \rec => Elem a1 (map Exists.getWitness (getProof rec))} (sym itsEqual) $
 >                   filterTagExistsLemma d1P a1 as prf p
+> %freeze filterTagExistsLemma
 
 
 > ||| |filterTagSubset| preserves membership
@@ -272,6 +294,7 @@ Filtering
 >     | (No  _) = -- filterTagLemma d1P a1 as prf p
 >                 replace {P = \rec => Elem a1 (map Subset.getWitness (getProof rec))} (sym itsEqual) $
 >                   filterTagSubsetLemma d1P a1 as prf p
+> %freeze filterTagSubsetLemma
 
 > {- Just commented out for testing
 > ||| |filter| preserves injectivity
@@ -347,6 +370,7 @@ Max and argmax
 >       s2 = replace {P = \rec => R tp (snd rec) a'} itsEqual p
 >       s3 : R tp a a'
 >       s3 = transitive tp a (snd (VectOperations.argmaxMax tp (a'' :: as) (ltZS m))) a' s1 s2
+> %freeze maxLemma
 
 
 > |||
@@ -363,6 +387,7 @@ Max and argmax
 >                            (sym itsEqual)
 >                            (argmaxLemma tp (a'' :: as) (ltZS m))
 >     | (Right  _) = Refl
+> %freeze argmaxLemma
 
 
 > |||
@@ -390,7 +415,7 @@ Max and argmax
 >       s4 = replace {P = \ ZUZU => Elem ZUZU (a' :: (a'' :: as))} s3 s1
 > -}       
 >     | (Right  _) = Here
-
+> %freeze maxElemLemma
 
 
 > {-

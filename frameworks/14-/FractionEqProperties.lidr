@@ -70,6 +70,7 @@ Properties of |(=)| and |Eq|:
 > ||| Equality implies `Eq`
 > eqEq : {x, y : Fraction} -> x = y -> x `Eq` y
 > eqEq {x = (m, d')} {y = (m, d')} Refl = Refl
+> %freeze eqEq -- frozen
 
 
 Properties of |plus| and |Eq|:
