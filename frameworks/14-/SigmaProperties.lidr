@@ -128,10 +128,10 @@ We start by deriving two auxiliary results. The first one is
 > |||
 > toVectSigmaLemma : {A : Type} ->
 >                    {P : A -> Type} ->
->                    .(fA : Finite A) ->
->                    .(d1P : Dec1 P) ->
->                    .(a : A) ->
->                    .(p : P a) ->
+>                    (fA : Finite A) ->
+>                    (d1P : Dec1 P) ->
+>                    (a : A) ->
+>                    (p : P a) ->
 >                    Elem a (map Sigma.getWitness (getProof (toVectSigma fA d1P)))
 > toVectSigmaLemma {A} {P} fA d1P a p =
 >   filterTagSigmaLemma d1P a (toVect fA) (toVectComplete fA a) p
