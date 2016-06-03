@@ -1,6 +1,8 @@
 > module Main
 
 > import NonNegRational
+> import NonNegRationalBasicOperations
+> import NonNegRationalBasicProperties
 > import NonNegRationalMeasures
 > import Fraction
 > import FractionPredicates
@@ -9,25 +11,28 @@
 > import PNatOperations
 > import PNatProperties
 
-
 > %default total
 > %auto_implicits off
 
+> %freeze PNat.fromNat
+> %freeze fromFraction
+> %freeze sum
+> %freeze average
 
 > f1 : Fraction
-> f1 = (1, PNat.fromNat 1 (LTESucc LTEZero)) 
+> f1 = (2067, PNat.fromNat 61 (LTESucc LTEZero)) 
 
 > f2 : Fraction
-> f2 = (1, PNat.fromNat 2 (LTESucc LTEZero)) 
+> f2 = (32, PNat.fromNat 11 (LTESucc LTEZero)) 
 
 > f3 : Fraction
-> f3 = (1, PNat.fromNat 3 (LTESucc LTEZero)) 
+> f3 = (1, PNat.fromNat 19 (LTESucc LTEZero)) 
 
 > f4 : Fraction
-> f4 = (1, PNat.fromNat 4 (LTESucc LTEZero)) 
+> f4 = (1, PNat.fromNat 12749 (LTESucc LTEZero)) 
 
 > f5 : Fraction
-> f5 = (1, PNat.fromNat 5 (LTESucc LTEZero)) 
+> f5 = (37, PNat.fromNat 15 (LTESucc LTEZero)) 
 
 > f6 : Fraction
 > f6 = (1, PNat.fromNat 6 (LTESucc LTEZero)) 
@@ -36,11 +41,11 @@
 > f7 = (1, PNat.fromNat 7 (LTESucc LTEZero)) 
 
 > zs : List NonNegRational
-> zs = map fromFraction [f1,f2,f3,f4,f5,f6,f7]
+> zs = map fromFraction [f1,f2,f3,f4]
 
 > main : IO ()               
-> main = do putStrLn (sum zs)
->           putStrLn (average zs)
+> main = do putStrLn (show (sum zs))
+>           putStrLn (show (average zs))
 
 
 
