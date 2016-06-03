@@ -17,6 +17,8 @@
 > %access public export
 > %auto_implicits off
 
+> -- %freeze fromFraction
+
 
 Properties of |factor|:
 
@@ -39,7 +41,6 @@ Properties of |factor|:
 >     ( factor (map g (a :: as)) )
 >   QED
 > %freeze factorLemma
-
 
 
 Monotonicity of |sum|, |average|:

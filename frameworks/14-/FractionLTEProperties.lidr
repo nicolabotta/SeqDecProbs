@@ -17,6 +17,7 @@
 > %access public export
 
 
+
 |LTE| is a total preorder:
 
 > ||| LTE is reflexive
