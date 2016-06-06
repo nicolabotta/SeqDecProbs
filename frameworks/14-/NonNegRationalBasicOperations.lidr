@@ -23,7 +23,7 @@
 > ||| 
 > fromFraction : Fraction -> NonNegRational
 > fromFraction x = Element (normalize x) (normalNormalize x)
-> -- %freeze toFraction
+> %freeze fromFraction
 
 
 > ||| The numerator of a non-negative rational

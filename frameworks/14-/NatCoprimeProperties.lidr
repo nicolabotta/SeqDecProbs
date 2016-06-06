@@ -1,6 +1,5 @@
 > module NatCoprimeProperties
 
-
 > import NatCoprime
 > import NatGCD
 > import NatGCDOperations
@@ -14,10 +13,10 @@
 > import PairsOperations
 > import Sigma
 
-
 > %default total
-> %access public export
 > %auto_implicits on
+> %access export
+> -- %access public export
 
 
 > ||| Coprime is decidable

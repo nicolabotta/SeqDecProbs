@@ -1,8 +1,9 @@
 > module NatLTEProperties
 
 > %default total
-> %access public export
 > %auto_implicits on
+> %access export
+> -- %access public export
 
 
 LTE is unique:
@@ -112,6 +113,7 @@ Properties of |LTE| and |plus|:
 > idAnyPlusPreservsLTE : {a, b, c : Nat} -> LTE a b -> LTE a (c + b)
 > idAnyPlusPreservsLTE {a} {b} {c = Z}   aLTEb = aLTEb
 > idAnyPlusPreservsLTE {a} {b} {c = S m} aLTEb = idSuccPreservesLTE a (m + b) (idAnyPlusPreservsLTE {a = a} {b = b} {c = m} aLTEb)  
+> %freeze idAnyPlusPreservsLTE
 
 > |||
 > monotoneNatPlusLTE : {a, b, c, d  : Nat} ->

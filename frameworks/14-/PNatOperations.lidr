@@ -1,5 +1,4 @@
-> module PNat
-
+> module PNatOperations
 
 > import PNat
 > import NatPositive
@@ -7,9 +6,7 @@
 > import NatOperationsProperties
 > import PairsOperations
 
-
 > %default total
-
 > %access public export
 
 
@@ -20,9 +17,15 @@
 
 > ||| 
 > fromNat : (m : Nat) -> Z `LT` m -> PNat
+> {-
+> fromNat  Z zLTz = absurd zLTz
+> fromNat (S m) _ = Element (S m) (MkPositive {n = m})
+> ----}
+> --{-
 > fromNat m prf = Element m pm where
 >   pm : Positive m
 >   pm = fromSucc (pred m prf) m (predLemma m prf)
+> ---}
 
 
 > |||
@@ -49,3 +52,7 @@
 > (*) : PNat -> PNat -> PNat
 > (*) = mult
 
+
+> {-
+
+> ---}

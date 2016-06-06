@@ -16,8 +16,11 @@
 > import NatOperationsProperties
 
 > %default total
+> -- %access export
 > %access public export
 
+
+Properties of |num|, |den|, |fromNat|:
 
 > ||| Denominators of fractions are greater than zero
 > denLTLemma : (x : Fraction) -> Z `LT` den x
@@ -26,13 +29,11 @@
 >   s1 = toNatLTLemma (snd x)
 >   s2 : Z `LT` den x
 >   s2 = replace {P = \ ZUZU => Z `LT` ZUZU} Refl s1
-> %freeze denLTLemma
 
 
 > |||
 > fromNatNormal : {n : Nat} -> Normal (fromNat n)
 > fromNatNormal = MkNormal anyCoprimeOne
-> %freeze fromNatNormal
 
 
 > {-
@@ -64,7 +65,6 @@ Properties of |plus|:
 >   ={ Refl }=
 >     ( (n, e') + (m, d') )
 >   QED
-> %freeze plusCommutative
 
 
 > ||| 0 is neutral element of addition
@@ -83,7 +83,6 @@ Properties of |plus|:
 >   ={ cong2 (multOneRightNeutralPlusMultZeroLeftZero n d) (multOneRightNeutral d') }=
 >     ( (n, d') )
 >   QED
-> %freeze plusZeroRightNeutral
 
 
 > ||| 0 is neutral element of addition
@@ -95,7 +94,6 @@ Properties of |plus|:
 >   ={ plusZeroRightNeutral x }=
 >     ( x )
 >   QED
-> %freeze plusZeroLeftNeutral
 
 
 > ||| Addition is associative
@@ -150,7 +148,6 @@ Properties of |plus|:
 >   ={ Refl }=
 >     ( ((m, d') + (n, e')) + (o, f') )
 >   QED
-> %freeze plusAssociative
 
 
 Properties of |mult|:
@@ -166,7 +163,6 @@ Properties of |mult|:
 >   ={ Refl }=
 >     ( (n, e') * (m, d') )
 >   QED
-> %freeze multCommutative
 
 
 > ||| 1 is neutral element of multiplication
@@ -185,7 +181,6 @@ Properties of |mult|:
 >   ={ cong2 (multOneRightNeutral n) (multOneRightNeutral d') }=
 >     ( (n, d') )
 >   QED
-> %freeze multOneRightNeutral
 
 
 > ||| 1 is neutral element of multiplication
@@ -197,7 +192,6 @@ Properties of |mult|:
 >   ={ multOneRightNeutral x }=
 >     ( x )
 >   QED
-> %freeze multOneLeftNeutral
 
 
 > {-

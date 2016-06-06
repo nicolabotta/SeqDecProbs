@@ -12,8 +12,9 @@
 
 
 > %default total
-> %access public export
 > %auto_implicits on
+> %access export
+> -- %access public export
 
 
 > ||| Fundamental quotient lemma

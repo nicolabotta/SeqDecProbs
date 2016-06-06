@@ -14,16 +14,16 @@
 > import NatOperationsProperties
 
 > %default total
-> %access public export
+> %access export
+> -- %access public export
 
-
+> -- %freeze PNatOperations.toNat
 
 |LTE| is a total preorder:
 
 > ||| LTE is reflexive
 > reflexiveLTE : (x : Fraction) -> x `LTE` x
 > reflexiveLTE (n, d') = NatLTEProperties.reflexiveLTE (n * (toNat d'))
-> %freeze reflexiveLTE
 
 
 > ||| LTE is transitive
@@ -55,7 +55,6 @@
 >                            s6 Refl (gtZisnotZ (denLTLemma (ny, dy')))
 >   s8 : (nx, dx') `LTE` (nz, dz')
 >   s8 = s7
-> %freeze transitiveLTE
 
                         
 > ||| LTE is total
@@ -64,7 +63,6 @@
 >   let d1 = toNat d1' in
 >   let d2 = toNat d2' in
 >   NatLTEProperties.totalLTE (n1 * d2) (n2 * d1)
-> %freeze totalLTE
 
 
 Properties of |LTE| and |plus|:
@@ -137,7 +135,6 @@ Properties of |LTE| and |plus|:
 >                 (sym toNatMultLemma) s14
 >   s16 : ((na, da') `plus` (nc, dc')) `LTE` ((nb, db') `plus` (nd, dd'))
 >   s16 = s15
-> %freeze monotonePlusLTE
 
 
 Properties of |LTE| and |mult|:
@@ -187,6 +184,5 @@ Properties of |LTE| and |mult|:
 >                 (sym toNatMultLemma) s11
 >   s13 : ((na, da') `mult` (nc, dc')) `LTE` ((nb, db') `mult` (nd, dd'))
 >   s13 = s12
-> %freeze monotoneMultLTE
 
 

@@ -14,8 +14,8 @@
 > import NatPositive
 
 > %default total
-> %access public export
-> -- %access export
+> %access export
+> -- %access public export
 
 
 |Eq| is an equivalence:
@@ -23,12 +23,12 @@
 > ||| Eq is reflexive
 > EqReflexive : {x : Fraction} -> x `Eq` x
 > EqReflexive {x = (m, d')} = Refl
-> %freeze EqReflexive
+
 
 > ||| Eq is symmetric
 > EqSymmetric : {x, y : Fraction} -> x `Eq` y -> y `Eq` x
 > EqSymmetric {x = (m, d')} {y = (n, e')} = sym
-> %freeze EqSymmetric
+
 
 > ||| Eq is transitive
 > EqTransitive : {x, y, z : Fraction} -> x `Eq` y -> y `Eq` z  -> x `Eq` z
@@ -62,7 +62,7 @@
 >               =  replace {P = \ ZUZU => (m * f) * e = ZUZU} (multAssociative o d e) s10 in
 >
 >   multMultElimRight (m * f) (o * d) e e Refl neEQZ s11
-> %freeze EqTransitive
+
 
 
 Properties of |(=)| and |Eq|:
@@ -70,7 +70,6 @@ Properties of |(=)| and |Eq|:
 > ||| Equality implies `Eq`
 > eqEq : {x, y : Fraction} -> x = y -> x `Eq` y
 > eqEq {x = (m, d')} {y = (m, d')} Refl = Refl
-> %freeze eqEq -- frozen
 
 
 Properties of |plus| and |Eq|:
@@ -105,7 +104,6 @@ Properties of |plus| and |Eq|:
 >       ={ sym (multDistributesOverPlusLeft (n' * e') (m' * d') (d * e)) }=
 >     (((n' * e') + (m' * d')) * (d * e))
 >       QED
-> %freeze plusPreservesEq
 
 
 Properties of |mult|, |Eq|:
@@ -122,7 +120,6 @@ Properties of |mult|, |Eq|:
 >   ={ sym (multZeroLeftZero (d * 1)) }=
 >     ( 0 * (d * 1) )
 >   QED 
-> %freeze multZeroRightEqZero
 
 
 > |||
@@ -133,7 +130,6 @@ Properties of |mult|, |Eq|:
 >   let xzEqz   : (x * 0 `Eq` 0)
 >               = multZeroRightEqZero x in
 >   EqTransitive zxEqxz xzEqz
-> %freeze multZeroLeftEqZero
 
 
 > ||| 
@@ -149,7 +145,6 @@ Properties of |mult|, |Eq|:
 >     ((n' * d) * (m * e')) ={ cong {f = \x => (n' * d) * x} me'EQm'e }=
 >     ((n' * d) * (m' * e)) ={ multFlipCentre n' d m' e }=
 >     ((n' * m') * (d * e)) QED
-> %freeze multPreservesEq
 
 
 Properties of |plus|, |mult|, |Eq|:
@@ -200,7 +195,6 @@ Properties of |plus|, |mult|, |Eq|:
 >           (sym toNatMultLemma) }=
 >     ( ((m * n) * (toNat (d' * f')) + (m * o) * (toNat (d' * e'))) * (toNat (d' * (e' * f'))) )
 >   QED
-> %freeze multDistributesOverPlusRightEq
 
 
 > {-

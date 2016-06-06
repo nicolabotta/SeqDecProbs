@@ -1,8 +1,9 @@
 > module NatBasicProperties
 
 > %default total
-> %access public export
 > %auto_implicits on
+> %access export
+> -- %access public export
 
 
 > implementation Uninhabited (S n = Z) where

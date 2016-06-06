@@ -1,11 +1,8 @@
 > module Fraction
 
-
 > import PNat
 
-
 > %default total
-
 > %access public export
 
 

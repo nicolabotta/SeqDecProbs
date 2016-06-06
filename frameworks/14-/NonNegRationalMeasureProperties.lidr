@@ -17,10 +17,10 @@
 > %access public export
 > %auto_implicits off
 
-> -- %freeze fromFraction
-
 
 Properties of |factor|:
+
+> %freeze fromFraction
 
 > |||
 > factorLemma : {A, B, C : Type} -> 
@@ -44,6 +44,8 @@ Properties of |factor|:
 
 
 Monotonicity of |sum|, |average|:
+
+> %thaw fromFraction
 
 > ||| |sum| is monotone
 > monotoneSum : {A : Type} ->
