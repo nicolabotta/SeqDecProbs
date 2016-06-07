@@ -17,6 +17,8 @@
 > %access export
 > -- %access public export
 
+> -- %logging 5
+
 
 |Eq| is an equivalence:
 
