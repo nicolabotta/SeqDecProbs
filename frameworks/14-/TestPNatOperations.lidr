@@ -10,11 +10,10 @@
 
 
 > x : PNat
-> x = fromNat 616 (LTESucc LTEZero)
+> x = Element (S 615) (MkPositive {n = 615})
 
 > y : PNat
-> y = -- Element (S 12748) (MkPositive {n = 12748})
->     fromNat (S 12748) (LTESucc LTEZero)
+> y = Element (S 12748) (MkPositive {n = 12748})
 
 > main : IO ()               
 > main = do putStrLn ("x = " ++ show x)

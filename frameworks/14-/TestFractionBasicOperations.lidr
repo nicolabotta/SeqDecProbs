@@ -2,22 +2,30 @@
 
 > import Fraction
 > import FractionBasicOperations
+> import FractionBasicProperties
 > import PNat
 > import PNatOperations
 > import PNatProperties
+> import NatPositive
 
 > %default total
 > %auto_implicits off
 
 
-> x : Fraction
-> x = (2067, PNat.fromNat 616 (LTESucc LTEZero)) 
+> dx : PNat
+> dx = Element (S 615) (MkPositive {n = 615})
+> x  : Fraction
+> x  = (2067, dx) 
 
-> y : Fraction
-> y = (32, PNat.fromNat 11 (LTESucc LTEZero))
+> dy : PNat
+> dy = Element (S 10) (MkPositive {n = 10})
+> y  : Fraction
+> y  = (32, dy)
 
-> z : Fraction
-> z = (1, PNat.fromNat 12749 (LTESucc LTEZero))
+> dz : PNat
+> dz = Element (S 12748) (MkPositive {n = 12748})
+> z  : Fraction
+> z  = (1, dz)
 
 > main : IO ()               
 > main = do putStrLn ("x = " ++ show x)

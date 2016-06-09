@@ -30,7 +30,8 @@
 
 > %default total
 
-> %access public export
+> %access export
+> -- %access public export
 
 
 Properties of |toFraction|:
