@@ -4,8 +4,9 @@
 > -- import Data.List
 
 > import NonNegRational
-> import NonNegRationalOperations
-> import NonNegRationalProperties
+> import NonNegRationalBasicOperations
+> import NonNegRationalBasicProperties
+
 
 > -- import Syntax.PreorderReasoning
 > import NatPositive
@@ -30,9 +31,13 @@
 > import ListProperties
 
 > %default total
-
 > %access public export
+> %auto_implicits off
 
+> %freeze sum
+> %freeze cross
+> %freeze mapSndMapCrossAnyIdLemma
+> %freeze sumSingletonLemma
 
 > |||
 > data SimpleProb : Type -> Type where
@@ -41,15 +46,13 @@
 >                  sum (map snd aps) = 1 ->
 >                  SimpleProb alpha
 
-
 * Operations
 
 > ||| 
-> prob : (Eq alpha) => SimpleProb alpha -> alpha -> NonNegRational
+> prob : {alpha : Type} -> (Eq alpha) => SimpleProb alpha -> alpha -> NonNegRational
 > prob (MkSimpleProb aps _) a = foldr f 0 aps where
 >   f : (alpha, NonNegRational) -> NonNegRational -> NonNegRational
 >   f (a', p') p = if (a == a') then p + p' else p
-> %freeze prob
 
 
 * Properties
@@ -59,38 +62,36 @@
 > fmap : {A, B : Type} -> (A -> B) -> SimpleProb A -> SimpleProb B
 > fmap f (MkSimpleProb aps p) = 
 >   MkSimpleProb (map (cross f id) aps) s4 where
-> {-
 >     s1 : map snd (map (cross f id) aps) = map snd aps
->     s1 = ?s1res -- mapSndMapCrossAnyIdLemma f aps
+>     s1 = mapSndMapCrossAnyIdLemma f aps
 >     s2 : sum (map snd (map (cross f id) aps)) = sum (map snd aps)
->     s2 = ?s2res -- cong s1
+>     s2 = cong s1
 >     s3 : sum (map snd aps) = 1
->     s3 = ?s3res -- p
-> -}
+>     s3 = p
 >     s4 : sum (map snd (map (cross f id) aps)) = 1
->     s4 = ?s4res -- trans s2 s3
+>     s4 = trans s2 s3
 
-
-> {-
 
 |SimpleProb| is a monad:
 
 > ret : {A : Type} -> A -> SimpleProb A
-> ret {A} a = MkSimpleProb as ps s1 where
->   as  :  Vect 1 A
->   as  =  a :: Nil
->   ps  :  Vect 1 NonNegRational
->   ps  =  1 :: Nil
->   s1  :  sum ps = 1
->   s1  =  lemma0 1
+> ret {A} a = MkSimpleProb aps s1 where
+>   aps : List (A, NonNegRational)
+>   aps = [(a,1)]
+>   s1  : sum (map snd aps) = 1
+>   s1  = sumSingletonLemma 1
 
-> bind : {A, B : Type} -> SimpleProb A -> (A -> SimpleProb B) -> SimpleProb B
+
 > {-
-> bind {A} {B} (MkSimpleProb as ps p) f = MkSimpleProb bs ps' p' where
->   n  : Nat
->   n  = length as
->   bs : Vect n B
-> -}
 
+> |||
+> bind : {A, B : Type} -> SimpleProb A -> (A -> SimpleProb B) -> SimpleProb B
+> bind {A} {B} (MkSimpleProb aps p) f = MkSimpleProb bps q where
+>   bps : List (B, NonNegRational)
+>   bps = concat (map g aps) where
+>     g : (A, NonNegRational) -> List (B, NonNegRational)
+>     g (a, pa) = map (\ bpb => (fst bpb, pa * (snd bpb))) (f a)
+>   q : sum (map snd bps) = 1
+>   q = ?ququ
 
 > ---}

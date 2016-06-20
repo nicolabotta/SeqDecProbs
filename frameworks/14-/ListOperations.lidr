@@ -56,3 +56,6 @@ Show
 Reduction operators
 
 > -- maxList : {A : Type} -> TotalPreorder A -> (as : List A) -> nonEmpty as -> A
+
+
+

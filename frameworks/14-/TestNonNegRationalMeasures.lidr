@@ -17,28 +17,28 @@
 
 
 > f1 : Fraction
-> f1 = (2067, PNatOperations.fromNat 61 (LTESucc LTEZero)) 
+> f1 = (1, Element (S 6) (MkPositive {n = 6})) 
 
 > f2 : Fraction
-> f2 = (32, PNatOperations.fromNat 11 (LTESucc LTEZero)) 
+> f2 = (1, Element (S 13) (MkPositive {n = 13})) 
 
 > f3 : Fraction
-> f3 = (1, PNatOperations.fromNat 19 (LTESucc LTEZero)) 
+> f3 = (1, Element (S 17) (MkPositive {n = 17})) 
 
 > f4 : Fraction
-> f4 = (1, Element (S 12748) (MkPositive {n = 12748}))
+> f4 = (2, Element (S 6) (MkPositive {n = 6})) 
 
 > f5 : Fraction
-> f5 = (37, PNatOperations.fromNat 15 (LTESucc LTEZero)) 
+> f5 = (3, Element (S 17) (MkPositive {n = 17})) 
 
 > f6 : Fraction
-> f6 = (1, PNatOperations.fromNat 6 (LTESucc LTEZero)) 
+> f6 = (1, Element (S 13) (MkPositive {n = 13})) 
 
 > f7 : Fraction
-> f7 = (1, PNatOperations.fromNat 7 (LTESucc LTEZero)) 
+> f7 = (2, Element (S 6) (MkPositive {n = 6}))
 
 > zs : List NonNegRational
-> zs = map fromFraction [f1,f2,f3,f4]
+> zs = map fromFraction [f1,f1,f1,f1,f1,f1,f1]
 
 > main : IO ()               
 > main = do putStrLn (show (sum zs))

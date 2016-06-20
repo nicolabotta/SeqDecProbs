@@ -10,7 +10,6 @@
 > import NumOperations
 
 > %default total
-
 > %access public export
 
 
@@ -21,11 +20,14 @@ The following
 >                  (a : A) -> (as : Vect n A) ->
 >                  foldr f e (a :: as) = f a (foldr f e as)
 
-should hold by definition and should be replaceable by just
-|Refl|. But since |Data.VectType.foldr| is implemented in terms of an
-accumulator (for efficiency?) we in fact need a proof.
+should hold by definition and 
 
-First the "classical" (traditional) definition of |foldr| for vectors:
+< foldrVectLemma f e a as = Refl
+
+should, in principle, type check. In fact, however, |foldr| is
+implemented in terms of an accumulator and a proof of |foldrVectLemma|
+is not that simple. We start from the "classical" (traditional)
+definition of |foldr| for vectors:
 
 > total foldrClassic : (t -> acc -> acc) -> acc -> Vect n t -> acc
 > foldrClassic f e []      = e

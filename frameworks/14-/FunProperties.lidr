@@ -3,11 +3,12 @@
 > import Syntax.PreorderReasoning
 
 > import FunOperations
+> import PairProperties
 
 
 > %default total
-
 > %access public export
+> %auto_implicits on
 
 
 > ||| Injectivity (one direction)
@@ -62,15 +63,46 @@ Properties of constructive proofs
 Properties of cross
 
 > |||
-> crossAnyIdLemma : snd ((cross f Prelude.Basics.id) (a,b)) = snd (a,b)
-> crossAnyIdLemma {a} {b} {f} = Refl
-> %freeze crossAnyIdLemma -- frozen
+> crossAnyIdFstLemma : fst ((cross f Prelude.Basics.id) (a,b)) = f a
+> crossAnyIdFstLemma {a} {b} {f} = Refl
 
 
 > |||
-> crossIdAnyLemma : fst ((cross Prelude.Basics.id f) (a,b)) = fst (a,b)
-> crossIdAnyLemma {a} {b} {f} = Refl
-> %freeze crossIdAnyLemma -- frozen
+> crossAnyIdFstLemma' : fst ((cross f Prelude.Basics.id) ab) = f (fst ab)
+> crossAnyIdFstLemma' {ab} {f} = 
+>     ( fst ((cross f Prelude.Basics.id) ab) )
+>   ={ cong {f = \ ZUZU => fst ((cross f Prelude.Basics.id) ZUZU)} (pairLemma ab) }=
+>     ( fst ((cross f Prelude.Basics.id) (fst ab, snd ab)) )
+>   ={ Refl }=
+>     ( fst (f (fst ab), id (snd ab)) )
+>   ={ Refl }=
+>     ( f (fst ab) )
+>   QED
+
+
+> |||
+> crossAnyIdSndLemma : snd ((cross f Prelude.Basics.id) (a,b)) = b
+> crossAnyIdSndLemma {a} {b} {f} = Refl
+
+
+> |||
+> crossAnyIdSndLemma' : snd ((cross f Prelude.Basics.id) ab) = snd ab
+> crossAnyIdSndLemma' {ab} {f} = 
+>     ( snd ((cross f Prelude.Basics.id) ab) )
+>   ={ cong {f = \ ZUZU => snd ((cross f Prelude.Basics.id) ZUZU)} (pairLemma ab) }=
+>     ( snd ((cross f Prelude.Basics.id) (fst ab, snd ab)) )
+>   ={ Refl }=
+>     ( snd (f (fst ab), id (snd ab)) )
+>   ={ Refl }=
+>     ( snd (f (fst ab), snd ab) )
+>   ={ Refl }=
+>     ( snd ab )
+>   QED
+
+
+> |||
+> crossIdAnyFstLemma : fst ((cross Prelude.Basics.id f) (a,b)) = a
+> crossIdAnyFstLemma {a} {b} {f} = Refl
 
 
 > {-

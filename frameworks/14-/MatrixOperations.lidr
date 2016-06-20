@@ -6,7 +6,6 @@
 > import Matrix
 
 > %default total
-
 > %access public export
 
 

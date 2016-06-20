@@ -8,6 +8,7 @@
 
 > import ListOperations
 > import FunOperations
+> import FunProperties
 > import Unique
 > import Finite
 > import FiniteOperations
@@ -18,11 +19,14 @@
 > import FinProperties
 > import VoidProperties
 > import UnitProperties
+> import NumRefinements
+> import PairProperties
 
 
 > %default total
 > %auto_implicits off
-> %access public export
+> %access export
+> -- %access public export
 
 
 |List| is a functor:
@@ -52,7 +56,7 @@
 >                     a `Elem` as -> ListOperations.NonEmpty as
 > elemNonEmptySpec0 _  Nil      p = absurd p
 > elemNonEmptySpec0 _ (a :: as) _ = ()
-> %freeze elemNonEmptySpec0
+
 
 > |||
 > elemNonEmptySpec1 : {A : Type} ->
@@ -60,7 +64,7 @@
 >                     ListOperations.NonEmpty as -> Sigma A (\ a => a `Elem` as)
 > elemNonEmptySpec1  Nil      c = void c
 > elemNonEmptySpec1 (a :: as) _ = MkSigma a Here 
-> %freeze elemNonEmptySpec1
+
 
 > -- containerMonadSpec1 : a `Elem` (ret a)
 
@@ -73,7 +77,7 @@
 > containerMonadSpec3 a' (a :: as)  Nil         _           impossible
 > containerMonadSpec3 a  (a :: as) (pa :: pas)  Here        = pa
 > containerMonadSpec3 a' (a :: as) (pa :: pas) (There eprf) = containerMonadSpec3 a' as pas eprf
-> %freeze containerMonadSpec3
+
 
 > -- containerMonadSpec4 : {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
@@ -91,7 +95,6 @@ Specific container monad properties
 >   ={ replace {P = \ ZUZU => pa' :: pas = pa' :: ZUZU} (uniqueAllLemma u1P as pas pas') Refl }=
 >     ( pa' :: pas' ) 
 >   QED   
-> %freeze uniqueAllLemma
 
 
 > ||| 
@@ -106,7 +109,6 @@ Specific container monad properties
 >   toFrom () = Refl
 >   fromTo : (nil : All P Nil) -> from (to nil) = nil
 >   fromTo Nil = Refl
-> %freeze finiteAllLemma0
 
 
 > |||
@@ -122,7 +124,6 @@ Specific container monad properties
 >   toFrom (pa, pas) = Refl
 >   fromTo : (papas : All P (a :: as)) -> from (to papas) = papas
 >   fromTo (pa :: pas) = Refl
-> %freeze finiteAllLemma1
 
 
 > |||
@@ -154,21 +155,18 @@ Specific container monad properties
 >   iso3 = finPairTimes
 >   iso  : Iso (All P (a :: as)) (Fin n)
 >   iso  = isoTrans iso1 (isoTrans iso2 iso3)
-> %freeze finiteAllLemma
 
 
 > |||
 > finiteAll : {A : Type} -> {P : A -> Type} -> 
 >             Finite1 P -> (as : List A) -> Finite (All P as)
 > finiteAll = finiteAllLemma
-> %freeze finiteAll
 
 
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (as : List A) -> Finite (ListOperations.NonEmpty as)
 > finiteNonEmpty  Nil      = finiteVoid
 > finiteNonEmpty (a :: as) = finiteUnit
-> %freeze finiteNonEmpty
 
 
 Fusion-related properties:
@@ -190,8 +188,9 @@ Fusion-related properties:
 >   ={ Refl }=
 >     ( map snd ((a, b) :: abs) )
 >   QED
-> %freeze mapSndMapCrossAnyIdLemma
 
+
+* Properties of |length|:
 
 > |||
 > lengthLemma : {A, B, C : Type} -> 
@@ -210,5 +209,221 @@ Fusion-related properties:
 >                           ={ Refl }=
 >                             ( length (map g (a :: as)) )
 >                           QED
-> %freeze lengthLemma
+
+
+* Properties of |fold|:
+
+> foldrListLemma : {A, B : Type} -> 
+>                  (f : A -> B -> B) -> (e : B) ->
+>                  (a : A) -> (as : List A) ->
+>                  foldr f e (a :: as) = f a (foldr f e as)
+> foldrListLemma f e a as = Refl
+
+
+* Properties of |sum| (for lists of types which are refinements of |Num|):
+
+> |||
+> sumSingletonLemma : {A : Type} -> (NumPlusZeroNeutral A) => (x : A) -> sum [x] = x
+> sumSingletonLemma x = ( x + 0 )
+>                     ={ plusZeroRightNeutral x }=
+>                       ( x )
+>                     QED
+
+> |||
+> sumPlusAppendLemma : {B : Type} -> (NumPlusAssociative B) => 
+>                      (xs : List B) -> (ys : List B) ->
+>                      (sum xs + sum ys) = sum (xs ++ ys)
+> sumPlusAppendLemma Nil       ys = plusZeroLeftNeutral (sum ys)
+> sumPlusAppendLemma (x :: xs) ys =
+>     ( sum (x :: xs) + sum ys )
+>   ={ Refl }=
+>     ( (x + sum xs) + sum ys )
+>   ={ sym (plusAssociative x (sum xs) (sum ys)) }=
+>     ( x + (sum xs + sum ys) )
+>   ={ cong (sumPlusAppendLemma xs ys) }=
+>     ( x + sum (xs ++ ys) )
+>   ={ Refl }=
+>     ( sum (x :: (xs ++ ys)) )
+>   ={ Refl }=
+>     ( sum ((x :: xs) ++ ys) )
+>   QED
+
+> |||
+> sumConcatLemma : {B : Type} -> (NumPlusAssociative B) => 
+>                  (bss : List (List B)) -> 
+>                  sum (map sum bss) = sum (concat bss)
+> sumConcatLemma  Nil        = Refl
+> sumConcatLemma (bs :: bss) =
+>     ( sum (map sum (bs :: bss)) )
+>   ={ Refl }=
+>     ( sum (sum bs :: map sum bss) )
+>   ={ Refl }=
+>     ( sum bs + sum (map sum bss) )
+>   ={ cong (sumConcatLemma bss) }=
+>     ( sum bs + sum (concat bss) )
+>   ={ sumPlusAppendLemma bs (concat bss) }=
+>     ( sum (bs ++ concat bss) )
+>   ={ Refl }=
+>     ( sum (concat (bs :: bss)) )
+>   QED
+
+> |||
+> sumMapSnd : {A, B : Type} -> (Num B) => List (A, B) -> B
+> sumMapSnd abs = sum (map snd abs) 
+
+> |||
+> sumMapSndConcatLemma : {A, B : Type} -> (NumPlusAssociative B) => 
+>                        (abss : List (List (A, B))) -> 
+>                        sum (map sumMapSnd abss) = sumMapSnd (concat abss)
+> sumMapSndConcatLemma  Nil          = Refl 
+> sumMapSndConcatLemma (abs :: abss) = 
+>     ( sum (map sumMapSnd (abs :: abss)) )
+>   ={ Refl }=
+>     ( sum (sumMapSnd abs :: map sumMapSnd abss) )
+>   ={ Refl }=
+>     ( sum (sum (map snd abs) :: map sumMapSnd abss) )
+>   ={ Refl }=
+>     ( sum (map snd abs) + sum (map sumMapSnd abss) )
+>   ={ cong (sumMapSndConcatLemma abss) }=
+>     ( sum (map snd abs) + sumMapSnd (concat abss) )
+>   ={ Refl }=
+>     ( sum (map snd abs) + sum (map snd (concat abss)) )
+>   ={ sumPlusAppendLemma (map snd abs) (map snd (concat abss)) }=
+>     ( sum (map snd abs ++ map snd (concat abss)) )
+>   ={ cong (sym (mapDistributesOverAppend snd abs (concat abss))) }=
+>     ( sum (map snd (abs ++ concat abss)) )
+>   ={ Refl }=
+>     ( sum (map snd (concat (abs :: abss))) )
+>   ={ Refl }=
+>     ( sumMapSnd (concat (abs :: abss)) )
+>   QED
+
+> |||
+> mapIdRightMult : {A, B : Type} -> (Num B) => (List (A, B), B) -> List (A, B)
+> mapIdRightMult (abs, b) = map (cross id (* b)) abs
+
+> sumMapSndMapIdRightMultLemma : {A, B : Type} -> (Num B) => 
+>                                (b : B) -> (ab : (A, B)) -> (abs : List (A, B)) -> 
+>                                (snd ab) * b + sumMapSnd (mapIdRightMult (abs, b)) 
+>                                = 
+>                                sumMapSnd (mapIdRightMult ((ab :: abs), b))
+> sumMapSndMapIdRightMultLemma b ab abs =
+>     ( (snd ab) * b + sumMapSnd (mapIdRightMult (abs, b)) )
+>   ={ Refl }=  
+>     ( (snd ab) * b + sum (map snd (mapIdRightMult (abs, b))) )
+>   ={ Refl }=  
+>     ( sum ((snd ab) * b :: (map snd (mapIdRightMult (abs, b)))) )
+>   ={ Refl }=  
+>     ( sum (snd (fst ab, (snd ab) * b) :: (map snd (mapIdRightMult (abs, b)))) )
+>   ={ Refl }=  
+>     ( sum (snd ((cross id (* b)) (fst ab, snd ab)) :: (map snd (mapIdRightMult (abs, b)))) )
+>   ={ cong {f = \ ZUZU => sum (snd ((cross id (* b)) ZUZU) :: (map snd (mapIdRightMult (abs, b))))} 
+>           (sym (pairLemma ab)) }=  
+>     ( sum (snd ((cross id (* b)) ab) :: (map snd (mapIdRightMult (abs, b)))) )
+>   ={ Refl }=  
+>     ( sum (snd ((cross id (* b)) ab) :: (map snd (map (cross id (* b)) abs))) )  
+>   ={ Refl }=
+>     ( sum (map snd (((cross id (* b)) ab) :: map (cross id (* b)) abs)) )
+>   ={ Refl }=  
+>     ( sum (map snd (map (cross id (* b)) (ab :: abs))) )
+>   ={ Refl }=  
+>     ( sum (map snd (mapIdRightMult ((ab :: abs), b))) )
+>   ={ Refl }=  
+>     ( sumMapSnd (mapIdRightMult ((ab :: abs), b)) )
+>   QED
+
+> |||
+> mapIdRightMultLemma : {A, B : Type} -> (NumMultDistributesOverPlus B) => 
+>                       (absb : (List (A, B), B)) -> 
+>                       sumMapSnd (mapIdRightMult absb)
+>                       =
+>                       (sumMapSnd (fst absb)) * (snd absb)
+> mapIdRightMultLemma (Nil, b) = ?kiku
+> {-
+>     ( sumMapSnd (mapIdRightMult (Nil, b)) )
+>   ={ Refl }=
+>     ( sumMapSnd (map (cross id (* b)) Nil) )
+>   ={ Refl }=
+>     ( sumMapSnd Nil )
+>   ={ Refl }=
+>     ( 0 )
+>   ={ sym (multZeroLeftZero b) }=
+>     ( 0 * b )
+>   ={ Refl }=     
+>     ( (sumMapSnd Nil) * b )
+>   ={ Refl }=     
+>     ( (sumMapSnd (fst (Nil, b))) * (snd (Nil, b)) )   
+>   QED
+> -}  
+> mapIdRightMultLemma ((ab :: abs), b) =
+>     ( sumMapSnd (mapIdRightMult ((ab :: abs), b)) )
+>   ={ sym (sumMapSndMapIdRightMultLemma b ab abs) }=
+>     ( (snd ab) * b + sumMapSnd (mapIdRightMult (abs, b)) )
+>   ={ cong (mapIdRightMultLemma (abs, b)) }=
+>     ( (snd ab) * b + (sumMapSnd (fst (abs, b))) * (snd (abs, b)) )
+>   ={ Refl }=
+>     ( (snd ab) * b + (sumMapSnd abs) * b )
+>   ={ sym (multDistributesOverPlusLeft (snd ab) (sumMapSnd abs) b) }=  
+>     ( (snd ab + sumMapSnd abs) * b )
+>   ={ Refl }=
+>     ( (snd ab + sum (map snd abs)) * b )
+>   ={ Refl }=
+>     ( (sumMapSnd (ab :: abs)) * b )
+>   ={ Refl }=
+>     ( (sumMapSnd (fst ((ab :: abs), b))) * (snd ((ab :: abs), b)) )
+>   QED
+
+
+> |||
+> lala : {A, A', B : Type} -> (Num B) => List (A, B) -> (A -> List (A', B)) -> List (A', B)
+> lala abs f = concat (map (mapIdRightMult . (cross f id)) abs)
+
+> |||
+> lalaLemma : {A, A', B : Type} -> (NumMultDistributesOverPlus B) => 
+>             (abs : List (A, B)) -> (f : A -> List (A', B)) -> ((a : A) -> sumMapSnd (f a) = 1) ->
+>             sumMapSnd (lala abs f) = sumMapSnd abs
+> lalaLemma  Nil        _ _   = Refl
+> lalaLemma (ab :: abs) f prf =
+>   let a = fst ab in
+>   let b = snd ab in
+>   let fid = cross f id in
+>   let h = mapIdRightMult . fid in
+>     ( sumMapSnd (lala (ab :: abs) f) )
+>   ={ Refl }=
+>     ( sumMapSnd (concat (map h (ab :: abs))) )
+>   ={ sym (sumMapSndConcatLemma (map h (ab :: abs))) }=
+>     ( sum (map sumMapSnd (map h (ab :: abs))) )  
+>   ={ Refl }=
+>     ( sum (map sumMapSnd (h ab :: map h abs)) )  
+>   ={ Refl }=
+>     ( sum (sumMapSnd (h ab) :: map sumMapSnd (map h abs)) )
+>   ={ cong {f = \ ZUZU => sum (ZUZU :: map sumMapSnd (map h abs))} (mapIdRightMultLemma ((cross f id) ab)) }=
+>     ( sum ((sumMapSnd (fst (fid ab))) * (snd (fid ab)) :: map sumMapSnd (map h abs)) )    
+>   ={ cong {f = \ ZUZU => sum ((sumMapSnd (fst (fid ab))) * ZUZU :: map sumMapSnd (map h abs))} 
+>           (crossAnyIdSndLemma' {ab} {f}) }=
+>     ( sum ((sumMapSnd (fst (fid ab))) * (snd ab) :: map sumMapSnd (map h abs)) )
+>   ={ cong {f = \ ZUZU => sum ((sumMapSnd ZUZU) * (snd ab) :: map sumMapSnd (map h abs))} 
+>           (crossAnyIdFstLemma' {ab} {f}) }=
+>     ( sum ((sumMapSnd (f a)) * b :: map sumMapSnd (map h abs)) )
+>   ={ cong {f = \ ZUZU => sum (ZUZU * b :: map sumMapSnd (map h abs))} (prf a) }=
+>     ( sum (1 * b :: map sumMapSnd (map h abs)) )
+>   ={ cong {f = \ ZUZU => sum (ZUZU :: map sumMapSnd (map h abs))} (multOneLeftNeutral b) }=
+>     ( sum (b :: map sumMapSnd (map h abs)) )
+>   ={ Refl }=
+>     ( b + sum (map sumMapSnd (map h abs)) )
+>   ={ cong (sumMapSndConcatLemma (map h abs)) }=
+>     ( b + sumMapSnd (concat (map h abs)) )
+>   ={ Refl }=
+>     ( b + sumMapSnd (lala abs f) )
+>   ={ cong (lalaLemma abs f prf) }=
+>     ( b + sumMapSnd abs )
+>   ={ Refl }=  
+>     ( b + sum (map snd abs) )
+>   ={ Refl }=
+>     ( sum (b :: map snd abs) )
+>   ={ Refl }=
+>     ( sum (map snd (ab :: abs)) )
+>   ={ Refl }=
+>     ( sumMapSnd (ab :: abs) )
+>   QED
 
