@@ -86,7 +86,7 @@
 >   prf' = ( sumMapSnd bps' )
 >        ={ Refl }=
 >          ( sumMapSnd (mvMult aps f') )
->        ={ cong (mvMultLemma aps f' prfs') }=
+>        ={ mvMultLemma aps f' prfs' }=
 >          ( sumMapSnd aps )
 >        ={ prf }=
 >          ( 1 )

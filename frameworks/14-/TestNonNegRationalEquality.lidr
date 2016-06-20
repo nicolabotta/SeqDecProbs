@@ -31,7 +31,7 @@
 > f1Eqf2 : f1 `Eq` f2
 > f1Eqf2 = Refl
 
-> %freeze fromFraction
+> -- %freeze fromFraction
 
 > z1EQz2 : z1 = z2
 > z1EQz2 = fromFractionEqLemma f1 f2 f1Eqf2
