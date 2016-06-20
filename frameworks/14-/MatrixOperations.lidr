@@ -7,6 +7,7 @@
 
 > %default total
 > %access public export
+> %auto_implicits on
 
 
 > row : (Fin m) -> Matrix m n t -> Vect n t

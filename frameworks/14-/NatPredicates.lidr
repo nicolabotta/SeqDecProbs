@@ -4,6 +4,7 @@
 
 > %default total
 > %access public export
+> %auto_implicits on
 
 
 Divisor (following an idea from Tim Richter):

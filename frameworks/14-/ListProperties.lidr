@@ -25,8 +25,8 @@
 
 > %default total
 > %auto_implicits off
-> %access export
-> -- %access public export
+> -- %access export
+> %access public export
 
 
 |List| is a functor:
@@ -302,6 +302,7 @@ Fusion-related properties:
 > mapIdRightMult : {A, B : Type} -> (Num B) => (List (A, B), B) -> List (A, B)
 > mapIdRightMult (abs, b) = map (cross id (* b)) abs
 
+> |||
 > sumMapSndMapIdRightMultLemma : {A, B : Type} -> (Num B) => 
 >                                (b : B) -> (ab : (A, B)) -> (abs : List (A, B)) -> 
 >                                (snd ab) * b + sumMapSnd (mapIdRightMult (abs, b)) 
@@ -338,7 +339,7 @@ Fusion-related properties:
 >                       sumMapSnd (mapIdRightMult absb)
 >                       =
 >                       (sumMapSnd (fst absb)) * (snd absb)
-> mapIdRightMultLemma (Nil, b) = ?kiku
+> mapIdRightMultLemma (Prelude.List.Nil, b) = ?kiku
 > {-
 >     ( sumMapSnd (mapIdRightMult (Nil, b)) )
 >   ={ Refl }=
@@ -354,7 +355,7 @@ Fusion-related properties:
 >   ={ Refl }=     
 >     ( (sumMapSnd (fst (Nil, b))) * (snd (Nil, b)) )   
 >   QED
-> -}  
+> ---}  
 > mapIdRightMultLemma ((ab :: abs), b) =
 >     ( sumMapSnd (mapIdRightMult ((ab :: abs), b)) )
 >   ={ sym (sumMapSndMapIdRightMultLemma b ab abs) }=
@@ -375,20 +376,20 @@ Fusion-related properties:
 
 
 > |||
-> lala : {A, A', B : Type} -> (Num B) => List (A, B) -> (A -> List (A', B)) -> List (A', B)
-> lala abs f = concat (map (mapIdRightMult . (cross f id)) abs)
+> mvMult : {A, A', B : Type} -> (Num B) => List (A, B) -> (A -> List (A', B)) -> List (A', B)
+> mvMult abs f = concat (map (mapIdRightMult . (cross f id)) abs)
 
 > |||
-> lalaLemma : {A, A', B : Type} -> (NumMultDistributesOverPlus B) => 
->             (abs : List (A, B)) -> (f : A -> List (A', B)) -> ((a : A) -> sumMapSnd (f a) = 1) ->
->             sumMapSnd (lala abs f) = sumMapSnd abs
-> lalaLemma  Nil        _ _   = Refl
-> lalaLemma (ab :: abs) f prf =
+> mvMultLemma : {A, A', B : Type} -> (NumMultDistributesOverPlus B) => 
+>               (abs : List (A, B)) -> (f : A -> List (A', B)) -> ((a : A) -> sumMapSnd (f a) = 1) ->
+>               sumMapSnd (mvMult abs f) = sumMapSnd abs
+> mvMultLemma  Nil        _ _   = Refl
+> mvMultLemma (ab :: abs) f prf =
 >   let a = fst ab in
 >   let b = snd ab in
 >   let fid = cross f id in
 >   let h = mapIdRightMult . fid in
->     ( sumMapSnd (lala (ab :: abs) f) )
+>     ( sumMapSnd (mvMult (ab :: abs) f) )
 >   ={ Refl }=
 >     ( sumMapSnd (concat (map h (ab :: abs))) )
 >   ={ sym (sumMapSndConcatLemma (map h (ab :: abs))) }=
@@ -414,8 +415,8 @@ Fusion-related properties:
 >   ={ cong (sumMapSndConcatLemma (map h abs)) }=
 >     ( b + sumMapSnd (concat (map h abs)) )
 >   ={ Refl }=
->     ( b + sumMapSnd (lala abs f) )
->   ={ cong (lalaLemma abs f prf) }=
+>     ( b + sumMapSnd (mvMult abs f) )
+>   ={ cong (mvMultLemma abs f prf) }=
 >     ( b + sumMapSnd abs )
 >   ={ Refl }=  
 >     ( b + sum (map snd abs) )
