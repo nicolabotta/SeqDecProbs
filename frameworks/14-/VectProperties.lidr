@@ -374,7 +374,6 @@ Max and argmax
 
 
 > |||
-> %assert_total
 > argmaxLemma : {A : Type} ->
 >               (tp : TotalPreorder A) ->
 >               (as : Vect n A) -> (p : LT Z n) ->
@@ -383,15 +382,14 @@ Max and argmax
 > argmaxLemma {n = S Z}     tp (a :: Nil)        p = Refl
 > argmaxLemma {n = S (S m)} tp (a' :: (a'' :: as)) p with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
 >   | (k, max') with (totalPre tp a' max')
->     | (Left   _) = replace {P = \rec => Data.Vect.index (fst rec) (a'' :: as) = snd rec}
->                            (sym itsEqual)
->                            (argmaxLemma tp (a'' :: as) (ltZS m))
+>     | (Left   _) = assert_total (replace {P = \rec => Data.Vect.index (fst rec) (a'' :: as) = snd rec}
+>                                          (sym itsEqual)
+>                                          (argmaxLemma tp (a'' :: as) (ltZS m)))
 >     | (Right  _) = Refl
 > %freeze argmaxLemma
 
 
 > |||
-> %assert_total
 > maxElemLemma : {A : Type} ->
 >                (tp : TotalPreorder A) ->
 >                (as : Vect n A) -> (p : LT Z n) ->
@@ -400,9 +398,9 @@ Max and argmax
 > maxElemLemma {n = S Z}     tp (a :: Nil)          p = Here
 > maxElemLemma {n = S (S m)} tp (a' :: (a'' :: as)) p with (argmaxMax tp (a'' :: as) (ltZS m)) proof itsEqual
 >   | (k, max) with (totalPre tp a' max)
->     | (Left   _) = replace {P = \ ZUZU => Elem ZUZU (a' :: (a'' :: as))}
->                            (cong {f = Prelude.Basics.snd} (sym itsEqual))
->                            (There {y = a'} (maxElemLemma tp (a'' :: as) (ltZS m)))
+>     | (Left   _) = assert_total (replace {P = \ ZUZU => Elem ZUZU (a' :: (a'' :: as))}
+>                                          (cong {f = Prelude.Basics.snd} (sym itsEqual))
+>                                          (There {y = a'} (maxElemLemma tp (a'' :: as) (ltZS m))))
 > {-
 >     | (Left   _) = s4 where
 >       s1 : Elem (snd (argmaxMax tp (a'' :: as) (ltZS m))) (a' :: (a'' :: as))

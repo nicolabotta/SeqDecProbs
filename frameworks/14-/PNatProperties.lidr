@@ -15,6 +15,13 @@
 > %access export
 
 
+> ||| PNat is an implementation of DecEq
+> implementation DecEq PNat where
+>   decEq (Element m pm) (Element n pn) with (decEq m n)
+>     | (Yes prf) = Yes (subsetEqLemma1 (Element m pm) (Element n pn) prf PositiveUnique) 
+>     | (No contra) = No (\ prf => contra (getWitnessPreservesEq prf))
+
+
 > ||| PNat is an implementation of Show
 > implementation Show PNat where
 >   show = show . toNat

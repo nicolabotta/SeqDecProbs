@@ -20,7 +20,7 @@
 > -- %logging 5
 
 
-|Eq| is an equivalence:
+* |Eq| is an equivalence:
 
 > ||| Eq is reflexive
 > EqReflexive : {x : Fraction} -> x `Eq` x
@@ -66,8 +66,16 @@
 >   multMultElimRight (m * f) (o * d) e e Refl neEQZ s11
 
 
+* |Eq| decidable
 
-Properties of |(=)| and |Eq|:
+> |||
+> decEq : (x : Fraction) -> (y : Fraction) -> Dec (x `Eq` y)
+> decEq (m, d') (n, e') = let d = toNat d' in
+>                         let e = toNat e' in
+>                         decEq (m * e) (n * d)
+
+
+* Properties of |(=)| and |Eq|:
 
 > ||| Equality implies `Eq`
 > eqEq : {x, y : Fraction} -> x = y -> x `Eq` y

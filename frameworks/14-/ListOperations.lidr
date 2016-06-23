@@ -1,24 +1,25 @@
 > module ListOperations
-
+> import Syntax.PreorderReasoning
 
 > import Data.List
 > import Data.List.Quantifiers
-
 > import Sigma
+> import FunOperations
+> import NumRefinements
 
 > %default total
 > %access public export
 > %auto_implicits on
 
 
-|List| is a functor:
+* |List| is a functor:
 
 > ||| fmap
 > fmap : {A, B : Type} -> (A -> B) -> List A -> List B
 > fmap = map
 
 
-|List| is a monad:
+* |List| is a monad:
 
 > ||| ret
 > ret : {A : Type} -> A -> List A
@@ -29,7 +30,7 @@
 > bind = (>>=)
 
 
-|List| is a container monad:
+* |List| is a container monad:
 
 > ||| 
 > NonEmpty    : {A : Type} -> List A -> Type
@@ -44,7 +45,7 @@
 >   f (MkSigma a p) = MkSigma a (There p)
 
 
-Show
+* Show
 
 > implementation Show (Elem a as) where
 >   show = show' where
@@ -53,9 +54,36 @@ Show
 >     show' (There p) = "There" ++ show' p
 
 
-Reduction operators
+* Reduction operators
 
 > -- maxList : {A : Type} -> TotalPreorder A -> (as : List A) -> nonEmpty as -> A
 
+> |||
+> sumMapSnd : {A, B : Type} -> (Num B) => List (A, B) -> B
+> sumMapSnd abs = sum (map snd abs) 
 
+> |||
+> mapIdRightMult : {A, B : Type} -> (Num B) => (List (A, B), B) -> List (A, B)
+> mapIdRightMult (abs, b) = map (cross id (* b)) abs
+
+> |||
+> mvMult : {A, A', B : Type} -> (Num B) => List (A, B) -> (A -> List (A', B)) -> List (A', B)
+> mvMult abs f = concat (map (mapIdRightMult . (cross f id)) abs)
+
+
+* Ad-hoc filtering
+
+> |||
+> discardZeroes : {B : Type} -> (Num B, DecEq B) => List B -> List B
+> discardZeroes  Nil      = Nil
+> discardZeroes (b :: bs) with (decEq b 0)
+>   | (Yes _) = discardZeroes bs
+>   | (No _)  = b :: discardZeroes bs
+
+> |||
+> discardBySndZero : {A, B : Type} -> (Num B, DecEq B) => List (A, B) -> List (A, B)
+> discardBySndZero  Nil      = Nil
+> discardBySndZero (ab :: abs) with (decEq (snd ab) 0)
+>   | (Yes _) = discardBySndZero abs
+>   | (No _)  = ab :: discardBySndZero abs
 

@@ -132,6 +132,19 @@ Properties of |fromFraction| and |toFraction|:
 >   fromInteger = fromNat . fromIntegerNat
 
 
+> ||| NonNegRational is an implementation of DecEq
+> implementation DecEq NonNegRational where
+>   decEq x y with (Decidable.Equality.decEq (toFraction x) (toFraction y))
+>     | (Yes p) = Yes (toFractionInjective p)
+>     | (No contra) = No (\ prf => contra (toFractionEqLemma2 prf))
+
+
+> ||| NonNegRational is an implementation of Eq
+> implementation Eq NonNegRational where
+>   (==) x y with (decEq x y)
+>     | (Yes _) = True
+>     | (No _)  = False
+
 > |||
 > toFractionFromIntegerLemma : (n : Integer) -> toFraction (fromInteger n) = fromInteger n
 > toFractionFromIntegerLemma n =

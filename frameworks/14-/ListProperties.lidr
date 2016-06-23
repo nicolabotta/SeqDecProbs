@@ -268,8 +268,16 @@ Fusion-related properties:
 >   QED
 
 > |||
-> sumMapSnd : {A, B : Type} -> (Num B) => List (A, B) -> B
-> sumMapSnd abs = sum (map snd abs) 
+> sumMapSndSingletonLemma : {A, B : Type} -> (NumPlusZeroNeutral B) => 
+>                           (a : A) -> (b : B) -> sumMapSnd [(a, b)] = b
+> sumMapSndSingletonLemma a b = ( sumMapSnd [(a, b)] )
+>                             ={ Refl }=
+>                               ( sum (map snd [(a, b)]) )
+>                             ={ Refl }=
+>                               ( sum [b] )
+>                             ={ sumSingletonLemma b }=
+>                               ( b )
+>                             QED    
 
 > |||
 > sumMapSndConcatLemma : {A, B : Type} -> (NumPlusAssociative B) => 
@@ -297,10 +305,6 @@ Fusion-related properties:
 >   ={ Refl }=
 >     ( sumMapSnd (concat (abs :: abss)) )
 >   QED
-
-> |||
-> mapIdRightMult : {A, B : Type} -> (Num B) => (List (A, B), B) -> List (A, B)
-> mapIdRightMult (abs, b) = map (cross id (* b)) abs
 
 > |||
 > sumMapSndMapIdRightMultLemma : {A, B : Type} -> (Num B) => 
@@ -339,24 +343,22 @@ Fusion-related properties:
 >                       sumMapSnd (mapIdRightMult absb)
 >                       =
 >                       (sumMapSnd (fst absb)) * (snd absb)
-> mapIdRightMultLemma (Prelude.List.Nil, b) = ?kiku
-> {-
->     ( sumMapSnd (mapIdRightMult (Nil, b)) )
+> mapIdRightMultLemma {A} {B} (Nil, b) = 
+>     ( sumMapSnd {A} (mapIdRightMult (Nil, b)) )
 >   ={ Refl }=
->     ( sumMapSnd (map (cross id (* b)) Nil) )
+>     ( sumMapSnd {A} (map (cross id (* b)) Nil) )
 >   ={ Refl }=
->     ( sumMapSnd Nil )
+>     ( sumMapSnd {A} Nil )
 >   ={ Refl }=
 >     ( 0 )
 >   ={ sym (multZeroLeftZero b) }=
 >     ( 0 * b )
 >   ={ Refl }=     
->     ( (sumMapSnd Nil) * b )
+>     ( (sumMapSnd {A} Nil) * b )
 >   ={ Refl }=     
->     ( (sumMapSnd (fst (Nil, b))) * (snd (Nil, b)) )   
+>     ( (sumMapSnd {A} (fst (Nil, b))) * (snd {a = List (A, B)} (Nil, b)) )   
 >   QED
-> ---}  
-> mapIdRightMultLemma ((ab :: abs), b) =
+> mapIdRightMultLemma ((ab :: abs), b) = assert_total (
 >     ( sumMapSnd (mapIdRightMult ((ab :: abs), b)) )
 >   ={ sym (sumMapSndMapIdRightMultLemma b ab abs) }=
 >     ( (snd ab) * b + sumMapSnd (mapIdRightMult (abs, b)) )
@@ -373,11 +375,7 @@ Fusion-related properties:
 >   ={ Refl }=
 >     ( (sumMapSnd (fst ((ab :: abs), b))) * (snd ((ab :: abs), b)) )
 >   QED
-
-
-> |||
-> mvMult : {A, A', B : Type} -> (Num B) => List (A, B) -> (A -> List (A', B)) -> List (A', B)
-> mvMult abs f = concat (map (mapIdRightMult . (cross f id)) abs)
+>   )
 
 > |||
 > mvMultLemma : {A, A', B : Type} -> (NumMultDistributesOverPlus B) => 
@@ -428,3 +426,53 @@ Fusion-related properties:
 >     ( sumMapSnd (ab :: abs) )
 >   QED
 
+
+* Ad-hoc filtering
+
+> |||
+> discardZeroesLemma : {B : Type} -> (NumPlusZeroNeutral B, DecEq B) => 
+>                    (bs : List B) -> sum (discardZeroes bs) = sum bs
+> discardZeroesLemma  Nil      = Refl
+> discardZeroesLemma (b :: bs) with (decEq b 0)
+>   | (Yes p) = ( sum (discardZeroes bs) )
+>             ={ discardZeroesLemma bs }=
+>               ( sum bs )
+>             ={ sym (plusZeroLeftNeutral (sum bs)) }=      
+>               ( 0 + sum bs )
+>             ={ cong {f = \ ZUZU => ZUZU + sum bs} (sym p) }=    
+>               ( b + sum bs )
+>             ={ Refl }=  
+>               ( sum (b :: bs) )
+>             QED  
+>   | (No _)  = ( sum (b :: discardZeroes bs) )
+>             ={ Refl }=
+>               ( b + sum (discardZeroes bs) )
+>             ={ cong (discardZeroesLemma bs) }=
+>               ( b + sum bs )  
+>             ={ Refl }=
+>               ( sum (b :: bs) )
+>             QED
+
+> |||
+> discardBySndZeroLemma : {A, B : Type} -> (NumPlusZeroNeutral B, DecEq B) => 
+>                         (abs : List (A, B)) -> sumMapSnd (discardBySndZero abs) = sumMapSnd abs
+> discardBySndZeroLemma  Nil      = Refl
+> discardBySndZeroLemma (ab :: abs) with (decEq (snd ab) 0)
+>   | (Yes p) = ( sumMapSnd (discardBySndZero abs) )
+>             ={ discardBySndZeroLemma abs }=
+>               ( sumMapSnd abs )
+>             ={ sym (plusZeroLeftNeutral (sumMapSnd abs)) }=      
+>               ( 0 + sumMapSnd abs )
+>             ={ cong {f = \ ZUZU => ZUZU + sumMapSnd abs} (sym p) }=    
+>               ( (snd ab) + sumMapSnd abs )
+>             ={ Refl }=  
+>               ( sumMapSnd (ab :: abs) )
+>             QED  
+>   | (No _)  = ( sumMapSnd (ab :: discardBySndZero abs) )
+>             ={ Refl }=
+>               ( (snd ab) + sumMapSnd (discardBySndZero abs) )
+>             ={ cong (discardBySndZeroLemma abs) }=
+>               ( (snd ab) + sumMapSnd abs )  
+>             ={ Refl }=
+>               ( sumMapSnd (ab :: abs) )
+>             QED

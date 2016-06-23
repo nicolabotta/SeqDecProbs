@@ -54,21 +54,20 @@ Euclid's greatest common divisor algorithm
 >     d'Dmmn : d' `Divisor` (m - n)
 >     d'Dmmn = divisorMinusLemma n m d' d'Dn d'Dm
 
-> %assert_total
 > euclidGCD : (m : Nat) -> (n : Nat) -> Sigma Nat (\ d => GCD d m n)
-> euclidGCD    m   Z    = MkSigma m euclidGCD1
-> euclidGCD  Z       n  = MkSigma n euclidGCD2
+> euclidGCD    m   Z    = assert_total (MkSigma m euclidGCD1)
+> euclidGCD  Z       n  = assert_total (MkSigma n euclidGCD2)
 > euclidGCD (S m) (S n) with (decLTE (S m) (S n))
->   | (Yes p) = MkSigma gcd (euclidGCD3 p P) where
+>   | (Yes p) = assert_total (MkSigma gcd (euclidGCD3 p P)) where
 >     gcdP : Sigma Nat (\ d => GCD d (S m) (S n - S m))
->     gcdP = assert_total (euclidGCD (S m) (S n - S m))
+>     gcdP = euclidGCD (S m) (S n - S m)
 >     gcd  : Nat
 >     gcd  = getWitness gcdP
 >     P    : GCD gcd (S m) (S n - S m)
 >     P    = getProof gcdP
->   | (No  p) = MkSigma gcd (euclidGCD4 p P) where
+>   | (No  p) = assert_total (MkSigma gcd (euclidGCD4 p P)) where
 >     gcdP : Sigma Nat (\ d => GCD d (S m - S n) (S n))
->     gcdP = assert_total (euclidGCD (S m - S n) (S n))
+>     gcdP = euclidGCD (S m - S n) (S n)
 >     gcd  : Nat
 >     gcd  = getWitness gcdP
 >     P    : GCD gcd (S m - S n) (S n)
