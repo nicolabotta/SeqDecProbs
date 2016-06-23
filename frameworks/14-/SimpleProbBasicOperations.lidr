@@ -37,6 +37,11 @@
 > support sp = map fst (toList (normalize sp))
 
 
+> |||
+> probs : {A : Type} -> SimpleProb A -> List NonNegRational
+> probs sp = map snd (toList (normalize sp))
+
+
 > ||| 'prob sp a' is the probability of 'a' according to 'sp'
 > --{-
 > prob : {A : Type} -> (Eq A) => SimpleProb A -> A -> NonNegRational
