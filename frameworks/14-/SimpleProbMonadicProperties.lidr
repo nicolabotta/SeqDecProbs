@@ -27,6 +27,7 @@
 
 * |SimpleProb| is a functor:
 
+> |||
 > fmap : {A, B : Type} -> (A -> B) -> SimpleProb A -> SimpleProb B
 > fmap f (MkSimpleProb aps p) = 
 >   MkSimpleProb (map (cross f id) aps) s4 where
@@ -42,6 +43,7 @@
 
 * |SimpleProb| is a monad:
 
+> |||
 > ret : {A : Type} -> A -> SimpleProb A
 > ret {A} a = MkSimpleProb aps s1 where
 >   aps : List (A, NonNegRational)
@@ -76,6 +78,24 @@
 >                       (a : A) -> (sp : SimpleProb A) ->
 >                       All P sp -> a `Elem` sp -> P a
 > containerMonadSpec3 {A} {P} a sp allp elemp = ListProperties.containerMonadSpec3 a (support sp) allp elemp
+
+
+
+* Specific container monad properties
+
+> |||
+> uniqueAllLemma : {A : Type} -> {P : A -> Type} -> 
+>                  Unique1 P -> (sp : SimpleProb A) -> Unique (All P sp)
+> uniqueAllLemma u1P sp = ListProperties.uniqueAllLemma u1P (support sp)
+
+> |||
+> finiteAll : {A : Type} -> {P : A -> Type} -> 
+>             Finite1 P -> (sp : SimpleProb A) -> Finite (All P sp)
+> finiteAll f1P sp = ListProperties.finiteAll f1P (support sp)
+
+> ||| NotEmpty is finite
+> finiteNonEmpty : {A : Type} -> (sp : SimpleProb A) -> Finite (SimpleProbMonadicOperations.NonEmpty sp)
+> finiteNonEmpty sp = ListProperties.finiteNonEmpty (support sp)
 
 
 > {-
