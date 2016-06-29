@@ -7,8 +7,8 @@
 > import SeqDecProbsCoreTheory
 
 > import NatOperations
-> import NatLTEProperties
 > import NatOperationsProperties
+> import NatLTEProperties
 > import Sigma
 > import SigmaOperations
 > import SigmaProperties
@@ -65,7 +65,7 @@ number of steps, we delegate the computation of the policy sequence to
 an auxiliary function |ibi| which implements backwards induction
 iteratively:
 
-> %assert_total
+> |||
 > ibi : (t : Nat) -> (n : Nat) -> (c : Nat) -> LTE c n ->
 >       PolicySeq (n - c + t) c -> PolicySeq t n
 > ibi t n c prf ps with (n - c) proof itsEqual
@@ -73,13 +73,14 @@ iteratively:
 >             ps where
 >       ceqn : c = n
 >       ceqn = minusLemma3 prf itsEqual
->   | (S m) = ibi t n (S c) prf' ps' where
+>   | (S m) = assert_total (ibi t n (S c) prf' ps') where
 >       prf' : LTE (S c) n
 >       prf' = minusLemma2 prf (sym itsEqual)
 >       ps'  : PolicySeq (n - (S c) + t) (S c)
 >       ps'  = replace {P = \ x => PolicySeq (x + t) (S c)} (minusLemma1 (sym itsEqual))
 >              ((optExt ps) :: ps)
 
+> |||
 > trbi : (t : Nat) -> (n : Nat) -> PolicySeq t n
 > trbi t n = ibi t n Z LTEZero Nil
 

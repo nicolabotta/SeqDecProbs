@@ -15,11 +15,14 @@
 
 > import SeqDecProbsCoreAssumptions
 > import SeqDecProbsCoreTheory
-> import SeqDecProbsHelpers
 > import SeqDecProbsUtils
+> import SeqDecProbsHelpers
 
-> import ListOperations
-> import ListProperties
+> import SimpleProb
+> import SimpleProbBasicOperations
+> import SimpleProbBasicProperties
+> import SimpleProbMonadicOperations
+> import SimpleProbMonadicProperties
 > import BoundedNat
 > import BoundedNatOperations
 > import BoundedNatProperties
@@ -36,7 +39,6 @@
 > import Unique
 > import Decidable
 > import UnitProperties
-> import VoidProperties
 > import Opt
 > import TotalPreorder
 > import EffectException
@@ -50,34 +52,30 @@
 
 > -- %logging 5
 
-Like "SeqDecProbsExample2.lidr", but now |step t x y| is empty in states
-corresponding to |maxColumn|, no matter which |y| is selected! Thus,
-such states are not viable for more than zero steps. Attemps at making
-more than zero decision steps starting from |maxColumn| should be
-detected and rejected.
+We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 
 
 
-* The monad M (List):
+* The monad M (SimpleProb):
 
 
-** M is a monad:
+** SimpleProb is a monad:
 
-> SeqDecProbsCoreAssumptions.M = List
-> SeqDecProbsCoreAssumptions.fmap = ListOperations.fmap
-> SeqDecProbsCoreAssumptions.ret = ListOperations.ret
-> SeqDecProbsCoreAssumptions.bind = ListOperations.bind
+> SeqDecProbsCoreAssumptions.M = SimpleProb
+> SeqDecProbsCoreAssumptions.fmap = SimpleProbMonadicOperations.fmap
+> SeqDecProbsCoreAssumptions.ret = SimpleProbMonadicOperations.ret
+> SeqDecProbsCoreAssumptions.bind = SimpleProbMonadicOperations.bind
 
 
 ** M is a container monad:
 
-> SeqDecProbsCoreAssumptions.Elem = Data.List.Elem
-> SeqDecProbsCoreAssumptions.NonEmpty = ListOperations.NonEmpty
-> SeqDecProbsCoreAssumptions.All = Data.List.Quantifiers.All
-> SeqDecProbsCoreAssumptions.elemNonEmptySpec0 = ListProperties.elemNonEmptySpec0
-> SeqDecProbsCoreAssumptions.elemNonEmptySpec1 = ListProperties.elemNonEmptySpec1
-> SeqDecProbsCoreAssumptions.tagElem = ListOperations.tagElem
-> SeqDecProbsCoreAssumptions.containerMonadSpec3 = ListProperties.containerMonadSpec3
+> SeqDecProbsCoreAssumptions.Elem = SimpleProbMonadicOperations.Elem
+> SeqDecProbsCoreAssumptions.NonEmpty = SimpleProbMonadicOperations.NonEmpty
+> SeqDecProbsCoreAssumptions.All = SimpleProbMonadicOperations.All
+> SeqDecProbsCoreAssumptions.elemNonEmptySpec0 = SimpleProbMonadicProperties.elemNonEmptySpec0
+> SeqDecProbsCoreAssumptions.elemNonEmptySpec1 = SimpleProbMonadicProperties.elemNonEmptySpec1
+> SeqDecProbsCoreAssumptions.tagElem = SimpleProbMonadicOperations.tagElem
+> SeqDecProbsCoreAssumptions.containerMonadSpec3 = SimpleProbMonadicProperties.containerMonadSpec3
 
 
 
@@ -103,36 +101,20 @@ detected and rejected.
 ** Transition function:
 
 > SeqDecProbsCoreAssumptions.step t (MkSigma Z prf) Left =
->   [MkSigma maxColumn (ltIdS maxColumn)]
-> SeqDecProbsCoreAssumptions.step t (MkSigma (S n) prf) Left with (decLT (S n) maxColumn)
->   | (Yes p)     = [MkSigma n (ltLemma1 n nColumns prf)]
->   | (No contra) = []
-> SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Ahead with (decLT n maxColumn)
->   | (Yes p)     = [MkSigma n prf]
->   | (No contra) = []
+>   ret (MkSigma maxColumn (ltIdS maxColumn))
+> SeqDecProbsCoreAssumptions.step t (MkSigma (S n) prf) Left =
+>   ret (MkSigma n (ltLemma1 n nColumns prf))
+> SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Ahead =
+>   ret (MkSigma n prf)
 > SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Right with (decLT n maxColumn)
->   | (Yes p)     = [MkSigma (S n) (LTESucc p)]
->   | (No contra) = []
+>   | (Yes p)     = ret (MkSigma (S n) (LTESucc p))
+>   | (No contra) = ret (MkSigma  Z    (LTESucc LTEZero))
 
-> stepLemma0 : {t : Nat} -> 
->              (x : State t) -> (outl x `LT` maxColumn) -> step t x Ahead = [x]
-> stepLemma0 {t} (MkSigma i prf) p with (decLT i maxColumn)
->   | (Yes _) = Refl
->   | (No contra) = void (contra p)
-
-> stepLemma1 : {t : Nat} -> 
->              (x : State t) -> (outl x `LT` maxColumn) -> 
->              SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
-> stepLemma1 {t} x prf with (decLT (outl x) maxColumn)
->   | (Yes p) = s3 where
->     s1 : SeqDecProbsCoreAssumptions.NonEmpty [x] 
->     s1 = SeqDecProbsCoreAssumptions.elemNonEmptySpec0 x [x] Here
->     s2 : [x] = step t x Ahead
->     s2 = sym (stepLemma0 x p)
->     s3 : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
->     s3 = replace s2 s1
->   | (No contra) = void (contra prf)
-
+> stepNonEmptyLemma : {t : Nat} -> 
+>                     (x : State t) -> 
+>                     SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
+> stepNonEmptyLemma {t} (MkSigma n prf) = 
+>   SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} (MkSigma n prf) [(MkSigma n prf)] Here
 
 
 ** Reward function:
@@ -157,75 +139,27 @@ detected and rejected.
 
 ** M is measurable:
 
-> SeqDecProbsCoreAssumptions.meas = sum
-> SeqDecProbsCoreAssumptions.measMon = sumMon
+> SeqDecProbsCoreAssumptions.meas = average
+> SeqDecProbsCoreAssumptions.measMon = averageMon
 
 
 
 * Viable and Reachable
 
 > -- Viable : (n : Nat) -> State t -> Type
-> SeqDecProbsCoreAssumptions.Viable  Z    _ = Unit
-> SeqDecProbsCoreAssumptions.Viable (S n) x with (decLT (outl x) maxColumn)
->   | (Yes _) = Unit
->   | (No  _) = Void
-
-> viableLemma0 : {t : Nat} -> {x : State t} -> Viable Z x = Unit
-> viableLemma0 = Refl
-
-> viableLemma1 : {t : Nat} -> {n : Nat} -> {x : State t} -> 
->                (outl x) `Prelude.Nat.LT` maxColumn -> Viable (S n) x = Unit
-> viableLemma1 {t} {n} {x} prf with (decLT (outl x) maxColumn)
->   | (Yes _) = Refl
->   | (No contra) = void (contra prf)
-
-> viableLemma2 : {t : Nat} -> {n : Nat} -> {x : State t} -> 
->                Not ((outl x) `Prelude.Nat.LT` maxColumn) -> Viable (S n) x = Void
-> viableLemma2 {t} {n} {x} prf with (decLT (outl x) maxColumn)
->   | (Yes p) = void (prf p)
->   | (No _) = Refl
+> SeqDecProbsCoreAssumptions.Viable n x =  Unit
 
 > viableLemma : {t : Nat} -> {n : Nat} ->
 >               (x : State t) -> 
 >               SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
-> viableLemma {t} {n = Z} (MkSigma i prf) with (decLT i maxColumn)
->   | (Yes p) = res where
->     res : SeqDecProbsCoreAssumptions.All (Viable {t = S t} Z) [MkSigma i prf]
->     res = v :: Nil where
->       v : Viable {t = S t} Z (MkSigma i prf)
->       v with (decLT i maxColumn)
->         | (Yes _) = MkUnit
->         | (No  contra) = void (contra p)
->   | (No  _) = Nil
-> viableLemma {t} {n = S m} (MkSigma i prf) with (decLT i maxColumn)
->   | (Yes p) = res where
->     res : SeqDecProbsCoreAssumptions.All (Viable {t = S t} (S m)) [MkSigma i prf]
->     res = v :: Nil where
->       v : Viable {t = S t} (S m) (MkSigma i prf)
->       v with (decLT i maxColumn)
->         | (Yes _) = MkUnit
->         | (No  contra) = void (contra p)
->   | (No  _) = Nil
-> {-
-> viableLemma {t} {n} (MkSigma i prf) with (decLT i maxColumn)
->   | (Yes p) = res where
->     res : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) [MkSigma i prf]
->     res = v :: Nil where
->       v : Viable {t = S t} n (MkSigma i prf)
->       v with (decLT i maxColumn)
->         | (Yes _) = MkUnit
->         | (No  contra) = void (contra p)
->   | (No  _) = Nil
-> -}
+> viableLemma (MkSigma n prf) = [()]
 
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
-> SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x v with (decLT (outl x) maxColumn)
->   | (Yes prf) = MkSigma Ahead (ne, av) where
->     ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
->     ne = stepLemma1 x prf
->     av : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
->     av = viableLemma x 
->   | (No _) = void v
+> SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x _ = MkSigma Ahead (ne, av) where
+>   ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
+>   ne = stepNonEmptyLemma x
+>   av : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
+>   av = viableLemma x
 
 > -- Reachable : State t' -> Type
 > SeqDecProbsCoreAssumptions.Reachable x' = Unit
@@ -234,7 +168,7 @@ detected and rejected.
 > SeqDecProbsCoreAssumptions.reachableSpec1 {t} x r y = all (step t x y) where
 >   all : (xs : List (State (S t))) -> SeqDecProbsCoreAssumptions.All (Reachable {t' = S t}) xs
 >   all Nil = Nil
->   all (x :: xs) = MkUnit :: (all xs)
+>   all (x :: xs) = () :: (all xs)
 
 
 
@@ -279,22 +213,7 @@ follow from finiteness of |All|
 
 > -- finiteViable : {t : Nat} -> {n : Nat} -> 
 > --                (x : State t) -> Finite (Viable {t} n x)
-> SeqDecProbsHelpers.finiteViable {t} {n = Z}    _ = finiteUnit
-> SeqDecProbsHelpers.finiteViable {t} {n = S m} x with (decLT (outl x) maxColumn)
->   | (Yes p) = finiteUnit -- s3 where
->     -- s1 : Finite Unit
->     -- s1 = finiteUnit
->     -- s2 : Viable {t} (S m) x = Unit
->     -- s2 = viableLemma1 {t = t} {n = m} {x = x} p
->     -- s3 : Finite (Viable {t} (S m) x)
->     -- s3 = replace (sym s2) s1
->   | (No  c) = finiteVoid -- s3 where
->     -- s1 : Finite Void
->     -- s1 = finiteVoid
->     -- s2 : Viable {t} (S m) x = Void
->     -- s2 = viableLemma2 {t = t} {n = m} {x = x} c
->     -- s3 : Finite (Viable {t} (S m) x)
->     -- s3 = replace (sym s2) s1
+> SeqDecProbsHelpers.finiteViable _ = finiteUnit
 
 , finiteness of |NonEmpty|
 
@@ -328,10 +247,7 @@ With these results in place, we have
 * Decidability of Viable
 
 > dViable : {t : Nat} -> (n : Nat) -> (x : State t) -> Dec (Viable {t} n x)
-> dViable {t}  Z    _ = Yes MkUnit
-> dViable {t} (S n) x with (decLT (outl x) maxColumn)
->   | (Yes _) = Yes MkUnit
->   | (No  _) = No void
+> dViable {t} n x = Yes ()
 
 
 
@@ -360,6 +276,8 @@ With these results in place, we have
 
 > main : IO ()
 > main = run computation
+
+> {-
 
 > ---}
 
