@@ -19,6 +19,8 @@
 > import FunOperations
 > import ListOperations
 > import ListProperties
+> import Unique
+> import Finite
 
 > %default total
 > %access public export

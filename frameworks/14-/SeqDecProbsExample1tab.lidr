@@ -27,7 +27,8 @@
 > import Sigma
 > import SigmaOperations
 > import SigmaProperties
-> import NatProperties
+> import NatLTEProperties
+> import NatLTProperties
 > import Finite
 > import FiniteOperations
 > import FiniteProperties
