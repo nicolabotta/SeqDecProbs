@@ -29,14 +29,14 @@
 > %access public export
 
 
-|List| is a functor:
+* |List| is a functor:
 
 > -- functorSpec1 : fmap . id = id
 
 > -- functorSpec2 : fmap (f . g) = (fmap f) . (fmap g)
 
 
-|List| is a monad:
+* |List| is a monad:
 
 > -- monadSpec1 : (fmap f) . ret = ret . f
 
@@ -48,7 +48,7 @@
 > --                bind (bind ma f) g = bind ma (\ a => bind (f a) g)
 
 
-|List| is a container monad:
+* |List| is a container monad:
 
 > |||
 > elemNonEmptySpec0 : {A : Type} ->
@@ -82,7 +82,7 @@
 > -- containerMonadSpec4 : {A : Type} -> (ma : M A) -> fmap outl (tagElem ma) = ma
 
 
-Specific container monad properties
+* Specific container monad properties
 
 > |||
 > uniqueAllLemma : {A : Type} -> {P : A -> Type} -> 
@@ -168,8 +168,23 @@ Specific container monad properties
 > finiteNonEmpty  Nil      = finiteVoid
 > finiteNonEmpty (a :: as) = finiteUnit
 
+> tagElemPreservesLength : {A : Type} -> (as : List A) -> length (tagElem as) = length as
+> tagElemPreservesLength  Nil      = Refl
+> tagElemPreservesLength (a :: as) = ( length (tagElem (a :: as)) )
+>                                  ={ Refl }=
+>                                    ( length ((MkSigma a Here) :: (map (idThere a as) (tagElem as))) )
+>                                  ={ Refl }=
+>                                    ( S (length (map (idThere a as) (tagElem as))) )
+>                                  ={ cong (mapPreservesLength (idThere a as) (tagElem as)) }=
+>                                    ( S (length (tagElem as)) )
+>                                  ={ cong (tagElemPreservesLength as) }=
+>                                    ( S (length as) )  
+>                                  ={ Refl }=
+>                                    ( length (a :: as) )
+>                                  QED
 
-Fusion-related properties:
+
+* Fusion-related properties:
 
 > ||| 
 > mapSndMapCrossAnyIdLemma : {A, B, C : Type} -> 
@@ -209,6 +224,80 @@ Fusion-related properties:
 >                           ={ Refl }=
 >                             ( length (map g (a :: as)) )
 >                           QED
+
+
+> |||
+> lengthConsLemma : {A, B : Type} ->
+>                   (a : A) -> (b : B) -> (as : List A) -> (bs : List B) ->
+>                   length (a :: as) = length (b :: bs) -> length as = length bs
+> lengthConsLemma a b as bs prf = succInjective (length as) (length bs) s2 where
+>   s1 : length (a :: as) = length (b :: bs)
+>   s1 = prf
+>   s2 : S (length as) = S (length bs)
+>   s2 = replace2 {P = \ X => \ Y => X = Y} Refl Refl s1
+
+
+* Properties of |zip| and |unzip|:
+
+> |||
+> unzipConsLemma : {A, B : Type} -> 
+>                  (ab : (A, B)) -> (abs : List (A, B)) ->
+>                  unzip (ab :: abs) = (fst ab :: fst (unzip abs), snd ab :: snd (unzip abs))
+> unzipConsLemma (a, b) abs with (unzip abs)
+>   | (_, _) = Refl
+
+> |||
+> fstUnzipConsLemma : {A, B : Type} -> 
+>                     (ab : (A, B)) -> (abs : List (A, B)) ->
+>                     fst (unzip (ab :: abs)) = fst ab :: fst (unzip abs)
+> fstUnzipConsLemma ab abs = cong {f = fst} (unzipConsLemma ab abs)
+
+> |||
+> sndUnzipConsLemma : {A, B : Type} -> 
+>                     (ab : (A, B)) -> (abs : List (A, B)) ->
+>                     snd (unzip (ab :: abs)) = snd ab :: snd (unzip abs)
+> sndUnzipConsLemma ab abs = cong {f = snd} (unzipConsLemma ab abs)
+
+> |||
+> unzipZipLemma : {A, B : Type} -> 
+>                 (as : List A) -> (bs : List B) -> length as = length bs ->
+>                 unzip (zip as bs) = (as, bs)
+> unzipZipLemma  Nil       Nil      _   = Refl                 
+> unzipZipLemma  Nil      (b :: bs) prf = absurd prf
+> unzipZipLemma (a :: as)  Nil      prf = absurd (sym prf)
+> unzipZipLemma (a :: as) (b :: bs) prf with (unzip (zip as bs)) proof p
+>   | (left, right) = s4 where
+>       s1 : length as = length bs
+>       s1 = lengthConsLemma a b as bs prf
+>       s2 : unzip (zip as bs) = (as, bs)
+>       s2 = unzipZipLemma as bs s1
+>       s3 : (left, right) = (as, bs)
+>       s3 = trans p s2
+>       s4 : (a :: left, b :: right) = (a :: as, b :: bs)
+>       s4 = replace2 {P = \ X => \ Y => (a :: left, b :: right) = (a :: X, b :: Y)} 
+>                     (cong {f = fst} s3) (cong {f = snd} s3) Refl
+
+> |||
+> sumMapSndUnzipLemma : {A, B : Type} -> (Num B) => 
+>                       (abs : List (A, B)) -> sumMapSnd abs = sum (snd (unzip abs))
+> sumMapSndUnzipLemma  Nil        = Refl
+> sumMapSndUnzipLemma (ab :: abs) = 
+>     ( sumMapSnd (ab :: abs) )
+>   ={ Refl }=
+>     ( sum (map snd (ab :: abs)) )
+>   ={ Refl }=
+>     ( sum (snd ab :: map snd abs) )
+>   ={ Refl }=
+>     ( snd ab + sum (map snd abs) )
+>   ={ Refl }=
+>     ( snd ab + sumMapSnd abs )
+>   ={ cong (sumMapSndUnzipLemma abs) }=  
+>     ( snd ab + sum (snd (unzip abs)) )
+>   ={ Refl }=
+>     ( sum (snd ab :: snd (unzip abs)) )
+>   ={ cong (sym (sndUnzipConsLemma ab abs)) }=
+>     ( sum (snd (unzip (ab :: abs))) )
+>   QED    
 
 
 * Properties of |fold|:

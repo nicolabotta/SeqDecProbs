@@ -43,22 +43,20 @@
 
 
 > ||| 'prob sp a' is the probability of 'a' according to 'sp'
-> --{-
 > prob : {A : Type} -> (Eq A) => SimpleProb A -> A -> NonNegRational
 > prob (MkSimpleProb aps _) a = foldr f 0 aps where
 >   f : (A, NonNegRational) -> NonNegRational -> NonNegRational
 >   f (a', p') p = if (a == a') then p + p' else p
-> ---}
+
+
 > {-
+
 > prob : {A : Type} -> (DecEq A) => SimpleProb A -> A -> NonNegRational
 > prob {A} (MkSimpleProb aps _) a = foldr f 0 aps where
 >   f : (A, NonNegRational) -> NonNegRational -> NonNegRational
 >   f (a', p') p with (decEq a a') 
 >     | (Yes _) = p + p' 
 >     | (No _)  = p
+
 > ---}    
 
-
-> {-
-
-> ---}

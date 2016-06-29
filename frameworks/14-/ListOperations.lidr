@@ -37,12 +37,17 @@
 > NonEmpty  Nil      = Void
 > NonEmpty (a :: as) = Unit
 
+> idThere : {A : Type} -> 
+>           (a : A) -> (as : List A) -> 
+>           Sigma A (\ x => x `Elem` as) -> Sigma A (\ x => x `Elem` (a :: as))
+> idThere a as (MkSigma x p) = MkSigma x (There p)
+
 > ||| Tagging
 > tagElem  :  {A : Type} -> (as : List A) -> List (Sigma A (\ a => a `Elem` as))
 > tagElem Nil = Nil
-> tagElem {A} (x :: xs) = (MkSigma x Here) :: (map f (tagElem xs)) where
->   f : Sigma A (\ a => a `Elem` xs) -> Sigma A (\ a => a `Elem` (x :: xs))
->   f (MkSigma a p) = MkSigma a (There p)
+> tagElem {A} (x :: xs) = (MkSigma x Here) :: (map (idThere x xs) (tagElem xs)) -- where
+>   -- f : Sigma A (\ a => a `Elem` xs) -> Sigma A (\ a => a `Elem` (x :: xs))
+>   -- f (MkSigma a p) = MkSigma a (There p)
 
 
 * Show

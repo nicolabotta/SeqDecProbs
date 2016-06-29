@@ -95,23 +95,25 @@
 >     aps' : List (Sigma A (\ a => a `Elem` sp), NonNegRational)
 >     aps' = zip as' psp
 >     s1p' : sumMapSnd aps' = 1
->     s1p' = ?lala 
-
-
+>     s1p' = trans s1 (trans s7 s8) where
+>       s1 : sumMapSnd aps' = sum (snd (unzip aps'))
+>       s1 = sumMapSndUnzipLemma aps'
+>       s2 : length as' = length ssp
+>       s2 = tagElemPreservesLength ssp
+>       s3 : length ssp = length psp
+>       s3 = lengthSupportProbsLemma sp
+>       s4 : length as' = length psp
+>       s4 = trans s2 s3
+>       s5 : unzip (zip as' psp) = (as', psp)
+>       s5 = unzipZipLemma as' psp s4
+>       s6 : snd (unzip aps') = psp
+>       s6 = cong {f = snd} s5
+>       s7 : sum (snd (unzip aps')) = sum psp
+>       s7 = cong {f = sum} s6
+>       s8 : sum psp = 1
+>       s8 = sumProbsLemma sp
 
 
 > {-
-
-
-
-> ||| Tagging
-> tagElem  :  {A : Type} -> (sp : SimpleProb A) -> SimpleProb (Sigma A (\ a => a `Elem` sp))
-> tagElem {A} sp = MkSimpleProb aps' prf' where
->   aps' : List ((Sigma A (\ a => a `Elem` sp)), NonNegRational)
->   aps' = map f (ListOperations.tagElem (support sp)) where
->     f : (Sigma A (\ a => a `Elem` sp)) -> ((Sigma A (\ a => a `Elem` sp)), NonNegRational)
->     f (MkSigma a prf) = (MkSigma a prf, prob sp a)
->   prf' : sumMapSnd aps' = 1
->   prf' = ?kiku
 
 > ---}
