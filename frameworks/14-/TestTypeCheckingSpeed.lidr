@@ -8,6 +8,9 @@
 > import FractionNormal
 > import FractionPredicates
 > import FractionBasicProperties
+> import PNat
+> import PNatOperations
+> import PNatProperties
  
 > %default total
 > %access public export
