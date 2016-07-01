@@ -1,5 +1,3 @@
-> module NonNegRationalMeasures
-
 > import Syntax.PreorderReasoning
 
 > import NonNegRational
@@ -8,34 +6,30 @@
 > import NatPositive
 > import Fraction
 > import FractionNormal
-> import FractionPredicates --
-> import FractionProperties --
+> import FractionPredicates
+> import FractionBasicProperties
  
 > %default total
 > %access public export
 > %auto_implicits off
 
 
-> ||| 
-> factor : {A : Type} -> List A -> NonNegRational
-> factor Nil = 1
-> factor (a :: as) = fromFraction (1, Element (S (length as)) MkPositive)
-
 > ||| The sum of n terms of the form 1/(S m) is n/(S m)
 > lala : (n : Nat) -> (m : Nat ) -> 
 >        sum (replicate n (fromFraction (1, Element (S m) MkPositive))) = fromFraction (n, Element (S m) MkPositive)
+
 > lala Z m =
->   let zeroOverOne = (0, Element 1 MkPositive) in
->   let zeroOverSm  = (0, Element (S m) MkPositive) in
->   let oneOverSm   = (1, Element (S m) MkPositive) in
->     ( sum (replicate Z (fromFraction oneOverSm)) )
+>   let Sm' = Element (S m) MkPositive in
+>   let SZ' = Element 1 MkPositive in
+>     ( sum (replicate Z (fromFraction (1, Sm'))) )
 >   ={ Refl }=
 >     ( sum Nil )
 >   ={ Refl }=
->     ( fromFraction zeroOverOne )
->   ={ fromFractionEqLemma zeroOverOne zeroOverSm Refl }=
->     ( fromFraction zeroOverSm )
+>     ( fromFraction (0, SZ') )
+>   ={ fromFractionEqLemma (0, SZ') (0, Sm') Refl }=
+>     ( fromFraction (0, Sm') )
 >   QED
+
 > lala (S n) m =
 >   let Sm' = Element (S m) MkPositive in
 >   let Sm  = toNat Sm' in
@@ -58,14 +52,3 @@
 >   ={ cong (plusOneSucc n) }=
 >     ( fromFraction (Sn, Sm') )
 >   QED
-
-
-> ||| 
-> average : List NonNegRational -> NonNegRational
-> average xs = (sum xs) * (factor xs)
-
-
-> {-
-
-> ---}
- 

@@ -49,6 +49,19 @@
 >   f (a', p') p = if (a == a') then p + p' else p
 
 
+> ||| Make a SimpleProb in which all elements of a list have the same 
+> ||| probablility. If the list has no duplicates, this results in a
+> ||| uniform probability distribution
+> mkSimpleProb : {A : Type} -> (as : List A) -> NonEmpty as -> SimpleProb A
+> -- mkSimpleProb  Nil      prf = absurd prf
+> -- mkSimpleProb {A} (a :: as) prf = MkSimpleProb aps s1p where
+> --   aps : List
+
+
+
+
+
+
 > {-
 
 > prob : {A : Type} -> (DecEq A) => SimpleProb A -> A -> NonNegRational
