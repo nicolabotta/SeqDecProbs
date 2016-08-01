@@ -2,8 +2,8 @@ SHELL := /bin/bash
 
 IDRIS = time idris
 IDRISFLAGS = +RTS -K32000000 -RTS -p contrib -p effects --warnreach -V
-IDRIS_CHECK_FLAGS = -p contrib -V --check
-IDRIS_COMPILE_FLAGS = -p contrib -p effects -V
+IDRIS_CHECK_FLAGS = +RTS -K32000000 -RTS -p contrib -V --check
+IDRIS_COMPILE_FLAGS = +RTS -K32000000 -RTS -p contrib -p effects -V
 
 all:
 	find . -not \( -path "./zombies" -prune \) -not \( -path "./unused" -prune \) -name '*.lidr' | xargs -n 1 ${IDRIS} ${IDRISFLAGS} --check

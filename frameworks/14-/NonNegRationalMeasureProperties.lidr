@@ -72,6 +72,9 @@
 >   s5 = NonNegRationalLTEProperties.monotonePlusLTE s3 s4
 
 
+> %freeze fromFractionLinear
+> %freeze fromFraction
+
 > ||| The sum of n terms of the form 1/(S m) is n/(S m)
 > lala : (n : Nat) -> (m : Nat ) -> 
 >        sum (replicate n (fromFraction (1, Element (S m) MkPositive))) 
@@ -90,26 +93,26 @@
 >     ( fromFraction (0, Sm') )
 >   QED
 
-> lala (S n) m =
->   let Sm' = Element (S m) MkPositive in
->   let Sm  = toNat Sm' in
->   let Sn  = S n in 
+> lala (S n) m = 
+>   let Sm' : PNat = Element (S m) MkPositive in
+>   let Sm  : Nat  = toNat Sm' in
+>   let Sn  : Nat  = S n in 
 >     ( sum (replicate (S n) (fromFraction (1, Sm'))) )
 >   ={ Refl }=
 >     ( sum (fromFraction (1, Sm') :: replicate n (fromFraction (1, Sm'))) )
 >   ={ Refl }=
 >     ( fromFraction (1, Sm') + sum (replicate n (fromFraction (1, Sm'))) )
->   ={ cong (lala n m) }=
+>   ={ cong {f = \ X => fromFraction (1, Sm') + X} (lala n m) }=
 >     ( fromFraction (1, Sm') + fromFraction (n, Sm') )
->   ={ fromFractionLinear (1, Sm') (n, Sm') }=
+>   ={ sym (fromFractionLinear (1, Sm') (n, Sm')) }=
 >     ( fromFraction ((1, Sm') + (n, Sm')) )
->   ={ Refl }=
+>   ={ cong {f = fromFraction} Refl }=
 >     ( fromFraction (1 * Sm + n * Sm, Sm' * Sm') )
->   ={ cong (sym (multDistributesOverPlusLeft 1 n Sm)) }=
+>   ={ cong {f = \ X => fromFraction (X, Sm' * Sm')} (sym (multDistributesOverPlusLeft 1 n Sm)) }=
 >     ( fromFraction ((1 + n) * Sm, Sm' * Sm') )
 >   ={ multElimRight (1 + n) Sm' Sm' }=
 >     ( fromFraction (1 + n, Sm') )      
->   ={ cong (plusOneSucc n) }=
+>   ={ cong {f = \ X => fromFraction (X, Sm')} (plusOneSucc n) }=
 >     ( fromFraction (Sn, Sm') )
 >   QED
 

@@ -45,16 +45,16 @@
 >     ( sum (fromFraction (1, Sm') :: replicate n (fromFraction (1, Sm'))) )
 >   ={ Refl }=
 >     ( fromFraction (1, Sm') + sum (replicate n (fromFraction (1, Sm'))) )
->   ={ cong (lala n m) }=
+>   ={ cong {f = \ X => fromFraction (1, Sm') + X} (lala n m) }=
 >     ( fromFraction (1, Sm') + fromFraction (n, Sm') )
 >   ={ sym (fromFractionLinear (1, Sm') (n, Sm')) }=
 >     ( fromFraction ((1, Sm') + (n, Sm')) )
->   ={ cong Refl }=
+>   ={ cong {f = fromFraction} Refl }=
 >     ( fromFraction (1 * Sm + n * Sm, Sm' * Sm') )
 >   ={ cong {f = \ X => fromFraction (X, Sm' * Sm')} (sym (multDistributesOverPlusLeft 1 n Sm)) }=
 >     ( fromFraction ((1 + n) * Sm, Sm' * Sm') )
 >   ={ multElimRight (1 + n) Sm' Sm' }=
 >     ( fromFraction (1 + n, Sm') )      
 >   ={ cong {f = \ X => fromFraction (X, Sm')} (plusOneSucc n) }=
->     ( fromFraction (S n, Sm') )
+>     ( fromFraction (Sn, Sm') )
 >   QED
