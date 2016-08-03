@@ -76,12 +76,12 @@
 > %freeze fromFraction
 
 > ||| The sum of n terms of the form 1/(S m) is n/(S m)
-> lala : (n : Nat) -> (m : Nat ) -> 
->        sum (replicate n (fromFraction (1, Element (S m) MkPositive))) 
->        = 
->        fromFraction (n, Element (S m) MkPositive)
+> sumLemma0 : (n : Nat) -> (m : Nat ) -> 
+>             sum (replicate n (fromFraction (1, Element (S m) MkPositive))) 
+>             = 
+>             fromFraction (n, Element (S m) MkPositive)
 
-> lala Z m =
+> sumLemma0 Z m =
 >   let Sm' = Element (S m) MkPositive in
 >   let SZ' = Element 1 MkPositive in
 >     ( sum (replicate Z (fromFraction (1, Sm'))) )
@@ -93,7 +93,7 @@
 >     ( fromFraction (0, Sm') )
 >   QED
 
-> lala (S n) m = 
+> sumLemma0 (S n) m = 
 >   let Sm' : PNat = Element (S m) MkPositive in
 >   let Sm  : Nat  = toNat Sm' in
 >   let Sn  : Nat  = S n in 
@@ -102,7 +102,7 @@
 >     ( sum (fromFraction (1, Sm') :: replicate n (fromFraction (1, Sm'))) )
 >   ={ Refl }=
 >     ( fromFraction (1, Sm') + sum (replicate n (fromFraction (1, Sm'))) )
->   ={ cong {f = \ X => fromFraction (1, Sm') + X} (lala n m) }=
+>   ={ cong {f = \ X => fromFraction (1, Sm') + X} (sumLemma0 n m) }=
 >     ( fromFraction (1, Sm') + fromFraction (n, Sm') )
 >   ={ sym (fromFractionLinear (1, Sm') (n, Sm')) }=
 >     ( fromFraction ((1, Sm') + (n, Sm')) )

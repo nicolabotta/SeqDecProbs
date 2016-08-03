@@ -9,6 +9,7 @@
 > import PNat
 > import PNatOperations
 > import PNatProperties
+> import NatPositive
 
 
 > %default total
@@ -16,10 +17,10 @@
 
 
 > f1 : Fraction
-> f1 = (0, PNat.fromNat 1 (LTESucc LTEZero)) 
+> f1 = (0, Element (S Z) MkPositive) 
 
 > f2 : Fraction
-> f2 = (0, PNat.fromNat 7 (LTESucc LTEZero)) 
+> f2 = (0, Element (S 6) MkPositive) 
 
 > z1 : NonNegRational
 > z1 = fromFraction f1
@@ -29,6 +30,8 @@
 
 > z1EQz2 : z1 = z2
 > z1EQz2 = fromFractionEqLemma f1 f2 Refl
+
+> {-
 
 > x : NonNegRational
 > x = fromFraction (2067, PNat.fromNat 616 (LTESucc LTEZero)) 
@@ -46,4 +49,4 @@
 >           putStrLn (show y)
 >           putStrLn (show z)
 
-
+> -}

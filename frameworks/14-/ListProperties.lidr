@@ -65,8 +65,9 @@
 > elemNonEmptySpec1  Nil      c = void c
 > elemNonEmptySpec1 (a :: as) _ = MkSigma a Here 
 
-
-> -- containerMonadSpec1 : a `Elem` (ret a)
+> |||
+> containerMonadSpec1 : {A : Type} -> {a : A} -> a `Elem` (ret a)
+> containerMonadSpec1 {A} {a} = Here
 
 > -- containerMonadSpec2 : {A : Type} -> (a : A) -> (ma : M A) -> (mma : M (M A)) ->
 > --                       a `Elem` ma -> ma `Elem` mma -> a `Elem` (join mma)
@@ -235,6 +236,21 @@
 >   s1 = prf
 >   s2 : S (length as) = S (length bs)
 >   s2 = replace2 {P = \ X => \ Y => X = Y} Refl Refl s1
+
+
+> |||
+> lengthReplicateLemma : {A : Type} -> 
+>                        (n : Nat) -> (a : A) -> 
+>                        length (replicate n a) = n
+> lengthReplicateLemma  Z    _ = Refl
+> lengthReplicateLemma (S m) a = ( length (replicate (S m) a) )
+>                              ={ Refl }=
+>                                ( length (a :: replicate m a) )
+>                              ={ Refl }=
+>                                ( S (length (replicate m a)) )
+>                              ={ cong (lengthReplicateLemma m a) }=
+>                                ( S m )
+>                              QED
 
 
 * Properties of |zip| and |unzip|:
@@ -565,3 +581,11 @@
 >             ={ Refl }=
 >               ( sumMapSnd (ab :: abs) )
 >             QED
+
+> |||
+> discardBySndZeroLemma1 : {A, B : Type} -> (Num B, DecEq B) => 
+>                          (a : A) -> (b : B) -> Not (b = 0) ->
+>                          discardBySndZero ((a, b) :: Nil) = (a, b) :: Nil
+> discardBySndZeroLemma1 a b contra with (decEq b 0)
+>   | (Yes prf) = void (contra prf)
+>   | (No _)  = Refl

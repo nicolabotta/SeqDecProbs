@@ -50,7 +50,7 @@
 > %auto_implicits off
 
 
-> -- %logging 5
+> %logging 5
 
 We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 
@@ -75,6 +75,7 @@ We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 > SeqDecProbsCoreAssumptions.elemNonEmptySpec0 = SimpleProbMonadicProperties.elemNonEmptySpec0
 > SeqDecProbsCoreAssumptions.elemNonEmptySpec1 = SimpleProbMonadicProperties.elemNonEmptySpec1
 > SeqDecProbsCoreAssumptions.tagElem = SimpleProbMonadicOperations.tagElem
+> SeqDecProbsCoreAssumptions.containerMonadSpec1 = SimpleProbMonadicProperties.containerMonadSpec1
 > SeqDecProbsCoreAssumptions.containerMonadSpec3 = SimpleProbMonadicProperties.containerMonadSpec3
 
 
@@ -101,20 +102,31 @@ We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 ** Transition function:
 
 > SeqDecProbsCoreAssumptions.step t (MkSigma Z prf) Left =
->   ret (MkSigma maxColumn (ltIdS maxColumn))
+>   SeqDecProbsCoreAssumptions.ret (MkSigma maxColumn (ltIdS maxColumn))
 > SeqDecProbsCoreAssumptions.step t (MkSigma (S n) prf) Left =
->   ret (MkSigma n (ltLemma1 n nColumns prf))
-> SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Ahead =
->   ret (MkSigma n prf)
+>   SeqDecProbsCoreAssumptions.ret (MkSigma n (ltLemma1 n nColumns prf))
+> SeqDecProbsCoreAssumptions.step t x Ahead = SeqDecProbsCoreAssumptions.ret x
 > SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Right with (decLT n maxColumn)
->   | (Yes p)     = ret (MkSigma (S n) (LTESucc p))
->   | (No contra) = ret (MkSigma  Z    (LTESucc LTEZero))
+>   | (Yes p)     = SeqDecProbsCoreAssumptions.ret (MkSigma (S n) (LTESucc p))
+>   | (No contra) = SeqDecProbsCoreAssumptions.ret (MkSigma  Z    (LTESucc LTEZero))
+
+> -- %freeze SeqDecProbsCoreAssumptions.NonEmpty
+> -- %freeze SeqDecProbsCoreAssumptions.elemNonEmptySpec0
 
 > stepNonEmptyLemma : {t : Nat} -> 
 >                     (x : State t) -> 
 >                     SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
-> stepNonEmptyLemma {t} (MkSigma n prf) = 
->   SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} (MkSigma n prf) [(MkSigma n prf)] Here
+> stepNonEmptyLemma {t} x = s5 where
+>   sp : SimpleProb (State (S t))  
+>   sp = SeqDecProbsCoreAssumptions.ret x
+>   xesp : SeqDecProbsCoreAssumptions.Elem x sp
+>   xesp = SeqDecProbsCoreAssumptions.containerMonadSpec1
+>   s3 : SeqDecProbsCoreAssumptions.NonEmpty sp
+>   s3 = SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} x sp xesp
+>   s4 : step t x Ahead = SeqDecProbsCoreAssumptions.ret x -- sp
+>   s4 = Refl
+>   s5 : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
+>   s5 = ?lika -- replace {P = \ X => SeqDecProbsCoreAssumptions.NonEmpty X} (sym s4) s3
 
 
 ** Reward function:

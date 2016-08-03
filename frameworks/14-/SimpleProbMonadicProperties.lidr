@@ -21,59 +21,96 @@
 > import ListProperties
 > import Unique
 > import Finite
+> import Sigma
 
 > %default total
-> %access public export
+> -- %access public export
+> %access export
 > %auto_implicits off
 
 
-* |SimpleProb| is a functor:
+* Properties of |normalize|, |support| and |ret|:
 
 > |||
-> fmap : {A, B : Type} -> (A -> B) -> SimpleProb A -> SimpleProb B
-> fmap f (MkSimpleProb aps p) = 
->   MkSimpleProb (map (cross f id) aps) s4 where
->     s1 : map snd (map (cross f id) aps) = map snd aps
->     s1 = mapSndMapCrossAnyIdLemma f aps
->     s2 : sumMapSnd (map (cross f id) aps) = sumMapSnd aps
->     s2 = cong s1
->     s3 : sumMapSnd aps = 1
->     s3 = p
->     s4 : sumMapSnd (map (cross f id) aps) = 1
->     s4 = trans s2 s3
-
-
-* |SimpleProb| is a monad:
+> normalizeRetLemma : {A : Type} -> (a : A) -> normalize (ret a) = ret a
+> normalizeRetLemma a = ( normalize (ret a) )
+>                     ={ Refl }=
+>                       ( normalize (MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1)) )
+>                     ={ Refl }=
+>                       ( MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1) ) 
+>                     ={ Refl }=  
+>                       ( ret a )
+>                     QED
+> {-
+> normalizeRetLemma a = s9 where
+>   s1 : normalize (ret a) = normalize (MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1))
+>   s1 = Refl
+>   s2 : normalize (MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1))
+>        =
+>        MkSimpleProb (discardBySndZero ((a, 1) :: Nil)) 
+>                     (trans (discardBySndZeroLemma ((a, 1) :: Nil)) (sumMapSndSingletonLemma a 1))
+>   s2 = Refl                  
+>   s3 : discardBySndZero ((a, 1) :: Nil) = (a, 1) :: Nil
+>   s3 = discardBySndZeroLemma1 a 1 ?oneNotZero
+>   s4 : discardBySndZeroLemma ((a, 1) :: Nil) = Refl {} {} {}
+>   s4 = ?lika
+>   s5 : MkSimpleProb (discardBySndZero ((a, 1) :: Nil)) 
+>                     (trans (discardBySndZeroLemma ((a, 1) :: Nil)) (sumMapSndSingletonLemma a 1))
+>        =
+>        MkSimpleProb ((a, 1) :: Nil) (trans Refl (sumMapSndSingletonLemma a 1))
+>   s5 = ?leka
+>   s6 : MkSimpleProb ((a, 1) :: Nil) (trans Refl (sumMapSndSingletonLemma a 1))
+>        = 
+>        MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1)
+>   s6 = Refl
+>   s7 : MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1) = ret a
+>   s7 = Refl
+>   s9 : normalize (ret a) = ret a
+>   s9 = trans s1 (trans s2 (trans s5 (trans s6 s7)))
+> -}
 
 > |||
-> ret : {A : Type} -> A -> SimpleProb A
-> ret {A} a = MkSimpleProb aps s1 where
->   aps : List (A, NonNegRational)
->   aps = [(a, 1)]
->   s1  : sumMapSnd aps = 1
->   s1  = sumSingletonLemma 1
-
-> |||
-> bind : {A, B : Type} -> SimpleProb A -> (A -> SimpleProb B) -> SimpleProb B
-> bind {A} {B} (MkSimpleProb aps prf) f = MkSimpleProb bps' prf' where
->   f' : A -> List (B, NonNegRational)
->   f' a = toList (f a)
->   prfs' : (a : A) -> sumMapSnd (f' a) = 1
->   prfs' a = toListLemma (f a)
->   bps' : List (B, NonNegRational)
->   bps' = mvMult aps f'  
->   prf' : sumMapSnd bps' = 1
->   prf' = ( sumMapSnd bps' )
->        ={ Refl }=
->          ( sumMapSnd (mvMult aps f') )
->        ={ mvMultLemma aps f' prfs' }=
->          ( sumMapSnd aps )
->        ={ prf }=
->          ( 1 )
->        QED  
+> supportRetLemma : {A : Type} -> 
+>                   (a : A) -> support (SimpleProbMonadicOperations.ret a) = ListOperations.ret a
+> supportRetLemma a = ( support (SimpleProbMonadicOperations.ret a) )
+>                   ={ Refl }=
+>                     ( map fst (toList (normalize (SimpleProbMonadicOperations.ret a))) )
+>                   ={ cong {f = \ X => map Prelude.Basics.fst (toList X)} (normalizeRetLemma a) }=
+>                     ( map fst (toList (SimpleProbMonadicOperations.ret a)) )
+>                   ={ Refl }=
+>                     ( map fst (toList (MkSimpleProb ((a, 1) :: Nil) (sumMapSndSingletonLemma a 1))) )
+>                   ={ Refl }=
+>                     ( map fst ((a, 1) :: Nil) )  
+>                   ={ Refl }=
+>                     ( a :: Nil )  
+>                   ={ Refl }=
+>                     ( ListOperations.ret a )
+>                   QED 
 
 
 * |SimpleProb| is a container monad:
+
+> |||
+> elemNonEmptySpec0 : {A : Type} ->
+>                     (a : A) -> (sp : SimpleProb A) ->
+>                     a `Elem` sp -> SimpleProbMonadicOperations.NonEmpty sp
+> elemNonEmptySpec0 {A} a sp aesp = ListProperties.elemNonEmptySpec0 a (support sp) aesp
+
+> |||
+> elemNonEmptySpec1 : {A : Type} ->
+>                     (sp : SimpleProb A) ->
+>                     SimpleProbMonadicOperations.NonEmpty sp -> Sigma A (\ a => a `Elem` sp)
+> elemNonEmptySpec1 {A} sp nesp = ListProperties.elemNonEmptySpec1 (support sp) nesp
+
+> |||
+> containerMonadSpec1 : {A : Type} -> {a : A} -> a `SimpleProbMonadicOperations.Elem` (ret a)
+> containerMonadSpec1 {A} {a} = s3 where
+>   s1 : a `Data.List.Elem` (ListOperations.ret a)
+>   s1 = ListProperties.containerMonadSpec1
+>   s2 : a `Data.List.Elem` (support (SimpleProbMonadicOperations.ret a))
+>   s2 = replace {P = \ X => a `Data.List.Elem` X} (sym (supportRetLemma a)) s1
+>   s3 : a `SimpleProbMonadicOperations.Elem` (ret a)
+>   s3 = s2
 
 > |||
 > containerMonadSpec3 : {A : Type} -> {P : A -> Type} ->
