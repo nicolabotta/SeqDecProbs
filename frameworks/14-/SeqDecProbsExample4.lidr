@@ -31,8 +31,6 @@
 > import Sigma
 > import SigmaOperations
 > import SigmaProperties
-> import NatOperationsProperties
-> -- import NatLTEProperties
 > import NatLTProperties
 > import NonNegRational
 > import NonNegRationalBasicOperations
@@ -56,7 +54,7 @@
 > %auto_implicits off
 
 
-> %logging 5
+> -- %logging 5
 
 We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 
