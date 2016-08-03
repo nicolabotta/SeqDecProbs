@@ -26,6 +26,9 @@ example2tab: SeqDecProbsExample2tab.lidr
 example3: SeqDecProbsExample3.lidr
 	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample3.lidr -o example3
 
+example4: SeqDecProbsExample4.lidr
+	${IDRIS} ${IDRIS_COMPILE_FLAGS} SeqDecProbsExample4.lidr -o example4
+
 testTypeCheckingSpeed: TestTypeCheckingSpeed.lidr
 	${IDRIS} ${IDRIS_CHECK_FLAGS} TestTypeCheckingSpeed.lidr
 

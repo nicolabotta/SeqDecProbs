@@ -101,8 +101,7 @@ We reimplement "SeqDecProbsExample1.lidr", this time with |M = List|.
 >   [MkSigma maxColumn (ltIdS maxColumn)]
 > SeqDecProbsCoreAssumptions.step t (MkSigma (S n) prf) Left =
 >   [MkSigma n (ltLemma1 n nColumns prf)]
-> SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Ahead =
->   [MkSigma n prf]
+> SeqDecProbsCoreAssumptions.step t x Ahead = [x]
 > SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Right with (decLT n maxColumn)
 >   | (Yes p)     = [MkSigma (S n) (LTESucc p)]
 >   | (No contra) = [MkSigma  Z    (LTESucc LTEZero)]
@@ -110,8 +109,8 @@ We reimplement "SeqDecProbsExample1.lidr", this time with |M = List|.
 > stepNonEmptyLemma : {t : Nat} -> 
 >                     (x : State t) -> 
 >                     SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
-> stepNonEmptyLemma {t} (MkSigma n prf) = 
->   SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} (MkSigma n prf) [(MkSigma n prf)] Here
+> stepNonEmptyLemma {t} x = 
+>   SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} x [x] Here
 
 
 ** Reward function:
@@ -154,7 +153,7 @@ We reimplement "SeqDecProbsExample1.lidr", this time with |M = List|.
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
 > SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x _ = MkSigma Ahead (ne, av) where
 >   ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
->   ne = stepNonEmptyLemma x
+>   ne = stepNonEmptyLemma {t} x
 >   av : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
 >   av = viableLemma x
 

@@ -75,6 +75,11 @@
 > mvMult : {A, A', B : Type} -> (Num B) => List (A, B) -> (A -> List (A', B)) -> List (A', B)
 > mvMult abs f = concat (map (mapIdRightMult . (cross f id)) abs)
 
+> |||
+> sumProds : {B : Type} -> (Num B) => List (B, B) -> B
+> sumProds Nil = 0
+> sumProds ((b,b') :: bbs) = b * b' + sumProds bbs 
+
 
 * Ad-hoc filtering
 

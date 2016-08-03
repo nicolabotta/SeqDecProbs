@@ -23,6 +23,7 @@
 > import SimpleProbBasicProperties
 > import SimpleProbMonadicOperations
 > import SimpleProbMonadicProperties
+> import SimpleProbMeasures
 > import BoundedNat
 > import BoundedNatOperations
 > import BoundedNatProperties
@@ -31,8 +32,13 @@
 > import SigmaOperations
 > import SigmaProperties
 > import NatOperationsProperties
-> import NatLTEProperties
+> -- import NatLTEProperties
 > import NatLTProperties
+> import NonNegRational
+> import NonNegRationalBasicOperations
+> import NonNegRationalBasicProperties
+> import NonNegRationalPredicates
+> import NonNegRationalLTEProperties
 > import Finite
 > import FiniteOperations
 > import FiniteProperties
@@ -84,6 +90,7 @@ We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 
 > maxColumn : Nat
 > maxColumn = 10
+> %freeze maxColumn
 
 > nColumns : Nat
 > nColumns = S maxColumn
@@ -110,49 +117,40 @@ We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 >   | (Yes p)     = SeqDecProbsCoreAssumptions.ret (MkSigma (S n) (LTESucc p))
 >   | (No contra) = SeqDecProbsCoreAssumptions.ret (MkSigma  Z    (LTESucc LTEZero))
 
-> -- %freeze SeqDecProbsCoreAssumptions.NonEmpty
-> -- %freeze SeqDecProbsCoreAssumptions.elemNonEmptySpec0
-
 > stepNonEmptyLemma : {t : Nat} -> 
 >                     (x : State t) -> 
 >                     SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
-> stepNonEmptyLemma {t} x = s5 where
+> stepNonEmptyLemma {t} x = SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} x sp xesp where
 >   sp : SimpleProb (State (S t))  
->   sp = SeqDecProbsCoreAssumptions.ret x
+>   sp = step t x Ahead
 >   xesp : SeqDecProbsCoreAssumptions.Elem x sp
 >   xesp = SeqDecProbsCoreAssumptions.containerMonadSpec1
->   s3 : SeqDecProbsCoreAssumptions.NonEmpty sp
->   s3 = SeqDecProbsCoreAssumptions.elemNonEmptySpec0 {A = State (S t)} x sp xesp
->   s4 : step t x Ahead = SeqDecProbsCoreAssumptions.ret x -- sp
->   s4 = Refl
->   s5 : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
->   s5 = ?lika -- replace {P = \ X => SeqDecProbsCoreAssumptions.NonEmpty X} (sym s4) s3
 
 
 ** Reward function:
 
-> SeqDecProbsCoreAssumptions.Val = Nat
+> SeqDecProbsCoreAssumptions.Val = NonNegRational
 
 > SeqDecProbsCoreAssumptions.reward t x y (MkSigma c _) =
 >   if c == Z
->   then (S Z)
+>   then (fromInteger 1)
 >   else if (S c) == nColumns
->        then (S (S Z))
->        else Z
+>        then (fromInteger 2)
+>        else (fromInteger 0)
 
-> SeqDecProbsCoreAssumptions.plus = Prelude.Nat.plus
-> SeqDecProbsCoreAssumptions.zero = Z
+> SeqDecProbsCoreAssumptions.plus = NonNegRationalBasicOperations.plus
+> SeqDecProbsCoreAssumptions.zero = fromInteger 0
 
-> SeqDecProbsCoreAssumptions.LTE = Prelude.Nat.LTE
-> SeqDecProbsCoreAssumptions.reflexiveLTE = NatLTEProperties.reflexiveLTE
-> SeqDecProbsCoreAssumptions.transitiveLTE = NatLTEProperties.transitiveLTE
+> SeqDecProbsCoreAssumptions.LTE = NonNegRationalPredicates.LTE
+> SeqDecProbsCoreAssumptions.reflexiveLTE = NonNegRationalLTEProperties.reflexiveLTE
+> SeqDecProbsCoreAssumptions.transitiveLTE = NonNegRationalLTEProperties.transitiveLTE
 
-> SeqDecProbsCoreAssumptions.monotonePlusLTE = NatLTEProperties.monotoneNatPlusLTE
+> SeqDecProbsCoreAssumptions.monotonePlusLTE = NonNegRationalLTEProperties.monotonePlusLTE
 
 ** M is measurable:
 
 > SeqDecProbsCoreAssumptions.meas = average
-> SeqDecProbsCoreAssumptions.measMon = averageMon
+> SeqDecProbsCoreAssumptions.measMon = monotoneAverage
 
 
 
@@ -169,7 +167,7 @@ We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 > -- viableSpec1 : (x : State t) -> Viable (S n) x -> GoodCtrl t x n
 > SeqDecProbsCoreAssumptions.viableSpec1 {t} {n} x _ = MkSigma Ahead (ne, av) where
 >   ne : SeqDecProbsCoreAssumptions.NonEmpty (step t x Ahead)
->   ne = stepNonEmptyLemma x
+>   ne = stepNonEmptyLemma {t} x
 >   av : SeqDecProbsCoreAssumptions.All (Viable {t = S t} n) (step t x Ahead)
 >   av = viableLemma x
 
@@ -178,9 +176,11 @@ We reimplement "SeqDecProbsExample2.lidr", this time with |M = SimpleProb|.
 
 > -- reachableSpec1 : (x : State t) -> Reachable {t' = t} x -> (y : Ctrl t x) -> All (Reachable {t' = S t}) (step t x y)
 > SeqDecProbsCoreAssumptions.reachableSpec1 {t} x r y = all (step t x y) where
->   all : (xs : List (State (S t))) -> SeqDecProbsCoreAssumptions.All (Reachable {t' = S t}) xs
->   all Nil = Nil
->   all (x :: xs) = () :: (all xs)
+>   all : (sp : SimpleProb  (State (S t))) -> SeqDecProbsCoreAssumptions.All (Reachable {t' = S t}) sp
+>   all sp = all' (support sp) where
+>     all' : (xs : List (State (S t))) -> Data.List.Quantifiers.All (Reachable {t' = S t}) xs
+>     all' Nil = Nil
+>     all' (x :: xs) = () :: (all' xs)
 
 
 
@@ -199,9 +199,9 @@ The first condition trivially holds
 
 > totalPreorderLTE : TotalPreorder Val
 > totalPreorderLTE = MkTotalPreorder SeqDecProbsCoreAssumptions.LTE 
->                                    NatLTEProperties.reflexiveLTE 
->                                    NatLTEProperties.transitiveLTE 
->                                    NatLTEProperties.totalLTE
+>                                    NonNegRationalLTEProperties.reflexiveLTE 
+>                                    NonNegRationalLTEProperties.transitiveLTE 
+>                                    NonNegRationalLTEProperties.totalLTE
 
 Finiteness and non-zero cardinality of |GoodCtrl t x n|
 
@@ -219,7 +219,7 @@ follow from finiteness of |All|
 
 > -- finiteAll : {A : Type} -> {P : A -> Type} -> 
 > --             Finite1 P -> (ma : M A) -> Finite (All P ma)
-> SeqDecProbsHelpers.finiteAll = ListProperties.finiteAll
+> SeqDecProbsHelpers.finiteAll = SimpleProbMonadicProperties.finiteAll
 
 , finiteness of |Viable|
 
@@ -232,7 +232,7 @@ follow from finiteness of |All|
 > -- finiteNonEmpty : {t : Nat} -> {n : Nat} -> 
 > --                  (x : State t) -> (y : Ctrl t x) -> 
 > --                  Finite (SeqDecProbsCoreAssumptions.NonEmpty (step t x y))
-> SeqDecProbsHelpers.finiteNonEmpty {t} {n} x y = ListProperties.finiteNonEmpty (step t x y)
+> SeqDecProbsHelpers.finiteNonEmpty {t} {n} x y = SimpleProbMonadicProperties.finiteNonEmpty (step t x y)
 
 and, finally, finiteness of controls
 
