@@ -49,6 +49,10 @@
 > import EffectStdIO
 > import FinOperations
 > import PairsOperations
+> import Fraction
+> import PNat
+> import NatPositive
+> import ListOperations
 
 > %default total
 > %auto_implicits off
@@ -107,11 +111,17 @@ probablility to move "Ahead"!
 
 ** Transition function:
 
+> oo2  : NonNegRational
+> oo2  = fromFraction (1, Element 2 MkPositive)
+
 > SeqDecProbsCoreAssumptions.step t (MkSigma Z prf) Left =
 >   SeqDecProbsCoreAssumptions.ret (MkSigma maxColumn (ltIdS maxColumn))
 > SeqDecProbsCoreAssumptions.step t (MkSigma (S n) prf) Left =
->   SeqDecProbsCoreAssumptions.ret (MkSigma n (ltLemma1 n nColumns prf))
+>   MkSimpleProb [(MkSigma (S n) prf, oo2), 
+>                 (MkSigma n (ltLemma1 n nColumns prf), oo2)] Refl
+
 > SeqDecProbsCoreAssumptions.step t x Ahead = SeqDecProbsCoreAssumptions.ret x
+
 > SeqDecProbsCoreAssumptions.step t (MkSigma n prf) Right with (decLT n maxColumn)
 >   | (Yes p)     = SeqDecProbsCoreAssumptions.ret (MkSigma (S n) (LTESucc p))
 >   | (No contra) = SeqDecProbsCoreAssumptions.ret (MkSigma  Z    (LTESucc LTEZero))
