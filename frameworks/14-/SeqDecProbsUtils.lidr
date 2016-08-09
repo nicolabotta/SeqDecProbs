@@ -8,6 +8,7 @@
 > import Sigma
 > import SigmaOperations
 > import Finite
+> import FunOperations
 
 > %default total
 > %access public export
@@ -115,15 +116,24 @@
 >         show'' {t'} {n' = S m'} acc (xy :: xys)    = 
 >           show'' {t' = S t'} {n' = m'} (acc ++ showStateCtrl xy ++ ", ") xys
 
+> |||
+> valStateCtrlSeq : (t : Nat) -> (n : Nat) -> StateCtrlSeq t n -> Val
+> valStateCtrlSeq t       Z   (Nil x) = 
+>   zero
+> valStateCtrlSeq t    (S Z)  ((MkSigma x y) :: (Nil x')) = 
+>   reward t x y x'
+> valStateCtrlSeq t (S (S m)) ((MkSigma x y) :: (MkSigma x' y') :: xys) = 
+>   reward t x y x' `plus` valStateCtrlSeq (S t) (S m) ((MkSigma x' y') :: xys)
+
 
 * Trajectories
 
 > |||
-> stateCtrlTrj : {t : Nat} -> {n : Nat} -> 
->                (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
->                (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
-> stateCtrlTrj {t} {n = Z}   x r v Nil = ret (Nil x)
-> stateCtrlTrj {t} {n = S m} x r v (p :: ps') =
+> possibleStateCtrlSeqs : {t : Nat} -> {n : Nat} -> 
+>                         (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
+>                         (ps : PolicySeq t n) -> M (StateCtrlSeq t n)
+> possibleStateCtrlSeqs {t} {n = Z}   x r v Nil = ret (Nil x)
+> possibleStateCtrlSeqs {t} {n = S m} x r v (p :: ps') =
 >   fmap g (bind (tagElem mx') f) where
 >     y : Ctrl t x
 >     y = ctrl (p x r v)
@@ -134,12 +144,35 @@
 >     g : StateCtrlSeq (S t) m -> StateCtrlSeq t (S m)
 >     g = ((MkSigma x y) ::)
 >     f : Sigma (State (S t)) (\ x' => x' `Elem` mx') -> M (StateCtrlSeq (S t) m)
->     f (MkSigma x' x'estep) = stateCtrlTrj {n = m} x' r' v' ps' where
+>     f (MkSigma x' x'estep) = possibleStateCtrlSeqs {n = m} x' r' v' ps' where
 >       ar : All Reachable (step t x y)
 >       ar = reachableSpec1 x r y
 >       r' : Reachable x'
 >       r' = containerMonadSpec3 x' (step t x y) ar x'estep
 >       v' : Viable m x'
 >       v' = containerMonadSpec3 x' (step t x y) av x'estep
+
+> |||
+> possibleStateCtrlSeqsRewards : {t : Nat} -> {n : Nat} -> 
+>                                (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
+>                                (ps : PolicySeq t n) -> M (StateCtrlSeq t n, Val)
+> possibleStateCtrlSeqsRewards {t} {n} x r v ps = 
+>   fmap (pair (id, valStateCtrlSeq t n)) (possibleStateCtrlSeqs {t} {n} x r v ps)
+
+> |||
+> possibleStateCtrlSeqsRewards' : {t : Nat} -> {n : Nat} -> 
+>                                 M (StateCtrlSeq t n) -> M (StateCtrlSeq t n, Val)
+> possibleStateCtrlSeqsRewards' {t} {n} xys = fmap (pair (id, valStateCtrlSeq t n)) xys
+
+> |||
+> possibleRewards : {t : Nat} -> {n : Nat} -> 
+>                   (x : State t) -> (r : Reachable x) -> (v : Viable n x) ->
+>                   (ps : PolicySeq t n) -> M Val
+> possibleRewards {t} {n} x r v ps = 
+>   fmap (valStateCtrlSeq t n) (possibleStateCtrlSeqs {t} {n} x r v ps)
+
+> |||
+> possibleRewards' : {t : Nat} -> {n : Nat} -> M (StateCtrlSeq t n) -> M Val
+> possibleRewards' {t} {n} xys = fmap (valStateCtrlSeq t n) xys
 
 

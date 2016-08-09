@@ -114,6 +114,13 @@
 >       s8 = sumProbsLemma sp
 
 
+* |SimpleProb|s are never empty
+
+> postulate nonEmptyLemma : {A : Type} -> (sp : SimpleProb A) -> NonEmpty sp
+> -- nonEmptyLemma (MkSimpleProb Nil s1p) = absurd s1p
+> -- nonEmptyLemma (MkSimpleProb (ap :: aps) s1p) =  
+
+
 > {-
 
 > ---}

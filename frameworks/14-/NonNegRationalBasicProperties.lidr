@@ -113,7 +113,9 @@
 
 > ||| NonNegRational is an implementation of Show
 > implementation Show NonNegRational where
->   show q = show (num q) ++ "/" ++ show (den q)
+>   show q = if (den q == 1) 
+>            then show (num q)
+>            else show (num q) ++ "/" ++ show (den q)
 
 > ||| NonNegRational is an implementation of Num
 > implementation Num NonNegRational where

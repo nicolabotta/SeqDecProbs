@@ -50,9 +50,11 @@
 > import FinOperations
 > import PairsOperations
 > import Fraction
+> import FractionNormal
 > import PNat
 > import NatPositive
 > import ListOperations
+> import FunOperations
 
 > %default total
 > %auto_implicits off
@@ -280,6 +282,13 @@ With these results in place, we have
 > -- showControl : {t : Nat} -> {x : State t} -> Ctrl t x -> String
 > SeqDecProbsUtils.showCtrl = show
 
+> %freeze possibleStateCtrlSeqs
+> %freeze possibleRewards'
+> %freeze possibleStateCtrlSeqsRewards'
+> %freeze meas
+> %freeze argmaxMax
+> %freeze argminMin
+
 > computation : { [STDIO] } Eff ()
 > computation =
 >   do putStr ("enter number of steps:\n")
@@ -290,8 +299,37 @@ With these results in place, we have
 >        (Yes v0) => do putStrLn ("computing optimal policies ...")
 >                       ps   <- pure (bi Z nSteps)
 >                       putStrLn ("computing optimal controls ...")
->                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       mxys <- pure (possibleStateCtrlSeqs x0 () v0 ps)
+>                       putStrLn "possible state-control sequences:"
+>                       putStr "  "
 >                       putStrLn (show mxys)
+>                       mvs <- pure (possibleRewards' mxys)
+>                       putStrLn "possible rewards:"
+>                       putStr "  "
+>                       putStrLn (show mvs)
+>                       mxyvs <- pure (possibleStateCtrlSeqsRewards' mxys)
+>                       putStrLn "possible state-control sequences and rewards:"
+>                       putStr "  "
+>                       putStrLn (show mxyvs)
+>                       putStrLn "measure of possible rewards: "
+>                       putStr "  "
+>                       putStrLn (show (meas mvs))
+>                       argmaxmax <- pure (argmaxMax totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
+>                       putStrLn "best possible state-control sequence: "
+>                       putStr "  "
+>                       putStrLn (show (fst argmaxmax))
+>                       putStrLn "best possible reward: "
+>                       putStr "  "
+>                       putStrLn (show (snd argmaxmax))
+>                       {-
+>                       argminmin <- pure (argminMin totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
+>                       putStrLn "worst possible state-control sequence: "
+>                       putStr "  "
+>                       putStrLn (show (fst argminmin))
+>                       putStrLn "worst possible reward: "
+>                       putStr "  "
+>                       putStrLn (show (snd argminmin))
+>                       ---}
 >                       putStrLn ("done!")                       
 >        (No _)   => putStrLn ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps")
 
