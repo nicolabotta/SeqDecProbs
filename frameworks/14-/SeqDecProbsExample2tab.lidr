@@ -272,7 +272,7 @@ With these results in place, we have
 >        (Yes v0) => do putStrLn ("computing optimal policies ...")
 >                       ps   <- pure (ttrbi Z nSteps)
 >                       putStrLn ("computing optimal controls ...")
->                       mxys <- pure (stateCtrlTrj x0 () v0 ps)
+>                       mxys <- pure (possibleStateCtrlSeqs x0 () v0 ps)
 >                       putStrLn (show mxys)
 >                       putStrLn ("done!")                       
 >        (No _)   => putStrLn ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps")
