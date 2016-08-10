@@ -286,6 +286,9 @@ With these results in place, we have
 > %freeze possibleRewards'
 > %freeze possibleStateCtrlSeqsRewards'
 > %freeze meas
+> %freeze support
+> %freeze nonEmptyLemma
+> %freeze totalPreorderLTE
 > %freeze argmaxMax
 > %freeze argminMin
 
@@ -314,22 +317,20 @@ With these results in place, we have
 >                       putStrLn "measure of possible rewards: "
 >                       putStr "  "
 >                       putStrLn (show (meas mvs))
->                       argmaxmax <- pure (argmaxMax totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
->                       putStrLn "best possible state-control sequence: "
->                       putStr "  "
->                       putStrLn (show (fst argmaxmax))
->                       putStrLn "best possible reward: "
->                       putStr "  "
->                       putStrLn (show (snd argmaxmax))
->                       {-
->                       argminmin <- pure (argminMin totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
->                       putStrLn "worst possible state-control sequence: "
->                       putStr "  "
->                       putStrLn (show (fst argminmin))
->                       putStrLn "worst possible reward: "
->                       putStr "  "
->                       putStrLn (show (snd argminmin))
->                       ---}
+>                       -- argmaxmax <- pure (argmaxMax {A = StateCtrlSeq Z nSteps} {B = Val} totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
+>                       -- putStrLn "best possible state-control sequence: "
+>                       -- putStr "  "
+>                       -- putStrLn (show (fst argmaxmax))
+>                       -- putStrLn "best possible reward: "
+>                       -- putStr "  "
+>                       -- putStrLn (show (snd argmaxmax))
+>                       -- -- argminmin <- pure (argminMin totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
+>                       -- -- putStrLn "worst possible state-control sequence: "
+>                       -- -- putStr "  "
+>                       -- -- putStrLn (show (fst argminmin))
+>                       -- -- putStrLn "worst possible reward: "
+>                       -- -- putStr "  "
+>                       -- -- putStrLn (show (snd argminmin))
 >                       putStrLn ("done!")                       
 >        (No _)   => putStrLn ("initial column non viable for " ++ cast {from = Int} (cast nSteps) ++ " steps")
 

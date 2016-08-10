@@ -1,11 +1,9 @@
 > module NonNegRationalBasicProperties
 
-
 > import Syntax.PreorderReasoning
 
 > import NonNegRational
 > import NonNegRationalBasicOperations
-> import NonNegRationalPredicates
 > import Fraction
 > import FractionBasicOperations
 > import FractionPredicates
@@ -18,11 +16,10 @@
 > import Unique
 > import UniqueProperties
 > import NatPositive
+> import NatCoprime -- used by the implementation of |not1Eq0|!
+> import NatGCDAlgorithm -- used by the implementation of |not1Eq0|!
 > import NumRefinements
 > import PairsOperations
-> import NatLTEProperties
-> import NatOperationsProperties
-> import ListProperties 
 > import PNat
 > import PNatOperations
 > import PNatProperties 
@@ -134,6 +131,52 @@
 >   (==) x y with (decEq x y)
 >     | (Yes _) = True
 >     | (No _)  = False
+
+
+* One is not zero
+
+> num0Eq0 : NonNegRationalBasicOperations.num (fromInteger 0) = 0
+> num0Eq0 = ( NonNegRationalBasicOperations.num (fromInteger 0) )
+>         ={ Refl }=
+>           ( FractionBasicOperations.num (toFraction (fromInteger 0)) )
+>         ={ Refl }=
+>           ( fst (toFraction (fromInteger 0)) )
+>         ={ Refl }=
+>           ( fst (toFraction (fromNat (fromIntegerNat 0))) )
+>         ={ cong (toFractionFromNatLemma (fromIntegerNat 0)) }=
+>           ( fst (fromNat (fromIntegerNat 0)) )
+>         ={ Refl }=
+>           ( fromIntegerNat 0 )    
+>         ={ Refl }=
+>           ( 0 )
+>         QED
+
+> num1Eq1 : NonNegRationalBasicOperations.num (fromInteger 1) = 1
+> num1Eq1 = ( NonNegRationalBasicOperations.num (fromInteger 1) )
+>         ={ Refl }=
+>           ( FractionBasicOperations.num (toFraction (fromInteger 1)) )
+>         ={ Refl }=
+>           ( fst (toFraction (fromInteger 1)) )
+>         ={ Refl }=
+>           ( fst (toFraction (fromNat (fromIntegerNat 1))) )
+>         ={ cong (toFractionFromNatLemma (fromIntegerNat 1)) }=
+>           ( fst (fromNat (fromIntegerNat 1)) )
+>         ={ Refl }=
+>           ( fromIntegerNat 1 )    
+>         ={ Refl }=
+>           ( 1 )
+>         QED
+
+> not1Eq0 : Not ((=) {A = NonNegRational} {B = NonNegRational} (fromInteger 1) (fromInteger 0))
+> not1Eq0 prf = SIsNotZ s3 where
+>   s1 : (=) {A = Nat} {B = Nat} 
+>        (NonNegRationalBasicOperations.num (fromInteger 1)) 
+>        (NonNegRationalBasicOperations.num (fromInteger 0))
+>   s1 = cong {f = NonNegRationalBasicOperations.num} prf
+>   s2 : (=) {A = Nat} {B = Nat} 1 (NonNegRationalBasicOperations.num (fromInteger 0))
+>   s2 = replace {P = \ X => (=) {A = Nat} {B = Nat} X (NonNegRationalBasicOperations.num (fromInteger 0))} num1Eq1 s1
+>   s3 : (=) {A = Nat} {B = Nat} 1 0
+>   s3 = replace {P = \ X => (=) {A = Nat} {B = Nat} 1 X} num0Eq0 s2
 
 
 * Further properties of toFraction, fromInteger, etc.:

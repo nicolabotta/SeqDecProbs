@@ -23,6 +23,8 @@
 > import Finite
 > import Sigma
 
+> import NatCoprime
+
 > %default total
 > -- %access public export
 > %access export
@@ -135,6 +137,35 @@
 > ||| NotEmpty is finite
 > finiteNonEmpty : {A : Type} -> (sp : SimpleProb A) -> Finite (SimpleProbMonadicOperations.NonEmpty sp)
 > finiteNonEmpty sp = ListProperties.finiteNonEmpty (support sp)
+
+
+* |SimpleProb|s are never empty
+
+> |||
+> nonEmptyLemma1 : {A : Type} -> (sp : SimpleProb A) -> ListOperations.NonEmpty (toList sp)
+> nonEmptyLemma1 {A} (MkSimpleProb Nil s1p) = void s9 where
+>   s1 : sumMapSnd {A = A} {B = NonNegRational} Nil = 0
+>   s1 = sumMapSndNilLemma {A = A} {B = NonNegRational}
+>   s2 : sumMapSnd {A = A} {B = NonNegRational} Nil = 1
+>   s2 = s1p
+>   s3 : (=) {A = NonNegRational} {B = NonNegRational} 1 0
+>   s3 = trans (sym s2) s1
+>   s9 : Void
+>   s9 = not1Eq0 s3
+> nonEmptyLemma1 (MkSimpleProb (ap :: aps) s1p) = () 
+
+> |||
+> nonEmptyLemma : {A : Type} -> (sp : SimpleProb A) -> NonEmpty sp
+> nonEmptyLemma {A} sp = s4 where
+>   s1 : ListOperations.NonEmpty (toList (normalize sp))
+>   s1 = nonEmptyLemma1 (normalize sp)
+>   s2 : ListOperations.NonEmpty (map fst (toList (normalize sp)))
+>   s2 = mapPreservesNonEmpty fst (toList (normalize sp)) s1
+>   s3 : ListOperations.NonEmpty (support sp) 
+>   s3 = s2
+>   s4 : NonEmpty sp
+>   s4 = s3
+
 
 
 > {-
