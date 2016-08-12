@@ -9,8 +9,10 @@ http://www.idris-lang.org/
 
 An example is
 
-  make example5
-  printf "3\n1\n" | ./example5
+```shell
+make example5
+printf "3\n1\n" | ./example5
+```
 
 Note that there are a few pending
 [Idris issue reports](https://github.com/idris-lang/Idris-dev/issues)
