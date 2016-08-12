@@ -5,6 +5,20 @@ Nicola Botta, Patrik Jansson, Cezar Ionescu
 
 http://www.idris-lang.org/
 
+2016-08-12: The code is currently working with idris version 0.12.2
+
+An example is
+
+  make example5
+  printf "3\n1\n" | ./example5
+
+Note that there are a few pending
+[Idris issue reports](https://github.com/idris-lang/Idris-dev/issues)
+([#3324](https://github.com/idris-lang/Idris-dev/issues/3324),
+[#3326](https://github.com/idris-lang/Idris-dev/issues/3326), ...) for
+idris hindering progress on some parts so the code will most likely
+move onwards to a new idris snapshot when these issues are fixed.
+
 2015-03-27: Paper submitted to
 * Journal:  [Mathematical Social Sciences](http://www.journals.elsevier.com/mathematical-social-sciences/) (a [RoMEO Green](http://www.sherpa.ac.uk/romeo/search.php?issn=0165-4896) journal)
 * Corresponding Author:  Nicola Botta
