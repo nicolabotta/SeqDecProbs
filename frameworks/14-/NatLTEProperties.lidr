@@ -21,7 +21,7 @@ LTE is decidable:
 
 > ||| LTE is decidable
 > decLTE : (m : Nat) -> (n : Nat) -> Dec (LTE m n)
-> --decLTE = lte
+> -- decLTE = lte
 > --{-
 > decLTE Z _     = Yes LTEZero
 > decLTE (S m) Z = No succNotLTEzero
