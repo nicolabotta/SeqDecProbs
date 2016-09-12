@@ -24,7 +24,9 @@ Some related Agda code is available in
 
 Title: Sequential decision problems, dependently-typed solutions.
 
-Authors: Nicola Botta, Cezar Ionescu, and Edwin Brady.
+Authors: [Nicola Botta](https://www.pik-potsdam.de/members/botta/publications), Cezar Ionescu, and Edwin Brady.
+
+Paper: http://ceur-ws.org/Vol-1010/paper-06.pdf
 
 Published in Proceedings of the Conferences on Intelligent Computer
   Mathematics (CICM 2013), "Programming Languages for Mechanized Mathematics
@@ -39,6 +41,8 @@ Title: Sequential decision problems, dependent types and generic solutions
 * 2015-07: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2015_preprint.pdf).
 * 2015-12: Received 2nd round of referee reports
 * 2016-02: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2016_preprint.pdf).
+* 2016-07: Received 3rd round of referee reports ("Accept with minor revision")
+* 2016-08: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2016-08_preprint.pdf).
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edwin Brady
 
@@ -48,6 +52,7 @@ Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 
 * 2016-01-06: Submitted to the Journal of Functional Programming (JFP) Special issue on Dependently Typed Programming. (JFP is a [RoMEO Green journal](http://www.sherpa.ac.uk/romeo/search.php?issn=0956-7968).)
 * [Full text pre-print available](http://www.cse.chalmers.se/~patrikj/papers/CompTheoryPolicyAdviceAvoidability_JFP_2016_preprint.pdf)
+* 2016-07: Review verdict: "Reject and resubmit"
 
 The work was partially supported by the
 [GRACeFUL project](https://www.graceful-project.eu/)
