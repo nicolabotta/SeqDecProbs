@@ -1,0 +1,70 @@
+package issue3405
+
+-- opts = "+RTS -K64000000 -RTS"
+opts = "-p contrib"
+-- opts = "-V"
+
+modules = PairProperties
+        , NumRefinements
+        , Sigma
+        , PairsOperations
+        , Finite
+        , UnitProperties
+        , VoidProperties
+        , Basics
+        , FinOperations
+        , FunOperations
+        , FunProperties
+        , FinProperties
+        , IsomorphismOperations
+        , FiniteOperations
+        , Unique
+        , Preorder
+        , TotalPreorder
+        , TotalPreorderOperations
+        , ListOperations
+        , ListProperties
+        , IsomorphismProperties
+        , NatLTEProperties
+        , NatBasicProperties
+        , NatLTProperties
+        , Decidable
+        , VectOperations
+        , ExistsOperations
+        , SigmaOperations
+        , VectProperties
+        , FiniteProperties
+        , SubsetOperations
+        , SubsetProperties
+        , NatPositive
+        , PNat
+        , NatPredicates
+        , NatOperations
+        , NatOperationsProperties
+        , NatDivisor
+        , NatDivisorOperations
+        , NatDivisorProperties
+        , NatGCD
+        , NatGCDEuclid
+        , EqualityProperties
+        , NatGCDOperations
+        , NatGCDProperties
+        , NatGCDAlgorithm
+        , NatCoprime
+        , PNatOperations
+        , Fraction
+        , FractionBasicOperations
+        , FractionNormal
+        , PNatProperties
+        , UniqueProperties
+        , NatCoprimeProperties
+        , FractionBasicProperties
+        , FractionPredicates
+        , FractionEqProperties
+        , FractionLTEProperties
+        , FractionNormalize
+        , FractionNormalizeProperties
+        , NonNegRational
+        , NonNegRationalBasicOperations
+        , NonNegRationalBasicProperties
+        , Issue3405

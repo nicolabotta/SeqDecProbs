@@ -317,10 +317,10 @@ With these results in place, we have
 >                       putStrLn "measure of possible rewards: "
 >                       putStr "  "
 >                       putStrLn (show (meas mvs))
->                       -- argmaxmax <- pure (argmaxMax {A = StateCtrlSeq Z nSteps} {B = Val} totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
->                       -- putStrLn "best possible state-control sequence: "
->                       -- putStr "  "
->                       -- putStrLn (show (fst argmaxmax))
+>                       argmaxmax <- pure (argmaxMax {A = StateCtrlSeq Z nSteps} {B = Val} totalPreorderLTE (support mxyvs) (nonEmptyLemma mxyvs))
+>                       putStrLn "best possible state-control sequence: "
+>                       putStr "  "
+>                       putStrLn (show (fst argmaxmax))
 >                       -- putStrLn "best possible reward: "
 >                       -- putStr "  "
 >                       -- putStrLn (show (snd argmaxmax))
