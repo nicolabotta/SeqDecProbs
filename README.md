@@ -32,7 +32,7 @@ Published in Proceedings of the Conferences on Intelligent Computer
   Mathematics (CICM 2013), "Programming Languages for Mechanized Mathematics
   Systems Workshop (PLMMS)", volume 1010 of CEUR Workshop Proceedings, 2013.
 
-### 2014: SDPs, dependent types and generic solutions (in submission)
+### 2014-2016: SDPs, dependent types and generic solutions (Accepted for LMCS 2016-10)
 
 Title: Sequential decision problems, dependent types and generic solutions
 
@@ -47,7 +47,7 @@ Title: Sequential decision problems, dependent types and generic solutions
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edwin Brady
 
-### 2015: Contributions to a computational theory of policy advice and avoidability
+### 2015-2016: Contributions to a computational theory of policy advice and avoidability
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 
