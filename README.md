@@ -44,6 +44,7 @@ Title: Sequential decision problems, dependent types and generic solutions
 * 2016-07: Received 3rd round of referee reports ("Accept with minor revision")
 * 2016-08: [Resubmitted](http://www.cse.chalmers.se/~patrikj/papers/SeqDecProbDepType_LMCS_2016-08_preprint.pdf).
 * 2016-10: Accepted for publication in LICS (as is). Available at [arXiv](https://arxiv.org/abs/1610.07145).
+* 2017-03: Finally appeared in [LMCS proper](https://lmcs.episciences.org/3202) under DOI = 10.23638/LMCS-13(1:7)2017,
 
 Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu, David R. Christiansen, Edwin Brady
 
@@ -56,6 +57,7 @@ Authors: Nicola Botta, Patrik Jansson, Cezar Ionescu
 * 2016-07: Review verdict: "Reject and resubmit"
 * 2016-11-11: Re-submitted to the Journal of Functional Programming (JFP)
     * [Full text pre-print available](http://www.cse.chalmers.se/~patrikj/papers/CompTheoryPolicyAdviceAvoidability_JFP_2016-11_preprint.pdf)
+* 2017-03: Review: "resubmit with revisions"
 
 The work was partially supported by the
 [GRACeFUL project](https://www.graceful-project.eu/)
