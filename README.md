@@ -4,6 +4,12 @@ This repository contains Idris code supporting the computation of
 Sequential Decision Problems (SDPs). The ongoing research is also
 documented in some research papers (see below).
 
+2016-08-18: **Note** The development has moved to a new gitlab repo at PIK:
+
+  https://gitlab.pik-potsdam.de/botta/IdrisLibs
+
+----
+
 Some related Agda code is available in
 [patrikja/SeqDecProb_Agda](https://github.com/patrikja/SeqDecProb_Agda).
 
